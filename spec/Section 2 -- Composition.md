@@ -1,10 +1,14 @@
 # Composition
 
-The GraphQL Fusion composition describes the process ...
+The composition of subgraphs describes the process of merging multiple subgraph schemas into a
+single GraphQL schema that is annotated with GraphQL Fusion execution directives.
+This single GraphQL schema is the output of the Schema Composition and represents the
+Gateway Configuration. The schema composition process is divided into four algorithms,
+`Prune`, `Validate`, `Compose`, and `Finalize` that are run in order.
 
 ## Directives
 
-Composition directives offer instructions for the schema composition process, detailing type system member semantics and specifying type transformations.
+Composition directives offer instructions for the schema composition process, detailing type system member semantics and specifying type transformations. In many cases subgraph schemas can be composed without any directives.
 
 ### @is
 
@@ -17,7 +21,7 @@ directive @is(
 
 The `@is` directive is utilized to establish semantic equivalence between disparate type system members across distinct subgraphs, which the schema composition uses to connect types.
 
-In the following example, the directive is used to signal that the `id` argument and the field `id` on the return type `Person` are semantically the same. This information is used to infer an entity resolver for `Person` from the field.
+In the following example, the directive specifies that the `id` argument on the field `Query.personById` and the field `Person.id` on the return type of the field are semantically the same. This information is used to infer an entity resolver for `Person` from the field `Query.personById`.
 
 ```graphql example
 extend type Query {
@@ -25,7 +29,7 @@ extend type Query {
 }
 ```
 
-The `@is` directive can also refer to nested fields relative to `Person` and is not limited to a single argument.
+The `@is` directive also allows to refer to nested fields relative to `Person`.
 
 ```graphql example
 extend type Query {
@@ -33,7 +37,18 @@ extend type Query {
 }
 ```
 
-The directive can also establish semantic equivalence between two output fields. In this example, the field `productSKU` is semantically equivalent to the field `sku` on `Product`, allowing the schema composition to infer the connection of the `Product` with the `Review` type.
+The `@is` directive not limited to a single argument.
+
+```graphql example
+extend type Query {
+  personByAddressId(
+    id: ID! @is(field: "address { id }")
+    kind: PersonKind @is(field: "kind")
+  ): Person
+}
+```
+
+The directive can also establish semantic equivalence between two output fields. In this example, the field `productSKU` is semantically equivalent to the field `Product.sku`, allowing the schema composition to infer the connection of the `Product` with the `Review` type.
 
 ```graphql example
 extend type Review {
@@ -55,7 +70,7 @@ extend type Review {
 
 **Arguments:**
 
-- `field`: Represents a GraphQL field selection syntax that refers to fields relative to the current type.
+- `field`: Represents a GraphQL field selection syntax that refers to field relative to the current type; or, when used on arguments it refers to a field relative to the return type.
 - `coordinate`: Represents a schema coordinate that refers to a type system member.
 
 ### @require
@@ -66,7 +81,7 @@ directive @require(
 ) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 ```
 
-The `@require` directive is used to express argument value requirements with other subgraphs. Arguments annotated with the `@require` directive are removed from the public exposed schema and will be resolved by variables.
+The `@require` directive is used to express data requirements with other subgraphs. Arguments annotated with the `@require` directive are removed from the public exposed schema and the value for these will be resolved by the executor.
 
 ```graphql example
 type Product {
@@ -97,7 +112,7 @@ type Product {
 directive @resolve(select: Selection, from: Name) repeatable on FIELD_DEFINITION
 ```
 
-The `@resolve` directive allows to explicitly define a resolver to fetch data from a subgraph. If the annotated field name and its arguments match a query field on any subgraph, the schema composition will infer the resolver, and it is not necessary to specify the `select` argument.
+The `@resolve` directive explicitly defines a resolver to fetch data from a subgraph. If the annotated field name and its arguments match a query field on any subgraph, the schema composition will infer the resolver, and it is not necessary to specify the `select` argument.
 
 ```graphql example
 extend type Product {
@@ -105,7 +120,7 @@ extend type Product {
 }
 ```
 
-This is also true if arguments can be inferred from the current `Product` type.
+This is also true if arguments can be inferred from the current type, in this case `Product`.
 
 ```graphql example
 extend type Product {
@@ -123,7 +138,9 @@ extend type Query {
 }
 ```
 
-The `select` argument of the `@resolve` directives specifies a GraphQL field selection syntax to resolve the data needed for the annotated field. It must be specified if the annotated field name does not match the target root field.
+The `select` argument of the `@resolve` directives specifies a GraphQL field selection syntax
+to resolve the data needed for the annotated field. It must be specified if the annotated 
+field name does not match the target root field.
 
 ```graphql example
 extend type Product {
@@ -160,7 +177,8 @@ extend type Product {
 }
 ```
 
-The `from` argument defines the subgraph to which the `@resolve` directive shall be bound. If `from` is not explicitly specified, the schema composition will bind possible resolvers from all subgraphs.
+The `from` argument defines the subgraph to which the `@resolve` directive shall be bound. If `from`
+is not explicitly specified, the schema composition will bind possible resolvers from all subgraphs.
 
 ```graphql example
 extend type Product {
@@ -184,7 +202,8 @@ directive @declare(
 ) repeatable on FIELD_DEFINITION
 ```
 
-`@declare` allows to specify variables selected from the Fusion graph relative to the current type. The declared variables can be used within a `@resolve` directive.
+`@declare` allows to specify variables selected from the Fusion graph relative to the current type.
+The declared variables can be used within a `@resolve` directive.
 
 ```graphql example
 extend type Product {
@@ -204,7 +223,9 @@ extend type Product {
 }
 ```
 
-The `select` argument of the `@declare` directive is like the `select` argument of the `@resolve` directive GraphQL field syntax and can refer to fields relative to the current type, in this case, the `Product` type.
+The `select` argument of the `@declare` directive is like the `select` argument of the `@resolve`
+directive and consists of GraphQL field syntax that refers refer to a field relative to the
+current type, in this case, the `Product` type.
 
 ```graphql example
 extend type Product {
@@ -232,7 +253,7 @@ directive @tag(
 ) repeatable on OBJECT | INTERFACE | FIELD_DEFINITION | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION | SCALAR
 ```
 
-The `@tag` directive is used by the schema composition process to include/exclude type members or files. The composition will still use removed parts to build resolvers and optimize data fetching.
+The `@tag` directive is used by the schema composition to create alternative versions of the schema by excluding type members annotated with certain tags from the public schema. The removal process is run after the compsition is completed.
 
 ```graphql example
 input DogInput @tag(name: "Animal") {
@@ -250,7 +271,9 @@ input DogInput @tag(name: "Animal") {
 directive @internal on OBJECT | INTERFACE | FIELD_DEFINITION | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION | SCALAR
 ```
 
-The `@internal` directive can be annotated on field definitions and will prevent the schema composition from including it from the public scheam. However, this field can still be used by the schema composition for building resolvers or variables.
+The `@internal` directive signals to the composition process that annotated type system members
+shall not be included into the public schema but still can be used by the executor to 
+build resolvers.
 
 ### @rename
 
@@ -261,7 +284,9 @@ directive @rename(
 ) repeatable on SCHEMA
 ```
 
-The `@rename` directive allows to rename type system members by pointing to the schema coordinate of that type system member. This avoids repeating the type system member just to rename it.
+The `@rename` directive is used to rename type system members. The rename directive is annotated
+to the schema definition and uses schema coordinates to avoid repeating the type system member
+just to rename it.
 
 ```graphql example
 extend schema
@@ -277,7 +302,9 @@ extend schema
 directive @remove(coordinate: SchemaCoordinate!) repeatable on SCHEMA
 ```
 
-The `@remove` directive allows to removing type system members by pointing to the schema coordinate of that type system member. This avoids repeating the type system member just to remove it.
+The `@remove` directive is used to remove type system members. The remove directive is annotated
+to the schema definition and uses schema coordinates to avoid repeating the type system member
+just to remove it.
 
 ### SchemaCoordinate
 
@@ -297,10 +324,27 @@ Product.estimateDelivery(zip:)
 
 ## Prune
 
-Before the validation the subgraph schemas will be pruned, things that need to be removed will be removed and things that need to be renamed will be renamed.
+The prune algorithm takes in the GraphQL schema documents provided for each subgraph and removes
+unwanted type system members and aligns naming of type system members. The alglorithm is run for
+each each subgraph and will yield a single GraphQL document per subgraph. After this algorithm
+is executed the `@remove` and `@rename` directives are applied.
 
-- Remove
-- Rename
+PruneSubgraphSchemas(subgraphName, schemaDocuments):
+
+- For each {schemaDocument} in {schemaDocuments}:
+- Todo
+
+CollectRenameDirectives(schemaDefinition):
+
+- Todo
+
+CollectRemoveDirectives(schemaDefinition):
+
+- Todo
+
+ResolveTypeSystemMember(schemaCoordinate):
+
+- Todo
 
 ## Validate
 
@@ -472,7 +516,7 @@ type User {
   tags: [Tag]
 }
 
-type Tag { 
+type Tag {
   value: String
 }
 
@@ -579,9 +623,7 @@ FXXXX
 
 **Formal Specification**
 
-
 **Explanatory Text**
-
 
 ```graphql example
 type User {
@@ -745,6 +787,7 @@ type Object2 @internal {
   field5: Int
 }
 ```
+
 ### Object Types
 
 #### Empty Merged Object Type
@@ -775,7 +818,7 @@ In the following example, the merged object type `ObjectType1` is valid. It incl
 
 ```graphql
 type ObjectType1 {
-  field1: String 
+  field1: String
   field2: Int @internal
 }
 
@@ -791,11 +834,11 @@ This counter-example demonstrates an invalid merged object type. In this case, `
 ```graphql counter-example
 type ObjectType1 {
   field1: String @internal
-  field2: Boolean 
+  field2: Boolean
 }
 
 type ObjectType1 {
-  field1: String 
+  field1: String
   field2: Boolean @internal
 }
 ```
@@ -810,7 +853,7 @@ F0005
 
 **Formal Specification**
 
-- Let {fieldsByName} be a map of field lists where the key is the name of a field and the value is a list of fields from mergable input types from different subgraphs with the same name. 
+- Let {fieldsByName} be a map of field lists where the key is the name of a field and the value is a list of fields from mergable input types from different subgraphs with the same name.
 - For each {fields} in {fieldsByName}:
   - if {InputFieldsAreMergable(fields)} must be true.
 
@@ -940,11 +983,10 @@ F0010
 - For each {input} in {inputs}:
   - If {IsExposed(input)} is true
     - {IsInputObjectTypeEmpty(input)} must be false
-  
 
 IsInputObjectTypeEmpty(input):
 
-- Let {fields} be a set of all input fields across all subraphs with coordinate {input} 
+- Let {fields} be a set of all input fields across all subraphs with coordinate {input}
 - For each {field} in {fields}:
   - If {IsExposed(field)} is true
     - return false
@@ -971,7 +1013,7 @@ In the following example, the merged input object type `Input1` is valid and con
 
 ```graphql
 input Input1 {
-  field1: String 
+  field1: String
 }
 
 input Input1 {
@@ -981,9 +1023,10 @@ input Input1 {
 ```
 
 In the following example, the merged input object type `Input1` is invalid. The type is defined in two subgraphs, but do not have any common fields.
+
 ```graphql counter-example
 input Input1 {
-  field1: String 
+  field1: String
 }
 
 input Input1 {
@@ -1023,14 +1066,13 @@ In the following example, the merged input object type `Input1` is invalid. The 
 
 ```graphql counter-example
 input Input1 {
-  field1: String  @internal
+  field1: String @internal
 }
 
 input Input1 {
   field1: String
 }
 ```
-
 
 #### Input Field Default Mismatch
 
@@ -1043,7 +1085,7 @@ F0011
 - Let {inputFieldsByName} be a map where the key is the name of an input field and the value is a list of input fields from different subgraphs from the same type with the same name.
 - For each {inputFields} in {inputFieldsByName}:
   - Let {defaultValues} be a set containing the default values of each input field in {inputFields}.
-  - If the size of {defaultValues} is greater than 
+  - If the size of {defaultValues} is greater than
     - {InputFieldsHaveConsistentDefaults(inputFields)} must be false.
 
 InputFieldsHaveConsistentDefaults(inputFields):
@@ -1185,9 +1227,9 @@ F0012
 
 - Let {subgraphs} be a list of all subgraphs.
 - For each {subgraph} in {subgraphs}:
-  - Let {inputs} be the set of all input object types in the {subgraph} 
+  - Let {inputs} be the set of all input object types in the {subgraph}
   - For each {input} in {inputs}:
-    - Let {fields} be a list of fields of {input} 
+    - Let {fields} be a list of fields of {input}
     - For each {field} in {fields}:
       - If {IsExposed(field)} is false
         - Let {type} be the type of {field}
@@ -1195,7 +1237,7 @@ F0012
 
 **Explanatory Text**
 
-Input object types can be defined in multiple subgraphs. Required fields in these input object types (i.e., fields that are non-nullable) must be exposed in the composed graph. 
+Input object types can be defined in multiple subgraphs. Required fields in these input object types (i.e., fields that are non-nullable) must be exposed in the composed graph.
 A required internal field would create a contradiction where a field is both necessary for the operation in the composed schema but also not available for external use.
 
 This example shows a valid scenario where the required field is not marked as `@internal`:
@@ -1299,7 +1341,7 @@ F0008
 
 ValidateArgumentDefaultValues():
 
-- Let {arguments} be all arguments of fields and directives across all subgraphs 
+- Let {arguments} be all arguments of fields and directives across all subgraphs
 - For each {argument} in {arguments}
   - If {IsExposed(argument)} is true and has a default value:
     - Let {defaultValue} be the default value of {argument}
@@ -1313,9 +1355,9 @@ ValidateInputFieldDefaultValues():
 - For each {inputField} in {inputFields}:
   - Let {type} be the type of {inputField}
   - If {IsExposed(inputField)} is true and {inputField} has a default value:
-      - Let {defaultValue} be the default value of {inputField}
-      - if ValidateDefaultValue(defaultValue) is false
-        - return false
+    - Let {defaultValue} be the default value of {inputField}
+    - if ValidateDefaultValue(defaultValue) is false
+      - return false
 - return true
 
 ValidateDefaultValue(defaultValue):
@@ -1345,7 +1387,7 @@ This rule ensures that internal members are not exposed in the composed schema t
 
 In this example the `FOO` value in the `Enum1` enum is not marked with @internal, hence it doesn't violate the rule.
 
-```graphql 
+```graphql
 type Query {
   field(type: Enum1 = FOO): [Baz!]!
 }
@@ -1375,7 +1417,7 @@ enum Enum1 {
 
 ```graphql counter-example
 type Query {
-  field(type: Input1 = {field2: "ERROR"}): [Baz!]!
+  field(type: Input1 = { field2: "ERROR" }): [Baz!]!
 }
 
 input Input1 {
@@ -1383,7 +1425,6 @@ input Input1 {
   field2: String @internal
 }
 ```
-
 
 This example is a violation of the rule because the default value for the `type` argument in the `field` field references an enum value (`BAR`) that is marked as `@internal`.
 
@@ -1418,7 +1459,6 @@ IsEnumEmpty(enum):
   - If {IsExposed(value)} is true
     - return false
 - return true
-  
 
 **Explanatory Text**
 
@@ -1429,12 +1469,12 @@ The following example shows a valid merged enum type. The `Enum1` type is define
 ```graphql
 enum Enum1 {
   Value1 @internal
-  Value2 
+  Value2
 }
 
 enum Enum1 {
-  Value1 
-  Value2 
+  Value1
+  Value2
 }
 ```
 
@@ -1447,8 +1487,8 @@ enum Enum1 {
 }
 
 enum Enum1 {
-  Value1 
-  Value2 
+  Value1
+  Value2
 }
 ```
 
@@ -1457,15 +1497,16 @@ In this counter-example, the `Enum1` type is defined in two subgraphs, but the `
 ```graphql counter-example
 enum Enum1 {
   Value1 @internal
-  Value2 
+  Value2
 }
 
 enum Enum1 {
-  Value1 
+  Value1
   Value2 @internal
 }
 ```
-### Interface 
+
+### Interface
 
 #### Empty Merged Interface Type
 
@@ -1479,7 +1520,7 @@ F0018
 - For each {interface} in {interfaces}:
   - If {IsExposed(interface)} is true
     - {IsInterfaceTypeEmpty(interface)} must be false.
-  
+
 IsInterfaceTypeEmpty(interface):
 
 - Let {fields} be a set of all fields across all subgraphs with coordinate and kind of {interface}
@@ -1510,7 +1551,7 @@ In the following example, the merged interface type `Interface1` is valid and co
 
 ```graphql example
 interface Interface1 {
-  field1: String 
+  field1: String
 }
 
 interface Interface1 {
@@ -1523,7 +1564,7 @@ In the following example, the merged interface type `Interface1` is invalid. The
 
 ```graphql counter-example
 interface Interface1 {
-  field1: String 
+  field1: String
 }
 
 interface Interface1 {
@@ -1571,8 +1612,7 @@ interface Interface1 {
 }
 ```
 
-
-### Union 
+### Union
 
 #### Union Type Members Cannot Reference Internals
 
@@ -1586,7 +1626,7 @@ F0017
 - For each {subgraph} in {subgraphs}:
   - Let {unionTypes} be the set of all union types in {subgraph}.
   - For each {unionType} in {unionTypes}:
-    - Let {members} be the set of member types of {unionType} 
+    - Let {members} be the set of member types of {unionType}
     - For each {member} in {members}:
       - Let {type} be the type of {member}
       - {IsExposed(type)} must be true
@@ -1628,7 +1668,7 @@ type Object2 {
   field2: Int
 }
 
-union Union1 = Object1 | Object2 
+union Union1 = Object1 | Object2
 
 type Object1 {
   field1: String
@@ -1686,7 +1726,7 @@ type Query {
 }
 
 type Query @remove {
-  field2: String 
+  field2: String
 }
 ```
 
@@ -1698,11 +1738,16 @@ type Query {
 }
 
 type Query {
-  field1: String 
+  field1: String
 }
 ```
 
 ### Shared Functions
+
+#### Same Type Shape
+
+If types differ only in nullability they are still considered mergable. This algorithm determines
+if two types are mergable by removing non-nullibility from the types when comparing them.
 
 SameTypeShape(typeA, typeB):
 
@@ -1725,11 +1770,9 @@ SameTypeShape(typeA, typeB):
 - If {typeA} and {typeB} do not have the same name
   - return false.
 
-
 IsExposed(member):
 
-
-- Let {members} be a list of all members across all subgraphs with the same coordinate and kind as {member} 
+- Let {members} be a list of all members across all subgraphs with the same coordinate and kind as {member}
 - If any {members} is marked with `@internal`
   - return false
 - If {member} is InputField
@@ -1737,7 +1780,7 @@ IsExposed(member):
   - if {IsExposed(type)} is false
     - return false
   - Let {types} be the list of all types across all subgraphs with the same coordinate and kind as {type}
-  - If {member} is in {CommonFields(types)} 
+  - If {member} is in {CommonFields(types)}
     - return true
   - return false
 - If {member} is EnumValue
@@ -1745,13 +1788,13 @@ IsExposed(member):
   - return {IsExposed(enum)}
 - If {member} is ObjectField
   - Let {type} be the any type that {member} is declared on
-  - return {IsExposed(type)} 
+  - return {IsExposed(type)}
 - If {member} is InterfaceField
   - Let {type} be the any type that {member} is declared on
   - If {IsExposed(type)} is false
     - return false
   - Let {types} be the list of all types across all subgraphs with the same coordinate and kind as {type}
-  - If {member} is in {CommonFields(types)} 
+  - If {member} is in {CommonFields(types)}
     - return true
   - return false
 - If {member} is Argument
@@ -1760,15 +1803,15 @@ IsExposed(member):
     - If {IsExposed(declaringField)} is false
       - return false
     - Let {declaringFields} be the list of all fields across all subgraphs with the same coordinate and kind as {declaringField}
-    - If {member} is in {CommonArguments(declaringFields)} 
+    - If {member} is in {CommonArguments(declaringFields)}
       - return true
     - return false
   - If {member} is declared on a directive
     - Let {declaringDirective} be any directive that {member} is declared on
     - If {IsExposed(declaringDirective)} is false
       - return false
-    - Let {declaringDirectives} be the list of any directives across all subgraphs with the same coordiante and kind as {declaringDirective} 
-    - If {member} is in {CommonArguments(declaringDirectives)} 
+    - Let {declaringDirectives} be the list of any directives across all subgraphs with the same coordiante and kind as {declaringDirective}
+    - If {member} is in {CommonArguments(declaringDirectives)}
       - return true
     - return false
 - return true
@@ -1780,7 +1823,7 @@ CommonArguments(members):
   - Let {arguments} be the set of all arguments of {member}
   - Let {commonArguments} be the intersection of {commonArguments} and {arguments}
 - return {commonArguments}
-    
+
 CommonFields(members):
 
 - Let {commonFields} be the set of all fields of all {members} across all subgraphs
@@ -1788,8 +1831,6 @@ CommonFields(members):
   - Let {fields} be the set of all fields of {member}
   - Let {commonFields} be the intersection of {commonFields} and {fields}
 - return {commonFields}
-
-
 
 ## Compose
 
@@ -1844,7 +1885,7 @@ MergeOutputType(typeA, typeB):
 - Set {outputType} to have {MergeInterfaceImplementation(typeA, typeB)} as its interfaces
 - return {outputType}
 
-MergeInputType(typeA, typeB): 
+MergeInputType(typeA, typeB):
 
 - If {typeA} or {typeB} are `@internal`
   - return null
@@ -1955,7 +1996,7 @@ MergeInputFieldType(typeA, typeB):
   - Let {innerTypeA} be the inner type of {typeA}
   - Let {innerTypeB} be the inner type of {typeB}
   - Let {innerType} be {MergeOutputFieldType(innerTypeA, innerTypeB)}
-  - return {ToNonNullType(innerType)} 
+  - return {ToNonNullType(innerType)}
 - If {typeA} is Non-Null and {typeB} is nullable
   - Let {innerTypeA} be the inner type of {typeA}
   - Let {mergedType} be {MergeOutputFieldType(innerTypeA, typeB)}
@@ -1979,7 +2020,7 @@ MergeOutputFieldType(typeA, typeB):
   - Let {innerTypeA} be the inner type of {typeA}
   - Let {innerTypeB} be the inner type of {typeB}
   - Let {innerType} be {MergeOutputFieldType(innerTypeA, innerTypeB)}
-  - return {ToNonNullType(innerType)} 
+  - return {ToNonNullType(innerType)}
 - If {typeA} is Non-Null and {typeB} is nullable
   - Let {innerTypeA} be the inner type of {typeA}
   - Let {mergedType} be {MergeOutputFieldType(innerTypeA, typeB)}
