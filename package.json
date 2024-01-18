@@ -8,7 +8,7 @@
     "test:spellcheck": "cspell \"spec/**/*.md\" README.md",
     "format": "prettier --write \"**/*.{md,yml,yaml,json}\"",
     "format:check": "prettier --check \"**/*.{md,yml,yaml,json}\"",
-    "build": "./build.sh",
+    "build": "node build.js",
     "watch": "nodemon -e json,md --exec \"npm run build\""
   },
   "devDependencies": {
