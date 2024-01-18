@@ -2,68 +2,27 @@
 
 ## Mission
 
-_Provide a specification that allows GraphQL clients and servers with different
-implementations and technology stacks to interact freely over HTTP if both
-client and server are compliant._
+_Provide a specification that allows to build GraphQL Gateways and GraphQL composition tooling with different
+implementations and technology stacks to interact freely if GraphQL composition tooling and GraphQL gateways are compliant._
 
 ## Guiding principles
 
 - Development is based on use cases
 - Strive for backwards-compatible progress
-  - Servers supporting later versions of this spec should support clients using
-    earlier versions of this spec.
 
 ## Version 1.0
 
-Version 1 aims to codify the most common existing uses of GraphQL queries and
-mutations over HTTP whilst encouraging some improved practices. The majority of
-GraphQL servers should find that they are already compatible with Version 1.0 of
-the GraphQL-over-HTTP specification, although they should still put work in to
-address the `SHOULD` behaviours that they may be missing, most notably around
-the use of the `application/graphql-response+json` Content-Type.
-
-Subscriptions, websockets and server-sent events are out of scope for version
-1.0.
+Version 1 aims to codify a minimal core specification that specifies a set of subgraph and supergraph directives. Further, it aims to codify the core composition and execution algorithms for GraphQL composition tooling and GraphQL gateways.
 
 In layout and structure version 1.0 should lay a foundation for future
 development and standardization.
 
 ### Scope
 
-- GET/POST Requests
-- Request parameters
-- Serialization format
-- Response body
-- Status codes
-
-### Actions
-
-- Move to the GraphQL Foundation
-- Set of running examples of ~5 of the most popular servers/clients with a
-  standard, minimal GraphQL schema
-- Test suite to automate testing of GraphQL servers compliance with the spec
-  - Can be applied to examples of popular server or public GraphQL APIs
-- Results of popular libraries and APIs compliance with current spec
-- Structuring of existing spec to be easier to extend in later versions
-- Fine detail focus on each of the main sections of the spec
-- Update links to point to the GraphQL Foundation repos and websites not FB
-- Adopt similar formatting/tooling for spec to match the GraphQL spec
-
-## Future versions
-
-Future versions of the spec may include these concepts:
-
-- Caching
-- Batching
-- Versioning mechanism for servers/clients to communicate what versions they
-  support
-- Modularity - A way to communicate what features (and possibly versions) of the
-  HTTP spec are supported by a server
-- Persisted queries
-- Multipart requests (file uploads)
-- Submit MIME type application/graphql+json to IANA
-- New HTTP SEARCH method and how it could be used
-  https://tools.ietf.org/html/draft-snell-search-method-01
+- Subgraph Directives
+- Supergraph Directives
+- Schema Composition
+- Distributed Executor
 
 ## Stages
 
