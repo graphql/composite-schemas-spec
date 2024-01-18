@@ -60,4 +60,6 @@ Entities are objects with a stable identity that endure over time. They typicall
 
 ## Keys
 
-A representation of an object’s identity is known as a key. Keys consist of one or more fields from an object, and are infered from the entity resolvers. An entity can have many keys as entities can have many entity resolvers.
+A representation of an object’s identity is known as a key. Keys consist of one or more fields from an object, and are defined through the `@key` directive on an object or interface type.
+
+In a distributed architecture, it is unrealistic to expect all participating systems to agree on a common way of identitifying a particular type of entity. The composite schemas spec therefore allows multiple keys to be defined for each entity type, and each subgraph defines the particular keys that it is able to support.
