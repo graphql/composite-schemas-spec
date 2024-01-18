@@ -1,4 +1,4 @@
-# GraphQL over HTTP Specification Roadmap
+# GraphQL Composite Schemas Specification Roadmap
 
 ## Mission
 

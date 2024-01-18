@@ -7,13 +7,13 @@ GITTAG=$(git tag --points-at HEAD)
 # Build the specification draft document
 echo "Building spec draft"
 mkdir -p public/draft
-spec-md --metadata spec/metadata.json --githubSource "https://github.com/graphql/graphql-over-http/blame/main/" spec/GraphQLOverHTTP.md > public/draft/index.html
+spec-md --metadata spec/metadata.json --githubSource "https://github.com/graphql/composite-schemas-spec/blame/main/" spec/GraphQLOverHTTP.md > public/draft/index.html
 
 # If this is a tagged commit, also build the release document
 if [ -n "$GITTAG" ]; then
   echo "Building spec release $GITTAG"
   mkdir -p "public/$GITTAG"
-  spec-md --metadata spec/metadata.json --githubSource "https://github.com/graphql/graphql-over-http/blame/$GITTAG/" spec/GraphQLOverHTTP.md > "public/$GITTAG/index.html"
+  spec-md --metadata spec/metadata.json --githubSource "https://github.com/graphql/composite-schemas-spec/blame/$GITTAG/" spec/GraphQLOverHTTP.md > "public/$GITTAG/index.html"
 fi
 
 # Create the index file
@@ -66,7 +66,7 @@ HTML="$HTML
       <td></td>
     </tr>"
 
-GITHUB_RELEASES="https://github.com/graphql/graphql-over-http/releases/tag"
+GITHUB_RELEASES="https://github.com/graphql/composite-schemas-spec/releases/tag"
 for GITTAG in $(git tag -l --sort='-*committerdate') ; do
   VERSIONYEAR=${GITTAG: -4}
   TAGTITLE="${GITTAG%$VERSIONYEAR} $VERSIONYEAR"

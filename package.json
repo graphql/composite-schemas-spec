@@ -1,5 +1,5 @@
 {
-  "name": "graphql-over-http",
+  "name": "graphql-composite-schemas-spec",
   "private": true,
   "license": "OWFa-1.0",
   "scripts": {

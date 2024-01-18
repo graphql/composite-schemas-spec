@@ -43,7 +43,7 @@ also consider membership in the
 
 Copyright Joint Development Foundation Projects, LLC, GraphQL Series.<br>
 [graphql.org](https://graphql.org) | [Spec](https://spec.graphql.org) |
-[GitHub](https://github.com/graphql/graphql-over-http) |
+[GitHub](https://github.com/graphql/composite-schemas-spec) |
 [GraphQL Foundation](https://foundation.graphql.org) |
 [Code of Conduct](https://code-of-conduct.graphql.org) |
 [Discord](https://discord.com/channels/625400653321076807/863141924126588958) |
