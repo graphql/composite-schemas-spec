@@ -1,4 +1,4 @@
-> **Stage 1: Proposal**
+> **Stage 0: Preliminary**
 >
 > This spec is in the proposal stage of active development, and can change
 > before reaching `Draft` stage. For more information, please see the

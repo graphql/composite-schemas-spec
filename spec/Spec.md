@@ -10,9 +10,9 @@ If your organization benefits from GraphQL, please consider becoming a member an
 
 The GraphQL Specification Project has evolved and may continue to evolve in future editions of this specification. Previous editions of the GraphQL specification can be found at permalinks that match their release tag. The latest working draft release can be found at https://spec.graphql.org/draft.
 
-**Copyright Notice**
+**Copyright notice**
 
-Copyright © 2019-present, GraphQL contributors
+Copyright © 2023-present, GraphQL contributors
 
 THESE MATERIALS ARE PROVIDED “AS IS”. The parties expressly disclaim any
 warranties (express, implied, or otherwise), including implied warranties of
@@ -26,29 +26,11 @@ AGREEMENT, WHETHER BASED ON BREACH OF CONTRACT, TORT (INCLUDING NEGLIGENCE), OR
 OTHERWISE, AND WHETHER OR NOT THE OTHER MEMBER HAS BEEN ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-**Licensing**
-
-The GraphQL Specification Project is made available by the
-[Joint Development Foundation](https://www.jointdevelopment.org/). The current
-[Working Group](https://github.com/graphql/graphql-wg) charter, which includes
-the IP policy governing all working group deliverables (including
-specifications, source code, and datasets) may be found at
-[https://technical-charter.graphql.org](https://technical-charter.graphql.org).
-
-Currently, the licenses governing GraphQL Specification Project deliverables
-are:
-
-| Deliverable    | License                                                                                                                                                            |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Specifications | [Open Web Foundation Agreement 1.0 (Patent and Copyright Grants)](https://www.openwebfoundation.org/the-agreements/the-owf-1-0-agreements-granted-claims/owfa-1-0) |
-| Source code    | [MIT License](https://opensource.org/licenses/MIT)                                                                                                                 |
-| Data sets      | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)                                                                                                      |
-
 **Conformance**
 
-A conforming implementation of GraphQL must fulfill all normative requirements.
-Conformance requirements are described in this document via both descriptive
-assertions and key words with clearly defined meanings.
+A conforming implementation of GraphQL over HTTP must fulfill all normative
+requirements. Conformance requirements are described in this document via both
+descriptive assertions and key words with clearly defined meanings.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in the normative portions of
@@ -57,27 +39,9 @@ this document are to be interpreted as described in
 in lowercase and still retain their meaning unless explicitly declared as
 non-normative.
 
-A conforming implementation of GraphQL may provide additional functionality, but
-must not where explicitly disallowed or would otherwise result in
-non-conformance.
-
-**Conforming Algorithms**
-
-Algorithm steps phrased in imperative grammar (e.g. "Return the result of
-calling resolver") are to be interpreted with the same level of requirement as
-the algorithm it is contained within. Any algorithm referenced within an
-algorithm step (e.g. "Let completedResult be the result of calling
-CompleteValue()") is to be interpreted as having at least the same level of
-requirement as the algorithm containing that step.
-
-Conformance requirements expressed as algorithms can be fulfilled by an
-implementation of this specification in any way as long as the perceived result
-is equivalent. Algorithms described in this document are written to be easy to
-understand. Implementers are encouraged to include equivalent but optimized
-implementations.
-
-See [Appendix A](#sec-Appendix-Notation-Conventions) for more details about the
-definition of algorithms and other notational conventions used in this document.
+A conforming implementation of GraphQL over HTTP may provide additional
+functionality, but must not where explicitly disallowed or would otherwise
+result in non-conformance.
 
 **Non-Normative Portions**
 
@@ -106,10 +70,12 @@ Note: This is an example of a non-normative note.
 
 # [Overview](Section%201%20--%20Overview.md)
 
-# [Composition](Section%202%20--%20Composition.md)
+# [Subgraph](Section%202%20--%20Subgraph.md)
 
-# [Execution](Section%203%20--%20Execution.md)
+# [Supergraph](Section%203%20--%20Supergraph.md)
 
-# [Shared Types](Section%204%20--%20Shared%20Types.md)
+# [Composition](Section%204%20--%20Composition.md)
 
-# [Appendix: Definitions](Appendix%20A%20--%20Definitions.md)
+# [Execution](Section%203%50--%20Execution.md)
+
+# [Shared Types](Section%206%20--%20Shared%20Types.md)
