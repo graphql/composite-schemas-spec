@@ -1,32 +1,21 @@
 {
-  "name": "graphql-fusion-spec",
+  "name": "graphql-composite-schemas-spec",
   "private": true,
-  "contributors": [
-    "Michael Staib <michael@chillicream.com> (https://chillicream.com/)",
-    "Pascal Senn <pascal@chillicream.com> (https://chillicream.com/)",
-    "Kamil Kisiela <kamil.kisiela@gmail.com> (https://the-guild.dev/)",
-    "Arda Tanrikulu <ardatanrikulu@gmail.com> (https://the-guild.dev/)"
-  ],
   "license": "OWFa-1.0",
-  "homepage": "https://spec.graphql.org/",
-  "repository": {
-    "type": "git",
-    "url": "http://github.com/graphql/graphql-fusion.git"
-  },
   "scripts": {
-    "test": "yarn run test:spelling && yarn run test:format && yarn run test:build",
-    "test:spelling": "cspell \"spec/**/*.md\" README.md",
+    "test": "npm run test:build && npm run test:spellcheck",
+    "test:build": "spec-md --metadata spec/metadata.json spec/GraphQLOverHTTP.md > /dev/null",
+    "test:spellcheck": "cspell \"spec/**/*.md\" README.md",
     "format": "prettier --write \"**/*.{md,yml,yaml,json}\"",
-    "test:format": "prettier --check \"**/*.{md,yml,yaml,json}\" || yarn run suggest:format",
-    "suggest:format": "echo \"\nTo resolve this, run: $(tput bold)yarn run format$(tput sgr0)\" && exit 1",
-    "test:build": "spec-md --metadata spec/metadata.json spec/GraphQL.md > /dev/null",
-    "watch": "nodemon -e json,md --exec \"yarn run build\""
+    "format:check": "prettier --check \"**/*.{md,yml,yaml,json}\"",
+    "build": "node build.js",
+    "watch": "nodemon -e json,md --exec \"npm run build\""
   },
   "devDependencies": {
-    "cspell": "5.9.1",
-    "nodemon": "2.0.20",
-    "prettier": "2.8.2",
-    "spec-md": "3.1.0"
+    "cspell": "6.31.1",
+    "nodemon": "^2.0.20",
+    "prettier": "^2.3.0",
+    "spec-md": "^3.1.0"
   },
   "prettier": {
     "proseWrap": "always",
