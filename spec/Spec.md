@@ -1,8 +1,8 @@
-# GraphQL Fusion
+# GraphQL Composite Schemas Spec
 
 **Introduction**
 
-The GraphQL Fusion Specification introduces a comprehensive specification for creating distributed GraphQL systems that seamlessly merges multiple GraphQL schemas. This specification describes the process of composing a federated GraphQL schema and outlines algorithms for executing GraphQL queries on the federated schema effectively by using query plans. This specifcation was origially created by ChilliCream and was transfered to the GraphQL foundation.
+The GraphQL Composite Schemas introduces a comprehensive specification for creating distributed GraphQL systems that seamlessly merges multiple GraphQL schemas. This specification describes the process of composing a federated GraphQL schema and outlines algorithms for executing GraphQL queries on the federated schema effectively by using query plans. This specifcation was origially created by ChilliCream and was transfered to the GraphQL foundation.
 
 The GraphQL Foundation was formed in 2019 as a neutral focal point for organizations who support the GraphQL ecosystem, and the GraphQL Specification Project was established also in 2019 as the Joint Development Foundation Projects, LLC, GraphQL Series.
 
@@ -106,8 +106,10 @@ Note: This is an example of a non-normative note.
 
 # [Overview](Section%201%20--%20Overview.md)
 
-# [Directives](Section%202%20--%20Directives.md)
+# [Composition](Section%202%20--%20Composition.md)
 
-# [Composition](Section%203%20--%20Composition.md)
+# [Execution](Section%203%20--%20Execution.md)
 
-# [Execution](Section%204%20--%20Execution.md)
+# [Shared Types](Section%204%20--%20Shared%20Types.md)
+
+# [Appendix: Definitions](Appendix%20A%20--%20Definitions.md)
