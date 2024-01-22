@@ -33,8 +33,8 @@ F0001
 
 **Formal Specification**
 
-- Let {typesByName} be the set of all types across all subgraphs involved in
-  the schema composition by their given type name.
+- Let {typesByName} be the set of all types across all subgraphs involved in the
+  schema composition by their given type name.
 - Given each pair of types {typeA} and {typeB} in {typesByName}
   - {typeA} and {typeB} must have the same kind
 
@@ -133,8 +133,8 @@ SameTypeShape(typeA, typeB):
 **Explanatory Text**
 
 Fields on mergeable objects or interfaces with that have the same name are
-considered semantically equivalent and mergeable when they have a mergeable field
-type.
+considered semantically equivalent and mergeable when they have a mergeable
+field type.
 
 Fields with the same type are mergeable.
 
@@ -148,8 +148,8 @@ type User {
 }
 ```
 
-Fields with different nullability are mergeable, resulting in merged field with a
-nullable type.
+Fields with different nullability are mergeable, resulting in merged field with
+a nullable type.
 
 ```graphql example
 type User {
@@ -574,15 +574,15 @@ InputFieldsAremergeable(fields):
 
 **Explanatory Text**
 
-The input fields of input objects with the same name must be mergeable. This rule
-ensures that input objects with the same name in different subgraphs have fields
-that can be consistently merged without conflict.
+The input fields of input objects with the same name must be mergeable. This
+rule ensures that input objects with the same name in different subgraphs have
+fields that can be consistently merged without conflict.
 
 Input fields are considered mergeable when they share the same name and have
 compatible types. The compatibility of types is determined by their structure
-(lists), excluding nullability. mergeable input fields with different nullability
-are considered mergeable, and the resulting merged field will be the most
-permissive of the two.
+(lists), excluding nullability. mergeable input fields with different
+nullability are considered mergeable, and the resulting merged field will be the
+most permissive of the two.
 
 In this example, the field `field` in `Input1` has compatible types across
 subgraphs, making them mergeable:

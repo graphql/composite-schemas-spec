@@ -78,7 +78,7 @@ or more fields from an object, and are defined through the `@key` directive on
 an object or interface type.
 
 In a distributed architecture, it is unrealistic to expect all participating
-systems to agree on a common way of identifying a particular type of entity.
-The composite schemas spec therefore allows multiple keys to be defined for each
+systems to agree on a common way of identifying a particular type of entity. The
+composite schemas spec therefore allows multiple keys to be defined for each
 entity type, and each subgraph defines the particular keys that it is able to
 support.
