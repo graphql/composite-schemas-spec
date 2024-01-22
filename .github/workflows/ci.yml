@@ -24,8 +24,7 @@ jobs:
         with:
           node-version: "16.x"
       - run: npm ci
-      - run: npm spellcheck
-      - run: npm test:build
+      - run: npm run test
   publish:
     if: github.ref == 'refs/heads/main'
     needs: test
