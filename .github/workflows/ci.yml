@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: "16.x"
       - run: npm ci
-      - run: npm spellcheck
+      - run: npm run spellcheck
   test:
     runs-on: ubuntu-latest
     steps:
