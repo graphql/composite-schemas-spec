@@ -40,7 +40,7 @@ interface Node {
 }
 ```
 
-When an entity resolver returns an interface all implementing types are infered
+When an entity resolver returns an interface all implementing types are inferred
 as entities.
 
 ```graphql example
@@ -66,7 +66,7 @@ extend type Cat {
 ```graphql
 directive @is(
   field: FieldSelection
-  coordinate: SchemaCoordinate
+  coordinate: Schemacoordinate
 ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 ```
 
@@ -200,7 +200,7 @@ type Product {
 directive @provides(fields: SelectionSet!) on FIELD_DEFINITION
 ```
 
-The `@providse` directive is an optimization hint specifying child fields that
+The `@provides` directive is an optimization hint specifying child fields that
 can be resolved locally at the given subgraph through a particular query path.
 This allows for a variation of overlapping field to improve data fetching.
 
@@ -231,13 +231,13 @@ The `@internal` directive signals to the composition process that annotated type
 system members shall not be included into the public schema but still can be
 used by the executor to build resolvers.
 
-### SchemaCoordinate
+### Schemacoordinate
 
 ```graphql
-scalar SchemaCoordinate
+scalar Schemacoordinate
 ```
 
-The `SchemaCoordinate` scalar represents a schema coordinate syntax.
+The `Schemacoordinate` scalar represents a schema coordinate syntax.
 
 ```graphql example
 Product.id

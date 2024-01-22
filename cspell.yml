@@ -11,6 +11,12 @@ words:
   - parallelization
   - structs
   - subselection
+  - supergraph
+  - subraphs
+  - mergeable
+  - birthdate
+  - Satisfiability
+  - SchemaCoordinate
   # Fictional characters / examples
   - alderaan
   - hagrid
@@ -21,3 +27,7 @@ words:
   - tatooine
   - zuck
   - zuckerberg
+
+ignoreWords:
+  - Aremergeable
+  - FXXXX

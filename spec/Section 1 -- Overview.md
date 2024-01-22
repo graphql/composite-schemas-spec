@@ -20,7 +20,7 @@ and the execution.
 - **Execution**: The distributed GraphQL executor specifies the Gateway
   Configuration and the core execution algorithms.
 
-The GraphQL Composite Schemas spec describes a colaborative approach towards
+The GraphQL Composite Schemas spec describes a collaborative approach towards
 build a single graph composed from multiple _subgraphs_ by specifying the
 algorithms to merge different GraphQL _subgraph_ schemas into a single
 _supergraph_.
@@ -58,7 +58,7 @@ system members to the composition.
 
 ## Supergraph
 
-The result of a succesful composition is a single GraphQL schema that is
+The result of a successful composition is a single GraphQL schema that is
 annotated with execution directives. This schema document represents the
 configuration for the distributed GraphQL executor and is called _supergraph_.
 
@@ -78,7 +78,7 @@ or more fields from an object, and are defined through the `@key` directive on
 an object or interface type.
 
 In a distributed architecture, it is unrealistic to expect all participating
-systems to agree on a common way of identitifying a particular type of entity.
+systems to agree on a common way of identifying a particular type of entity.
 The composite schemas spec therefore allows multiple keys to be defined for each
 entity type, and each subgraph defines the particular keys that it is able to
 support.

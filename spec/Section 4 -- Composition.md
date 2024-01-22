@@ -25,7 +25,7 @@ Typically validation is performed in the context of the composition.
 
 ### Types
 
-#### Semantical Equvalence
+#### Semantical Equivalence
 
 **Error Code**
 
@@ -33,15 +33,15 @@ F0001
 
 **Formal Specification**
 
-- Let {typesByName} be the set of all types accross all subgraphs involved in
+- Let {typesByName} be the set of all types across all subgraphs involved in
   the schema composition by their given type name.
 - Given each pair of types {typeA} and {typeB} in {typesByName}
   - {typeA} and {typeB} must have the same kind
 
 **Explanatory Text**
 
-GraphQL Composite Schemas spec considers types with the same name accross
-subgraphs as semantically equivalent and mergable.
+GraphQL Composite Schemas spec considers types with the same name across
+subgraphs as semantically equivalent and mergeable.
 
 Types that do not have the same kind are considered not mergeable.
 
@@ -89,7 +89,7 @@ scalar UserKind
 
 ### Composite Types
 
-#### Field Types Mergable
+#### Field Types Mergeable
 
 **Error Code**
 
@@ -98,12 +98,12 @@ F0002
 **Formal Specification**
 
 - Let {fieldsByName} be a map of field lists where the key is the name of a
-  field and the value is a list of fields from mergable types from different
+  field and the value is a list of fields from mergeable types from different
   subgraphs with the same name.
 - for each {fields} in {fieldsByName}
-  - {FieldsAreMergable(fields)} must be true.
+  - {FieldsAreMergeable(fields)} must be true.
 
-FieldsAreMergable(fields):
+FieldsAreMergeable(fields):
 
 - Given each pair of members {fieldA} and {fieldB} in {fields}:
   - Let {typeA} be the type of {fieldA}
@@ -132,11 +132,11 @@ SameTypeShape(typeA, typeB):
 
 **Explanatory Text**
 
-Fields on mergable objects or interfaces with that have the same name are
-considered semantically equivalent and mergable when they have a mergable field
+Fields on mergeable objects or interfaces with that have the same name are
+considered semantically equivalent and mergeable when they have a mergeable field
 type.
 
-Fields with the same type are mergable.
+Fields with the same type are mergeable.
 
 ```graphql example
 type User {
@@ -148,7 +148,7 @@ type User {
 }
 ```
 
-Fields with different nullability are mergable, resulting in merged field with a
+Fields with different nullability are mergeable, resulting in merged field with a
 nullable type.
 
 ```graphql example
@@ -175,7 +175,7 @@ type User {
 }
 ```
 
-Fields are not mergable if the named types are different in kind or name.
+Fields are not mergeable if the named types are different in kind or name.
 
 ```graphql counter-example
 type User {
@@ -203,7 +203,7 @@ type User {
 scalar Tag
 ```
 
-#### Argument Types Mergable
+#### Argument Types Mergeable
 
 **Error Code**
 
@@ -212,17 +212,17 @@ F0004
 **Formal Specification**
 
 - Let {fieldsByName} be a map of field lists where the key is the name of a
-  field and the value is a list of fields from mergable types from different
+  field and the value is a list of fields from mergeable types from different
   subgraphs with the same name.
 - for each {fields} in {fieldsByName}
   - if {FieldsInSetCanMerge(fields)} must be true.
 
-FieldsAreMergable(fields):
+FieldsAreMergeable(fields):
 
 - Given each pair of members {fieldA} and {fieldB} in {fields}:
-  - {ArgumentsAreMergable(fieldA, fieldB)} must be true.
+  - {ArgumentsAremergeable(fieldA, fieldB)} must be true.
 
-ArgumentsAreMergable(fieldA, fieldB):
+ArgumentsAremergeable(fieldA, fieldB):
 
 - Given each pair of arguments {argumentA} and {argumentB} in {fieldA} and
   {fieldB}:
@@ -232,11 +232,11 @@ ArgumentsAreMergable(fieldA, fieldB):
 
 **Explanatory Text**
 
-Fields on mergable objects or interfaces with that have the same name are
-considered semantically equivalent and mergable when they have a mergable
+Fields on mergeable objects or interfaces with that have the same name are
+considered semantically equivalent and mergeable when they have a mergeable
 argument types.
 
-Fields when all matching arguments have a mergable type.
+Fields when all matching arguments have a mergeable type.
 
 ```graphql example
 type User {
@@ -248,7 +248,7 @@ type User {
 }
 ```
 
-Arguments that differ on nullability of an argument type are mergable.
+Arguments that differ on nullability of an argument type are mergeable.
 
 ```graphql example
 type User {
@@ -274,7 +274,7 @@ type User {
 }
 ```
 
-Arguments are not mergable if the named types are different in kind or name.
+Arguments are not mergeable if the named types are different in kind or name.
 
 ```graphql counter-example
 type User {
@@ -296,7 +296,7 @@ type User {
 }
 ```
 
-#### Arguments Mergable
+#### Arguments mergeable
 
 **Error Code**
 
@@ -551,7 +551,7 @@ type ObjectType1 {
 
 ### Input Object Types
 
-#### Input Field Types Mergable
+#### Input Field Types mergeable
 
 **Error Code**
 
@@ -560,12 +560,12 @@ F0005
 **Formal Specification**
 
 - Let {fieldsByName} be a map of field lists where the key is the name of a
-  field and the value is a list of fields from mergable input types from
+  field and the value is a list of fields from mergeable input types from
   different subgraphs with the same name.
 - For each {fields} in {fieldsByName}:
-  - if {InputFieldsAreMergable(fields)} must be true.
+  - if {InputFieldsAremergeable(fields)} must be true.
 
-InputFieldsAreMergable(fields):
+InputFieldsAremergeable(fields):
 
 - Given each pair of members {fieldA} and {fieldB} in {fields}:
   - Let {typeA} be the type of {fieldA}.
@@ -574,18 +574,18 @@ InputFieldsAreMergable(fields):
 
 **Explanatory Text**
 
-The input fields of input objects with the same name must be mergable. This rule
+The input fields of input objects with the same name must be mergeable. This rule
 ensures that input objects with the same name in different subgraphs have fields
 that can be consistently merged without conflict.
 
-Input fields are considered mergable when they share the same name and have
+Input fields are considered mergeable when they share the same name and have
 compatible types. The compatibility of types is determined by their structure
-(lists), excluding nullability. Mergable input fields with different nullability
-are considered mergable, and the resulting merged field will be the most
+(lists), excluding nullability. mergeable input fields with different nullability
+are considered mergeable, and the resulting merged field will be the most
 permissive of the two.
 
 In this example, the field `field` in `Input1` has compatible types across
-subgraphs, making them mergable:
+subgraphs, making them mergeable:
 
 ```graphql example
 input Input1 {
@@ -598,7 +598,7 @@ input Input1 {
 ```
 
 Here, the field `tags` in `Input1` is a list type with compatible inner types,
-satisfying the mergable criteria:
+satisfying the mergeable criteria:
 
 ```graphql example
 input Input1 {
@@ -615,7 +615,7 @@ input Input1 {
 ```
 
 In this counter-example, the field `field` in `Input1` has incompatible types
-(`String` and `DateTime`), making them not mergable:
+(`String` and `DateTime`), making them not mergeable:
 
 ```graphql counter-example
 input Input1 {
@@ -628,7 +628,7 @@ input Input1 {
 ```
 
 Here, the field `tags` in `Input1` is a list type with incompatible inner types
-(`String` and `DateTime`), violating the mergable rule:
+(`String` and `DateTime`), violating the mergeable rule:
 
 ```graphql counter-example
 input Input1 {
@@ -652,9 +652,9 @@ F0006
   and the value is a list of all input object types from different subgraphs
   with that name.
 - For each {listOfInputs} in {inputsByName}:
-  - {InputFieldsAreMergable(listOfInputs)} must be true.
+  - {InputFieldsAremergeable(listOfInputs)} must be true.
 
-InputFieldsAreMergable(inputs):
+InputFieldsAremergeable(inputs):
 
 - Let {fields} be the set of all field names of the first input object in
   {inputs}.
@@ -669,7 +669,7 @@ subgraphs have identical sets of field names. Consistency in input object fields
 across subgraphs is required to avoid conflicts and ambiguities in the composed
 schema. This rule only checks that the field names are the same, not that the
 field types are the same. Field types are checked by the
-[Input Field Types Mergable](#sec-Input-Field-Types-Mergable) rule.
+[Input Field Types mergeable](#sec-Input-Field-Types-mergeable) rule.
 
 When an input object is defined with differing fields across subgraphs, it can
 lead to issues in query execution. A field expected in one subgraph might be
@@ -1057,9 +1057,9 @@ F0003
 - Let {enumsByName} be a map where the key is the name of an enum type, and the
   value is a list of all enum types from different subgraphs with that name.
 - For each {listOfEnum} in {enumsByName}:
-  - {EnumAreMergable(listOfEnum)} must be true.
+  - {EnumAremergeable(listOfEnum)} must be true.
 
-EnumAreMergable(enums):
+EnumAremergeable(enums):
 
 - Let {values} be the set of all values of the first enum in {enums}
 - For each {enum} in {enums}
@@ -1145,7 +1145,7 @@ ValidateDefaultValue(defaultValue):
       - return false
 - If {defaultValue} is an ObjectValue:
   - Let {objectFields} be a list of all fields of {defaultValue}
-  - Let {fields} be a list of all fields {objectFields} are refering to
+  - Let {fields} be a list of all fields {objectFields} are referring to
   - For each {field} in {fields}:
     - If {IsExposed(field)} is false
       - return false
@@ -1564,8 +1564,8 @@ type Query {
 
 #### Same Type Shape
 
-If types differ only in nullability they are still considered mergable. This
-algorithm determines if two types are mergable by removing non-nullibility from
+If types differ only in nullability they are still considered mergeable. This
+algorithm determines if two types are mergeable by removing non-nullability from
 the types when comparing them.
 
 SameTypeShape(typeA, typeB):
@@ -1636,7 +1636,7 @@ IsExposed(member):
     - If {IsExposed(declaringDirective)} is false
       - return false
     - Let {declaringDirectives} be the list of any directives across all
-      subgraphs with the same coordiante and kind as {declaringDirective}
+      subgraphs with the same coordinate and kind as {declaringDirective}
     - If {member} is in {CommonArguments(declaringDirectives)}
       - return true
     - return false

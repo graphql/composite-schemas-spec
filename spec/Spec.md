@@ -6,8 +6,8 @@ The GraphQL Composite Schemas introduces a comprehensive specification for
 creating distributed GraphQL systems that seamlessly merges multiple GraphQL
 schemas. This specification describes the process of composing a federated
 GraphQL schema and outlines algorithms for executing GraphQL queries on the
-federated schema effectively by using query plans. This specifcation was
-origially created by ChilliCream and was transfered to the GraphQL foundation.
+federated schema effectively by using query plans. This specification was
+originally created by ChilliCream and was transferred to the GraphQL foundation.
 
 The GraphQL Foundation was formed in 2019 as a neutral focal point for
 organizations who support the GraphQL ecosystem, and the GraphQL Specification
