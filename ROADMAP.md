@@ -2,8 +2,10 @@
 
 ## Mission
 
-_Provide a specification that allows to build GraphQL Gateways and GraphQL composition tooling with different
-implementations and technology stacks to interact freely if GraphQL composition tooling and GraphQL gateways are compliant._
+_Provide a specification that allows to build GraphQL Gateways and GraphQL
+composition tooling with different implementations and technology stacks to
+interact freely if GraphQL composition tooling and GraphQL gateways are
+compliant._
 
 ## Guiding principles
 
@@ -12,7 +14,10 @@ implementations and technology stacks to interact freely if GraphQL composition 
 
 ## Version 1.0
 
-Version 1 aims to codify a minimal core specification that specifies a set of subgraph and supergraph directives. Further, it aims to codify the core composition and execution algorithms for GraphQL composition tooling and GraphQL gateways.
+Version 1 aims to codify a minimal core specification that specifies a set of
+subgraph and supergraph directives. Further, it aims to codify the core
+composition and execution algorithms for GraphQL composition tooling and GraphQL
+gateways.
 
 In layout and structure version 1.0 should lay a foundation for future
 development and standardization.
