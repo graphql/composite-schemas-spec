@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: "16.x"
       - run: npm ci
-      - run: npm test:spellcheck
+      - run: npm spellcheck
   test:
     runs-on: ubuntu-latest
     steps:
@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: "16.x"
       - run: npm ci
-      - run: npm test:spellcheck
+      - run: npm spellcheck
       - run: npm test:build
   publish:
     if: github.ref == 'refs/heads/main'
