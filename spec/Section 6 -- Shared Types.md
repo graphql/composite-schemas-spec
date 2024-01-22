@@ -1,6 +1,7 @@
 # Shared Types
 
-In this section we outline directives and types that are shared between the subgraph configuration and the gateway configuration document.
+In this section we outline directives and types that are shared between the
+subgraph configuration and the gateway configuration document.
 
 ## Name
 

@@ -2,9 +2,9 @@
 
 ## Directives
 
-Composition directives offer instructions for the schema composition process, detailing type system
-member semantics and specifying type transformations. In many cases subgraph schemas can be composed
-without any directives.
+Composition directives offer instructions for the schema composition process,
+detailing type system member semantics and specifying type transformations. In
+many cases subgraph schemas can be composed without any directives.
 
 ### @entityResolver
 
@@ -12,7 +12,9 @@ without any directives.
 directive @entityResolver on FIELD_DEFINITION
 ```
 
-Entity resolvers are fields on the query root type of a subgraph that can resolve an entity by a stable key. The stable key is defined by the arguments of the entity resolver field.
+Entity resolvers are fields on the query root type of a subgraph that can
+resolve an entity by a stable key. The stable key is defined by the arguments of
+the entity resolver field.
 
 ```graphql example
 extend type Query {
@@ -25,7 +27,8 @@ extend type Person {
 }
 ```
 
-The arguments of an entity resolver field must match fields of the returning type.
+The arguments of an entity resolver field must match fields of the returning
+type.
 
 ```graphql example
 extend type Query {
@@ -37,7 +40,8 @@ interface Node {
 }
 ```
 
-When an entity resolver returns an interface all implementing types are infered as entities.
+When an entity resolver returns an interface all implementing types are infered
+as entities.
 
 ```graphql example
 extend type Query {
@@ -66,9 +70,14 @@ directive @is(
 ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 ```
 
-The `@is` directive is utilized to establish semantic equivalence between disparate type system members across distinct subgraphs, which the schema composition uses to connect types.
+The `@is` directive is utilized to establish semantic equivalence between
+disparate type system members across distinct subgraphs, which the schema
+composition uses to connect types.
 
-In the following example, the directive specifies that the `id` argument on the field `Query.personById` and the field `Person.id` on the return type of the field are semantically the same. This information is used to infer an entity resolver for `Person` from the field `Query.personById`.
+In the following example, the directive specifies that the `id` argument on the
+field `Query.personById` and the field `Person.id` on the return type of the
+field are semantically the same. This information is used to infer an entity
+resolver for `Person` from the field `Query.personById`.
 
 ```graphql example
 extend type Query {
@@ -95,7 +104,10 @@ extend type Query {
 }
 ```
 
-The directive can also establish semantic equivalence between two output fields. In this example, the field `productSKU` is semantically equivalent to the field `Product.sku`, allowing the schema composition to infer the connection of the `Product` with the `Review` type.
+The directive can also establish semantic equivalence between two output fields.
+In this example, the field `productSKU` is semantically equivalent to the field
+`Product.sku`, allowing the schema composition to infer the connection of the
+`Product` with the `Review` type.
 
 ```graphql example
 extend type Review {
@@ -104,7 +116,8 @@ extend type Review {
 }
 ```
 
-The `@is` directive can use either the `field` or `coordinate` argument. If both are specified, the schema composition must fail.
+The `@is` directive can use either the `field` or `coordinate` argument. If both
+are specified, the schema composition must fail.
 
 ```graphql counter-example
 extend type Review {
@@ -117,8 +130,11 @@ extend type Review {
 
 **Arguments:**
 
-- `field`: Represents a GraphQL field selection syntax that refers to field relative to the current type; or, when used on arguments it refers to a field relative to the return type.
-- `coordinate`: Represents a schema coordinate that refers to a type system member.
+- `field`: Represents a GraphQL field selection syntax that refers to field
+  relative to the current type; or, when used on arguments it refers to a field
+  relative to the return type.
+- `coordinate`: Represents a schema coordinate that refers to a type system
+  member.
 
 ### @shareable
 
@@ -126,11 +142,17 @@ extend type Review {
 directive @shareable repeatable on OBJECT | FIELD_DEFINITION
 ```
 
-By default, only one subgraph is allowed to contribute a particular field to an object type. This prevents subgraphs from inadvertently defining similarly named fields that are semantically not the same.
+By default, only one subgraph is allowed to contribute a particular field to an
+object type. This prevents subgraphs from inadvertently defining similarly named
+fields that are semantically not the same.
 
-Fields have to be explicitly marked as `@shareable` to allow multiple subgraphs to define it. And it ensures the step of allowing a field to be served from multiple subgraphs is an explicit, coordinated decision.
+Fields have to be explicitly marked as `@shareable` to allow multiple subgraphs
+to define it. And it ensures the step of allowing a field to be served from
+multiple subgraphs is an explicit, coordinated decision.
 
-If multiple subgraphs define the same field, these are assumed to be semantically equivalent, and the executor is free to choose between them as it sees fit.
+If multiple subgraphs define the same field, these are assumed to be
+semantically equivalent, and the executor is free to choose between them as it
+sees fit.
 
 Note: Key fields are always considered sharable.
 
@@ -142,7 +164,10 @@ directive @require(
 ) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 ```
 
-The `@require` directive is used to express data requirements with other subgraphs. Arguments annotated with the `@require` directive are removed from the public exposed schema and the value for these will be resolved by the executor.
+The `@require` directive is used to express data requirements with other
+subgraphs. Arguments annotated with the `@require` directive are removed from
+the public exposed schema and the value for these will be resolved by the
+executor.
 
 ```graphql example
 type Product {
@@ -155,7 +180,9 @@ type Product {
 }
 ```
 
-This can also be done by using input types. All fields of the input type that match the required output type are required. If the input type is only used to express a requirement it is removed from the public schema.
+This can also be done by using input types. All fields of the input type that
+match the required output type are required. If the input type is only used to
+express a requirement it is removed from the public schema.
 
 ```graphql example
 type Product {
@@ -183,7 +210,8 @@ This allows for a variation of overlapping field to improve data fetching.
 directive @external on OBJECT_DEFINITION | INTERFACE_DEFINITION | FIELD_DEFINITION
 ```
 
-The `@external` directive is used in combination with the `@provides` directive and specifies data that is not owned ba a particular subgraph.
+The `@external` directive is used in combination with the `@provides` directive
+and specifies data that is not owned ba a particular subgraph.
 
 ### @override
 
@@ -199,9 +227,9 @@ The `@override` directive allows to migrate fields from one subgraph to another.
 directive @internal on OBJECT | INTERFACE | FIELD_DEFINITION | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION | SCALAR
 ```
 
-The `@internal` directive signals to the composition process that annotated type system members
-shall not be included into the public schema but still can be used by the executor to
-build resolvers.
+The `@internal` directive signals to the composition process that annotated type
+system members shall not be included into the public schema but still can be
+used by the executor to build resolvers.
 
 ### SchemaCoordinate
 

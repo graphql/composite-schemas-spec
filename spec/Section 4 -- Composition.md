@@ -1,15 +1,25 @@
 # Composition
 
-The composition of subgraphs describes the process of merging multiple subgraph schemas into a
-single GraphQL schema that is annotated with execution directives.
-This single GraphQL schema is the output of the Schema Composition and represents the
-Gateway Configuration. The schema composition process is divided into four algorithms, `Validate`, `Compose`, and `Finalize` that are run in order.
+The composition of subgraphs describes the process of merging multiple subgraph
+schemas into a single GraphQL schema that is annotated with execution
+directives. This single GraphQL schema is the output of the Schema Composition
+and represents the Gateway Configuration. The schema composition process is
+divided into four algorithms, `Validate`, `Compose`, and `Finalize` that are run
+in order.
 
 ## Validate
 
-A GraphQL Composite Schemas spec composition tool ensures that the provided subgraph schemas are unambiguous and mistake-free in the context of the composed supergraph. The aim here is to guarantee that a composed supergraph will have no query errors due to an inconsistent schemas.
+A GraphQL Composite Schemas spec composition tool ensures that the provided
+subgraph schemas are unambiguous and mistake-free in the context of the composed
+supergraph. The aim here is to guarantee that a composed supergraph will have no
+query errors due to an inconsistent schemas.
 
-A request against an inconsistent supergraph is still technically executable, and will always produce a stable result as defined by the algorithms in the Execution section, however that result may be ambiguous, surprising, or unexpected relative to a request containing validation errors, so a composition tool must ensure that subgraphs involved in the supergraph allow for consistent query planning during execution.
+A request against an inconsistent supergraph is still technically executable,
+and will always produce a stable result as defined by the algorithms in the
+Execution section, however that result may be ambiguous, surprising, or
+unexpected relative to a request containing validation errors, so a composition
+tool must ensure that subgraphs involved in the supergraph allow for consistent
+query planning during execution.
 
 Typically validation is performed in the context of the composition.
 
@@ -23,13 +33,15 @@ F0001
 
 **Formal Specification**
 
-- Let {typesByName} be the set of all types accross all subgraphs involved in the schema composition by their given type name.
+- Let {typesByName} be the set of all types accross all subgraphs involved in
+  the schema composition by their given type name.
 - Given each pair of types {typeA} and {typeB} in {typesByName}
   - {typeA} and {typeB} must have the same kind
 
 **Explanatory Text**
 
-GraphQL Composite Schemas spec considers types with the same name accross subgraphs as semantically equivalent and mergable.
+GraphQL Composite Schemas spec considers types with the same name accross
+subgraphs as semantically equivalent and mergable.
 
 Types that do not have the same kind are considered not mergeable.
 
@@ -85,7 +97,9 @@ F0002
 
 **Formal Specification**
 
-- Let {fieldsByName} be a map of field lists where the key is the name of a field and the value is a list of fields from mergable types from different subgraphs with the same name.
+- Let {fieldsByName} be a map of field lists where the key is the name of a
+  field and the value is a list of fields from mergable types from different
+  subgraphs with the same name.
 - for each {fields} in {fieldsByName}
   - {FieldsAreMergable(fields)} must be true.
 
@@ -118,7 +132,9 @@ SameTypeShape(typeA, typeB):
 
 **Explanatory Text**
 
-Fields on mergable objects or interfaces with that have the same name are considered semantically equivalent and mergable when they have a mergable field type.
+Fields on mergable objects or interfaces with that have the same name are
+considered semantically equivalent and mergable when they have a mergable field
+type.
 
 Fields with the same type are mergable.
 
@@ -132,7 +148,8 @@ type User {
 }
 ```
 
-Fields with different nullability are mergable, resulting in merged field with a nullable type.
+Fields with different nullability are mergable, resulting in merged field with a
+nullable type.
 
 ```graphql example
 type User {
@@ -194,7 +211,9 @@ F0004
 
 **Formal Specification**
 
-- Let {fieldsByName} be a map of field lists where the key is the name of a field and the value is a list of fields from mergable types from different subgraphs with the same name.
+- Let {fieldsByName} be a map of field lists where the key is the name of a
+  field and the value is a list of fields from mergable types from different
+  subgraphs with the same name.
 - for each {fields} in {fieldsByName}
   - if {FieldsInSetCanMerge(fields)} must be true.
 
@@ -205,14 +224,17 @@ FieldsAreMergable(fields):
 
 ArgumentsAreMergable(fieldA, fieldB):
 
-- Given each pair of arguments {argumentA} and {argumentB} in {fieldA} and {fieldB}:
+- Given each pair of arguments {argumentA} and {argumentB} in {fieldA} and
+  {fieldB}:
   - Let {typeA} be the type of {argumentA}
   - Let {typeB} be the type of {argumentB}
   - {SameTypeShape(typeA, typeB)} must be true.
 
 **Explanatory Text**
 
-Fields on mergable objects or interfaces with that have the same name are considered semantically equivalent and mergable when they have a mergable argument types.
+Fields on mergable objects or interfaces with that have the same name are
+considered semantically equivalent and mergable when they have a mergable
+argument types.
 
 Fields when all matching arguments have a mergable type.
 
@@ -322,9 +344,14 @@ F0014
 
 **Explanatory Text**
 
-Required arguments of fields or directives (i.e., arguments that are non-nullable) must be exposed in the composed schema. Removing a required argument from the composed schema creates a contradiction where an argument is necessary for the operation in the composed schema but is not available for external use.
+Required arguments of fields or directives (i.e., arguments that are
+non-nullable) must be exposed in the composed schema. Removing a required
+argument from the composed schema creates a contradiction where an argument is
+necessary for the operation in the composed schema but is not available for
+external use.
 
-The following example illustrates a valid scenario where a required argument is not marked as `@internal`:
+The following example illustrates a valid scenario where a required argument is
+not marked as `@internal`:
 
 ```graphql example
 type Query {
@@ -336,7 +363,9 @@ type Query {
 }
 ```
 
-In this counter example, the `arg1` argument is essential for field `field1` in one of the subgraph and is marked as required, but it is also marked as `@internal`, violating the rule that required arguments cannot be internal:
+In this counter example, the `arg1` argument is essential for field `field1` in
+one of the subgraph and is marked as required, but it is also marked as
+`@internal`, violating the rule that required arguments cannot be internal:
 
 ```graphql counter-example
 type Query {
@@ -348,7 +377,9 @@ type Query {
 }
 ```
 
-In this counter example, the `arg1` argument is essential for field `field1` in one of the subgraph but does not exist in the other subgraph, violating the rule that required arguments cannot be internal:
+In this counter example, the `arg1` argument is essential for field `field1` in
+one of the subgraph but does not exist in the other subgraph, violating the rule
+that required arguments cannot be internal:
 
 ```graphql counter-example
 type Query {
@@ -360,7 +391,9 @@ type Query {
 }
 ```
 
-The same rule applied to directives. The following counter-example illustrate scenario where a directive argument is essential for a directive in one subgraph, but does not exist in the other subgraph:
+The same rule applied to directives. The following counter-example illustrate
+scenario where a directive argument is essential for a directive in one
+subgraph, but does not exist in the other subgraph:
 
 ```graphql counter-example
 directive @directive1(arg1: Int!) on FIELD
@@ -386,7 +419,9 @@ F0016
 
 **Explanatory Text**
 
-In a composed schema, a field within a composite type must only reference types that are exposed. This requirement guarantees that public types do not reference internal structures which are intended for internal use.
+In a composed schema, a field within a composite type must only reference types
+that are exposed. This requirement guarantees that public types do not reference
+internal structures which are intended for internal use.
 
 Here is a valid example where a public field references another public type:
 
@@ -406,7 +441,8 @@ type Object1 {
 }
 ```
 
-This is another valid case where the internal type is not exposed in the composed schema:
+This is another valid case where the internal type is not exposed in the
+composed schema:
 
 ```graphql example
 type Object1 {
@@ -424,7 +460,8 @@ type Object1 {
 }
 ```
 
-However, it becomes invalid if a public field in one subgraph references a type that is marked as `@internal` in another subgraph:
+However, it becomes invalid if a public field in one subgraph references a type
+that is marked as `@internal` in another subgraph:
 
 ```graphql counter-example
 type Object1 {
@@ -463,7 +500,8 @@ F0019
 
 IsObjectTypeEmpty(type):
 
-- Let {fields} be a set of all fields of all types with coordinate and kind {type} across all subgraphs
+- Let {fields} be a set of all fields of all types with coordinate and kind
+  {type} across all subgraphs
 - For each {field} in {fields}:
   - If {IsExposed(field)} is true
     - return false
@@ -471,9 +509,15 @@ IsObjectTypeEmpty(type):
 
 **Explanatory Text**
 
-For object types defined across multiple subgraphs, the merged object type is the superset of all fields defined in these subgraphs. However, any field marked with `@internal` in any subgraph is hidden and not included in the merged object type. An object type with no fields, after considering `@internal` markings, is considered empty and invalid.
+For object types defined across multiple subgraphs, the merged object type is
+the superset of all fields defined in these subgraphs. However, any field marked
+with `@internal` in any subgraph is hidden and not included in the merged object
+type. An object type with no fields, after considering `@internal` markings, is
+considered empty and invalid.
 
-In the following example, the merged object type `ObjectType1` is valid. It includes all fields from both subgraphs, with `field2` being hidden due to the `@internal` directive in one of the subgraphs:
+In the following example, the merged object type `ObjectType1` is valid. It
+includes all fields from both subgraphs, with `field2` being hidden due to the
+`@internal` directive in one of the subgraphs:
 
 ```graphql
 type ObjectType1 {
@@ -488,7 +532,10 @@ type ObjectType1 {
 }
 ```
 
-This counter-example demonstrates an invalid merged object type. In this case, `ObjectType1` is defined in two subgraphs, but all fields are marked as `@internal` in at least one of the subgraphs, resulting in an empty merged object type:
+This counter-example demonstrates an invalid merged object type. In this case,
+`ObjectType1` is defined in two subgraphs, but all fields are marked as
+`@internal` in at least one of the subgraphs, resulting in an empty merged
+object type:
 
 ```graphql counter-example
 type ObjectType1 {
@@ -512,7 +559,9 @@ F0005
 
 **Formal Specification**
 
-- Let {fieldsByName} be a map of field lists where the key is the name of a field and the value is a list of fields from mergable input types from different subgraphs with the same name.
+- Let {fieldsByName} be a map of field lists where the key is the name of a
+  field and the value is a list of fields from mergable input types from
+  different subgraphs with the same name.
 - For each {fields} in {fieldsByName}:
   - if {InputFieldsAreMergable(fields)} must be true.
 
@@ -525,11 +574,18 @@ InputFieldsAreMergable(fields):
 
 **Explanatory Text**
 
-The input fields of input objects with the same name must be mergable. This rule ensures that input objects with the same name in different subgraphs have fields that can be consistently merged without conflict.
+The input fields of input objects with the same name must be mergable. This rule
+ensures that input objects with the same name in different subgraphs have fields
+that can be consistently merged without conflict.
 
-Input fields are considered mergable when they share the same name and have compatible types. The compatibility of types is determined by their structure (lists), excluding nullability. Mergable input fields with different nullability are considered mergable, and the resulting merged field will be the most permissive of the two.
+Input fields are considered mergable when they share the same name and have
+compatible types. The compatibility of types is determined by their structure
+(lists), excluding nullability. Mergable input fields with different nullability
+are considered mergable, and the resulting merged field will be the most
+permissive of the two.
 
-In this example, the field `field` in `Input1` has compatible types across subgraphs, making them mergable:
+In this example, the field `field` in `Input1` has compatible types across
+subgraphs, making them mergable:
 
 ```graphql example
 input Input1 {
@@ -541,7 +597,8 @@ input Input1 {
 }
 ```
 
-Here, the field `tags` in `Input1` is a list type with compatible inner types, satisfying the mergable criteria:
+Here, the field `tags` in `Input1` is a list type with compatible inner types,
+satisfying the mergable criteria:
 
 ```graphql example
 input Input1 {
@@ -557,7 +614,8 @@ input Input1 {
 }
 ```
 
-In this counter-example, the field `field` in `Input1` has incompatible types (`String` and `DateTime`), making them not mergable:
+In this counter-example, the field `field` in `Input1` has incompatible types
+(`String` and `DateTime`), making them not mergable:
 
 ```graphql counter-example
 input Input1 {
@@ -569,7 +627,8 @@ input Input1 {
 }
 ```
 
-Here, the field `tags` in `Input1` is a list type with incompatible inner types (`String` and `DateTime`), violating the mergable rule:
+Here, the field `tags` in `Input1` is a list type with incompatible inner types
+(`String` and `DateTime`), violating the mergable rule:
 
 ```graphql counter-example
 input Input1 {
@@ -589,24 +648,37 @@ F0006
 
 **Formal Specification**
 
-- Let {inputsByName} be a map where the key is the name of an input object type, and the value is a list of all input object types from different subgraphs with that name.
+- Let {inputsByName} be a map where the key is the name of an input object type,
+  and the value is a list of all input object types from different subgraphs
+  with that name.
 - For each {listOfInputs} in {inputsByName}:
   - {InputFieldsAreMergable(listOfInputs)} must be true.
 
 InputFieldsAreMergable(inputs):
 
-- Let {fields} be the set of all field names of the first input object in {inputs}.
+- Let {fields} be the set of all field names of the first input object in
+  {inputs}.
 - For each {input} in {inputs}:
   - Let {inputFields} be the set of all field names of {input}.
   - {fields} must be equal to {inputFields}.
 
 **Explanatory Text**
 
-This rule ensures that input object types with the same name across different subgraphs have identical sets of field names. Consistency in input object fields across subgraphs is required to avoid conflicts and ambiguities in the composed schema. This rule only checks that the field names are the same, not that the field types are the same. Field types are checked by the [Input Field Types Mergable](#sec-Input-Field-Types-Mergable) rule.
+This rule ensures that input object types with the same name across different
+subgraphs have identical sets of field names. Consistency in input object fields
+across subgraphs is required to avoid conflicts and ambiguities in the composed
+schema. This rule only checks that the field names are the same, not that the
+field types are the same. Field types are checked by the
+[Input Field Types Mergable](#sec-Input-Field-Types-Mergable) rule.
 
-When an input object is defined with differing fields across subgraphs, it can lead to issues in query execution. A field expected in one subgraph might be absent in another, leading to undefined behavior. This rule prevents such inconsistencies by enforcing that all instances of the same named input object across subgraphs have a matching set of field names.
+When an input object is defined with differing fields across subgraphs, it can
+lead to issues in query execution. A field expected in one subgraph might be
+absent in another, leading to undefined behavior. This rule prevents such
+inconsistencies by enforcing that all instances of the same named input object
+across subgraphs have a matching set of field names.
 
-In this example, both subgraphs define `Input1` with the same field `field1`, satisfying the rule:
+In this example, both subgraphs define `Input1` with the same field `field1`,
+satisfying the rule:
 
 ```graphql example
 input Input1 {
@@ -618,7 +690,8 @@ input Input1 {
 }
 ```
 
-Here, the two definitions of `Input1` have different fields (`field1` and `field2`), violating the rule:
+Here, the two definitions of `Input1` have different fields (`field1` and
+`field2`), violating the rule:
 
 ```graphql counter-example
 input Input1 {
@@ -645,16 +718,21 @@ F0010
 
 IsInputObjectTypeEmpty(input):
 
-- Let {fields} be a set of all input fields across all subraphs with coordinate {input}
+- Let {fields} be a set of all input fields across all subraphs with coordinate
+  {input}
 - For each {field} in {fields}:
   - If {IsExposed(field)} is true
     - return false
 
 **Explanatory Text**
 
-When an input object type is defined in multiple subgraphs, only common fields and fields not flagged as `@internal` are included in the merged input object type. If this process results in an input object type with no fields, the input object type is considered empty and invalid.
+When an input object type is defined in multiple subgraphs, only common fields
+and fields not flagged as `@internal` are included in the merged input object
+type. If this process results in an input object type with no fields, the input
+object type is considered empty and invalid.
 
-In the following example, the merged input object type `Input1` is valid. The type is defined in two subgraphs:
+In the following example, the merged input object type `Input1` is valid. The
+type is defined in two subgraphs:
 
 ```graphql
 input Input1 {
@@ -668,7 +746,9 @@ input Input1 {
 }
 ```
 
-In the following example, the merged input object type `Input1` is valid and contains `field1` as it exists in both subgraphs. The type is defined in two subgraphs:
+In the following example, the merged input object type `Input1` is valid and
+contains `field1` as it exists in both subgraphs. The type is defined in two
+subgraphs:
 
 ```graphql
 input Input1 {
@@ -681,7 +761,8 @@ input Input1 {
 }
 ```
 
-In the following example, the merged input object type `Input1` is invalid. The type is defined in two subgraphs, but do not have any common fields.
+In the following example, the merged input object type `Input1` is invalid. The
+type is defined in two subgraphs, but do not have any common fields.
 
 ```graphql counter-example
 input Input1 {
@@ -693,7 +774,9 @@ input Input1 {
 }
 ```
 
-This counter-example shows an invalid merged input object type. The `Input1` type is defined in two subgraphs, but both `field1` and `field2` are flagged as `@internal` in one of the subgraphs:
+This counter-example shows an invalid merged input object type. The `Input1`
+type is defined in two subgraphs, but both `field1` and `field2` are flagged as
+`@internal` in one of the subgraphs:
 
 ```graphql counter-example
 input Input1 {
@@ -707,7 +790,10 @@ input Input1 {
 }
 ```
 
-In this counter-example, the `Input1` type is defined in two subgraphs, but `field1` is flagged as `@internal` in one subgraph and `field2` is flagged as `@internal` in the other subgraph, resulting in an empty merged input object type:
+In this counter-example, the `Input1` type is defined in two subgraphs, but
+`field1` is flagged as `@internal` in one subgraph and `field2` is flagged as
+`@internal` in the other subgraph, resulting in an empty merged input object
+type:
 
 ```graphql counter-example
 input Input1 {
@@ -721,7 +807,9 @@ input Input1 {
 }
 ```
 
-In the following example, the merged input object type `Input1` is invalid. The type is defined in two subgraphs, but do not have the common field `field1` is flagged as `@internal` in one of the subgraphs:
+In the following example, the merged input object type `Input1` is invalid. The
+type is defined in two subgraphs, but do not have the common field `field1` is
+flagged as `@internal` in one of the subgraphs:
 
 ```graphql counter-example
 input Input1 {
@@ -741,26 +829,35 @@ F0011
 
 **Formal Specification**
 
-- Let {inputFieldsByName} be a map where the key is the name of an input field and the value is a list of input fields from different subgraphs from the same type with the same name.
+- Let {inputFieldsByName} be a map where the key is the name of an input field
+  and the value is a list of input fields from different subgraphs from the same
+  type with the same name.
 - For each {inputFields} in {inputFieldsByName}:
-  - Let {defaultValues} be a set containing the default values of each input field in {inputFields}.
+  - Let {defaultValues} be a set containing the default values of each input
+    field in {inputFields}.
   - If the size of {defaultValues} is greater than
     - {InputFieldsHaveConsistentDefaults(inputFields)} must be false.
 
 InputFieldsHaveConsistentDefaults(inputFields):
 
-- Given each pair of input fields {inputFieldA} and {inputFieldB} in {inputFields}:
-  - If the default value of {inputFieldA} is not equal to the default value of {inputFieldB}:
+- Given each pair of input fields {inputFieldA} and {inputFieldB} in
+  {inputFields}:
+  - If the default value of {inputFieldA} is not equal to the default value of
+    {inputFieldB}:
     - return false
 - return true
 
 **Explanatory Text**
 
-Input fields in different subgraphs that have the same name are required to have consistent default values. This ensures that there is no ambiguity or inconsistency when merging schemas from different subgraphs.
+Input fields in different subgraphs that have the same name are required to have
+consistent default values. This ensures that there is no ambiguity or
+inconsistency when merging schemas from different subgraphs.
 
-A mismatch in default values for input fields with the same name across different subgraphs will result in a schema composition error.
+A mismatch in default values for input fields with the same name across
+different subgraphs will result in a schema composition error.
 
-In the the following example both subgraphs have an input field `field1` with the same default value. This is valid:
+In the the following example both subgraphs have an input field `field1` with
+the same default value. This is valid:
 
 ```graphql example
 input Filter {
@@ -782,7 +879,8 @@ enum Enum1 {
 }
 ```
 
-In the following example both subgraphs define an input field `field1` with different default values. This is invalid:
+In the following example both subgraphs define an input field `field1` with
+different default values. This is invalid:
 
 ```graphql counter-example
 input Filter {
@@ -812,7 +910,9 @@ F0015
 
 **Explanatory Text**
 
-In a composed schema, a field within a input type must only reference types that are exposed. This requirement guarantees that public types do not reference internal structures which are intended for internal use.
+In a composed schema, a field within a input type must only reference types that
+are exposed. This requirement guarantees that public types do not reference
+internal structures which are intended for internal use.
 
 A valid case where a public input field references another public input type:
 
@@ -854,7 +954,8 @@ input Input1 {
 }
 ```
 
-An invalid case where a public input field in one subgraph references an input type that is marked as `@internal` in another subgraph:
+An invalid case where a public input field in one subgraph references an input
+type that is marked as `@internal` in another subgraph:
 
 ```graphql counter-example
 input Input1 {
@@ -896,10 +997,14 @@ F0012
 
 **Explanatory Text**
 
-Input object types can be defined in multiple subgraphs. Required fields in these input object types (i.e., fields that are non-nullable) must be exposed in the composed graph.
-A required internal field would create a contradiction where a field is both necessary for the operation in the composed schema but also not available for external use.
+Input object types can be defined in multiple subgraphs. Required fields in
+these input object types (i.e., fields that are non-nullable) must be exposed in
+the composed graph. A required internal field would create a contradiction where
+a field is both necessary for the operation in the composed schema but also not
+available for external use.
 
-This example shows a valid scenario where the required field is not marked as `@internal`:
+This example shows a valid scenario where the required field is not marked as
+`@internal`:
 
 ```graphql example
 input InputType1 {
@@ -911,7 +1016,8 @@ input InputType1 {
 }
 ```
 
-Consider the following example where an input object type `InputType1` includes a required field `field1`:
+Consider the following example where an input object type `InputType1` includes
+a required field `field1`:
 
 ```graphql counter-example
 input InputType1 {
@@ -923,7 +1029,9 @@ input InputType1 {
 }
 ```
 
-In this counter-example, the field `field1` is only defined in one subgraph, so will not be included in the composed schema. Therefor this field cannot be non-nullable:
+In this counter-example, the field `field1` is only defined in one subgraph, so
+will not be included in the composed schema. Therefor this field cannot be
+non-nullable:
 
 ```graphql counter-example
 input InputType1 {
@@ -946,7 +1054,8 @@ F0003
 
 **Formal Specification**
 
-- Let {enumsByName} be a map where the key is the name of an enum type, and the value is a list of all enum types from different subgraphs with that name.
+- Let {enumsByName} be a map where the key is the name of an enum type, and the
+  value is a list of all enum types from different subgraphs with that name.
 - For each {listOfEnum} in {enumsByName}:
   - {EnumAreMergable(listOfEnum)} must be true.
 
@@ -959,11 +1068,19 @@ EnumAreMergable(enums):
 
 **Explanatory Text**
 
-This rule ensures that enum types with the same name across different subgraphs in a supergraph have identical sets of values. Enums, must be consistent across subgraphs to avoid conflicts and ambiguities in the composed schema.
+This rule ensures that enum types with the same name across different subgraphs
+in a supergraph have identical sets of values. Enums, must be consistent across
+subgraphs to avoid conflicts and ambiguities in the composed schema.
 
-When an enum is defined with differing values across subgraphs, it can lead to confusion and errors in query execution. For instance, a value valid in one subgraph might be passed to another where it's unrecognized, leading to unexpected behavior or failures. This rule prevents such inconsistencies by enforcing that all instances of the same named enum across subgraphs have an exact match in their values.
+When an enum is defined with differing values across subgraphs, it can lead to
+confusion and errors in query execution. For instance, a value valid in one
+subgraph might be passed to another where it's unrecognized, leading to
+unexpected behavior or failures. This rule prevents such inconsistencies by
+enforcing that all instances of the same named enum across subgraphs have an
+exact match in their values.
 
-In this example, both subgraphs define `Enum1` with the same value `BAR`, satisfying the rule:
+In this example, both subgraphs define `Enum1` with the same value `BAR`,
+satisfying the rule:
 
 ```graphql example
 enum Enum1 {
@@ -975,7 +1092,8 @@ enum Enum1 {
 }
 ```
 
-Here, the two definitions of `Enum1` have different values (`BAR` and `Baz`), violating the rule:
+Here, the two definitions of `Enum1` have different values (`BAR` and `Baz`),
+violating the rule:
 
 ```graphql counter-example
 enum Enum1 {
@@ -1041,10 +1159,12 @@ ValidateDefaultValue(defaultValue):
 
 **Explanatory Text**
 
-A default value for an argument in a field must only reference enum values or a input fields that are exposed in the composed schema.
-This rule ensures that internal members are not exposed in the composed schema through default values.
+A default value for an argument in a field must only reference enum values or a
+input fields that are exposed in the composed schema. This rule ensures that
+internal members are not exposed in the composed schema through default values.
 
-In this example the `FOO` value in the `Enum1` enum is not marked with @internal, hence it doesn't violate the rule.
+In this example the `FOO` value in the `Enum1` enum is not marked with
+@internal, hence it doesn't violate the rule.
 
 ```graphql
 type Query {
@@ -1057,7 +1177,9 @@ enum Enum1 {
 }
 ```
 
-This example is a violation of the rule because the default value for the field `field` in type `Input1` references an enum value (`FOO`) that is marked as `@internal`.
+This example is a violation of the rule because the default value for the field
+`field` in type `Input1` references an enum value (`FOO`) that is marked as
+`@internal`.
 
 ```graphql counter-example
 type Query {
@@ -1085,7 +1207,9 @@ input Input1 {
 }
 ```
 
-This example is a violation of the rule because the default value for the `type` argument in the `field` field references an enum value (`BAR`) that is marked as `@internal`.
+This example is a violation of the rule because the default value for the `type`
+argument in the `field` field references an enum value (`BAR`) that is marked as
+`@internal`.
 
 ```graphql example counter-example
 type Query {
@@ -1106,7 +1230,8 @@ F0009
 
 **Formal Specification**
 
-- Let {enumsByName} be the set of all enums across all subgraphs involved in the schema composition grouped by their name.
+- Let {enumsByName} be the set of all enums across all subgraphs involved in the
+  schema composition grouped by their name.
 - For each {enum} in {enumsByName}:
   - If {IsExposed(enum)} is true
     - {IsEnumEmpty(enum)} must be false
@@ -1121,9 +1246,13 @@ IsEnumEmpty(enum):
 
 **Explanatory Text**
 
-If an enum type is defined in multiple subgraphs, only values not flagged as `@internal` in all subgraphs are included in the merged enum type. If this process results in an enum type with no values, the enum type is considered empty and invalid.
+If an enum type is defined in multiple subgraphs, only values not flagged as
+`@internal` in all subgraphs are included in the merged enum type. If this
+process results in an enum type with no values, the enum type is considered
+empty and invalid.
 
-The following example shows a valid merged enum type. The `Enum1` type is defined in two subgraphs:
+The following example shows a valid merged enum type. The `Enum1` type is
+defined in two subgraphs:
 
 ```graphql
 enum Enum1 {
@@ -1137,7 +1266,9 @@ enum Enum1 {
 }
 ```
 
-This counter-example shows an invalid merged enum type. The `Enum1` type is defined in two subgraphs, but the `Value1` and `Value2` values are flagged as `@internal` in one of the subgraphs:
+This counter-example shows an invalid merged enum type. The `Enum1` type is
+defined in two subgraphs, but the `Value1` and `Value2` values are flagged as
+`@internal` in one of the subgraphs:
 
 ```graphql counter-example
 enum Enum1 {
@@ -1151,7 +1282,10 @@ enum Enum1 {
 }
 ```
 
-In this counter-example, the `Enum1` type is defined in two subgraphs, but the `Value1` value is flagged as `@internal` in one of the subgraphs and the `Value2` value is flagged as `@internal` in the other subgraph which results in an empty merged enum type:
+In this counter-example, the `Enum1` type is defined in two subgraphs, but the
+`Value1` value is flagged as `@internal` in one of the subgraphs and the
+`Value2` value is flagged as `@internal` in the other subgraph which results in
+an empty merged enum type:
 
 ```graphql counter-example
 enum Enum1 {
@@ -1182,7 +1316,8 @@ F0018
 
 IsInterfaceTypeEmpty(interface):
 
-- Let {fields} be a set of all fields across all subgraphs with coordinate and kind of {interface}
+- Let {fields} be a set of all fields across all subgraphs with coordinate and
+  kind of {interface}
 - For each {field} in {fields}:
   - If {IsExposed(field)} is true
     - return false
@@ -1190,9 +1325,13 @@ IsInterfaceTypeEmpty(interface):
 
 **Explanatory Text**
 
-When an interface type is defined in multiple subgraphs, only common fields and fields not flagged as `@internal` are included in the merged interface type. If this process results in an interface type with no fields, the interface type is considered empty and invalid.
+When an interface type is defined in multiple subgraphs, only common fields and
+fields not flagged as `@internal` are included in the merged interface type. If
+this process results in an interface type with no fields, the interface type is
+considered empty and invalid.
 
-In the following example, the merged interface type `Interface1` is valid. The type is defined in two subgraphs:
+In the following example, the merged interface type `Interface1` is valid. The
+type is defined in two subgraphs:
 
 ```graphql example
 interface Interface1 {
@@ -1206,7 +1345,9 @@ interface Interface1 {
 }
 ```
 
-In the following example, the merged interface type `Interface1` is valid and contains `field1` as it exists in both subgraphs. The type is defined in two subgraphs:
+In the following example, the merged interface type `Interface1` is valid and
+contains `field1` as it exists in both subgraphs. The type is defined in two
+subgraphs:
 
 ```graphql example
 interface Interface1 {
@@ -1219,7 +1360,8 @@ interface Interface1 {
 }
 ```
 
-In the following example, the merged interface type `Interface1` is invalid. The type is defined in two subgraphs, but do not have any common fields:
+In the following example, the merged interface type `Interface1` is invalid. The
+type is defined in two subgraphs, but do not have any common fields:
 
 ```graphql counter-example
 interface Interface1 {
@@ -1231,7 +1373,9 @@ interface Interface1 {
 }
 ```
 
-This counter-example shows an invalid merged interface type. The `Interface1` type is defined in two subgraphs, but both `field1` and `field2` are flagged as `@internal` in one of the subgraphs:
+This counter-example shows an invalid merged interface type. The `Interface1`
+type is defined in two subgraphs, but both `field1` and `field2` are flagged as
+`@internal` in one of the subgraphs:
 
 ```graphql counter-example
 interface Interface1 {
@@ -1245,7 +1389,9 @@ interface Interface1 {
 }
 ```
 
-In this counter-example, the `Interface1` type is defined in two subgraphs, but `field1` is flagged as `@internal` in one subgraph and `field2` is flagged as `@internal` in the other subgraph, resulting in an empty merged interface type:
+In this counter-example, the `Interface1` type is defined in two subgraphs, but
+`field1` is flagged as `@internal` in one subgraph and `field2` is flagged as
+`@internal` in the other subgraph, resulting in an empty merged interface type:
 
 ```graphql counter-example
 interface Interface1 {
@@ -1259,7 +1405,9 @@ interface Interface1 {
 }
 ```
 
-In the following example, the merged interface type `Interface1` is invalid. The type is defined in two subgraphs, but the common field `field1` is flagged as `@internal` in one of the subgraphs:
+In the following example, the merged interface type `Interface1` is invalid. The
+type is defined in two subgraphs, but the common field `field1` is flagged as
+`@internal` in one of the subgraphs:
 
 ```graphql counter-example
 interface Interface1 {
@@ -1292,7 +1440,9 @@ F0017
 
 **Explanatory Text**
 
-A union type must not include members where the type is marked as `@internal` in any subgraph. This rule ensures that the composed schema does not expose internal types.
+A union type must not include members where the type is marked as `@internal` in
+any subgraph. This rule ensures that the composed schema does not expose
+internal types.
 
 Here is a valid example where all member types of a union are public:
 
@@ -1314,7 +1464,8 @@ type Object3 {
 union Union1 = Object3
 ```
 
-In this counter-example, the member type `Object2` is marked as `@internal` in the second subgraph, so the composed schema is invalid:
+In this counter-example, the member type `Object2` is marked as `@internal` in
+the second subgraph, so the composed schema is invalid:
 
 ```graphql counter-example
 union Union1 = Object1 | Object2
@@ -1363,9 +1514,15 @@ HasQueryRootType(schemas):
 
 **Explanatory Text**
 
-A schema composed from multiple subgraphs must have a query root type to be valid. The query root type is essential. This rule ensures that at least one subgraph in the composition defines a query root type that defines at least one query field.
+A schema composed from multiple subgraphs must have a query root type to be
+valid. The query root type is essential. This rule ensures that at least one
+subgraph in the composition defines a query root type that defines at least one
+query field.
 
-The examples provided in the test cases demonstrate how the absence or presence of a valid query root type impacts the composition result. A composition that does not meet this requirement should result in an error with the code F0007, indicating the need for at least one query field across the included subgraphs.
+The examples provided in the test cases demonstrate how the absence or presence
+of a valid query root type impacts the composition result. A composition that
+does not meet this requirement should result in an error with the code F0007,
+indicating the need for at least one query field across the included subgraphs.
 
 ```graphql
 type Query {
@@ -1377,7 +1534,8 @@ type Query {
 }
 ```
 
-In the example, both `field1` and `field2` are marked for removal, leaving no valid query fields:
+In the example, both `field1` and `field2` are marked for removal, leaving no
+valid query fields:
 
 ```graphql counter-example
 type Query {
@@ -1389,7 +1547,8 @@ type Query @remove {
 }
 ```
 
-In this case, the presence of `@internal` on `field`1 removes the field from the composed schema, leaving no accessible query fields.
+In this case, the presence of `@internal` on `field`1 removes the field from the
+composed schema, leaving no accessible query fields.
 
 ```graphql counter-example
 type Query {
@@ -1405,8 +1564,9 @@ type Query {
 
 #### Same Type Shape
 
-If types differ only in nullability they are still considered mergable. This algorithm determines
-if two types are mergable by removing non-nullibility from the types when comparing them.
+If types differ only in nullability they are still considered mergable. This
+algorithm determines if two types are mergable by removing non-nullibility from
+the types when comparing them.
 
 SameTypeShape(typeA, typeB):
 
@@ -1433,14 +1593,16 @@ SameTypeShape(typeA, typeB):
 
 IsExposed(member):
 
-- Let {members} be a list of all members across all subgraphs with the same coordinate and kind as {member}
+- Let {members} be a list of all members across all subgraphs with the same
+  coordinate and kind as {member}
 - If any {members} is marked with `@internal`
   - return false
 - If {member} is InputField
   - Let {type} be any input object type that {member} is declared on
   - if {IsExposed(type)} is false
     - return false
-  - Let {types} be the list of all types across all subgraphs with the same coordinate and kind as {type}
+  - Let {types} be the list of all types across all subgraphs with the same
+    coordinate and kind as {type}
   - If {member} is in {CommonFields(types)}
     - return true
   - return false
@@ -1454,7 +1616,8 @@ IsExposed(member):
   - Let {type} be the any type that {member} is declared on
   - If {IsExposed(type)} is false
     - return false
-  - Let {types} be the list of all types across all subgraphs with the same coordinate and kind as {type}
+  - Let {types} be the list of all types across all subgraphs with the same
+    coordinate and kind as {type}
   - If {member} is in {CommonFields(types)}
     - return true
   - return false
@@ -1463,7 +1626,8 @@ IsExposed(member):
     - Let {declaringField} be any field that {member} is declared on
     - If {IsExposed(declaringField)} is false
       - return false
-    - Let {declaringFields} be the list of all fields across all subgraphs with the same coordinate and kind as {declaringField}
+    - Let {declaringFields} be the list of all fields across all subgraphs with
+      the same coordinate and kind as {declaringField}
     - If {member} is in {CommonArguments(declaringFields)}
       - return true
     - return false
@@ -1471,7 +1635,8 @@ IsExposed(member):
     - Let {declaringDirective} be any directive that {member} is declared on
     - If {IsExposed(declaringDirective)} is false
       - return false
-    - Let {declaringDirectives} be the list of any directives across all subgraphs with the same coordiante and kind as {declaringDirective}
+    - Let {declaringDirectives} be the list of any directives across all
+      subgraphs with the same coordiante and kind as {declaringDirective}
     - If {member} is in {CommonArguments(declaringDirectives)}
       - return true
     - return false
@@ -1479,15 +1644,18 @@ IsExposed(member):
 
 CommonArguments(members):
 
-- Let {commonArguments} be the set of all arguments of all {members} across all subgraphs
+- Let {commonArguments} be the set of all arguments of all {members} across all
+  subgraphs
 - For each {member} in {members}
   - Let {arguments} be the set of all arguments of {member}
-  - Let {commonArguments} be the intersection of {commonArguments} and {arguments}
+  - Let {commonArguments} be the intersection of {commonArguments} and
+    {arguments}
 - return {commonArguments}
 
 CommonFields(members):
 
-- Let {commonFields} be the set of all fields of all {members} across all subgraphs
+- Let {commonFields} be the set of all fields of all {members} across all
+  subgraphs
 - For each {member} in {members}
   - Let {fields} be the set of all fields of {member}
   - Let {commonFields} be the intersection of {commonFields} and {fields}
@@ -1495,12 +1663,14 @@ CommonFields(members):
 
 ## Compose
 
-To compose a gateway configuration the composition tooling must have loaded at least one subgraph configuration.
+To compose a gateway configuration the composition tooling must have loaded at
+least one subgraph configuration.
 
 ComposeConfiguration(subgraphConfigurations):
 
 - For each {subgraphConfiguration} in {subgraphConfigurations}:
-- Let {subgraphSchema} be the result of {BuildSubgraphSchema(subgraphConfiguration)}.
+- Let {subgraphSchema} be the result of
+  {BuildSubgraphSchema(subgraphConfiguration)}.
 
 BuildSubgraphSchema(subgraphConfiguration):
 
@@ -1531,13 +1701,16 @@ MergeSchema(schemaA, schemaB):
 
 #### MergeObjectType
 
-This algorithm combines two object types from different subgraphs into a single object type. 
-It does this only if neither type is marked as `@internal`, ensuring internal types remain private.
+This algorithm combines two object types from different subgraphs into a single
+object type. It does this only if neither type is marked as `@internal`,
+ensuring internal types remain private.
 
-This algorithm creates a merged output type containing all the fields from both types, unless they are marked as `@internal`.
-When the same field exists in both types, it merges these fields into one.
+This algorithm creates a merged output type containing all the fields from both
+types, unless they are marked as `@internal`. When the same field exists in both
+types, it merges these fields into one.
 
-The fields are merged by name, and the merged field is the result of calling {MergeOutputField(fieldA, fieldB)}.
+The fields are merged by name, and the merged field is the result of calling
+{MergeOutputField(fieldA, fieldB)}.
 
 MergeOutputType(typeA, typeB):
 
@@ -1556,13 +1729,15 @@ MergeOutputType(typeA, typeB):
   - If {fieldA} is null
     - Append {fieldB} to {outputType}
     - continue
-  - Let {mergedField} be the result of calling {MergeOutputField(fieldA, fieldB)}
+  - Let {mergedField} be the result of calling {MergeOutputField(fieldA,
+    fieldB)}
   - Append {mergedField} to {outputType}
 - Set {outputType} to have the same name as {typeA}
-- Set {outputType} to have {MergeInterfaceImplementation(typeA, typeB)} as its interfaces
+- Set {outputType} to have {MergeInterfaceImplementation(typeA, typeB)} as its
+  interfaces
 - return {outputType}
 
-*Examples of Merging Output Object Types:*
+_Examples of Merging Output Object Types:_
 
 ```graphql example
 # Subgraph A
@@ -1577,7 +1752,7 @@ type OutputTypeA {
   uniqueFieldB: Boolean
 }
 
-# Result 
+# Result
 type OutputTypeA {
   commonField: String
   uniqueFieldA: Int
@@ -1585,7 +1760,7 @@ type OutputTypeA {
 }
 ```
 
-*Merging Output Object Types with `@internal` Fields:*
+_Merging Output Object Types with `@internal` Fields:_
 
 ```graphql example
 # Subgraph A
@@ -1609,20 +1784,24 @@ type OutputTypeA {
 
 #### MergeInputType
 
-This algorithm merges two input object types from different subgraphs. 
-It excludes any type marked with `@internal`, ensuring internal types are not exposed in the merged schema. 
+This algorithm merges two input object types from different subgraphs. It
+excludes any type marked with `@internal`, ensuring internal types are not
+exposed in the merged schema.
 
-The fields of the merged input object type are the intersection of the fields of the input object types from the subgraphs.
-This approach ensures that the merged input object type is compatible with both subgraphs.
+The fields of the merged input object type are the intersection of the fields of
+the input object types from the subgraphs. This approach ensures that the merged
+input object type is compatible with both subgraphs.
 
-The fields are merged by name, and the merged field is the result of calling {MergeInputField(fieldA, fieldB)}.
+The fields are merged by name, and the merged field is the result of calling
+{MergeInputField(fieldA, fieldB)}.
 
 MergeInputType(typeA, typeB):
 
 - If {typeA} or {typeB} are `@internal`
   - return null
 - Let {inputType} be an empty InputObjectTypeDefinition
-- Let {commonFields} be the set of fields names that are defined on both {typeA} and {typeB}
+- Let {commonFields} be the set of fields names that are defined on both {typeA}
+  and {typeB}
 - For each {field} in {commonFields}:
   - Let {fieldA} be the field with the same name on {typeA}
   - Let {fieldB} be the field with the same name on {typeB}
@@ -1633,7 +1812,7 @@ MergeInputType(typeA, typeB):
 - Set {inputType} to have the same name as {typeA}
 - return {inputType}
 
-*Merging Common Input Object Fields:*
+_Merging Common Input Object Fields:_
 
 ```graphql example
 # Subgraph A
@@ -1654,7 +1833,7 @@ input InputTypeA {
 }
 ```
 
-*Merging Common Input Object Fields with `@internal` Fields:*
+_Merging Common Input Object Fields with `@internal` Fields:_
 
 ```graphql example
 # Subgraph A
@@ -1666,7 +1845,7 @@ input InputTypeA {
 # Subgraph B
 input InputTypeA {
   commonField: String
-  internalField: Int 
+  internalField: Int
 }
 
 # Merged Input Object
@@ -1677,31 +1856,37 @@ input InputTypeA {
 
 #### MergeInterfaceType
 
-This algorithm merges two interface types from different subgraphs, given that neither type is marked as `@internal`.
+This algorithm merges two interface types from different subgraphs, given that
+neither type is marked as `@internal`.
 
-The resulting interface type is the intersection of the fields of the interface types from the subgraphs.
-This approach ensures that the merged interface type is compatible with object types from both subgraphs. 
+The resulting interface type is the intersection of the fields of the interface
+types from the subgraphs. This approach ensures that the merged interface type
+is compatible with object types from both subgraphs.
 
-The fields are merged by name, and the merged field is the result of calling {MergeOutputField(fieldA, fieldB)}.
+The fields are merged by name, and the merged field is the result of calling
+{MergeOutputField(fieldA, fieldB)}.
 
 MergeInterfaceType(typeA, typeB):
 
 - If {typeA} or {typeB} are `@internal`
   - return null
 - Let {interfaceType} be an empty InterfaceTypeDefinition
-- Let {fields} be a set of common field names that are defined in {typeA} and {typeB}
+- Let {fields} be a set of common field names that are defined in {typeA} and
+  {typeB}
 - For each {fieldName} in {fields}:
   - Let {fieldA} be the field with the same name on {typeA}
   - Let {fieldB} be the field with the same name on {typeB}
   - If {fieldA} or {fieldB} are `@internal`
     - continue
-  - Let {mergedField} be the result of calling {MergeOutputField(fieldA, fieldB)}
+  - Let {mergedField} be the result of calling {MergeOutputField(fieldA,
+    fieldB)}
   - Append {mergedField} to {interfaceType}
 - Set {interfaceType} to have the same name as {typeA}
-- Set {interfaceType} to have {MergeInterfaceImplementation(typeA, typeB)} as its interfaces
+- Set {interfaceType} to have {MergeInterfaceImplementation(typeA, typeB)} as
+  its interfaces
 - return {interfaceType}
 
-*Merging Common Fields:*
+_Merging Common Fields:_
 
 ```graphql example
 # Subgraph A
@@ -1721,7 +1906,7 @@ interface InterfaceA {
 }
 ```
 
-*Merging Common Fields with `@internal` Fields:*
+_Merging Common Fields with `@internal` Fields:_
 
 ```graphql example
 # Subgraph A
@@ -1733,7 +1918,7 @@ interface InterfaceA {
 # Subgraph B
 interface InterfaceA {
   commonField: String
-  internalField: Int 
+  internalField: Int
 }
 
 # Merged Interface
@@ -1742,7 +1927,9 @@ interface InterfaceA {
 }
 ```
 
-This counter example shows why it is important that the gateway uses the intersection rather than the union of the fields of the interface types from the subgraphs:
+This counter example shows why it is important that the gateway uses the
+intersection rather than the union of the fields of the interface types from the
+subgraphs:
 
 ```graphql counter-example
 # Subgraph A
@@ -1770,34 +1957,37 @@ interface InterfaceA {
   uniqueFieldB: Boolean
 }
 
-# This object type is no longer compatible with the merged interface types as it is 
+# This object type is no longer compatible with the merged interface types as it is
 # missing the `uniqueFieldB` field.
-type ObjectA implements InterfaceA { 
+type ObjectA implements InterfaceA {
   commonField: String
   uniqueFieldA: Int
 }
 ```
 
-
 #### MergeUnionType
 
-This algorithm is used to merge two union types from separate subgraphs. 
-It combines the members from both union types into a new union type by name, given neither original type is marked as `@internal`. 
+This algorithm is used to merge two union types from separate subgraphs. It
+combines the members from both union types into a new union type by name, given
+neither original type is marked as `@internal`.
 
-This algorithm has to combine the members of both types, because otherwise there is the possibility of invalid states during the execution. 
-If members were removed from the union type, the subgraph could still return it as a result of a query, which would be invalid in the composed schema.
+This algorithm has to combine the members of both types, because otherwise there
+is the possibility of invalid states during the execution. If members were
+removed from the union type, the subgraph could still return it as a result of a
+query, which would be invalid in the composed schema.
 
 MergeUnionType(typeA, typeB):
 
 - If {typeA} or {typeB} are `@internal`
   - return null
 - Let {unionType} be an empty UnionTypeDefinition
-- Let {types} be a set of type names that are defined on either {typeA} or {typeB}
+- Let {types} be a set of type names that are defined on either {typeA} or
+  {typeB}
 - Set {unionType} to have the same name as {typeA}
 - Set {types} to be the types of {unionType}
 - return {unionType}
 
-*Merging Union Types:*
+_Merging Union Types:_
 
 ```graphql
 # Subgraph A
@@ -1806,11 +1996,11 @@ union UnionTypeA = Type1 | Type2
 # Subgraph B
 union UnionTypeA = Type2 | Type3
 
-# Result 
+# Result
 union UnionTypeA = Type1 | Type2 | Type3
 ```
 
-*Merging Union Types with `@internal`:*
+_Merging Union Types with `@internal`:_
 
 ```graphql
 # Subgraph A
@@ -1823,8 +2013,9 @@ union UnionTypeA @internal = Type2 | Type3
 null
 ```
 
-The following counter-example shows a invalid composition. 
-Subgraph A could still return `Type1` for the field `field1`, which would lead to an execution error:
+The following counter-example shows a invalid composition. Subgraph A could
+still return `Type1` for the field `field1`, which would lead to an execution
+error:
 
 ```graphql counter-example
 # Subgraph A
@@ -1835,7 +2026,7 @@ type Type1 {
 }
 
 # Subgraph B
-union UnionTypeA = Type2 
+union UnionTypeA = Type2
 
 type Type1 {
   field1: UnionTypeA
@@ -1851,14 +2042,16 @@ type Type1 {
 
 #### MergeEnumType
 
-This algorithm merges two enum types from different subgraphs into one, given if neither is
-marked as `@internal`. This process simply retains the enum values from {typeA} for the merged
-enum type as {typeA} and {typeB} are guaranteed to have the same values because
+This algorithm merges two enum types from different subgraphs into one, given if
+neither is marked as `@internal`. This process simply retains the enum values
+from {typeA} for the merged enum type as {typeA} and {typeB} are guaranteed to
+have the same values because
 [Values Must Be The Same Across Subgraphs](#sec-Values-Must-Be-The-Same-Across-Subgraphs)
 
-Since enum types can be used both as input and output types, they must be strictly equal
-in both subgraphs. This strict equality rule avoids any invalid states that could arise from
-using either an intersection or union of the enum values.
+Since enum types can be used both as input and output types, they must be
+strictly equal in both subgraphs. This strict equality rule avoids any invalid
+states that could arise from using either an intersection or union of the enum
+values.
 
 MergeEnumType(typeA, typeB):
 
@@ -1870,9 +2063,9 @@ MergeEnumType(typeA, typeB):
 - Set {valuesOfA} to be the values of {enumType}
 - return {enumType}
 
-*Examples of Merging Enum Types:*
+_Examples of Merging Enum Types:_
 
-```graphql 
+```graphql
 # Subgraph A
 enum EnumTypeA {
   VALUE1
@@ -1892,9 +2085,10 @@ enum EnumTypeA {
 }
 ```
 
-The following counter-example shows an invalid composition that uses the union merge approach. 
-A query to subgraph B could use `VALUE1` in `field1` which would lead to an execution error:
-  
+The following counter-example shows an invalid composition that uses the union
+merge approach. A query to subgraph B could use `VALUE1` in `field1` which would
+lead to an execution error:
+
 ```graphql counter-example
 # Subgraph A
 enum EnumType1 {
@@ -1921,8 +2115,9 @@ input Input1 {
 }
 ```
 
-The following counter-example shows an invalid composition that uses the intersection merge approach. 
-A query to subgraph A could return `VALUE2` in `field1` which would lead to an execution error:
+The following counter-example shows an invalid composition that uses the
+intersection merge approach. A query to subgraph A could return `VALUE2` in
+`field1` which would lead to an execution error:
 
 ```graphql counter-example
 # Subgraph A
@@ -1952,9 +2147,10 @@ input Type1 {
 
 #### MergeInputField
 
-This algorithm merges two input fields from the same type of different subgraphs into one.
-The algorithm expects that both fields have the same schema coordinate. 
-The type of the field is the result of calling {MergeInputFieldType(typeA, typeB)}.
+This algorithm merges two input fields from the same type of different subgraphs
+into one. The algorithm expects that both fields have the same schema
+coordinate. The type of the field is the result of calling
+{MergeInputFieldType(typeA, typeB)}.
 
 MergeInputField(fieldA, fieldB):
 
@@ -1966,7 +2162,7 @@ MergeInputField(fieldA, fieldB):
 - Set {mergedField} to have {mergedType} as its type
 - return {mergedField}
 
-*Merging Input Fields:*
+_Merging Input Fields:_
 
 ```graphql example
 # Subgraph A
@@ -1987,10 +2183,11 @@ input InputTypeA {
 
 #### MergeOutputField
 
-This algorithm merges two output fields from the same type of different subgraphs into one.
-The algorithm expects that both fields have the same schema coordinate.
-The arguments of both fields are merged based on {MergeArguments(fieldA, fieldB)}.
-The type of the field is the result of calling {MergeOutputFieldType(typeA, typeB)}.
+This algorithm merges two output fields from the same type of different
+subgraphs into one. The algorithm expects that both fields have the same schema
+coordinate. The arguments of both fields are merged based on
+{MergeArguments(fieldA, fieldB)}. The type of the field is the result of calling
+{MergeOutputFieldType(typeA, typeB)}.
 
 MergeOutputField(fieldA, fieldB):
 
@@ -2003,7 +2200,7 @@ MergeOutputField(fieldA, fieldB):
 - Set {mergedField} to have arguments {MergeArguments(fieldA, fieldB)}
 - return {mergedField}
 
-*Merging Output Fields:*
+_Merging Output Fields:_
 
 ```graphql example
 # Subgraph A
@@ -2024,28 +2221,33 @@ type OutputTypeA {
 
 #### MergeArguments
 
-This algorithm merges the arguments of two fields from the same type of different subgraphs into a combined list of arguments.
-The algorithm expects that both fields have the same schema coordinate.
+This algorithm merges the arguments of two fields from the same type of
+different subgraphs into a combined list of arguments. The algorithm expects
+that both fields have the same schema coordinate.
 
-The arguments are merged by name, and the merged argument is the result of calling {MergeArgument(argumentA, argumentB)}.
+The arguments are merged by name, and the merged argument is the result of
+calling {MergeArgument(argumentA, argumentB)}.
 
-Only arguments that are defined on both fields are merged. 
-If an argument is only defined on one field, it is not included in the merged list to ensure that the merged field is compatible with both subgraphs.
+Only arguments that are defined on both fields are merged. If an argument is
+only defined on one field, it is not included in the merged list to ensure that
+the merged field is compatible with both subgraphs.
 
 MergeArguments(fieldA, fieldB):
 
 - Let {mergedArguments} be an empty list of ArgumentDefinitions
-- Let {arguments} be the intersection of the set of argument names that are defined on {fieldA} and {fieldB} 
+- Let {arguments} be the intersection of the set of argument names that are
+  defined on {fieldA} and {fieldB}
 - For each {argumentName} in {arguments}:
   - Let {argumentA} be the argument with the same name on {fieldA}
   - Let {argumentB} be the argument with the same name on {fieldB}
   - If {argumentA} or {argumentB} are `@internal`
     - continue
-  - Let {mergedArgument} be the result of calling {MergeArgument(argumentA, argumentB)}
+  - Let {mergedArgument} be the result of calling {MergeArgument(argumentA,
+    argumentB)}
   - Append {mergedArgument} to {mergedArguments}
 - return {mergedArguments}
 
-*Merging Arguments:*
+_Merging Arguments:_
 
 ```graphql example
 # Subgraph A
@@ -2064,7 +2266,9 @@ type Type1 {
 }
 ```
 
-The following counter-example shows an invalid composition. The `field1` can be queried on the gateway with the argument `arg2`, which would lead to an execution error on subgraph B:
+The following counter-example shows an invalid composition. The `field1` can be
+queried on the gateway with the argument `arg2`, which would lead to an
+execution error on subgraph B:
 
 ```graphql counter-example
 # Subgraph A
@@ -2085,10 +2289,12 @@ type Type1 {
 
 #### MergeArgument
 
-This algorithm merges two arguments from the same field of different subgraphs into one. 
-The algorithm expects that both arguments have the same schema coordinate.
+This algorithm merges two arguments from the same field of different subgraphs
+into one. The algorithm expects that both arguments have the same schema
+coordinate.
 
-The type of the argument is the result of calling {MergeInputFieldType(typeA, typeB)}.
+The type of the argument is the result of calling {MergeInputFieldType(typeA,
+typeB)}.
 
 MergeArgument(argumentA, argumentB):
 
@@ -2100,7 +2306,7 @@ MergeArgument(argumentA, argumentB):
 - Set {mergedArgument} to have {mergedType} as its type
 - return {mergedArgument}
 
-*Merging Arguments:*
+_Merging Arguments:_
 
 ```graphql example
 # Subgraph A
@@ -2121,16 +2327,20 @@ type Type1 {
 
 #### MergeInterfaceImplementation
 
-This algorithm merges the interfaces implemented by two types from different subgraphs into a combined list of interfaces.
-The algorithm ignores any interface that is marked as `@internal`, to avoid exposing a implementation that does not match a interface type.
+This algorithm merges the interfaces implemented by two types from different
+subgraphs into a combined list of interfaces. The algorithm ignores any
+interface that is marked as `@internal`, to avoid exposing a implementation that
+does not match a interface type.
 
 MergeInterfaceImplementation(typeA, typeB):
 
-- Let {interfaceNames} be the set of interface names that are defined on either {typeA} or {typeB}
-- Let {validInterfaceNames} be the set of all interface in the composition that are not `@internal`
+- Let {interfaceNames} be the set of interface names that are defined on either
+  {typeA} or {typeB}
+- Let {validInterfaceNames} be the set of all interface in the composition that
+  are not `@internal`
 - Return the intersection of {interfaceNames} and {validInterfaceNames}
 
-*Merging Interface Implementations:*
+_Merging Interface Implementations:_
 
 ```graphql example
 # Subgraph A
@@ -2157,7 +2367,7 @@ type Type1 implements Interface1 {
 }
 ```
 
-*Merging Interface Implementations with `@internal` Interfaces:*
+_Merging Interface Implementations with `@internal` Interfaces:_
 
 ```graphql example
 # Subgraph A
@@ -2180,8 +2390,9 @@ type Type1 {
 }
 ```
 
-The following counter-example shows an invalid composition. 
-The `Type1` type implements the `Interface1` interface, but the `Interface1` interface is marked as `@internal` in subgraph A.
+The following counter-example shows an invalid composition. The `Type1` type
+implements the `Interface1` interface, but the `Interface1` interface is marked
+as `@internal` in subgraph A.
 
 ```graphql counter-example
 # Subgraph A
@@ -2201,8 +2412,8 @@ type Type1 {
 
 #### MergeInputFieldType
 
-This algorithm merges two input types. 
-The merge will result in the least permissive type, while still be compatible with both input types. 
+This algorithm merges two input types. The merge will result in the least
+permissive type, while still be compatible with both input types.
 
 MergeInputFieldType(typeA, typeB):
 
@@ -2228,7 +2439,7 @@ MergeInputFieldType(typeA, typeB):
   - return {ToListType(innerType)}
 - raise composition error
 
-*Merging nullable and non-nullable types:*
+_Merging nullable and non-nullable types:_
 
 ```graphql example
 # Subgraph A
@@ -2247,7 +2458,7 @@ input Input1 {
 }
 ```
 
-*Merging nullable and non-nullable list types:*
+_Merging nullable and non-nullable list types:_
 
 ```graphql example
 # Subgraph A
@@ -2273,9 +2484,10 @@ type Type1 {
 
 #### MergeOutputFieldType
 
-This algorithm merges two output types. The merge will result in the most permissive type,
-while still being compatible with both output types. This ensures that the data contract between
-the GraphQL Gateway and the API consumer can be fulfilled.
+This algorithm merges two output types. The merge will result in the most
+permissive type, while still being compatible with both output types. This
+ensures that the data contract between the GraphQL Gateway and the API consumer
+can be fulfilled.
 
 MergeOutputFieldType(typeA, typeB):
 
@@ -2301,7 +2513,7 @@ MergeOutputFieldType(typeA, typeB):
   - return {ToListType(innerType)}
 - raise composition error
 
-*Merging nullable and non-nullable types:*
+_Merging nullable and non-nullable types:_
 
 ```graphql example
 # Subgraph A
@@ -2320,7 +2532,7 @@ type Type1 {
 }
 ```
 
-*Merging nullable and non-nullable list types:*
+_Merging nullable and non-nullable list types:_
 
 ```graphql example
 # Subgraph A
@@ -2341,8 +2553,8 @@ type Type1 {
 
 #### EnsureNonNullType
 
-When merging types this helper ensures that the specified {type} is a non-null type or
-it wraps the specified {type} as a non-null type.
+When merging types this helper ensures that the specified {type} is a non-null
+type or it wraps the specified {type} as a non-null type.
 
 EnsureNonNullType(type):
 
@@ -2361,8 +2573,8 @@ String!
 
 #### EnsureNullableType
 
-When merging types this helper ensures that the specified {type} is a nullable type or
-it returns the inner type of the non-null type.
+When merging types this helper ensures that the specified {type} is a nullable
+type or it returns the inner type of the non-null type.
 
 EnsureNullableType(type):
 
