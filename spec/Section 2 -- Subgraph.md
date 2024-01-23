@@ -1,10 +1,15 @@
 # Subgraph
 
+The GraphQL Composite Schemas spec refers to downstream GraphQL APIs that have
+been designed for composition as subgraphs. These subgraphs may have additional
+directives specified in this section to indicate semantics of type system
+members in the overall graph.
+
 ## Directives
 
-Composition directives offer instructions for the schema composition process,
+Subgraph directives offer instructions for the schema composition process,
 detailing type system member semantics and specifying type transformations. In
-many cases subgraph schemas can be composed without any directives.
+some cases subgraph schemas can be composed without any directives.
 
 ### @entityResolver
 
@@ -14,7 +19,7 @@ directive @entityResolver on FIELD_DEFINITION
 
 Entity resolvers are fields on the query root type of a subgraph that can
 resolve an entity by a stable key. The stable key is defined by the arguments of
-the entity resolver field.
+the field.
 
 ```graphql example
 extend type Query {
@@ -23,7 +28,7 @@ extend type Query {
 }
 
 extend type Person {
-  id: ID!
+  id: ID! # matches the argument of personById
 }
 ```
 
