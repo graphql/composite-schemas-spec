@@ -2,10 +2,16 @@
 
 The composition of subgraphs describes the process of merging multiple subgraph
 schemas into a single GraphQL schema that is annotated with execution
-directives. This single GraphQL schema is the output of the Schema Composition
-and represents the Gateway Configuration. The schema composition process is
-divided into four algorithms, `Validate`, `Compose`, and `Finalize` that are run
-in order.
+directives. This single GraphQL schema is the main output of the Schema
+Composition and represents the Gateway Configuration. The schema composition
+process is divided into three major algorithms, `Validate Subgraphs`,
+`Merge Subgraphs` and `Validate Satisfiability` that are run in order.
+
+## Validate Subgraphs
+
+## Merge Subgraphs
+
+## Validate Satisfiability
 
 ## Validate
 
