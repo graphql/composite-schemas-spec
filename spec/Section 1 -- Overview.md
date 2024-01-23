@@ -55,11 +55,11 @@ been designed for composition as subgraphs. These subgraphs may have additional
 directives specified in the composition section to specify semantics of type
 system members to the composition.
 
-## Supergraph
+## Composite Schema
 
 The result of a successful composition is a single GraphQL schema that is
 annotated with execution directives. This schema document represents the
-configuration for the distributed GraphQL executor and is called _supergraph_.
+configuration for the distributed GraphQL executor and is called _composite schema_.
 
 ## Entities
 
