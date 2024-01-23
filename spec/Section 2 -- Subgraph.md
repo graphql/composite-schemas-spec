@@ -2,8 +2,8 @@
 
 The GraphQL Composite Schemas spec refers to downstream GraphQL APIs that have
 been designed for composition as subgraphs. These subgraphs may have additional
-directives specified in this section to indicate semantics of type
-system members in the overall graph.
+directives specified in this section to indicate semantics of type system
+members in the overall graph.
 
 ## Directives
 
