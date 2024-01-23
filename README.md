@@ -10,8 +10,8 @@
 
 **Spec Location**
 
-The GraphQL over HTTP specification is edited in the
-[spec-md markdown file](./spec/GraphQLOverHTTP.md).
+The GraphQL Composite Schemas specification is edited in the
+[spec-md markdown file](./spec/Spec.md).
 
 In the future, we plan that you would be able to view the generated form of the
 specification as well.
