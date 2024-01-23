@@ -17,31 +17,30 @@ and the execution.
   multiple source schemas into a single GraphQL schema that is annotated with
   execution directives and is referred to as the composite schema.
 
-- **Execution**: The distributed GraphQL executor specifies the Gateway
-  Configuration and the core execution algorithms.
+- **Execution**: The distributed GraphQL executor specifies the core execution behavior and algorithms.
 
 The GraphQL Composite Schemas spec describes a collaborative approach towards
-build a single graph composed from multiple _subgraphs_ by specifying the
+build a single schema composed from multiple _source schemas_ by specifying the
 algorithms to merge different GraphQL _subgraph_ schemas into a single
-_supergraph_.
+_composite schema_.
 
-Two subgraphs exposing a type with the same name form a distributed type in the
-_supergraph_.
+Two _source schema_ exposing a type with the same name form a _composite type_ in the
+_composite schema_.
 
 ```graphql example
-# subgraph 1
+# source schema 1
 type SomeType {
   a: String
   b: String
 }
 
-# subgraph 2
+# source schema 2
 type SomeType {
   a: String
   c: String
 }
 
-# supergraph
+# composite schema
 type SomeType {
   a: String
   b: String
