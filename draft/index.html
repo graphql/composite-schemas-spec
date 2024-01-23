@@ -207,25 +207,26 @@ This is an example of a non-normative note.</div>
 </section>
 <section id="sec-undefined.Subgraph" secid="2">
 <h1 data-source="spec/Section%202%20--%20Subgraph.md#L1"><span class="spec-secid" title="link to this section"><a href="#sec-undefined.Subgraph">2</a></span>Subgraph</h1>
+<p data-source="spec/Section%202%20--%20Subgraph.md#L3-L6">The GraphQL Composite Schemas spec refers to downstream GraphQL APIs that have been designed for composition as subgraphs. These subgraphs may have additional directives specified in this section to indicate semantics of type system members in the overall graph.</p>
 <section id="sec-Directives" secid="2.1">
-<h2 data-source="spec/Section%202%20--%20Subgraph.md#L3"><span class="spec-secid" title="link to this section"><a href="#sec-Directives">2.1</a></span>Directives</h2>
-<p data-source="spec/Section%202%20--%20Subgraph.md#L5-L7">Composition directives offer instructions for the schema composition process, detailing type system member semantics and specifying type transformations. In many cases subgraph schemas can be composed without any directives.</p>
+<h2 data-source="spec/Section%202%20--%20Subgraph.md#L8"><span class="spec-secid" title="link to this section"><a href="#sec-Directives">2.1</a></span>Directives</h2>
+<p data-source="spec/Section%202%20--%20Subgraph.md#L10-L12">Subgraph directives offer instructions for the schema composition process, detailing type system member semantics and specifying type transformations. In some cases subgraph schemas can be composed without any directives.</p>
 <section id="sec--entityResolver" secid="2.1.1">
-<h3 data-source="spec/Section%202%20--%20Subgraph.md#L9"><span class="spec-secid" title="link to this section"><a href="#sec--entityResolver">2.1.1</a></span>@entityResolver</h3>
-<pre data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L11-L13"><code><span class="token keyword">directive</span> <span class="token directive function">@entityResolver</span> <span class="token keyword">on</span> <span class="token constant">FIELD_DEFINITION</span>
+<h3 data-source="spec/Section%202%20--%20Subgraph.md#L14"><span class="spec-secid" title="link to this section"><a href="#sec--entityResolver">2.1.1</a></span>@entityResolver</h3>
+<pre data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L16-L18"><code><span class="token keyword">directive</span> <span class="token directive function">@entityResolver</span> <span class="token keyword">on</span> <span class="token constant">FIELD_DEFINITION</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Subgraph.md#L15-L17">Entity resolvers are fields on the query root type of a subgraph that can resolve an entity by a stable key. The stable key is defined by the arguments of the entity resolver field.</p>
-<pre id="example-713fa" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L19-L28"><a href="#example-713fa">Example № 4</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Subgraph.md#L20-L22">Entity resolvers are fields on the query root type of a subgraph that can resolve an entity by a stable key. The stable key is defined by the arguments of the field.</p>
+<pre id="example-dbd94" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L24-L33"><a href="#example-dbd94">Example № 4</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">version</span><span class="token punctuation">:</span> <span class="token scalar">Int</span> <span class="token comment"># NOT an entity resolver.</span>
   <span class="token attr-name">personById</span><span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Person</span> <span class="token directive function">@entityResolver</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Person</span> <span class="token punctuation">{</span>
-  <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
+  <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span> <span class="token comment"># matches the argument of personById</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Subgraph.md#L30-L31">The arguments of an entity resolver field must match fields of the returning type.</p>
-<pre id="example-81ec4" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L33-L41"><a href="#example-81ec4">Example № 5</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Subgraph.md#L35-L36">The arguments of an entity resolver field must match fields of the returning type.</p>
+<pre id="example-81ec4" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L38-L46"><a href="#example-81ec4">Example № 5</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">node</span><span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Node</span> <span class="token directive function">@entityResolver</span>
 <span class="token punctuation">}</span>
 
@@ -233,8 +234,8 @@ This is an example of a non-normative note.</div>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Subgraph.md#L43-L44">When an entity resolver returns an interface all implementing types are inferred as entities.</p>
-<pre id="example-71165" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L46-L62"><a href="#example-71165">Example № 6</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Subgraph.md#L48-L49">When an entity resolver returns an interface all implementing types are inferred as entities.</p>
+<pre id="example-71165" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L51-L67"><a href="#example-71165">Example № 6</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">entityById</span><span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span><span class="token punctuation">,</span> <span class="token attr-name">categoryId</span><span class="token punctuation">:</span> <span class="token scalar">Int</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Entity</span> <span class="token directive function">@entityResolver</span>
 <span class="token punctuation">}</span>
 
@@ -252,39 +253,39 @@ This is an example of a non-normative note.</div>
 </code></pre>
 </section>
 <section id="sec--is" secid="2.1.2">
-<h3 data-source="spec/Section%202%20--%20Subgraph.md#L64"><span class="spec-secid" title="link to this section"><a href="#sec--is">2.1.2</a></span>@is</h3>
-<pre data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L66-L71"><code><span class="token keyword">directive</span> <span class="token directive function">@is</span><span class="token punctuation">(</span>
+<h3 data-source="spec/Section%202%20--%20Subgraph.md#L69"><span class="spec-secid" title="link to this section"><a href="#sec--is">2.1.2</a></span>@is</h3>
+<pre data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L71-L76"><code><span class="token keyword">directive</span> <span class="token directive function">@is</span><span class="token punctuation">(</span>
   <span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token class-name">FieldSelection</span>
   <span class="token attr-name">coordinate</span><span class="token punctuation">:</span> <span class="token class-name">Schemacoordinate</span>
 <span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">ARGUMENT_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">INPUT_FIELD_DEFINITION</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Subgraph.md#L73-L75">The <code>@is</code> directive is utilized to establish semantic equivalence between disparate type system members across distinct subgraphs, which the schema composition uses to connect types.</p>
-<p data-source="spec/Section%202%20--%20Subgraph.md#L77-L80">In the following example, the directive specifies that the <code>id</code> argument on the field <code>Query.personById</code> and the field <code>Person.id</code> on the return type of the field are semantically the same. This information is used to infer an entity resolver for <code>Person</code> from the field <code>Query.personById</code>.</p>
-<pre id="example-b2a8a" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L82-L86"><a href="#example-b2a8a">Example № 7</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Subgraph.md#L78-L80">The <code>@is</code> directive is utilized to establish semantic equivalence between disparate type system members across distinct subgraphs, which the schema composition uses to connect types.</p>
+<p data-source="spec/Section%202%20--%20Subgraph.md#L82-L85">In the following example, the directive specifies that the <code>id</code> argument on the field <code>Query.personById</code> and the field <code>Person.id</code> on the return type of the field are semantically the same. This information is used to infer an entity resolver for <code>Person</code> from the field <code>Query.personById</code>.</p>
+<pre id="example-b2a8a" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L87-L91"><a href="#example-b2a8a">Example № 7</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token property-query">personById</span><span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span> <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Person</span> <span class="token directive function">@entityResolver</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Subgraph.md#L88">The <code>@is</code> directive also allows to refer to nested fields relative to <code>Person</code>.</p>
-<pre id="example-824fb" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L90-L94"><a href="#example-824fb">Example № 8</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Subgraph.md#L93">The <code>@is</code> directive also allows to refer to nested fields relative to <code>Person</code>.</p>
+<pre id="example-824fb" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L95-L99"><a href="#example-824fb">Example № 8</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token property-query">personByAddressId</span><span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span> <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"address { id }"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Person</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Subgraph.md#L96">The <code>@is</code> directive not limited to a single argument.</p>
-<pre id="example-63cc4" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L98-L105"><a href="#example-63cc4">Example № 9</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Subgraph.md#L101">The <code>@is</code> directive not limited to a single argument.</p>
+<pre id="example-63cc4" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L103-L110"><a href="#example-63cc4">Example № 9</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token property-query">personByAddressId</span><span class="token punctuation">(</span>
     <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span> <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"address { id }"</span><span class="token punctuation">)</span>
     <span class="token attr-name">kind</span><span class="token punctuation">:</span> <span class="token class-name">PersonKind</span> <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"kind"</span><span class="token punctuation">)</span>
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Person</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Subgraph.md#L107-L110">The directive can also establish semantic equivalence between two output fields. In this example, the field <code>productSKU</code> is semantically equivalent to the field <code>Product.sku</code>, allowing the schema composition to infer the connection of the <code>Product</code> with the <code>Review</code> type.</p>
-<pre id="example-62cfb" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L112-L117"><a href="#example-62cfb">Example № 10</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Review</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Subgraph.md#L112-L115">The directive can also establish semantic equivalence between two output fields. In this example, the field <code>productSKU</code> is semantically equivalent to the field <code>Product.sku</code>, allowing the schema composition to infer the connection of the <code>Product</code> with the <code>Review</code> type.</p>
+<pre id="example-62cfb" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L117-L122"><a href="#example-62cfb">Example № 10</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Review</span> <span class="token punctuation">{</span>
   <span class="token attr-name">productSKU</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span> <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">coordinate</span><span class="token punctuation">:</span> <span class="token string">"Product.sku"</span><span class="token punctuation">)</span> <span class="token directive function">@internal</span>
   <span class="token attr-name">product</span><span class="token punctuation">:</span> <span class="token class-name">Product</span> <span class="token directive function">@resolve</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Subgraph.md#L119-L120">The <code>@is</code> directive can use either the <code>field</code> or <code>coordinate</code> argument. If both are specified, the schema composition must fail.</p>
-<pre id="example-53747" class="spec-counter-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L122-L129"><a href="#example-53747">Counter Example № 11</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Review</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Subgraph.md#L124-L125">The <code>@is</code> directive can use either the <code>field</code> or <code>coordinate</code> argument. If both are specified, the schema composition must fail.</p>
+<pre id="example-53747" class="spec-counter-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L127-L134"><a href="#example-53747">Counter Example № 11</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Review</span> <span class="token punctuation">{</span>
   <span class="token attr-name">productSKU</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
     <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">coordinate</span><span class="token punctuation">:</span> <span class="token string">"Product.sku"</span><span class="token punctuation">,</span> <span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"product { sku }"</span><span class="token punctuation">)</span>
     <span class="token directive function">@internal</span>
@@ -292,32 +293,32 @@ This is an example of a non-normative note.</div>
 <span class="token punctuation">}</span>
 </code></pre>
 <section id="sec--is.Arguments-" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Subgraph.md#L131"><a href="#sec--is.Arguments-" title="link to this subsection">Arguments:</a></h6>
+<h6 data-source="spec/Section%202%20--%20Subgraph.md#L136"><a href="#sec--is.Arguments-" title="link to this subsection">Arguments:</a></h6>
 <ul>
-<li data-source="spec/Section%202%20--%20Subgraph.md#L133-L135"><code>field</code>: Represents a GraphQL field selection syntax that refers to field relative to the current type; or, when used on arguments it refers to a field relative to the return type.</li>
-<li data-source="spec/Section%202%20--%20Subgraph.md#L136-L137"><code>coordinate</code>: Represents a schema coordinate that refers to a type system member.</li>
+<li data-source="spec/Section%202%20--%20Subgraph.md#L138-L140"><code>field</code>: Represents a GraphQL field selection syntax that refers to field relative to the current type; or, when used on arguments it refers to a field relative to the return type.</li>
+<li data-source="spec/Section%202%20--%20Subgraph.md#L141-L142"><code>coordinate</code>: Represents a schema coordinate that refers to a type system member.</li>
 </ul>
 </section>
 </section>
 <section id="sec--shareable" secid="2.1.3">
-<h3 data-source="spec/Section%202%20--%20Subgraph.md#L139"><span class="spec-secid" title="link to this section"><a href="#sec--shareable">2.1.3</a></span>@shareable</h3>
-<pre data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L141-L143"><code><span class="token keyword">directive</span> <span class="token directive function">@shareable</span> <span class="token keyword">repeatable</span> <span class="token keyword">on</span> <span class="token constant">OBJECT</span> <span class="token operator">|</span> <span class="token constant">FIELD_DEFINITION</span>
+<h3 data-source="spec/Section%202%20--%20Subgraph.md#L144"><span class="spec-secid" title="link to this section"><a href="#sec--shareable">2.1.3</a></span>@shareable</h3>
+<pre data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L146-L148"><code><span class="token keyword">directive</span> <span class="token directive function">@shareable</span> <span class="token keyword">repeatable</span> <span class="token keyword">on</span> <span class="token constant">OBJECT</span> <span class="token operator">|</span> <span class="token constant">FIELD_DEFINITION</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Subgraph.md#L145-L147">By default, only one subgraph is allowed to contribute a particular field to an object type. This prevents subgraphs from inadvertently defining similarly named fields that are semantically not the same.</p>
-<p data-source="spec/Section%202%20--%20Subgraph.md#L149-L151">Fields have to be explicitly marked as <code>@shareable</code> to allow multiple subgraphs to define it. And it ensures the step of allowing a field to be served from multiple subgraphs is an explicit, coordinated decision.</p>
-<p data-source="spec/Section%202%20--%20Subgraph.md#L153-L155">If multiple subgraphs define the same field, these are assumed to be semantically equivalent, and the executor is free to choose between them as it sees fit.</p>
-<div id="note-1634f" class="spec-note" data-source="spec/Section%202%20--%20Subgraph.md#L157">
+<p data-source="spec/Section%202%20--%20Subgraph.md#L150-L152">By default, only one subgraph is allowed to contribute a particular field to an object type. This prevents subgraphs from inadvertently defining similarly named fields that are semantically not the same.</p>
+<p data-source="spec/Section%202%20--%20Subgraph.md#L154-L156">Fields have to be explicitly marked as <code>@shareable</code> to allow multiple subgraphs to define it. And it ensures the step of allowing a field to be served from multiple subgraphs is an explicit, coordinated decision.</p>
+<p data-source="spec/Section%202%20--%20Subgraph.md#L158-L160">If multiple subgraphs define the same field, these are assumed to be semantically equivalent, and the executor is free to choose between them as it sees fit.</p>
+<div id="note-1634f" class="spec-note" data-source="spec/Section%202%20--%20Subgraph.md#L162">
 <a href="#note-1634f">Note</a>
 Key fields are always considered sharable.</div>
 </section>
 <section id="sec--require" secid="2.1.4">
-<h3 data-source="spec/Section%202%20--%20Subgraph.md#L159"><span class="spec-secid" title="link to this section"><a href="#sec--require">2.1.4</a></span>@require</h3>
-<pre data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L161-L165"><code><span class="token keyword">directive</span> <span class="token directive function">@require</span><span class="token punctuation">(</span>
+<h3 data-source="spec/Section%202%20--%20Subgraph.md#L164"><span class="spec-secid" title="link to this section"><a href="#sec--require">2.1.4</a></span>@require</h3>
+<pre data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L166-L170"><code><span class="token keyword">directive</span> <span class="token directive function">@require</span><span class="token punctuation">(</span>
   <span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token class-name">FieldSelection</span><span class="token operator">!</span>
 <span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">ARGUMENT_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">INPUT_FIELD_DEFINITION</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Subgraph.md#L167-L170">The <code>@require</code> directive is used to express data requirements with other subgraphs. Arguments annotated with the <code>@require</code> directive are removed from the public exposed schema and the value for these will be resolved by the executor.</p>
-<pre id="example-cc4ea" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L172-L181"><a href="#example-cc4ea">Example № 12</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Subgraph.md#L172-L175">The <code>@require</code> directive is used to express data requirements with other subgraphs. Arguments annotated with the <code>@require</code> directive are removed from the public exposed schema and the value for these will be resolved by the executor.</p>
+<pre id="example-cc4ea" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L177-L186"><a href="#example-cc4ea">Example № 12</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token property-query">delivery</span><span class="token punctuation">(</span>
     <span class="token attr-name">zip</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
@@ -326,8 +327,8 @@ Key fields are always considered sharable.</div>
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">DeliveryEstimates</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Subgraph.md#L183-L185">This can also be done by using input types. All fields of the input type that match the required output type are required. If the input type is only used to express a requirement it is removed from the public schema.</p>
-<pre id="example-b9b86" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L187-L195"><a href="#example-b9b86">Example № 13</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Subgraph.md#L188-L190">This can also be done by using input types. All fields of the input type that match the required output type are required. If the input type is only used to express a requirement it is removed from the public schema.</p>
+<pre id="example-b9b86" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L192-L200"><a href="#example-b9b86">Example № 13</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token property-query">delivery</span><span class="token punctuation">(</span>
     <span class="token attr-name">zip</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
@@ -337,37 +338,37 @@ Key fields are always considered sharable.</div>
 </code></pre>
 </section>
 <section id="sec--provides" secid="2.1.5">
-<h3 data-source="spec/Section%202%20--%20Subgraph.md#L197"><span class="spec-secid" title="link to this section"><a href="#sec--provides">2.1.5</a></span>@provides</h3>
-<pre data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L199-L201"><code><span class="token keyword">directive</span> <span class="token directive function">@provides</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token class-name">SelectionSet</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD_DEFINITION</span>
+<h3 data-source="spec/Section%202%20--%20Subgraph.md#L202"><span class="spec-secid" title="link to this section"><a href="#sec--provides">2.1.5</a></span>@provides</h3>
+<pre data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L204-L206"><code><span class="token keyword">directive</span> <span class="token directive function">@provides</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token class-name">SelectionSet</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD_DEFINITION</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Subgraph.md#L203-L205">The <code>@provides</code> directive is an optimization hint specifying child fields that can be resolved locally at the given subgraph through a particular query path. This allows for a variation of overlapping field to improve data fetching.</p>
+<p data-source="spec/Section%202%20--%20Subgraph.md#L208-L210">The <code>@provides</code> directive is an optimization hint specifying child fields that can be resolved locally at the given subgraph through a particular query path. This allows for a variation of overlapping field to improve data fetching.</p>
 </section>
 <section id="sec--external" secid="2.1.6">
-<h3 data-source="spec/Section%202%20--%20Subgraph.md#L207"><span class="spec-secid" title="link to this section"><a href="#sec--external">2.1.6</a></span>@external</h3>
-<pre data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L209-L211"><code><span class="token keyword">directive</span> <span class="token directive function">@external</span> <span class="token keyword">on</span> <span class="token constant">OBJECT_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">INTERFACE_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">FIELD_DEFINITION</span>
+<h3 data-source="spec/Section%202%20--%20Subgraph.md#L212"><span class="spec-secid" title="link to this section"><a href="#sec--external">2.1.6</a></span>@external</h3>
+<pre data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L214-L216"><code><span class="token keyword">directive</span> <span class="token directive function">@external</span> <span class="token keyword">on</span> <span class="token constant">OBJECT_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">INTERFACE_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">FIELD_DEFINITION</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Subgraph.md#L213-L214">The <code>@external</code> directive is used in combination with the <code>@provides</code> directive and specifies data that is not owned ba a particular subgraph.</p>
+<p data-source="spec/Section%202%20--%20Subgraph.md#L218-L219">The <code>@external</code> directive is used in combination with the <code>@provides</code> directive and specifies data that is not owned ba a particular subgraph.</p>
 </section>
 <section id="sec--override" secid="2.1.7">
-<h3 data-source="spec/Section%202%20--%20Subgraph.md#L216"><span class="spec-secid" title="link to this section"><a href="#sec--override">2.1.7</a></span>@override</h3>
-<pre data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L218-L220"><code><span class="token keyword">directive</span> <span class="token directive function">@override</span><span class="token punctuation">(</span><span class="token attr-name">from</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD_DEFINITION</span>
+<h3 data-source="spec/Section%202%20--%20Subgraph.md#L221"><span class="spec-secid" title="link to this section"><a href="#sec--override">2.1.7</a></span>@override</h3>
+<pre data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L223-L225"><code><span class="token keyword">directive</span> <span class="token directive function">@override</span><span class="token punctuation">(</span><span class="token attr-name">from</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD_DEFINITION</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Subgraph.md#L222">The <code>@override</code> directive allows to migrate fields from one subgraph to another.</p>
+<p data-source="spec/Section%202%20--%20Subgraph.md#L227">The <code>@override</code> directive allows to migrate fields from one subgraph to another.</p>
 </section>
 <section id="sec--internal" secid="2.1.8">
-<h3 data-source="spec/Section%202%20--%20Subgraph.md#L224"><span class="spec-secid" title="link to this section"><a href="#sec--internal">2.1.8</a></span>@internal</h3>
-<pre data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L226-L228"><code><span class="token keyword">directive</span> <span class="token directive function">@internal</span> <span class="token keyword">on</span> <span class="token constant">OBJECT</span> <span class="token operator">|</span> <span class="token constant">INTERFACE</span> <span class="token operator">|</span> <span class="token constant">FIELD_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">UNION</span> <span class="token operator">|</span> <span class="token constant">ENUM</span> <span class="token operator">|</span> <span class="token constant">ENUM_VALUE</span> <span class="token operator">|</span> <span class="token constant">INPUT_OBJECT</span> <span class="token operator">|</span> <span class="token constant">INPUT_FIELD_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">SCALAR</span>
+<h3 data-source="spec/Section%202%20--%20Subgraph.md#L229"><span class="spec-secid" title="link to this section"><a href="#sec--internal">2.1.8</a></span>@internal</h3>
+<pre data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L231-L233"><code><span class="token keyword">directive</span> <span class="token directive function">@internal</span> <span class="token keyword">on</span> <span class="token constant">OBJECT</span> <span class="token operator">|</span> <span class="token constant">INTERFACE</span> <span class="token operator">|</span> <span class="token constant">FIELD_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">UNION</span> <span class="token operator">|</span> <span class="token constant">ENUM</span> <span class="token operator">|</span> <span class="token constant">ENUM_VALUE</span> <span class="token operator">|</span> <span class="token constant">INPUT_OBJECT</span> <span class="token operator">|</span> <span class="token constant">INPUT_FIELD_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">SCALAR</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Subgraph.md#L230-L232">The <code>@internal</code> directive signals to the composition process that annotated type system members shall not be included into the public schema but still can be used by the executor to build resolvers.</p>
+<p data-source="spec/Section%202%20--%20Subgraph.md#L235-L237">The <code>@internal</code> directive signals to the composition process that annotated type system members shall not be included into the public schema but still can be used by the executor to build resolvers.</p>
 </section>
 <section id="sec-Schemacoordinate" secid="2.1.9">
-<h3 data-source="spec/Section%202%20--%20Subgraph.md#L234"><span class="spec-secid" title="link to this section"><a href="#sec-Schemacoordinate">2.1.9</a></span>Schemacoordinate</h3>
-<pre data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L236-L238"><code><span class="token keyword">scalar</span> <span class="token class-name">Schemacoordinate</span>
+<h3 data-source="spec/Section%202%20--%20Subgraph.md#L239"><span class="spec-secid" title="link to this section"><a href="#sec-Schemacoordinate">2.1.9</a></span>Schemacoordinate</h3>
+<pre data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L241-L243"><code><span class="token keyword">scalar</span> <span class="token class-name">Schemacoordinate</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Subgraph.md#L240">The <code>Schemacoordinate</code> scalar represents a schema coordinate syntax.</p>
-<pre id="example-8b163" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L242-L244"><a href="#example-8b163">Example № 14</a><code><span class="token property">Product</span>.<span class="token property">id</span>
+<p data-source="spec/Section%202%20--%20Subgraph.md#L245">The <code>Schemacoordinate</code> scalar represents a schema coordinate syntax.</p>
+<pre id="example-8b163" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L247-L249"><a href="#example-8b163">Example № 14</a><code><span class="token property">Product</span>.<span class="token property">id</span>
 </code></pre>
-<pre id="example-93aa2" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L246-L248"><a href="#example-93aa2">Example № 15</a><code><span class="token property">Product</span>.<span class="token property-query">estimateDelivery</span><span class="token punctuation">(</span><span class="token attr-name">zip</span><span class="token punctuation">:</span><span class="token punctuation">)</span>
+<pre id="example-93aa2" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Subgraph.md#L251-L253"><a href="#example-93aa2">Example № 15</a><code><span class="token property">Product</span>.<span class="token property-query">estimateDelivery</span><span class="token punctuation">(</span><span class="token attr-name">zip</span><span class="token punctuation">:</span><span class="token punctuation">)</span>
 </code></pre>
 </section>
 </section>
