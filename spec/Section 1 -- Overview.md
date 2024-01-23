@@ -1,11 +1,11 @@
 # Overview
 
 The GraphQL Composite Schemas specification describes how multiple GraphQL
-services, known as _subgraphs_, are combined into a single unified GraphQL
-schema called the _supergraph_.
+schemas, known as _source schemas_, are combined into a single unified GraphQL
+schema called the _composite schema_.
 
-For clients querying the unified GraphQL schema, the implementation details and
-complexities of the distributed systems behind it are hidden. The observable
+For clients querying the GraphQL composite schema, the implementation details and
+complexities of the underlying distributed systems are hidden. The observable
 behavior of the distributed GraphQL executor is the same as that of a standard
 GraphQL executor as described by the GraphQL specification.
 
@@ -14,8 +14,8 @@ between tooling and gateways from different implementers, the schema composition
 and the execution.
 
 - **Composition**: The schema composition describes a process of merging
-  subgraph schemas into a single GraphQL schema. This schema is annotated with
-  execution directives and is referred to as the Gateway Configuration.
+  multiple source schemas into a single GraphQL schema that is annotated with
+  execution directives and is referred to as the composite schema.
 
 - **Execution**: The distributed GraphQL executor specifies the Gateway
   Configuration and the core execution algorithms.
