@@ -52,5 +52,5 @@ composition and distributed execution.
   won't be exposed in the client-facing _composite schema_.
 
 - **Distributed Execution**: The _distributed GraphQL executor_ specifies the
-  core execution behavior and algorithms that enable fullfilment of a _GraphQL
+  core execution behavior and algorithms that enable fulfillment of a _GraphQL
   request_ performed against the _composite schema_.
