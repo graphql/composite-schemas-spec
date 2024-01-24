@@ -19,7 +19,7 @@ The GraphQL Composite Schemas specification has a number of design principles:
   and extending what is provided by other source schemas. The GraphQL Composite
   Schemas specification does not describe how to combine arbitrary schemas.
 
-- **Collaborative**: The GraphQL Composite Schemas specification is explicity
+- **Collaborative**: The GraphQL Composite Schemas specification is explicitly
   designed around team collaboration. By building on a principled composition
   model, it ensures that conflicts and inconsistencies are surfaced early and
   can be resolved before deployment. This allows many teams to contribute to a
@@ -52,5 +52,5 @@ composition and distributed execution.
   won't be exposed in the client-facing _composite schema_.
 
 - **Distributed Execution**: The _distributed GraphQL executor_ specifies the
-  core execution behavior and algorithms that enable fulfilment of a _GraphQL
+  core execution behavior and algorithms that enable fullfilment of a _GraphQL
   request_ performed against the _composite schema_.
