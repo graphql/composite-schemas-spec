@@ -1,13 +1,8 @@
 # Overview
 
-The GraphQL Composite Schemas specification describes how multiple GraphQL
-schemas, known as _source schemas_, are combined into a single unified GraphQL
-schema called the _composite schema_.
+The GraphQL Composite Schemas specification describes how to construct a single unified GraphQL schema, the _composite schema_, from multiple GraphQL schemas, the _source schemas_.
 
-For clients querying the GraphQL composite schema, the implementation details
-and complexities of the underlying distributed systems are hidden. The
-observable behavior of the distributed GraphQL executor is the same as that of a
-standard GraphQL executor as described by the GraphQL specification.
+The composite schema presents itself as a regular GraphQL schema; the implementation details and complexities of the underlying distributed systems are not visible to clients, all observable behavior is the same as described by the GraphQL specification.
 
 GraphQL Composite Schemas specification has a number of design principles:
 
