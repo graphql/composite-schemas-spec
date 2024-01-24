@@ -1,84 +1,56 @@
 # Overview
 
-The GraphQL Composite Schemas specification describes how multiple GraphQL
-services, known as _subgraphs_, are combined into a single unified GraphQL
-schema called the _supergraph_.
+The GraphQL Composite Schemas specification describes how to construct a single
+unified GraphQL schema, the _composite schema_, from multiple GraphQL schemas,
+each termed a _source schema_.
 
-For clients querying the unified GraphQL schema, the implementation details and
-complexities of the distributed systems behind it are hidden. The observable
-behavior of the distributed GraphQL executor is the same as that of a standard
-GraphQL executor as described by the GraphQL specification.
+The _composite schema_ presents itself as a regular _GraphQL schema_; the
+implementation details and complexities of the underlying distributed systems
+are not visible to clients, all observable behavior is the same as described by
+the _GraphQL specification_.
 
-This specification focuses on two core components to allow interoperability
-between tooling and gateways from different implementers, the schema composition
-and the execution.
+The GraphQL Composite Schemas specification has a number of design principles:
 
-- **Composition**: The schema composition describes a process of merging
-  subgraph schemas into a single GraphQL schema. This schema is annotated with
-  execution directives and is referred to as the Gateway Configuration.
+- **Composable**: Rather than defining each _source schema_ in isolation and
+  reshaping it to fit the _composite schema_ later, this specification
+  encourages developers to design the source schemas as part of a larger whole
+  from the start. Each source schema defines the types and fields it is
+  responsible for serving within the context of the larger schema, referencing
+  and extending what is provided by other source schemas. The GraphQL Composite
+  Schemas specification does not describe how to combine arbitrary schemas.
 
-- **Execution**: The distributed GraphQL executor specifies the Gateway
-  Configuration and the core execution algorithms.
+- **Collaborative**: The GraphQL Composite Schemas specification is explicitly
+  designed around team collaboration. By building on a principled composition
+  model, it ensures that conflicts and inconsistencies are surfaced early and
+  can be resolved before deployment. This allows many teams to contribute to a
+  single schema without the danger of breaking it. The GraphQL Composite Schemas
+  specification facilitates the coordinated effort of combining collaboratively
+  designed source schemas into a single coherent composite schema.
 
-The GraphQL Composite Schemas spec describes a collaborative approach towards
-build a single graph composed from multiple _subgraphs_ by specifying the
-algorithms to merge different GraphQL _subgraph_ schemas into a single
-_supergraph_.
+- **Evolvable**: A _composite schema_ offers an integrated, product-centric API
+  interface to clients. Each source _GraphQL service_ that underpins the
+  composite schema should be able to evolve without disrupting these clients.
+  Over time, the same functionality may be provided by a different combination
+  of services, while the composite schemas interface must continue to support
+  existing requests from all clients; source schema boundaries are therefore
+  considered an implementation detail and should never be exposed to clients.
 
-Two subgraphs exposing a type with the same name form a distributed type in the
-_supergraph_.
+- **Explicitness**: To make the composition process easier to understand and to
+  avoid ambiguities that can lead to confusing failures as the system grows, the
+  GraphQL Composite Schemas specification prefers to be explicit about
+  intentions and minimize reliance on inference and convention.
 
-```graphql example
-# subgraph 1
-type SomeType {
-  a: String
-  b: String
-}
+To enable greater interoperability between different implementations of tooling
+and gateways, this specification focuses on two core components: schema
+composition and distributed execution.
 
-# subgraph 2
-type SomeType {
-  a: String
-  c: String
-}
+- **Schema Composition**: Schema composition describes the process of merging
+  multiple _source schemas_ into a single GraphQL schema, the _composite
+  schema_. During this process, an intermediary schema, the _composite execution
+  schema_, is generated. This composite execution schema is annotated with
+  directives to describe execution, and may have additional internal fields that
+  won't be exposed in the client-facing _composite schema_.
 
-# supergraph
-type SomeType {
-  a: String
-  b: String
-  c: String
-}
-```
-
-## Subgraph
-
-The GraphQL Composite Schemas spec refers to downstream GraphQL APIs that have
-been designed for composition as subgraphs. These subgraphs may have additional
-directives specified in the composition section to specify semantics of type
-system members to the composition.
-
-## Supergraph
-
-The result of a successful composition is a single GraphQL schema that is
-annotated with execution directives. This schema document represents the
-configuration for the distributed GraphQL executor and is called _supergraph_.
-
-## Entities
-
-Entities are objects with a stable identity that endure over time. They
-typically represent core domain objects that act as entry points to a graph. In
-a distributed architecture, each _subgraph_ can contribute different fields to
-the same entity, and is responsible for resolving only the fields that it
-contributes. In such an architecture, entities effectively act as hubs that
-enable transparent traversal across service boundaries.
-
-## Keys
-
-A representation of an object’s identity is known as a key. Keys consist of one
-or more fields from an object, and are defined through the `@key` directive on
-an object or interface type.
-
-In a distributed architecture, it is unrealistic to expect all participating
-systems to agree on a common way of identifying a particular type of entity. The
-composite schemas spec therefore allows multiple keys to be defined for each
-entity type, and each subgraph defines the particular keys that it is able to
-support.
+- **Distributed Execution**: The _distributed GraphQL executor_ specifies the
+  core execution behavior and algorithms that enable fulfillment of a _GraphQL
+  request_ performed against the _composite schema_.

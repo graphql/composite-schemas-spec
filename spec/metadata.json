@@ -1,6 +1,7 @@
 {
   "biblio": {
     "https://spec.graphql.org/draft/": {
+      "graphql-specification": "",
       "graphql-service": "#sec-Overview",
       "graphql-schema": "#sec-Schema",
       "graphql-request": "#request",

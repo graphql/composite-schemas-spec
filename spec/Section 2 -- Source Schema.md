@@ -1,4 +1,4 @@
-# Subgraph
+# Source Schema
 
 The GraphQL Composite Schemas spec refers to downstream GraphQL APIs that have
 been designed for composition as subgraphs. These subgraphs may have additional
