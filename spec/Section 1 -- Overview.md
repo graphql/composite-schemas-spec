@@ -48,8 +48,8 @@ composition and distributed execution.
   multiple _source schemas_ into a single GraphQL schema, the _composite
   schema_. During this process, an intermediary schema, the _composite execution
   schema_, is generated. This composite execution schema is annotated with
-  directives to describe execution, and may have additional internal fields that
-  won't be exposed in the client-facing _composite schema_.
+  directives to describe execution, and may have additional internal fields or
+  arguments that won't be exposed in the client-facing _composite schema_.
 
 - **Distributed Execution**: The _distributed GraphQL executor_ specifies the
   core execution behavior and algorithms that enable fulfillment of a _GraphQL
