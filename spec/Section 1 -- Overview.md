@@ -46,11 +46,11 @@ and gateways, this specification focuses on two core components: schema
 composition and distributed execution.
 
 - **Schema Composition**: Schema composition describes the process of merging
-  multiple _source schema_ into a single GraphQL schema, the _composite
-  schema_. During this process, an intermediary schema, the _composite execution
-  schema_, is generated. This composite execution schema is annotated with
-  directives to describe execution, and may have additional internal fields that
-  won't be exposed in the client-facing composite schema.
+  multiple _source schema_ into a single GraphQL schema, the _composite schema_.
+  During this process, an intermediary schema, the _composite execution schema_,
+  is generated. This composite execution schema is annotated with directives to
+  describe execution, and may have additional internal fields that won't be
+  exposed in the client-facing composite schema.
 
 - **Distributed Execution**: The _distributed GraphQL executor_ specifies the
   core execution behavior and algorithms that enable fulfillment of a _GraphQL
