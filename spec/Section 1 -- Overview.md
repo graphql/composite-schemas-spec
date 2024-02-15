@@ -31,9 +31,9 @@ The GraphQL Composite Schemas specification has a number of design principles:
   product-centric API interface to clients. Each source _GraphQL service_ that
   underpins the composite schema should be able to evolve without disrupting
   these clients. Over time, the same functionality may be provided by a
-  different combination of services, while the composite schemas interface can
+  different combination of services, while the composite schemas interface should
   continue to support existing requests from all clients; source schema
-  boundaries are therefore considered an implementation detail and should never
+  boundaries are therefore considered an implementation detail and should not
   be exposed to clients.
 
 - **Explicitness**: To make the composition process easier to understand and to
