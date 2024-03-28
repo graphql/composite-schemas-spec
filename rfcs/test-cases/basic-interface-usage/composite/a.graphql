@@ -2,7 +2,7 @@ type Query {
   a: String
 }
 
-extend interface Node @key(fields: "id") {
+interface Node @key(fields: "id") {
   id: ID!
   name: String
 }
