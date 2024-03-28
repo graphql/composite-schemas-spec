@@ -17,9 +17,10 @@ The GraphQL Composite Schemas specification has a number of design principles:
   from the start. Each source schema defines the types and fields it is
   responsible for serving within the context of the larger schema, referencing
   and extending what is provided by other source schemas. The GraphQL Composite
-  Schemas specification does not describe how to combine arbitrary schemas, even
-  as tooling may be able to transform existing or external schemas into
-  compliant _source schemas_.
+  Schemas specification does not describe how to combine arbitrary schemas.  
+  Note: Tooling may be built to transform existing or external schemas into
+  compliant _source schemas_, but details of building such tooling is beyond the
+  scope of this specification.
 
 - **Collaborative**: The GraphQL Composite Schemas specification is explicitly
   designed around team collaboration. By building on a principled composition
