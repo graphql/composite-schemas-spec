@@ -1,0 +1,1 @@
+Enum value "FriendType.FAMILY" is @inaccessible but is used in the default value of "User.friends(type:)", which is in the API schema.

@@ -1,0 +1,1 @@
+Non-shareable field "MyType.field" is resolved from multiple subgraphs: it is resolved from subgraphs "a" and "c" (through @interfaceObject field "MyInterface.field") and defined as non-shareable in all of them

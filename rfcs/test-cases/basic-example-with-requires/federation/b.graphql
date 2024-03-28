@@ -1,0 +1,9 @@
+type User @extends @key(fields: "id") {
+  b: String @requires(fields: "uuid")
+  id: ID! @external
+  uuid: ID! @external
+}
+
+type Query {
+  b: String
+}

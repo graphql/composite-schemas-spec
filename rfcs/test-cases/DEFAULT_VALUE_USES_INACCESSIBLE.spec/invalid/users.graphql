@@ -1,0 +1,16 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key", "@inaccessible"])
+
+type Query {
+  users: [User!]!
+}
+
+type User @key(fields: "id") {
+  id: ID
+  friends(type: FriendType = FAMILY): [User!]!
+}
+
+enum FriendType {
+  FAMILY @inaccessible
+  FRIEND
+}
