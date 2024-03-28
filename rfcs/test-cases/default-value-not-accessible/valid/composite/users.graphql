@@ -1,0 +1,13 @@
+type Query {
+  users: [User!]!
+}
+
+type User @key(fields: "id") {
+  id: ID
+  friends(type: FriendType = FAMILY @internal): [User!]!
+}
+
+enum FriendType {
+  FAMILY @internal
+  FRIEND
+}
