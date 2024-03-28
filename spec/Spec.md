@@ -85,7 +85,7 @@ Note: This is an example of a non-normative note.
 
 # [Subgraph](Section%202%20--%20Source%20Schema.md)
 
-# [Supergraph](Section%203%20--%20Supergraph.md)
+# [Supergraph](Section%203%20--%20Composite%20Schema.md)
 
 # [Composition](Section%204%20--%20Composition.md)
 
