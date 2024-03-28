@@ -1,0 +1,9 @@
+type User @key(fields: "id") {
+  b(uuid: String! @requires(fields: "uuid")): String
+  id: ID! @external
+}
+
+type Query {
+  b: String
+  userById(id: ID!): User @lookup
+}

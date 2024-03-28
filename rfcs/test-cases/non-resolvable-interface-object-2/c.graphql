@@ -1,0 +1,7 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key", "@interfaceObject"])
+
+type MyInterface @key(fields: "id", resolvable: false) @interfaceObject {
+  id: ID!
+  field: String
+}

@@ -1,0 +1,5 @@
+type User @key(fields: "id") @key(fields: "uuid") {
+  id: ID!
+  uuid: String!
+  commentCount: Int!
+}

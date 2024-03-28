@@ -1,0 +1,13 @@
+extend type User @key(fields: "uuid") {
+  uuid: String! @external
+  id: ID! @external
+}
+
+type D {
+  id: ID!
+  user: User! @provides(fields: "id")
+}
+
+type Query {
+  d: D
+}

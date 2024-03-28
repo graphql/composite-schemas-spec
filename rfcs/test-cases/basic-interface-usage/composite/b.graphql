@@ -1,0 +1,13 @@
+type Query {
+  b: String
+  node(id: ID!): Node @lookup
+}
+
+interface Node {
+  id: ID!
+}
+
+type User implements Node @key(fields: "id") {
+  id: ID!
+  name: String
+}

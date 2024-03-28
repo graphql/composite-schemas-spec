@@ -1,0 +1,10 @@
+type ImagePost implements Post & AnotherPost
+  @join__implements(graph: A, interface: "Post")
+  @join__implements(graph: B, interface: "AnotherPost")
+  @join__type(graph: A, key: "id")
+  @join__type(graph: B, key: "id") {
+  createdAt: String!
+    @join__field(graph: A, usedOverridden: true)
+    @join__field(graph: B, override: "a")
+  id: ID!
+}

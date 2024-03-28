@@ -1,0 +1,16 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key", "@interfaceObject"])
+
+type Query {
+  hello: String
+}
+
+interface MyInterface @key(fields: "id") {
+  id: ID!
+  field: String
+}
+
+type IimplementMyInterface implements MyInterface @key(fields: "id") {
+  id: ID!
+  field: String
+}

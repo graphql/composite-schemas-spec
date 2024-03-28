@@ -1,0 +1,13 @@
+type Query {
+  users: [User]
+}
+
+type User @key(fields: "id") {
+  id: ID!
+  profile: Profile!
+}
+
+type Profile {
+  id: ID!
+  name: String!
+}
