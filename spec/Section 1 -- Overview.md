@@ -16,8 +16,9 @@ The GraphQL Composite Schemas specification has a number of design principles:
   encourages developers to design the source schemas as part of a larger whole
   from the start. Each source schema defines the types and fields it is
   responsible for serving within the context of the larger schema, referencing
-  and extending what is provided by other source schemas. The GraphQL Composite
-  Schemas specification does not describe how to combine arbitrary schemas.  
+  and extending that which is provided by other source schemas. The GraphQL
+  Composite Schemas specification does not describe how to combine arbitrary
+  schemas.  
   Note: Tooling may be built to transform existing or external schemas into
   compliant _source schemas_, but details of building such tooling is beyond the
   scope of this specification.
@@ -48,11 +49,11 @@ and gateways, this specification focuses on two core components: schema
 composition and distributed execution.
 
 - **Schema Composition**: Schema composition describes the process of merging
-  multiple _source schemas_ into a single GraphQL schema, the _composite
-  schema_. During this process, an intermediary schema, the _composite execution
-  schema_, is generated. This composite execution schema is annotated with
-  directives to describe execution, and may have additional internal fields that
-  won't be exposed in the client-facing _composite schema_.
+  multiple _source schema_ into a single GraphQL schema, the _composite schema_.
+  During this process, an intermediary schema, the _composite execution schema_,
+  is generated. This composite execution schema is annotated with directives to
+  describe execution, and may have additional internal fields that won't be
+  exposed in the client-facing composite schema.
 
 - **Distributed Execution**: The _distributed GraphQL executor_ specifies the
   core execution behavior and algorithms that enable fulfillment of a _GraphQL
