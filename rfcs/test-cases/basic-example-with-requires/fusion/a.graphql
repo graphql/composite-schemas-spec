@@ -1,0 +1,9 @@
+type User {
+  a: String
+  id: ID! @external
+}
+
+type Query {
+  a: String
+  userById(id: ID!): User
+}

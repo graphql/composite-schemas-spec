@@ -1,0 +1,9 @@
+type Query {
+  myInterfaceBaseById(id: ID!): MyInterfaceBase
+}
+
+
+type MyInterfaceBase @baseType(of: "MyInterface") {
+  id: ID!
+  field: String
+}

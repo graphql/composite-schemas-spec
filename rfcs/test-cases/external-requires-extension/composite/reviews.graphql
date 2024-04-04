@@ -1,0 +1,21 @@
+type Query {
+  reviews: [Review]
+  reviewById(id: ID!): Review @lookup
+  userById(id: ID!): User @lookup
+}
+
+type Review @key(fields: "id") {
+  id: ID!
+  title: String!
+  author: User!
+}
+
+type User @key(fields: "id") {
+  id: ID! @external
+  profile: Profile! @external
+  reviews: [Review] @requires(fields: "profile { id __typename }")
+}
+
+type Profile {
+  id: ID! @external
+}

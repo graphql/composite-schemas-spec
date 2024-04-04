@@ -1,0 +1,9 @@
+type Query {
+  otherField: String
+  someTypeById(id: ID!): SomeType
+}
+
+type SomeType @baseType(of: "MyInterface") {
+  id: ID!
+  hello: Int
+}

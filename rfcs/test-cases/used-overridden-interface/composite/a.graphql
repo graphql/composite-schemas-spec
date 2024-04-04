@@ -1,0 +1,14 @@
+interface Post {
+  id: ID!
+  createdAt: String!
+}
+
+type ImagePost implements Post @key(fields: "id") {
+  id: ID!
+  createdAt: String!
+}
+
+type Query {
+  feed: [Post]
+  imagePost(id: ID!): ImagePost @lookup
+}

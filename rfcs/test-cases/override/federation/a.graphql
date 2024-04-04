@@ -1,0 +1,10 @@
+extend schema @link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key", "@override"])
+
+type User @key(fields: "userId") {
+  userId: ID! @override(from: "b")
+  age: Int! @override(from: "b")
+}
+
+type Query {
+  a: String
+}

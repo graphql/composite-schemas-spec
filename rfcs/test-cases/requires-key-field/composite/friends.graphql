@@ -1,0 +1,8 @@
+type Query {
+  userById(id: ID!): User @lookup
+}
+
+type User @key(fields: "id") {
+  id: ID
+  friends(id: ID! @requires(field: id)): [User!]! # i think this should be an error
+}

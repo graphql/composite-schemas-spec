@@ -1,0 +1,22 @@
+type Note {
+  id: ID!
+  name: String @external
+  author: User @external
+}
+
+type User {
+  id: ID!
+}
+
+type PrivateNote {
+  id: ID!
+  note: Note @provides(fields: "name author { id }")
+}
+
+type Query {
+  note: Note
+  privateNote: PrivateNote
+  noteById(id: ID!): Note
+  userById(id: ID!): User
+  privateNoteById(id: ID!): PrivateNote
+}

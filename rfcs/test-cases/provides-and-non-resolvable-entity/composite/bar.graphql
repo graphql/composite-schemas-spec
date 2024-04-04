@@ -1,0 +1,23 @@
+type Note @key(fields: "id") @shareable {
+  id: ID!
+  name: String
+  author: User
+}
+
+type User @key(fields: "id") {
+  id: ID!
+  name: String
+}
+
+type PrivateNote @key(fields: "id") @shareable {
+  id: ID!
+  note: Note
+}
+
+type Query {
+  note: Note @shareable
+  privateNote: PrivateNote @shareable
+  noteById(id: ID!): Note @lookup
+  userById(id: ID!): User @lookup
+  privateNoteById(id: ID!): PrivateNote @lookup
+}

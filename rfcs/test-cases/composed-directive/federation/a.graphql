@@ -1,0 +1,15 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key", "@composeDirective"])
+  @link(url: "https://myspecs.dev/lowercase/v1.0", import: ["@lowercase"])
+  @composeDirective(name: "@lowercase")
+
+directive @lowercase on FIELD_DEFINITION
+
+type User @key(fields: "id") {
+  id: ID! @lowercase
+  age: Int!
+}
+
+type Query {
+  a: String
+}

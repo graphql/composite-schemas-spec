@@ -1,0 +1,4 @@
+type MyInterface @baseType(of: "MyInterface") {
+  id: ID!
+  field(newField: String! @requires(field: "newField")): String
+}

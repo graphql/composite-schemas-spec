@@ -1,0 +1,23 @@
+type Note {
+  id: ID!
+  name: String
+  author: User
+}
+
+type User {
+  id: ID!
+  name: String
+}
+
+type PrivateNote {
+  id: ID!
+  note: Note
+}
+
+type Query {
+  note: Note
+  privateNote: PrivateNote
+  noteById(id: ID!): Note
+  userById(id: ID!): User
+  privateNoteById(id: ID!): PrivateNote
+}

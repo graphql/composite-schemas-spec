@@ -1,0 +1,22 @@
+extend schema @link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key", "@shareable"])
+
+type Note @key(fields: "id") @shareable {
+  id: ID!
+  name: String
+  author: User
+}
+
+type User @key(fields: "id") {
+  id: ID!
+  name: String
+}
+
+type PrivateNote @key(fields: "id") @shareable {
+  id: ID!
+  note: Note
+}
+
+type Query {
+  note: Note @shareable
+  privateNote: PrivateNote @shareable
+}

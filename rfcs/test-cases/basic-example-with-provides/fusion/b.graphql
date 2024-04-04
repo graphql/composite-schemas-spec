@@ -1,0 +1,13 @@
+extend type User {
+  uuid: String! @external
+}
+
+type B {
+  id: ID!
+  user: User!
+}
+
+type Query {
+  b: B
+  userByUuid(uuid: String!): User
+}

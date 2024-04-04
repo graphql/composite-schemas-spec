@@ -1,0 +1,10 @@
+type User @key(fields: "id") @key(fields: "uuid") {
+  id: ID!
+  uuid: String!
+  commentCount: Int!
+}
+
+type Query {
+  userById(id: ID!): User @lookup
+  userByUuid(uuid: String!): User @lookup
+}
