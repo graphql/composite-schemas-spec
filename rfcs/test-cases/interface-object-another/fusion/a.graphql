@@ -1,0 +1,14 @@
+type Query {
+  hello: String
+  myInterfaceById(id: ID!): MyInterface
+}
+
+interface MyInterface {
+  id: ID!
+  field: String
+}
+
+type IimplementMyInterface implements MyInterface {
+  id: ID!
+  field: String
+}

@@ -1,0 +1,21 @@
+type Query {
+  reviews: [Review]
+  reviewById(id: ID!): Review
+  userById(id: ID!): User
+}
+
+type Review {
+  id: ID!
+  title: String!
+  author: User!
+}
+
+type User {
+  id: ID! @external
+  profile: Profile! @external
+  reviews: [Review] @requires(fields: "profile { id __typename }")
+}
+
+type Profile {
+  id: ID! @external
+}
