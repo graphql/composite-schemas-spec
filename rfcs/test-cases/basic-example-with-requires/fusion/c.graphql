@@ -1,0 +1,10 @@
+type User {
+  c: String
+  id: ID!
+  uuid: ID!
+}
+
+type Query {
+  c: User
+  userById(id: ID!): User
+}

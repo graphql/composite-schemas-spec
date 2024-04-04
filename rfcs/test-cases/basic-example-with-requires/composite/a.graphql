@@ -1,4 +1,4 @@
-type User @extends @key(fields: "id") {
+type User @key(fields: "id") {
   a: String
   id: ID! @external
 }
