@@ -1,0 +1,9 @@
+type User @key(fields: "userId") {
+  userId: ID!
+  age: Int!
+}
+
+type Query {
+  b: String
+  userById(id: ID!): User @lookup
+}

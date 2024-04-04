@@ -1,0 +1,4 @@
+type Mutation {
+  a: String! @shareable @override(from: "non-existing")
+  b: String! @shareable @override(from: "non-existing")
+}

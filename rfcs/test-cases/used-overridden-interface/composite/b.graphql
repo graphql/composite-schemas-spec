@@ -1,9 +1,3 @@
-extend schema
-  @link(
-    url: "https://specs.apollo.dev/federation/v2.3"
-    import: ["@key", "@shareable", "@override"]
-  )
-
 interface Post {
   id: ID!
   createdAt: String!
