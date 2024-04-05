@@ -66,16 +66,16 @@ extend type Cat {
 }
 ```
 
-### @is
+### @provides
 
 ```graphql
-directive @is(
+directive @provides(
   field: FieldSelection
   coordinate: Schemacoordinate
 ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 ```
 
-The `@is` directive is utilized to establish semantic equivalence between
+The `@provides` directive is utilized to establish semantic equivalence between
 disparate type system members across distinct subgraphs, which the schema
 composition uses to connect types.
 
@@ -86,25 +86,25 @@ resolver for `Person` from the field `Query.personById`.
 
 ```graphql example
 extend type Query {
-  personById(id: ID! @is(field: "id")): Person @entityResolver
+  personById(id: ID! @provides(field: "id")): Person @entityResolver
 }
 ```
 
-The `@is` directive also allows to refer to nested fields relative to `Person`.
+The `@provides` directive also allows to refer to nested fields relative to `Person`.
 
 ```graphql example
 extend type Query {
-  personByAddressId(id: ID! @is(field: "address { id }")): Person
+  personByAddressId(id: ID! @provides(field: "address { id }")): Person
 }
 ```
 
-The `@is` directive not limited to a single argument.
+The `@provides` directive not limited to a single argument.
 
 ```graphql example
 extend type Query {
   personByAddressId(
-    id: ID! @is(field: "address { id }")
-    kind: PersonKind @is(field: "kind")
+    id: ID! @provides(field: "address { id }")
+    kind: PersonKind @provides(field: "kind")
   ): Person
 }
 ```
@@ -116,18 +116,33 @@ In this example, the field `productSKU` is semantically equivalent to the field
 
 ```graphql example
 extend type Review {
-  productSKU: ID! @is(coordinate: "Product.sku") @internal
+  productSKU: ID! @provides(coordinate: "Product.sku") @internal
   product: Product @resolve
 }
 ```
 
-The `@is` directive can use either the `field` or `coordinate` argument. If both
+The `@provides` directive can also inform of path-specific resolution patterns, in the case where a field is not generally resolvable for a type but only through a given path.
+
+```graphql counter-example
+type Query {
+  productPathA: Product @provides(field: "name")
+  productPathB: Product
+}
+
+type Product {
+  id: ID!
+  name: String! @external # Is only resolvable through particular paths
+  inStock: Boolean!
+}
+```
+
+The `@provides` directive can use either the `field` or `coordinate` argument. If both
 are specified, the schema composition must fail.
 
 ```graphql counter-example
 extend type Review {
   productSKU: ID!
-    @is(coordinate: "Product.sku", field: "product { sku }")
+    @provides(coordinate: "Product.sku", field: "product { sku }")
     @internal
   product: Product @resolve
 }
@@ -198,16 +213,6 @@ type Product {
   ): DeliveryEstimates
 }
 ```
-
-### @provides
-
-```graphql
-directive @provides(fields: SelectionSet!) on FIELD_DEFINITION
-```
-
-The `@provides` directive is an optimization hint specifying child fields that
-can be resolved locally at the given subgraph through a particular query path.
-This allows for a variation of overlapping field to improve data fetching.
 
 ### @external
 
