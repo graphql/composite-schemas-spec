@@ -1,15 +1,6 @@
 # Source Schema
 
-The GraphQL Composite Schemas spec refers to downstream GraphQL APIs that have
-been designed for composition as subgraphs. These subgraphs may have additional
-directives specified in this section to indicate semantics of type system
-members in the overall graph.
-
 ## Directives
-
-Subgraph directives offer instructions for the schema composition process,
-detailing type system member semantics and specifying type transformations. In
-some cases subgraph schemas can be composed without any directives.
 
 ### @entityResolver
 
