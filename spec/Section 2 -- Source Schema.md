@@ -29,7 +29,7 @@ extend type Person @key(fields "id")  @key(fields "name") {
 }
 ```
 
-The arguments of a lookup field must correspond to the fields specified by a `@key` directive annotated on the type returned by the lookup field.
+The arguments of a lookup field must correspond to fields specified by a `@key` directive annotated on the return type of the lookup field.
 
 ```graphql example
 extend type Query {
@@ -41,7 +41,7 @@ interface Node @key(fields "id")  {
 }
 ```
 
-Lookup fields returning an interface or union type can be used as lookup field for all possible object types.
+Lookup fields may return object, interface or union types. In case a lookup field returns an interface or union type all possible object types are considered entities and must have keys that correspond with the fields argument signature.
 
 ```graphql example
 extend type Query {
@@ -50,18 +50,45 @@ extend type Query {
 
 union Entity = Cat | Dog
 
-extend type Dog @key(fields "id") {
+extend type Dog @key(fields "id categoryId") {
+  id: ID!
+  categoryId: Int
+}
+
+extend type Cat @key(fields "id categoryId") {
+  id: ID!
+  categoryId: Int
+}
+```
+
+The following example shows an invalid lookup field as the `Cat` type does not declare a key that corresponds with the lookup fields argument signature.
+
+```graphql counter-example
+extend type Query {
+  entityById(id: ID!, categoryId: Int): Entity @lookup
+}
+
+union Entity = Cat | Dog
+
+extend type Dog @key(fields "id categoryId") {
   id: ID!
   categoryId: Int
 }
 
 extend type Cat @key(fields "id") {
   id: ID!
-  categoryId: Int
 }
 ```
 
-Lookup fields must be accessible from the Query type. If not directly on the Query type, they should be accessible via fields that do not require arguments, starting from the Query type.
+If the lookup returns an interface in particular the interface must also be annotated with a `@key` directive.
+
+```graphql example
+interface Node @key(fields "id")  {
+  id: ID!
+}
+```
+
+Lookup fields must be accessible from the Query type. If not directly on the Query type, they must be accessible via fields that do not require arguments, starting from the Query root type.
 
 ```graphql example
 extend type Query {
