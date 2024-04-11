@@ -140,6 +140,10 @@ The `@key` directive designates an object type as an entity and specifies its ke
 directive @key(fields: FieldSet!) repeatable on OBJECT | INTERFACE
 ```
 
+**Arguments:**
+
+- `fields`: Represents a GraphQL selections set syntax that refers to fields of the annotated type that represent a unique key to resolve the same type.
+
 ### @shareable
 
 ```graphql
