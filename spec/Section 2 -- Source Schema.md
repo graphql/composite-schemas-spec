@@ -23,7 +23,7 @@ extend type Person @key(fields "id") {
 }
 ```
 
-The arguments of a lookup field must match fields specified with a `@key` directive annotated on the return type for the lookup field.
+The arguments of a lookup field must correspond to the fields specified by a `@key` directive annotated on the type returned by the lookup field.
 
 ```graphql example
 extend type Query {
