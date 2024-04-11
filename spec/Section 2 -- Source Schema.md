@@ -8,9 +8,7 @@
 directive @lookup on FIELD_DEFINITION
 ```
 
-Entity resolvers are fields on the query root type of a subgraph that can
-resolve an entity by a stable key. The stable key is defined by the arguments of
-the field.
+Lookup fields allow the composite schema to resolve entities from a source schema by a stable key. The stable key is defined by the arguments of the field. Only fields that are annotated with the `@lookup` directive will be recognized as lookup field.
 
 ```graphql example
 extend type Query {
@@ -18,26 +16,24 @@ extend type Query {
   personById(id: ID!): Person @lookup
 }
 
-extend type Person {
-  id: ID! # matches the argument of personById
+extend type Person @key(fields "id") {
+  id: ID!
 }
 ```
 
-The arguments of an entity resolver field must match fields of the returning
-type.
+The arguments of a lookup field must match fields specified with a `@key` directive annotated on the return type for the lookup field.
 
 ```graphql example
 extend type Query {
   node(id: ID!): Node @lookup
 }
 
-interface Node {
+interface Node @key(fields "id")  {
   id: ID!
 }
 ```
 
-When an entity resolver returns an interface all implementing types are inferred
-as entities.
+Lookup fields returning an interface type can be used as lookup field for all implementing object types.
 
 ```graphql example
 extend type Query {
