@@ -41,7 +41,7 @@ as entities.
 
 ```graphql example
 extend type Query {
-  entityById(id: ID!, categoryId: Int): Entity @entityResolver
+  entityById(id: ID!, categoryId: Int): Entity @lookup
 }
 
 union Entity = Cat | Dog
@@ -54,6 +54,22 @@ extend type Dog {
 extend type Cat {
   id: ID!
   categoryId: Int
+}
+```
+
+....
+
+```graphql example
+extend type Query {
+  lookups: Lookups!
+}
+
+type Lookups {
+  personById(id: ID!): Person @lookup
+}
+
+extend type Person {
+  id: ID! # matches the argument of personById
 }
 ```
 
