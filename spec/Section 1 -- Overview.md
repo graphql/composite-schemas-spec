@@ -28,13 +28,13 @@ The GraphQL Composite Schemas specification has a number of design principles:
   specification facilitates the coordinated effort of combining collaboratively
   designed source schemas into a single coherent composite schema.
 
-- **Evolvable**: A _composite schema_ offers an integrated, product-centric API
-  interface to clients. Each source _GraphQL service_ that underpins the
-  composite schema should be able to evolve without disrupting these clients.
-  Over time, the same functionality may be provided by a different combination
-  of services, while the composite schemas interface must continue to support
-  existing requests from all clients; source schema boundaries are therefore
-  considered an implementation detail and should never be exposed to clients.
+- **Evolvable**: A _composite schema_ enables offering an integrated,
+  product-centric API interface to clients; source schema boundaries are an
+  implementation detail, a detail that is not exposed to clients. As each
+  underlying _GraphQL service_ evolves, the same functionality may be provided
+  from a different combination of services. This specification helps to ensure
+  that changes to underlying services can be made whilst maintaining support for
+  existing requests from all clients to the composite schema interface.
 
 - **Explicitness**: To make the composition process easier to understand and to
   avoid ambiguities that can lead to confusing failures as the system grows, the
