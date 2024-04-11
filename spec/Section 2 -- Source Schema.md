@@ -4,6 +4,8 @@
 
 ### @lookup
 
+The `@lookup` directive is applied to object fields to enable the resolution of entities from a _source schema_ by a stable key. This directive marks a field as capable of performing a lookup operation.
+
 ```graphql
 directive @lookup on FIELD_DEFINITION
 ```
@@ -33,7 +35,7 @@ interface Node @key(fields "id")  {
 }
 ```
 
-Lookup fields returning an interface type can be used as lookup field for all implementing object types.
+Lookup fields returning an interface or union type can be used as lookup field for all possible object types.
 
 ```graphql example
 extend type Query {
@@ -42,18 +44,18 @@ extend type Query {
 
 union Entity = Cat | Dog
 
-extend type Dog {
+extend type Dog @key(fields "id") {
   id: ID!
   categoryId: Int
 }
 
-extend type Cat {
+extend type Cat @key(fields "id") {
   id: ID!
   categoryId: Int
 }
 ```
 
-....
+Lookup fields must be reachable through the query type. If lookup fields are not located directly on the `Query` type they must be reachable through argumentless fields from the query type.
 
 ```graphql example
 extend type Query {
@@ -64,8 +66,8 @@ type Lookups {
   personById(id: ID!): Person @lookup
 }
 
-extend type Person {
-  id: ID! # matches the argument of personById
+extend type Person @key(fields "id") {
+  id: ID!
 }
 ```
 
