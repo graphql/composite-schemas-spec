@@ -8,13 +8,19 @@
 directive @lookup on FIELD_DEFINITION
 ```
 
-The `@lookup` directive is used within a _source schema_ to specify object fields that can be used by the _distributed GraphQL executor_ to resolve an entity by a stable key.
+The `@lookup` directive is used within a _source schema_ to specify object
+fields that can be used by the _distributed GraphQL executor_ to resolve an
+entity by a stable key.
 
-The stable key is defined by the arguments of the field. Only fields that are annotated with the `@lookup` directive will be recognized as lookup field.
+The stable key is defined by the arguments of the field. Only fields that are
+annotated with the `@lookup` directive will be recognized as lookup field.
 
-Source schemas can provide multiple lookup fields for the same entity with different keys.
+Source schemas can provide multiple lookup fields for the same entity with
+different keys.
 
-In this example the source schema specifies that the `Person` entity can be resolved with the `personById` field or the `personByName` field on the `Query` type. Both fields can resolve the same entity but do so with different keys.
+In this example the source schema specifies that the `Person` entity can be
+resolved with the `personById` field or the `personByName` field on the `Query`
+type. Both fields can resolve the same entity but do so with different keys.
 
 ```graphql example
 extend type Query {
@@ -29,7 +35,8 @@ extend type Person @key(fields "id")  @key(fields "name") {
 }
 ```
 
-The arguments of a lookup field must correspond to fields specified by a `@key` directive annotated on the return type of the lookup field.
+The arguments of a lookup field must correspond to fields specified by a `@key`
+directive annotated on the return type of the lookup field.
 
 ```graphql example
 extend type Query {
@@ -41,7 +48,10 @@ interface Node @key(fields "id")  {
 }
 ```
 
-Lookup fields may return object, interface or union types. In case a lookup field returns an interface or union type all possible object types are considered entities and must have keys that correspond with the fields argument signature.
+Lookup fields may return object, interface or union types. In case a lookup
+field returns an interface or union type all possible object types are
+considered entities and must have keys that correspond with the fields argument
+signature.
 
 ```graphql example
 extend type Query {
@@ -61,7 +71,8 @@ extend type Cat @key(fields "id categoryId") {
 }
 ```
 
-The following example shows an invalid lookup field as the `Cat` type does not declare a key that corresponds with the lookup fields argument signature.
+The following example shows an invalid lookup field as the `Cat` type does not
+declare a key that corresponds with the lookup fields argument signature.
 
 ```graphql counter-example
 extend type Query {
@@ -80,7 +91,8 @@ extend type Cat @key(fields "id") {
 }
 ```
 
-If the lookup returns an interface in particular the interface must also be annotated with a `@key` directive.
+If the lookup returns an interface in particular the interface must also be
+annotated with a `@key` directive.
 
 ```graphql example
 interface Node @key(fields "id")  {
@@ -88,7 +100,9 @@ interface Node @key(fields "id")  {
 }
 ```
 
-Lookup fields must be accessible from the Query type. If not directly on the Query type, they must be accessible via fields that do not require arguments, starting from the Query root type.
+Lookup fields must be accessible from the Query type. If not directly on the
+Query type, they must be accessible via fields that do not require arguments,
+starting from the Query root type.
 
 ```graphql example
 extend type Query {
