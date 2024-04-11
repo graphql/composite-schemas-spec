@@ -55,7 +55,7 @@ extend type Cat @key(fields "id") {
 }
 ```
 
-Lookup fields must be reachable through the query type. If lookup fields are not located directly on the `Query` type they must be reachable through argumentless fields from the query type.
+Lookup fields must be accessible from the Query type. If not directly on the Query type, they should be accessible via fields that do not require arguments, starting from the Query type.
 
 ```graphql example
 extend type Query {
