@@ -132,6 +132,14 @@ extend type Review {
 - `coordinate`: Represents a schema coordinate that refers to a type system
   member.
 
+### @key
+
+The `@key` directive designates an object type as an entity and specifies its key fields (a set of fields that the _source schema_ can use to uniquely identify any instance of the entity).
+
+```graphql
+directive @key(fields: FieldSet!) repeatable on OBJECT | INTERFACE
+```
+
 ### @shareable
 
 ```graphql
