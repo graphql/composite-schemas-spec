@@ -4,22 +4,28 @@
 
 ### @lookup
 
-The `@lookup` directive is applied to object fields to enable the resolution of entities from a _source schema_ by a stable key. This directive marks a field as capable of performing a lookup operation.
-
 ```graphql
 directive @lookup on FIELD_DEFINITION
 ```
 
-Lookup fields allow the composite schema to resolve entities from a source schema by a stable key. The stable key is defined by the arguments of the field. Only fields that are annotated with the `@lookup` directive will be recognized as lookup field.
+The `@lookup` directive is used within a _source schema_ to specify object fields that can be used by the _distributed GraphQL executor_ to resolve an entity by a stable key.
+
+The stable key is defined by the arguments of the field. Only fields that are annotated with the `@lookup` directive will be recognized as lookup field.
+
+Source schemas can provide multiple lookup fields for the same entity with different keys.
+
+In this example the source schema specifies that the `Person` entity can be resolved with the `personById` field or the `personByName` field on the `Query` type. Both fields can resolve the same entity but do so with different keys.
 
 ```graphql example
 extend type Query {
-  version: Int # NOT an entity resolver.
+  version: Int # NOT a lookup field.
   personById(id: ID!): Person @lookup
+  personByName(name: String!): Person @lookup
 }
 
-extend type Person @key(fields "id") {
+extend type Person @key(fields "id")  @key(fields "name") {
   id: ID!
+  name: String!
 }
 ```
 
