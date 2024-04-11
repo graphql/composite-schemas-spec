@@ -2,10 +2,10 @@
 
 ## Directives
 
-### @entityResolver
+### @lookup
 
 ```graphql
-directive @entityResolver on FIELD_DEFINITION
+directive @lookup on FIELD_DEFINITION
 ```
 
 Entity resolvers are fields on the query root type of a subgraph that can
@@ -15,7 +15,7 @@ the field.
 ```graphql example
 extend type Query {
   version: Int # NOT an entity resolver.
-  personById(id: ID!): Person @entityResolver
+  personById(id: ID!): Person @lookup
 }
 
 extend type Person {
@@ -28,7 +28,7 @@ type.
 
 ```graphql example
 extend type Query {
-  node(id: ID!): Node @entityResolver
+  node(id: ID!): Node @lookup
 }
 
 interface Node {
