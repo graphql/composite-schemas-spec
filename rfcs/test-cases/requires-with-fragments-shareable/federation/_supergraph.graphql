@@ -1,0 +1,104 @@
+schema
+  @link(url: "https://specs.apollo.dev/link/v1.0")
+  @link(url: "https://specs.apollo.dev/join/v0.3", for: EXECUTION)
+  @link(url: "https://specs.apollo.dev/inaccessible/v0.2", for: SECURITY)
+{
+  query: Query
+}
+
+directive @inaccessible on FIELD_DEFINITION | OBJECT | INTERFACE | UNION | ARGUMENT_DEFINITION | SCALAR | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
+directive @join__enumValue(graph: join__Graph!) repeatable on ENUM_VALUE
+
+directive @join__field(graph: join__Graph, requires: join__FieldSet, provides: join__FieldSet, type: String, external: Boolean, override: String, usedOverridden: Boolean) repeatable on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @join__graph(name: String!, url: String!) on ENUM_VALUE
+
+directive @join__implements(graph: join__Graph!, interface: String!) repeatable on OBJECT | INTERFACE
+
+directive @join__type(graph: join__Graph!, key: join__FieldSet, extension: Boolean! = false, resolvable: Boolean! = true, isInterfaceObject: Boolean! = false) repeatable on OBJECT | INTERFACE | UNION | ENUM | INPUT_OBJECT | SCALAR
+
+directive @join__unionMember(graph: join__Graph!, member: String!) repeatable on UNION
+
+directive @link(url: String, as: String, for: link__Purpose, import: [link__Import]) repeatable on SCHEMA
+
+interface Bar implements Foo
+  @join__implements(graph: LOCATIONS, interface: "Foo")
+  @join__implements(graph: REVIEWS, interface: "Foo")
+  @join__type(graph: LOCATIONS)
+  @join__type(graph: REVIEWS)
+{
+  foo: String!
+  bar: String!
+}
+
+type Baz implements Foo & Bar
+  @join__implements(graph: LOCATIONS, interface: "Foo")
+  @join__implements(graph: LOCATIONS, interface: "Bar")
+  @join__implements(graph: REVIEWS, interface: "Foo")
+  @join__implements(graph: REVIEWS, interface: "Bar")
+  @join__type(graph: LOCATIONS)
+  @join__type(graph: REVIEWS)
+  @inaccessible
+{
+  foo: String!
+  bar: String!
+  baz: String!
+}
+
+type Entity
+  @join__type(graph: LOCATIONS, key: "id")
+  @join__type(graph: REVIEWS, key: "id")
+{
+  id: ID!
+  data: Foo @join__field(graph: LOCATIONS) @join__field(graph: REVIEWS, external: true)
+  requirer: String! @join__field(graph: REVIEWS, requires: "data { foo ... on Bar { bar ... on Baz { baz } ... on Qux { qux } } }")
+}
+
+interface Foo
+  @join__type(graph: LOCATIONS)
+  @join__type(graph: REVIEWS)
+{
+  foo: String!
+}
+
+scalar join__FieldSet
+
+enum join__Graph {
+  LOCATIONS @join__graph(name: "locations", url: "https://flyby-locations-sub.herokuapp.com/")
+  REVIEWS @join__graph(name: "reviews", url: "https://flyby-reviews-sub.herokuapp.com/")
+}
+
+scalar link__Import
+
+enum link__Purpose {
+  """
+  `SECURITY` features provide metadata necessary to securely resolve fields.
+  """
+  SECURITY
+
+  """
+  `EXECUTION` features provide metadata necessary for operation execution.
+  """
+  EXECUTION
+}
+
+type Query
+  @join__type(graph: LOCATIONS)
+  @join__type(graph: REVIEWS)
+{
+  dummy: Entity
+}
+
+type Qux implements Foo & Bar
+  @join__implements(graph: LOCATIONS, interface: "Foo")
+  @join__implements(graph: LOCATIONS, interface: "Bar")
+  @join__implements(graph: REVIEWS, interface: "Foo")
+  @join__implements(graph: REVIEWS, interface: "Bar")
+  @join__type(graph: LOCATIONS)
+  @join__type(graph: REVIEWS)
+{
+  foo: String!
+  bar: String!
+  qux: String!
+}
