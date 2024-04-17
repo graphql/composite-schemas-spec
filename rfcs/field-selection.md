@@ -585,6 +585,9 @@ This outline is not a formal specification but aims to clarify the concept:
      - A `Selection` inherently acts as an `InputField` with the same name as the field it selects:
        - If multiple field names are possible, the `Selection` must be nested within an `InputField`.
      - Selecting multiple fields within a single `Selection` is prohibited to prevent ambiguity.
+     - Aliases are not supported within a `Selection`.
+     - Arguments are not supported within a `Selection`.
+     - Directives are not supported within a `Selection`.
    - An `InputField` corresponds directly to a field within the input object:
      - It is a key-value pair where the key is the field name and the value is either an `ObjectField` or a `Selection` -> `fieldName: value`.
        - If the value of an `ObjectField` begins with a `{`, it is classified as an `ObjectValue`.
