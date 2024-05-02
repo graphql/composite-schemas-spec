@@ -23,13 +23,13 @@ resolved with the `personById` field or the `personByName` field on the `Query`
 type. Both fields can resolve the same entity but do so with different keys.
 
 ```graphql example
-extend type Query {
+type Query {
   version: Int # NOT a lookup field.
   personById(id: ID!): Person @lookup
   personByName(name: String!): Person @lookup
 }
 
-extend type Person @key(fields "id")  @key(fields "name") {
+type Person @key(fields "id")  @key(fields "name") {
   id: ID!
   name: String!
 }
@@ -39,7 +39,7 @@ The arguments of a lookup field must correspond to fields specified by a `@key`
 directive annotated on the return type of the lookup field.
 
 ```graphql example
-extend type Query {
+type Query {
   node(id: ID!): Node @lookup
 }
 
@@ -54,18 +54,18 @@ considered entities and must have keys that correspond with the fields argument
 signature.
 
 ```graphql example
-extend type Query {
+type Query {
   entityById(id: ID!, categoryId: Int): Entity @lookup
 }
 
 union Entity = Cat | Dog
 
-extend type Dog @key(fields "id categoryId") {
+type Dog @key(fields "id categoryId") {
   id: ID!
   categoryId: Int
 }
 
-extend type Cat @key(fields "id categoryId") {
+type Cat @key(fields "id categoryId") {
   id: ID!
   categoryId: Int
 }
@@ -75,18 +75,18 @@ The following example shows an invalid lookup field as the `Cat` type does not
 declare a key that corresponds with the lookup fields argument signature.
 
 ```graphql counter-example
-extend type Query {
+type Query {
   entityById(id: ID!, categoryId: Int): Entity @lookup
 }
 
 union Entity = Cat | Dog
 
-extend type Dog @key(fields "id categoryId") {
+type Dog @key(fields "id categoryId") {
   id: ID!
   categoryId: Int
 }
 
-extend type Cat @key(fields "id") {
+type Cat @key(fields "id") {
   id: ID!
 }
 ```
@@ -105,7 +105,7 @@ Query type, they must be accessible via fields that do not require arguments,
 starting from the Query root type.
 
 ```graphql example
-extend type Query {
+type Query {
   lookups: Lookups!
 }
 
@@ -113,7 +113,7 @@ type Lookups {
   personById(id: ID!): Person @lookup
 }
 
-extend type Person @key(fields "id") {
+type Person @key(fields "id") {
   id: ID!
 }
 ```
