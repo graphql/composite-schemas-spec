@@ -5,10 +5,7 @@
 ### @lookup
 
 ```graphql
-directive @lookup(
-  map: SelectionPath
-  patch: Boolean! = true
-) on FIELD_DEFINITION
+directive @lookup(map: SelectionPath) on FIELD_DEFINITION
 ```
 
 The `@lookup` directive is used within a _source schema_ to specify object
@@ -143,10 +140,39 @@ input PersonFinderInput @oneOf {
 
 **Arguments:**
 
-- `map`: Represents a GraphQL field selection syntax that refers to field
-  relative to the current type; or, when used on arguments it refers to a field
-  relative to the return type.
-- `patch`: Represents a schema coordinate that refers to a type system member.
+- `map`: Represents a selection path that describes how keys are mapped to
+  arguments of a lookup field.
+
+### @patch
+
+```graphql
+directive @patch(map: SelectionPath) on FIELD_DEFINITION
+```
+
+The `@patch` directive is used within a _source schema_ to specify object fields
+that can be used by the _distributed GraphQL executor_ to resolve additional
+data for an entity rather than fetching the entity itself. A patch resolver
+result does noth mean that the actual entity exists.
+
+```graphql example
+type Query {
+  personById(id: ID!): Person @patch(map: "{ id: id }")
+  personByName(name: String!): Person @patch(map: "{ name: name }")
+}
+
+type Person @key(fields "id") @key(fields "name") {
+  id: ID!
+  name: String!
+}
+```
+
+Patch resolve as oposed to lookup fields will be omitted from the _composite
+schema_ but will be referenced within the _composite execution schema_.
+
+**Arguments:**
+
+- `map`: Represents a selection path that describes how keys are mapped to
+  arguments of a lookup field.
 
 ### @shareable
 
