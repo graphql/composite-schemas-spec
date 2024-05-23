@@ -5,7 +5,7 @@
 ### @lookup
 
 ```graphql
-directive @lookup(map: SelectionPath) on FIELD_DEFINITION
+directive @lookup(map: SelectionPath!) on FIELD_DEFINITION
 ```
 
 The `@lookup` directive is used within a _source schema_ to specify object
@@ -146,7 +146,7 @@ input PersonFinderInput @oneOf {
 ### @patch
 
 ```graphql
-directive @patch(map: SelectionPath) on FIELD_DEFINITION
+directive @patch(map: SelectionPath!) on FIELD_DEFINITION
 ```
 
 The `@patch` directive is used within a _source schema_ to specify object fields
@@ -198,8 +198,8 @@ Note: Key fields are always considered sharable.
 
 ```graphql
 directive @require(
-  field: FieldSelection!
-) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+  map: SelectionPath!
+) on FIELD_DEFINITION
 ```
 
 The `@require` directive is used to express data requirements with other
@@ -212,9 +212,9 @@ type Product {
   id: ID!
   delivery(
     zip: String!
-    size: Int! @require(field: "dimension { size }")
-    weight: Int! @require(field: "dimension { weight }")
-  ): DeliveryEstimates
+    size: Int! 
+    weight: Int!
+  ): DeliveryEstimates @require(field: "{ size: dimension.size weight: dimension.weight }")
 }
 ```
 
@@ -227,8 +227,8 @@ type Product {
   id: ID!
   delivery(
     zip: String!
-    dimension: ProductDimensionInput! @require(field: "dimension"))
-  ): DeliveryEstimates
+    dimension: ProductDimensionInput!)
+  ): DeliveryEstimates @require(field: "{ dimension: { size: dimension.size weight: dimension.weight } }")
 }
 ```
 
