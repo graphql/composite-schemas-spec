@@ -5,7 +5,7 @@
 ### @lookup
 
 ```graphql
-directive @lookup(map: SelectionPath!) on FIELD_DEFINITION
+directive @lookup on FIELD_DEFINITION
 ```
 
 The `@lookup` directive is used within a _source schema_ to specify object
@@ -25,48 +25,47 @@ type. Both fields can resolve the same entity but do so with different keys.
 ```graphql example
 type Query {
   version: Int # NOT a lookup field.
-  personById(id: ID!): Person @lookup(map: "{ id: id }")
-  personByName(name: String!): Person @lookup(map: "{ name: name }")
+  personById(id: ID!): Person @lookup
+  personByName(name: String!): Person @lookup
 }
 
-type Person @key(fields "id") @key(fields "name") {
+type Person @key(fields: "id")  @key(fields: "name") {
   id: ID!
   name: String!
 }
 ```
 
-The selection syntax provided as a value to the `map` argument of the `@lookup`
-directive must correspond to the all arguments of a lookup field. Further it
-must correspond to fields specified by a `@key` directive annotated on the
-return type of the lookup field.
+The arguments of a lookup field must correspond to fields specified by a `@key`
+directive annotated on the return type of the lookup field.
 
 ```graphql example
 type Query {
-  node(id: ID!): Node @lookup(map: "{ id: id }")
+  node(id: ID!): Node @lookup
 }
 
-interface Node @key(fields "id")  {
+interface Node @key(fields: "id")  {
   id: ID!
 }
 ```
 
 Lookup fields may return object, interface or union types. In case a lookup
 field returns an interface or union type all possible object types are
-considered entities and must have keys that correspond with the lookup map.
+considered entities and must have keys that correspond with the fields argument
+signature.
 
 ```graphql example
 type Query {
-  entityById(id: ID!, categoryId: Int): Entity @lookup(map: "{ id: id, categoryId: categoryId }")
+  entityById(id: ID!, categoryId: Int): Entity @lookup
 }
 
 union Entity = Cat | Dog
 
-type Dog @key(fields "id categoryId") {
+type Dog @key(fields: "id categoryId") {
   id: ID!
   categoryId: Int
 }
 
-type Cat @key(fields "id categoryId") {
+type Cat @key(fields: "id categoryId") {
   id: ID!
   categoryId: Int
 }
@@ -77,26 +76,26 @@ declare a key that corresponds with the lookup fields argument signature.
 
 ```graphql counter-example
 type Query {
-  entityById(id: ID!, categoryId: Int): Entity @lookup(map: "{ id: id, categoryId: categoryId }")
+  entityById(id: ID!, categoryId: Int): Entity @lookup
 }
 
 union Entity = Cat | Dog
 
-type Dog @key(fields "id categoryId") {
+type Dog @key(fields: "id categoryId") {
   id: ID!
   categoryId: Int
 }
 
-type Cat @key(fields "id") {
+type Cat @key(fields: "id") {
   id: ID!
 }
 ```
 
-If the lookup returns an interface in particular, the interface must also be
+If the lookup returns an interface in particular the interface must also be
 annotated with a `@key` directive.
 
 ```graphql example
-interface Node @key(fields "id")  {
+interface Node @key(fields: "id")  {
   id: ID!
 }
 ```
@@ -111,68 +110,77 @@ type Query {
 }
 
 type Lookups {
-  personById(id: ID!): Person @lookup(map: "{ id: id }")
+  personById(id: ID!): Person @lookup
 }
 
-type Person @key(fields "id") {
+type Person @key(fields: "id") {
   id: ID!
 }
 ```
 
-Lookup fields can also use the `@oneOf` directive to specify a lookup field that
-can resolve multiple keys.
+Lookups can also be nested if they can be reached through other lookups.
 
 ```graphql example
 type Query {
-  person(finder: PersonFinderInput!): Person @lookup(map: "{ name: name } | { id: id }")
+  organization(id: ID!): Ogranization @lookup
 }
 
-type Person @key(fields "id") @key(fields "name") {
-  id: ID!
+type Ogranization {
+  repository(name: String!): Repository @lookup
+}
+
+type Repository @key(fields: "id organization { id }") {
   name: String!
-}
-
-input PersonFinderInput @oneOf {
-  id: ID
-  name: String
+  organization: Ogranization
 }
 ```
 
-**Arguments:**
-
-- `map`: Represents a selection path that describes how keys are mapped to
-  arguments of a lookup field.
-
-### @patch
+### @is
 
 ```graphql
-directive @patch(map: SelectionPath!) on FIELD_DEFINITION
+directive @is(
+  field: FieldSelection
+  coordinate: Schemacoordinate
+) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 ```
 
-The `@patch` directive is used within a _source schema_ to specify object fields
-that can be used by the _distributed GraphQL executor_ to resolve additional
-data for an entity rather than fetching the entity itself. A patch resolver
-result does noth mean that the actual entity exists.
+The `@is` directive is utilized to establish semantic equivalence between
+disparate type system members across distinct subgraphs, which the schema
+composition uses to connect types.
+
+In the following example, the directive specifies that the `id` argument on the
+field `Query.personById` and the field `Person.id` on the return type of the
+field are semantically the same. This information is used to infer an entity
+resolver for `Person` from the field `Query.personById`.
 
 ```graphql example
-type Query {
-  personById(id: ID!): Person @patch(map: "{ id: id }")
-  personByName(name: String!): Person @patch(map: "{ name: name }")
-}
-
-type Person @key(fields "id") @key(fields "name") {
-  id: ID!
-  name: String!
+extend type Query {
+  personById(id: ID! @is(field: "id")): Person @entityResolver
 }
 ```
 
-Patch resolve as oposed to lookup fields will be omitted from the _composite
-schema_ but will be referenced within the _composite execution schema_.
+The `@is` directive also allows to refer to nested fields relative to `Person`.
+
+```graphql example
+extend type Query {
+  personByAddressId(id: ID! @is(field: "address.id")): Person
+}
+```
+
+The `@is` directive not limited to a single argument.
+
+```graphql example
+extend type Query {
+  personByAddressId(
+    id: ID! @is(field: "address.id")
+    kind: PersonKind @is(field: "kind")
+  ): Person
+}
+```
 
 **Arguments:**
 
-- `map`: Represents a selection path that describes how keys are mapped to
-  arguments of a lookup field.
+- `field`: Represents a selection path syntax.
 
 ### @shareable
 
@@ -198,8 +206,8 @@ Note: Key fields are always considered sharable.
 
 ```graphql
 directive @require(
-  map: SelectionPath!
-) on FIELD_DEFINITION
+  field: FieldSelection!
+) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 ```
 
 The `@require` directive is used to express data requirements with other
@@ -212,9 +220,9 @@ type Product {
   id: ID!
   delivery(
     zip: String!
-    size: Int! 
-    weight: Int!
-  ): DeliveryEstimates @require(field: "{ size: dimension.size weight: dimension.weight }")
+    size: Int! @require(field: "dimension { size }")
+    weight: Int! @require(field: "dimension { weight }")
+  ): DeliveryEstimates
 }
 ```
 
@@ -227,8 +235,8 @@ type Product {
   id: ID!
   delivery(
     zip: String!
-    dimension: ProductDimensionInput!)
-  ): DeliveryEstimates @require(field: "{ dimension: { size: dimension.size weight: dimension.weight } }")
+    dimension: ProductDimensionInput! @require(field: "dimension"))
+  ): DeliveryEstimates
 }
 ```
 
