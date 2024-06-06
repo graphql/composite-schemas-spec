@@ -299,19 +299,3 @@ directive @internal on OBJECT | INTERFACE | FIELD_DEFINITION | UNION | ENUM | EN
 The `@internal` directive signals to the composition process that annotated type
 system members shall not be included into the public schema but still can be
 used by the executor to build resolvers.
-
-### Schemacoordinate
-
-```graphql
-scalar Schemacoordinate
-```
-
-The `Schemacoordinate` scalar represents a schema coordinate syntax.
-
-```graphql example
-Product.id
-```
-
-```graphql example
-Product.estimateDelivery(zip:)
-```
