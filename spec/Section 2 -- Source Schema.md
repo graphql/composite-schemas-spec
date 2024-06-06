@@ -29,7 +29,7 @@ type Query {
   personByName(name: String!): Person @lookup
 }
 
-type Person @key(fields: "id")  @key(fields: "name") {
+type Person @key(fields: "id") @key(fields: "name") {
   id: ID!
   name: String!
 }
@@ -43,7 +43,7 @@ type Query {
   node(id: ID!): Node @lookup
 }
 
-interface Node @key(fields: "id")  {
+interface Node @key(fields: "id") {
   id: ID!
 }
 ```
@@ -95,7 +95,7 @@ If the lookup returns an interface in particular the interface must also be
 annotated with a `@key` directive.
 
 ```graphql example
-interface Node @key(fields: "id")  {
+interface Node @key(fields: "id") {
   id: ID!
 }
 ```
@@ -240,14 +240,15 @@ type Product {
 }
 ```
 
-If the input types do not match it can also be mapped with the path selection syntax.
+If the input types do not match it can also be mapped with the path selection
+syntax.
 
 ```graphql example
 type Product {
   id: ID!
   delivery(
     zip: String!
-    dimension: ProductDimensionInput! 
+    dimension: ProductDimensionInput!
       @require(field: "{ productSize: dimension.size, productWeight: dimension.weight }"))
   ): DeliveryEstimates
 }
