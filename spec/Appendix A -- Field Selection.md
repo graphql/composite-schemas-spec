@@ -211,6 +211,7 @@ type Query {
     mediaById(mediaId: ID!): Media 
     findMedia(input: FindMediaInput): Media 
     searchStore(search: SearchStoreInput): [Store]!
+    storeById(id: ID!): Store
 }
 
 type Store {
@@ -241,7 +242,7 @@ type Author {
     books: [Book!]!
 }
 
-input FindMediaInput @oneOf{
+input FindMediaInput @oneOf {
     bookId: ID
     movieId: ID
 }
@@ -340,7 +341,7 @@ Each segment of a {Path} that references a type, must be a type that is valid in
 context.
 
 **Formal Specification**
-****
+
 -  For each {segment} in a {Path}:
   - If {segment} is a type reference:
     - Let {type} be the type referenced in the {segment}.
@@ -361,34 +362,6 @@ Type references inside a {Path} must be valid within the context of the surround
 reference is only valid if the referenced type could logically apply within the parent type.
 
 
-```graphql
-type Query {
-    """
-    can only handle "id" and "city street"
-    """
-    userByIdOrAddress(
-        userId: ID @is(field: "id") ,
-        city: String @is(field: "city"),
-        address: String @is(field: "street")
-    ): User
-
-    userById(userId: ID! @is(field: "id")): User
-    userByName(name: String! @is(field: "name")): User
-    userByCity(city: String! @is(field: "city")): User
-}
-
-type User 
-    @key(fields: "id") 
-    @key(fields: "city") 
-    @key(fields: "street") 
-    @key(fields: "city street") {
-    id: ID!
-    name: String!
-    city: String!
-    street: String!
-}
-```
-
 ### Values of Correct Type
 
 **Formal Specification**
@@ -405,23 +378,25 @@ The following examples are valid use of value literals in the context of {FieldS
 
 ```graphql example
 type Query {
-  userById(userId: ID! @is(field: "id")): User! @lookup
+  storeById(id: ID! @is(field: "id")): Store! @lookup
 }
 
-type User {
+type Store {
     id: ID
+    city: String!
 }
 ```
 
 Non-coercible values are invalid. The following examples are invalid:
 
 ```graphql counter-example
-extend type Query {
-  userById(userId: ID! @is(field: "id")): User! @lookup
+type Query {
+  storeById(id: ID! @is(field: "id")): Store! @lookup
 }
 
-type User {
+type Store {
     id: Int
+    city: String!
 }
 ```
 
@@ -442,11 +417,12 @@ For example, the following is valid:
 
 ```graphql example
 type Query {
-  userById(userId: ID! @is(field: "id")): User! @lookup
+  storeById(id: ID! @is(field: "id")): Store! @lookup
 }
 
-type User {
+type Store {
     id: ID
+    city: String!
 }
 ```
 
@@ -454,11 +430,12 @@ In contrast, the following is invalid because it uses a field "address" which is
 
 ```graphql counter-example
 extend type Query {
-  userById(userId: ID! @is(field: "address")): User! @lookup
+  storeById(id: ID! @is(field: "address")): Store! @lookup
 }
 
-type User {
-    id: Int
+type Store {
+    id: ID
+    city: String!
 }
 ```
 
@@ -480,11 +457,12 @@ For example, the following is invalid:
 
 ```graphql counter-example
 extend type Query {
-  userById(userId: ID! @is(field: "id id")): User! @lookup
+  storeById(id: ID! @is(field: "id id")): Store! @lookup
 }
 
-type User {
-    id: Int
+type Store {
+    id: ID
+    city: String!
 }
 ```
 
