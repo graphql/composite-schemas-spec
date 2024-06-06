@@ -220,8 +220,8 @@ type Product {
   id: ID!
   delivery(
     zip: String!
-    size: Int! @require(field: "dimension { size }")
-    weight: Int! @require(field: "dimension { weight }")
+    size: Int! @require(field: "dimension.size")
+    weight: Int! @require(field: "dimension.weight")
   ): DeliveryEstimates
 }
 ```
@@ -237,6 +237,29 @@ type Product {
     zip: String!
     dimension: ProductDimensionInput! @require(field: "dimension"))
   ): DeliveryEstimates
+}
+```
+
+If the input types do not match it can also be mapped with the path selection syntax.
+
+```graphql example
+type Product {
+  id: ID!
+  delivery(
+    zip: String!
+    dimension: ProductDimensionInput! 
+      @require(field: "{ productSize: dimension.size, productWeight: dimension.weight }"))
+  ): DeliveryEstimates
+}
+
+type ProductDimension {
+  size: Int!
+  weight: Int!
+}
+
+input ProductDimensionInput {
+  productSize: Int!
+  productWeight: Int!
 }
 ```
 
