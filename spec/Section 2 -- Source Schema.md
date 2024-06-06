@@ -135,32 +135,6 @@ type Repository @key(fields: "id organization { id }") {
 }
 ```
 
-### @patch
-
-```graphql
-directive @patch on FIELD_DEFINITION
-```
-
-The `@patch` directive is used within a _source schema_ to specify object fields
-that can be used by the _distributed GraphQL executor_ to resolve additional
-data for an entity rather than fetching the entity itself. A patch resolver
-result does noth mean that the actual entity exists.
-
-```graphql example
-type Query {
-  personById(id: ID!): Person @patch
-  personByName(name: String!): Person @patch
-}
-
-type Person @key(fields "id") @key(fields "name") {
-  id: ID!
-  name: String!
-}
-```
-
-Patch resolve as oposed to lookup fields will be omitted from the _composite
-schema_ but will be referenced within the _composite execution schema_.
-
 ### @is
 
 ```graphql
@@ -181,7 +155,7 @@ resolver for `Person` from the field `Query.personById`.
 
 ```graphql example
 extend type Query {
-  personById(id: ID! @is(field: "id")): Person @entityResolver
+  personById(id: ID! @is(field: "id")): Person @lookup
 }
 ```
 
