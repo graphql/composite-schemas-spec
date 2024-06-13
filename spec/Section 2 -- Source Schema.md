@@ -8,28 +8,28 @@
 directive @lookup on FIELD_DEFINITION
 ```
 
-The `@lookup` directive is used within a _source schema_ to specify object
+The `@lookup` directive is used within a _source schema_ to specify output
 fields that can be used by the _distributed GraphQL executor_ to resolve an
 entity by a stable key.
 
 The stable key is defined by the arguments of the field. Only fields that are
-annotated with the `@lookup` directive will be recognized as lookup field.
+annotated with the `@lookup` directive will be recognized as lookup fields.
 
 Source schemas can provide multiple lookup fields for the same entity with
-different keys.
+different sets of keys.
 
-In this example the source schema specifies that the `Person` entity can be
-resolved with the `personById` field or the `personByName` field on the `Query`
+In this example, the source schema specifies that the `Product` entity can be
+resolved with the `productById` field or the `productByName` field on the `Query`
 type. Both fields can resolve the same entity but do so with different keys.
 
 ```graphql example
 type Query {
   version: Int # NOT a lookup field.
-  personById(id: ID!): Person @lookup
-  personByName(name: String!): Person @lookup
+  productById(id: ID!): Product @lookup
+  productByName(name: String!): Product @lookup
 }
 
-type Person @key(fields: "id") @key(fields: "name") {
+type Product @key(fields: "id") @key(fields: "name") {
   id: ID!
   name: String!
 }
@@ -48,51 +48,64 @@ interface Node @key(fields: "id") {
 }
 ```
 
-Lookup fields may return object, interface or union types. In case a lookup
-field returns an interface or union type all possible object types are
+Lookup fields may return object, interface, or union types. In case a lookup
+field returns an interface or union type, all possible object types are
 considered entities and must have keys that correspond with the fields argument
 signature.
 
 ```graphql example
 type Query {
-  entityById(id: ID!, categoryId: Int): Entity @lookup
+  product(id: ID!, categoryId: Int): Product @lookup
 }
 
-union Entity = Cat | Dog
+union Product = Electronics | Clothing
 
-type Dog @key(fields: "id categoryId") {
+type Electronics @key(fields: "id categoryId") {
   id: ID!
   categoryId: Int
+  name: String
+  brand: String
+  price: Float
 }
 
-type Cat @key(fields: "id categoryId") {
+type Clothing @key(fields: "id categoryId") {
   id: ID!
   categoryId: Int
+  name: String
+  size: String
+  price: Float
 }
 ```
 
-The following example shows an invalid lookup field as the `Cat` type does not
-declare a key that corresponds with the lookup fields argument signature.
+The following example shows an invalid lookup field as the `Clothing` type does not
+declare a key that corresponds with the lookup field's argument signature.
 
 ```graphql counter-example
 type Query {
-  entityById(id: ID!, categoryId: Int): Entity @lookup
+  product(id: ID!, categoryId: Int): Product @lookup
 }
 
-union Entity = Cat | Dog
+union Product = Electronics | Clothing
 
-type Dog @key(fields: "id categoryId") {
+type Electronics @key(fields: "id categoryId") {
   id: ID!
   categoryId: Int
+  name: String
+  brand: String
+  price: Float
 }
 
-type Cat @key(fields: "id") {
+type Clothing @key(fields: "id") {
   id: ID!
+  categoryId: Int
+  name: String
+  size: String
+  price: Float
 }
 ```
 
-If the lookup returns an interface in particular the interface must also be
-annotated with a `@key` directive.
+If the lookup returns an interface, the interface must also be annotated with a
+`@key` directive.
 
 ```graphql example
 interface Node @key(fields: "id") {
@@ -110,41 +123,61 @@ type Query {
 }
 
 type Lookups {
-  personById(id: ID!): Person @lookup
+  productById(id: ID!): Product @lookup
 }
 
-type Person @key(fields: "id") {
+type Product @key(fields: "id") {
   id: ID!
 }
 ```
 
-Lookups can also be nested if they can be reached through other lookups.
+### @internal
+
+```graphql
+directive @internal on FIELD_DEFINITION
+```
+
+The `@internal` directive signals to the composition process that annotated
+field definitions are not intended to be part of the public schema. Internal
+field definitions can still be used by the distributed GraphQL executor to
+resolve data.
+
+```graphql example
+type Product @key(fields: "_internalId") {
+  _internalId: String @internal
+}
+```
+
+The `@internal` directive in combination with the `@lookup` directive allows
+defining lookup directives that are not used as global fields in the public
+schema and this are not used as entry points.
 
 ```graphql example
 type Query {
-  organization(id: ID!): Ogranization @lookup
-}
+  # lookup field and possible entry point
+  reviewById(id: ID!): Review @lookup
 
-type Ogranization {
-  repository(name: String!): Repository @lookup
-}
-
-type Repository @key(fields: "id organization { id }") {
-  name: String!
-  organization: Ogranization
+  # internal lookup field
+  productById(id: ID!): Product @lookup @internal
 }
 ```
+
+This provides control over which source schemas are used to resolve entities and
+which merely provide data to entities. It also allows hiding "technical" lookup
+fields from the public schema.
 
 ### @is
 
 ```graphql
 directive @is(
-  field: FieldSelection
-  coordinate: Schemacoordinate
-) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+  field: FieldSelectionMap!
+) on ARGUMENT_DEFINITION
 ```
 
-The `@is` directive is utilized to establish semantic equivalence between
+The `@is` directive is utilized in a lookup field to establish how the 
+
+
+ semantic equivalence between
 disparate type system members across distinct subgraphs, which the schema
 composition uses to connect types.
 
@@ -159,7 +192,7 @@ extend type Query {
 }
 ```
 
-The `@is` directive also allows to refer to nested fields relative to `Person`.
+The `@is` directive also allows referring to nested fields relative to `Person`.
 
 ```graphql example
 extend type Query {
@@ -167,7 +200,7 @@ extend type Query {
 }
 ```
 
-The `@is` directive not limited to a single argument.
+The `@is` directive is not limited to a single argument.
 
 ```graphql example
 extend type Query {
@@ -290,13 +323,3 @@ directive @override(from: String!) on FIELD_DEFINITION
 ```
 
 The `@override` directive allows to migrate fields from one subgraph to another.
-
-### @internal
-
-```graphql
-directive @internal on OBJECT | INTERFACE | FIELD_DEFINITION | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION | SCALAR
-```
-
-The `@internal` directive signals to the composition process that annotated type
-system members shall not be included into the public schema but still can be
-used by the executor to build resolvers.

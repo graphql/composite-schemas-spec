@@ -61,3 +61,33 @@ systems to agree on a common way of identifying a particular type of entity. The
 composite schemas spec therefore allows multiple keys to be defined for each
 entity type, and each subgraph defines the particular keys that it is able to
 support.
+
+Lookups can also be nested if they can be reached through other lookups.
+
+```graphql example
+type Query {
+  organization(id: ID!): Ogranization @lookup
+}
+
+type Ogranization {
+  repository(name: String!): Repository @lookup
+}
+
+type Repository @key(fields: "id organization { id }") {
+  name: String!
+  organization: Ogranization
+}
+```
+
+The arguments of a lookup field must correspond to fields specified by a `@key`
+directive annotated on the return type of the lookup field.
+
+```graphql example
+type Query {
+  node(id: ID!): Node @lookup
+}
+
+interface Node @key(fields: "id") {
+  id: ID!
+}
+```
