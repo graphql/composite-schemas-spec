@@ -150,7 +150,7 @@ type Product @key(fields: "_internalId") {
 
 The `@internal` directive in combination with the `@lookup` directive allows
 defining lookup directives that are not used as global fields in the public
-schema and this are not used as entry points.
+schema and thus are not used as entry points.
 
 ```graphql example
 type Query {
