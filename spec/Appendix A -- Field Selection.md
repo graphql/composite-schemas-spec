@@ -88,11 +88,22 @@ specification, a new literal called {SelectedValue} is introduced, along with {S
 
 Beyond these literals, an additional literal called {Path} is necessary.
 
+### Name
+
+Is equivalent to the {Name} defined in the 
+[GraphQL specification](https://spec.graphql.org/October2021/#Name)
+
 ### Path
 Path :: 
+    - FieldName
+    - Path . FieldName
+    - FieldName < TypeName > . Path
+
+FieldName ::
     - Name
-    - Path . Path
-    - Name < Name > . Path
+
+TypeName ::
+    - Name
 
 The {Path} literal is a string used to select a single output value from the _return type_ by
 specifying a path to that value. 
