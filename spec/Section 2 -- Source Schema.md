@@ -19,8 +19,9 @@ Source schemas can provide multiple lookup fields for the same entity with
 different sets of keys.
 
 In this example, the source schema specifies that the `Product` entity can be
-resolved with the `productById` field or the `productByName` field on the `Query`
-type. Both fields can resolve the same entity but do so with different keys.
+resolved with the `productById` field or the `productByName` field on the
+`Query` type. Both fields can resolve the same entity but do so with different
+keys.
 
 ```graphql example
 type Query {
@@ -77,8 +78,8 @@ type Clothing @key(fields: "id categoryId") {
 }
 ```
 
-The following example shows an invalid lookup field as the `Clothing` type does not
-declare a key that corresponds with the lookup field's argument signature.
+The following example shows an invalid lookup field as the `Clothing` type does
+not declare a key that corresponds with the lookup field's argument signature.
 
 ```graphql counter-example
 type Query {
@@ -137,6 +138,10 @@ type Product @key(fields: "id") {
 directive @internal on FIELD_DEFINITION
 ```
 
+-- make it more clerar that it only hides this for the subgraph it is annotated with internal
+-- rethink firs use-case ... is it really needed?
+-- only used in combination with lookup
+
 The `@internal` directive signals to the composition process that annotated
 field definitions are not intended to be part of the public schema. Internal
 field definitions can still be used by the distributed GraphQL executor to
@@ -169,17 +174,13 @@ fields from the public schema.
 ### @is
 
 ```graphql
-directive @is(
-  field: FieldSelectionMap!
-) on ARGUMENT_DEFINITION
+directive @is(map: FieldSelectionMap!) on ARGUMENT_DEFINITION
 ```
 
-The `@is` directive is utilized in a lookup field to establish how the 
+The `@is` directive is utilized in a lookup field to establish how the
 
-
- semantic equivalence between
-disparate type system members across distinct subgraphs, which the schema
-composition uses to connect types.
+semantic equivalence between disparate type system members across distinct
+subgraphs, which the schema composition uses to connect types.
 
 In the following example, the directive specifies that the `id` argument on the
 field `Query.personById` and the field `Person.id` on the return type of the
