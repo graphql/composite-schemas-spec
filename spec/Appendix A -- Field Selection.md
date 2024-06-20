@@ -1,8 +1,8 @@
-# Appendix A: Specification of FieldSelection Scalar
+# Appendix A: Specification of FieldSelectionMap Scalar
 
 ## Introduction
 
-This appendix focuses on the specification of the {FieldSelection} scalar type. {FieldSelection} is
+This appendix focuses on the specification of the {FieldSelectionMap} scalar type. {FieldSelectionMap} is
 designed to express semantic equivalence between arguments of a field and fields within the result 
 type. Specifically, it allows defining complex relationships between input arguments and fields in
 the output object by encapsulating these relationships within a parsable string format. It is used
@@ -16,7 +16,7 @@ type Query {
 }
 ```
 
-In this schema, the `userById` query uses the `@is` directive with {FieldSelection} to declare that
+In this schema, the `userById` query uses the `@is` directive with {FieldSelectionMap} to declare that
 the `userId` argument is semantically equivalent to the `User.id` field. 
 
 An example query might look like this:
@@ -42,13 +42,13 @@ following response if correctly implemented:
 }
 ```
 
-The {FieldSelection} scalar type is used to establish semantic equivalence between an argument and
+The {FieldSelectionMap} scalar type is used to establish semantic equivalence between an argument and
 the fields within the associated return type. To accomplish this, the scalar must define the
 relationship between input fields or arguments and the fields in the resulting object. 
-Consequently, a {FieldSelection} only makes sense in the context of a specific argument and its 
+Consequently, a {FieldSelectionMap} only makes sense in the context of a specific argument and its 
 return type.
 
-The {FieldSelection} scalar is represented as a string that, when parsed, produces a {SelectedValue}.
+The {FieldSelectionMap} scalar is represented as a string that, when parsed, produces a {SelectedValue}.
 
 A {SelectedValue} must exactly match the shape of the argument value to be considered
 valid. For non-scalar arguments, you must specify each field of the input type in
@@ -76,7 +76,7 @@ The `Value` of an argument can take various forms: it might be a scalar value (s
 `Float`, `String`, `Boolean`, `Null`, or `Enum`), a list (`ListValue`), an input object
 (`ObjectValue`), or a `Variable`.
 
-Within the scope of the {FieldSelection}, the relationship between input and output is
+Within the scope of the {FieldSelectionMap}, the relationship between input and output is
 established by defining the `Value` of the argument as a selection of fields from the output object.
 
 Yet only certain types of `Value` have a semantic meaning. 
@@ -205,14 +205,14 @@ traditional `ObjectValue` capabilities to support direct path selections.
 Is equivalent to the `Name` defined in the GraphQL specification.
 
 ## Validation
-Validation ensures that {FieldSelection} scalars are semantically correct within the given context. 
+Validation ensures that {FieldSelectionMap} scalars are semantically correct within the given context. 
 
-Validation of {FieldSelection} scalars occurs during the composition phase, ensuring that all
-{FieldSelection} entries are syntactically correct and semantically meaningful relative to the
+Validation of {FieldSelectionMap} scalars occurs during the composition phase, ensuring that all
+{FieldSelectionMap} entries are syntactically correct and semantically meaningful relative to the
 context. 
 
-Composition is only possible if the {FieldSelection} is validated successfully. An invalid
-{FieldSelection} results in undefined behavior, making composition impossible.
+Composition is only possible if the {FieldSelectionMap} is validated successfully. An invalid
+{FieldSelectionMap} results in undefined behavior, making composition impossible.
 
 ### Examples
 In this section, we will assume the following type system in order to demonstrate examples:
@@ -385,7 +385,7 @@ reference is only valid if the referenced type could logically apply within the 
 
 Literal values must be compatible with the type expected in the position they are found.
 
-The following examples are valid use of value literals in the context of {FieldSelection} scalar:
+The following examples are valid use of value literals in the context of {FieldSelectionMap} scalar:
 
 ```graphql example
 type Query {
