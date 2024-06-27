@@ -1,6 +1,9 @@
 # Source Schema
 
-The GraphQL _source schema_ is a GraphQL schema that is part of a larger _composte schema_. Sourc schemas use directives to express intend and requirements to the composition process. In the following chapters we will describe the directives that are used to annotate the source schemas.
+The GraphQL _source schema_ is a GraphQL schema that is part of a larger
+_composte schema_. Sourc schemas use directives to express intend and
+requirements to the composition process. In the following chapters we will
+describe the directives that are used to annotate the source schemas.
 
 ## Directives
 
@@ -140,12 +143,12 @@ type Product @key(fields: "id") {
 directive @internal on FIELD_DEFINITION
 ```
 
-TODO: make it more clerar that it only hides this for the source schema it is annotated with internal
-TODO: rethink firs use-case ... is it really needed?
+TODO: make it more clerar that it only hides this for the source schema it is
+annotated with internal TODO: rethink firs use-case ... is it really needed?
 TODO: only used in combination with lookup
 
 The `@internal` directive signals to the composition process that annotated
-field definitions are not intended to be part of the public schema. Internal
+field definitions are not intended to be part of the composite schema. Internal
 field definitions can still be used by the distributed GraphQL executor to
 resolve data.
 
@@ -156,7 +159,7 @@ type Product @key(fields: "_internalId") {
 ```
 
 The `@internal` directive in combination with the `@lookup` directive allows
-defining lookup directives that are not used as global fields in the public
+defining lookup directives that are not used as global fields in the composite
 schema and thus are not used as entry points.
 
 ```graphql example
@@ -171,7 +174,7 @@ type Query {
 
 This provides control over which source schemas are used to resolve entities and
 which merely provide data to entities. It also allows hiding "technical" lookup
-fields from the public schema.
+fields from the composite schema.
 
 ### @is
 
@@ -216,8 +219,8 @@ extend type Query {
 
 **Arguments:**
 
-- `field`: Represents a selection path syntax.
-  
+- `field`: Represents a selection path map syntax.
+
 ### @require
 
 ```graphql
@@ -226,10 +229,10 @@ directive @require(
 ) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 ```
 
-The `@require` directive is used to express data requirements with other
-source schemas. Arguments annotated with the `@require` directive are removed from
-the public exposed schema and the value for these will be resolved by the
-executor.
+The `@require` directive is used to express data requirements with other source
+schemas. Arguments annotated with the `@require` directive are removed from the
+_composite schema_ and the value for these will be resolved by the _distributed
+executor_.
 
 ```graphql example
 type Product {
@@ -242,22 +245,32 @@ type Product {
 }
 ```
 
-This can also be done by using input types. All fields of the input type that
-match the required output type are required. If the input type is only used to
-express a requirement it is removed from the public schema.
+The upper example would translate to the following in the _composite schema_.
+
+```graphql example
+type Product {
+  id: ID!
+  delivery(zip: String!): DeliveryEstimates
+}
+```
+
+This can also be done by using input types. The selection path map specifies
+which data is required and needs to be resolved from other source schemas. If
+the input type is only used to express a requirements it is removed from the
+composite schema.
 
 ```graphql example
 type Product {
   id: ID!
   delivery(
     zip: String!
-    dimension: ProductDimensionInput! @require(field: "dimension"))
+    dimension: ProductDimensionInput! @require(field: "{ dimension.size, dimension.weight }"))
   ): DeliveryEstimates
 }
 ```
 
-If the input types do not match it can also be mapped with the path selection
-syntax.
+If the input types do not match the output type structure the selection map
+syntax can be used to specify how requirements translate to the input object.
 
 ```graphql example
 type Product {
@@ -280,19 +293,23 @@ input ProductDimensionInput {
 }
 ```
 
+**Arguments:**
+
+- `field`: Represents a selection path map syntax.
+
 ### @shareable
 
 ```graphql
 directive @shareable repeatable on OBJECT | FIELD_DEFINITION
 ```
 
-By default, only one source schema is allowed to contribute a particular field to an
-object type. This prevents source schemas from inadvertently defining similarly named
-fields that are semantically not the same.
+By default, only one source schema is allowed to contribute a particular field
+to an object type. This prevents source schemas from inadvertently defining
+similarly named fields that are semantically not the same.
 
-Fields have to be explicitly marked as `@shareable` to allow multiple source schemas
-to define it. And it ensures the step of allowing a field to be served from
-multiple source schemas is an explicit, coordinated decision.
+Fields have to be explicitly marked as `@shareable` to allow multiple source
+schemas to define it. And it ensures the step of allowing a field to be served
+from multiple source schemas is an explicit, coordinated decision.
 
 If multiple source schemas define the same field, these are assumed to be
 semantically equivalent, and the executor is free to choose between them as it
@@ -307,8 +324,8 @@ directive @provides(fields: SelectionSet!) on FIELD_DEFINITION
 ```
 
 The `@provides` directive is an optimization hint specifying child fields that
-can be resolved locally at the given source schema through a particular query path.
-This allows for a variation of overlapping field to improve data fetching.
+can be resolved locally at the given source schema through a particular query
+path. This allows for a variation of overlapping field to improve data fetching.
 
 ### @external
 
@@ -325,4 +342,5 @@ and specifies data that is not owned ba a particular source schema.
 directive @override(from: String!) on FIELD_DEFINITION
 ```
 
-The `@override` directive allows to migrate fields from one source schema to another.
+The `@override` directive allows to migrate fields from one source schema to
+another.
