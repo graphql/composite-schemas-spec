@@ -1,74 +1,192 @@
 # Source Schema
 
+The GraphQL _source schema_ is a GraphQL schema that is part of a larger
+_composte schema_. Sourc schemas use directives to express intend and
+requirements to the composition process. In the following chapters we will
+describe the directives that are used to annotate the source schemas.
+
 ## Directives
 
-### @entityResolver
+### @lookup
 
 ```graphql
-directive @entityResolver on FIELD_DEFINITION
+directive @lookup on FIELD_DEFINITION
 ```
 
-Entity resolvers are fields on the query root type of a subgraph that can
-resolve an entity by a stable key. The stable key is defined by the arguments of
-the field.
+The `@lookup` directive is used within a _source schema_ to specify output
+fields that can be used by the _distributed GraphQL executor_ to resolve an
+entity by a stable key.
+
+The stable key is defined by the arguments of the field. Only fields that are
+annotated with the `@lookup` directive will be recognized as lookup fields.
+
+Source schemas can provide multiple lookup fields for the same entity with
+different sets of keys.
+
+In this example, the source schema specifies that the `Product` entity can be
+resolved with the `productById` field or the `productByName` field on the
+`Query` type. Both fields can resolve the same entity but do so with different
+keys.
 
 ```graphql example
-extend type Query {
-  version: Int # NOT an entity resolver.
-  personById(id: ID!): Person @entityResolver
+type Query {
+  version: Int # NOT a lookup field.
+  productById(id: ID!): Product @lookup
+  productByName(name: String!): Product @lookup
 }
 
-extend type Person {
-  id: ID! # matches the argument of personById
+type Product @key(fields: "id") @key(fields: "name") {
+  id: ID!
+  name: String!
 }
 ```
 
-The arguments of an entity resolver field must match fields of the returning
-type.
+The arguments of a lookup field must correspond to fields specified by a `@key`
+directive annotated on the return type of the lookup field.
 
 ```graphql example
-extend type Query {
-  node(id: ID!): Node @entityResolver
+type Query {
+  node(id: ID!): Node @lookup
 }
 
-interface Node {
+interface Node @key(fields: "id") {
   id: ID!
 }
 ```
 
-When an entity resolver returns an interface all implementing types are inferred
-as entities.
+Lookup fields may return object, interface, or union types. In case a lookup
+field returns an interface or union type, all possible object types are
+considered entities and must have keys that correspond with the fields argument
+signature.
 
 ```graphql example
-extend type Query {
-  entityById(id: ID!, categoryId: Int): Entity @entityResolver
+type Query {
+  product(id: ID!, categoryId: Int): Product @lookup
 }
 
-union Entity = Cat | Dog
+union Product = Electronics | Clothing
 
-extend type Dog {
+type Electronics @key(fields: "id categoryId") {
   id: ID!
   categoryId: Int
+  name: String
+  brand: String
+  price: Float
 }
 
-extend type Cat {
+type Clothing @key(fields: "id categoryId") {
   id: ID!
   categoryId: Int
+  name: String
+  size: String
+  price: Float
 }
 ```
+
+The following example shows an invalid lookup field as the `Clothing` type does
+not declare a key that corresponds with the lookup field's argument signature.
+
+```graphql counter-example
+type Query {
+  product(id: ID!, categoryId: Int): Product @lookup
+}
+
+union Product = Electronics | Clothing
+
+type Electronics @key(fields: "id categoryId") {
+  id: ID!
+  categoryId: Int
+  name: String
+  brand: String
+  price: Float
+}
+
+type Clothing @key(fields: "id") {
+  id: ID!
+  categoryId: Int
+  name: String
+  size: String
+  price: Float
+}
+```
+
+If the lookup returns an interface, the interface must also be annotated with a
+`@key` directive.
+
+```graphql example
+interface Node @key(fields: "id") {
+  id: ID!
+}
+```
+
+Lookup fields must be accessible from the Query type. If not directly on the
+Query type, they must be accessible via fields that do not require arguments,
+starting from the Query root type.
+
+```graphql example
+type Query {
+  lookups: Lookups!
+}
+
+type Lookups {
+  productById(id: ID!): Product @lookup
+}
+
+type Product @key(fields: "id") {
+  id: ID!
+}
+```
+
+### @internal
+
+```graphql
+directive @internal on FIELD_DEFINITION
+```
+
+TODO: make it more clerar that it only hides this for the source schema it is
+annotated with internal TODO: rethink firs use-case ... is it really needed?
+TODO: only used in combination with lookup
+
+The `@internal` directive signals to the composition process that annotated
+field definitions are not intended to be part of the composite schema. Internal
+field definitions can still be used by the distributed GraphQL executor to
+resolve data.
+
+```graphql example
+type Product @key(fields: "_internalId") {
+  _internalId: String @internal
+}
+```
+
+The `@internal` directive in combination with the `@lookup` directive allows
+defining lookup directives that are not used as global fields in the composite
+schema and thus are not used as entry points.
+
+```graphql example
+type Query {
+  # lookup field and possible entry point
+  reviewById(id: ID!): Review @lookup
+
+  # internal lookup field
+  productById(id: ID!): Product @lookup @internal
+}
+```
+
+This provides control over which source schemas are used to resolve entities and
+which merely provide data to entities. It also allows hiding "technical" lookup
+fields from the composite schema.
 
 ### @is
 
 ```graphql
-directive @is(
-  field: FieldSelection
-  coordinate: Schemacoordinate
-) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+directive @is(map: FieldSelectionMap!) on ARGUMENT_DEFINITION
 ```
 
-The `@is` directive is utilized to establish semantic equivalence between
-disparate type system members across distinct subgraphs, which the schema
-composition uses to connect types.
+TODO : rwrite this to be more clear
+
+The `@is` directive is utilized in a lookup field to establish how the
+semantic equivalence between disparate type system members across distinct
+source schemas, which the schema composition uses to connect types.
 
 In the following example, the directive specifies that the `id` argument on the
 field `Query.personById` and the field `Person.id` on the return type of the
@@ -77,80 +195,32 @@ resolver for `Person` from the field `Query.personById`.
 
 ```graphql example
 extend type Query {
-  personById(id: ID! @is(field: "id")): Person @entityResolver
+  personById(id: ID! @is(field: "id")): Person @lookup
 }
 ```
 
-The `@is` directive also allows to refer to nested fields relative to `Person`.
+The `@is` directive also allows referring to nested fields relative to `Person`.
 
 ```graphql example
 extend type Query {
-  personByAddressId(id: ID! @is(field: "address { id }")): Person
+  personByAddressId(id: ID! @is(field: "address.id")): Person
 }
 ```
 
-The `@is` directive not limited to a single argument.
+The `@is` directive is not limited to a single argument.
 
 ```graphql example
 extend type Query {
   personByAddressId(
-    id: ID! @is(field: "address { id }")
+    id: ID! @is(field: "address.id")
     kind: PersonKind @is(field: "kind")
   ): Person
 }
 ```
 
-The directive can also establish semantic equivalence between two output fields.
-In this example, the field `productSKU` is semantically equivalent to the field
-`Product.sku`, allowing the schema composition to infer the connection of the
-`Product` with the `Review` type.
-
-```graphql example
-extend type Review {
-  productSKU: ID! @is(coordinate: "Product.sku") @internal
-  product: Product @resolve
-}
-```
-
-The `@is` directive can use either the `field` or `coordinate` argument. If both
-are specified, the schema composition must fail.
-
-```graphql counter-example
-extend type Review {
-  productSKU: ID!
-    @is(coordinate: "Product.sku", field: "product { sku }")
-    @internal
-  product: Product @resolve
-}
-```
-
 **Arguments:**
 
-- `field`: Represents a GraphQL field selection syntax that refers to field
-  relative to the current type; or, when used on arguments it refers to a field
-  relative to the return type.
-- `coordinate`: Represents a schema coordinate that refers to a type system
-  member.
-
-### @shareable
-
-```graphql
-directive @shareable repeatable on OBJECT | FIELD_DEFINITION
-```
-
-By default, only one subgraph is allowed to contribute a particular field to an
-object type. This prevents subgraphs from inadvertently defining similarly named
-fields that are semantically not the same.
-
-Fields have to be explicitly marked as `@shareable` to allow multiple subgraphs
-to define it. And it ensures the step of allowing a field to be served from
-multiple subgraphs is an explicit, coordinated decision.
-
-If multiple subgraphs define the same field, these are assumed to be
-semantically equivalent, and the executor is free to choose between them as it
-sees fit.
-
-Note: Key fields are always considered sharable.
+- `field`: Represents a selection path map syntax.
 
 ### @require
 
@@ -160,35 +230,93 @@ directive @require(
 ) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 ```
 
-The `@require` directive is used to express data requirements with other
-subgraphs. Arguments annotated with the `@require` directive are removed from
-the public exposed schema and the value for these will be resolved by the
-executor.
+The `@require` directive is used to express data requirements with other source
+schemas. Arguments annotated with the `@require` directive are removed from the
+_composite schema_ and the value for these will be resolved by the _distributed
+executor_.
 
 ```graphql example
 type Product {
   id: ID!
   delivery(
     zip: String!
-    size: Int! @require(field: "dimension { size }")
-    weight: Int! @require(field: "dimension { weight }")
+    size: Int! @require(field: "dimension.size")
+    weight: Int! @require(field: "dimension.weight")
   ): DeliveryEstimates
 }
 ```
 
-This can also be done by using input types. All fields of the input type that
-match the required output type are required. If the input type is only used to
-express a requirement it is removed from the public schema.
+The upper example would translate to the following in the _composite schema_.
+
+```graphql example
+type Product {
+  id: ID!
+  delivery(zip: String!): DeliveryEstimates
+}
+```
+
+This can also be done by using input types. The selection path map specifies
+which data is required and needs to be resolved from other source schemas. If
+the input type is only used to express a requirements it is removed from the
+composite schema.
 
 ```graphql example
 type Product {
   id: ID!
   delivery(
     zip: String!
-    dimension: ProductDimensionInput! @require(field: "dimension"))
+    dimension: ProductDimensionInput! @require(field: "{ dimension.size, dimension.weight }"))
   ): DeliveryEstimates
 }
 ```
+
+If the input types do not match the output type structure the selection map
+syntax can be used to specify how requirements translate to the input object.
+
+```graphql example
+type Product {
+  id: ID!
+  delivery(
+    zip: String!
+    dimension: ProductDimensionInput!
+      @require(field: "{ productSize: dimension.size, productWeight: dimension.weight }"))
+  ): DeliveryEstimates
+}
+
+type ProductDimension {
+  size: Int!
+  weight: Int!
+}
+
+input ProductDimensionInput {
+  productSize: Int!
+  productWeight: Int!
+}
+```
+
+**Arguments:**
+
+- `field`: Represents a selection path map syntax.
+
+### @shareable
+
+```graphql
+directive @shareable repeatable on OBJECT | FIELD_DEFINITION
+```
+
+By default, only one source schema is allowed to contribute a particular field
+to an object type. This prevents source schemas from inadvertently defining
+similarly named fields that are semantically not the same.
+
+Fields have to be explicitly marked as `@shareable` to allow multiple source
+schemas to define it. And it ensures the step of allowing a field to be served
+from multiple source schemas is an explicit, coordinated decision.
+
+If multiple source schemas define the same field, these are assumed to be
+semantically equivalent, and the executor is free to choose between them as it
+sees fit.
+
+Note: Key fields are always considered sharable.
 
 ### @provides
 
@@ -197,8 +325,8 @@ directive @provides(fields: SelectionSet!) on FIELD_DEFINITION
 ```
 
 The `@provides` directive is an optimization hint specifying child fields that
-can be resolved locally at the given subgraph through a particular query path.
-This allows for a variation of overlapping field to improve data fetching.
+can be resolved locally at the given source schema through a particular query
+path. This allows for a variation of overlapping field to improve data fetching.
 
 ### @external
 
@@ -207,7 +335,7 @@ directive @external on OBJECT_DEFINITION | INTERFACE_DEFINITION | FIELD_DEFINITI
 ```
 
 The `@external` directive is used in combination with the `@provides` directive
-and specifies data that is not owned ba a particular subgraph.
+and specifies data that is not owned ba a particular source schema.
 
 ### @override
 
@@ -215,30 +343,5 @@ and specifies data that is not owned ba a particular subgraph.
 directive @override(from: String!) on FIELD_DEFINITION
 ```
 
-The `@override` directive allows to migrate fields from one subgraph to another.
-
-### @internal
-
-```graphql
-directive @internal on OBJECT | INTERFACE | FIELD_DEFINITION | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION | SCALAR
-```
-
-The `@internal` directive signals to the composition process that annotated type
-system members shall not be included into the public schema but still can be
-used by the executor to build resolvers.
-
-### Schemacoordinate
-
-```graphql
-scalar Schemacoordinate
-```
-
-The `Schemacoordinate` scalar represents a schema coordinate syntax.
-
-```graphql example
-Product.id
-```
-
-```graphql example
-Product.estimateDelivery(zip:)
-```
+The `@override` directive allows to migrate fields from one source schema to
+another.
