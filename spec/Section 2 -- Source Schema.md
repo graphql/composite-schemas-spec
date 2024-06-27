@@ -182,8 +182,9 @@ fields from the composite schema.
 directive @is(map: FieldSelectionMap!) on ARGUMENT_DEFINITION
 ```
 
-The `@is` directive is utilized in a lookup field to establish how the
+TODO : rwrite this to be more clear
 
+The `@is` directive is utilized in a lookup field to establish how the
 semantic equivalence between disparate type system members across distinct
 source schemas, which the schema composition uses to connect types.
 
