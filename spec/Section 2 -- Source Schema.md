@@ -140,7 +140,7 @@ type Product @key(fields: "id") {
 directive @internal on FIELD_DEFINITION
 ```
 
-TODO: make it more clerar that it only hides this for the subgraph it is annotated with internal
+TODO: make it more clerar that it only hides this for the source schema it is annotated with internal
 TODO: rethink firs use-case ... is it really needed?
 TODO: only used in combination with lookup
 
@@ -182,7 +182,7 @@ directive @is(map: FieldSelectionMap!) on ARGUMENT_DEFINITION
 The `@is` directive is utilized in a lookup field to establish how the
 
 semantic equivalence between disparate type system members across distinct
-subgraphs, which the schema composition uses to connect types.
+source schemas, which the schema composition uses to connect types.
 
 In the following example, the directive specifies that the `id` argument on the
 field `Query.personById` and the field `Person.id` on the return type of the
@@ -227,7 +227,7 @@ directive @require(
 ```
 
 The `@require` directive is used to express data requirements with other
-subgraphs. Arguments annotated with the `@require` directive are removed from
+source schemas. Arguments annotated with the `@require` directive are removed from
 the public exposed schema and the value for these will be resolved by the
 executor.
 
@@ -286,15 +286,15 @@ input ProductDimensionInput {
 directive @shareable repeatable on OBJECT | FIELD_DEFINITION
 ```
 
-By default, only one subgraph is allowed to contribute a particular field to an
-object type. This prevents subgraphs from inadvertently defining similarly named
+By default, only one source schema is allowed to contribute a particular field to an
+object type. This prevents source schemas from inadvertently defining similarly named
 fields that are semantically not the same.
 
-Fields have to be explicitly marked as `@shareable` to allow multiple subgraphs
+Fields have to be explicitly marked as `@shareable` to allow multiple source schemas
 to define it. And it ensures the step of allowing a field to be served from
-multiple subgraphs is an explicit, coordinated decision.
+multiple source schemas is an explicit, coordinated decision.
 
-If multiple subgraphs define the same field, these are assumed to be
+If multiple source schemas define the same field, these are assumed to be
 semantically equivalent, and the executor is free to choose between them as it
 sees fit.
 
@@ -307,7 +307,7 @@ directive @provides(fields: SelectionSet!) on FIELD_DEFINITION
 ```
 
 The `@provides` directive is an optimization hint specifying child fields that
-can be resolved locally at the given subgraph through a particular query path.
+can be resolved locally at the given source schema through a particular query path.
 This allows for a variation of overlapping field to improve data fetching.
 
 ### @external
@@ -317,7 +317,7 @@ directive @external on OBJECT_DEFINITION | INTERFACE_DEFINITION | FIELD_DEFINITI
 ```
 
 The `@external` directive is used in combination with the `@provides` directive
-and specifies data that is not owned ba a particular subgraph.
+and specifies data that is not owned ba a particular source schema.
 
 ### @override
 
@@ -325,4 +325,4 @@ and specifies data that is not owned ba a particular subgraph.
 directive @override(from: String!) on FIELD_DEFINITION
 ```
 
-The `@override` directive allows to migrate fields from one subgraph to another.
+The `@override` directive allows to migrate fields from one source schema to another.
