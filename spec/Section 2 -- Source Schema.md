@@ -140,9 +140,9 @@ type Product @key(fields: "id") {
 directive @internal on FIELD_DEFINITION
 ```
 
--- make it more clerar that it only hides this for the subgraph it is annotated with internal
--- rethink firs use-case ... is it really needed?
--- only used in combination with lookup
+TODO: make it more clerar that it only hides this for the subgraph it is annotated with internal
+TODO: rethink firs use-case ... is it really needed?
+TODO: only used in combination with lookup
 
 The `@internal` directive signals to the composition process that annotated
 field definitions are not intended to be part of the public schema. Internal
@@ -217,27 +217,7 @@ extend type Query {
 **Arguments:**
 
 - `field`: Represents a selection path syntax.
-
-### @shareable
-
-```graphql
-directive @shareable repeatable on OBJECT | FIELD_DEFINITION
-```
-
-By default, only one subgraph is allowed to contribute a particular field to an
-object type. This prevents subgraphs from inadvertently defining similarly named
-fields that are semantically not the same.
-
-Fields have to be explicitly marked as `@shareable` to allow multiple subgraphs
-to define it. And it ensures the step of allowing a field to be served from
-multiple subgraphs is an explicit, coordinated decision.
-
-If multiple subgraphs define the same field, these are assumed to be
-semantically equivalent, and the executor is free to choose between them as it
-sees fit.
-
-Note: Key fields are always considered sharable.
-
+  
 ### @require
 
 ```graphql
@@ -299,6 +279,26 @@ input ProductDimensionInput {
   productWeight: Int!
 }
 ```
+
+### @shareable
+
+```graphql
+directive @shareable repeatable on OBJECT | FIELD_DEFINITION
+```
+
+By default, only one subgraph is allowed to contribute a particular field to an
+object type. This prevents subgraphs from inadvertently defining similarly named
+fields that are semantically not the same.
+
+Fields have to be explicitly marked as `@shareable` to allow multiple subgraphs
+to define it. And it ensures the step of allowing a field to be served from
+multiple subgraphs is an explicit, coordinated decision.
+
+If multiple subgraphs define the same field, these are assumed to be
+semantically equivalent, and the executor is free to choose between them as it
+sees fit.
+
+Note: Key fields are always considered sharable.
 
 ### @provides
 
