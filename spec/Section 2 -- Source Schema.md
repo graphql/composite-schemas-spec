@@ -170,7 +170,7 @@ allows hiding "technical" lookup fields from the composite schema.
 directive @is(field: FieldSelectionMap!) on ARGUMENT_DEFINITION
 ```
 
-The `@is` directive is utilized in a lookup field to describe how the arguments
+The `@is` directive is utilized on lookup fields to describe how the arguments
 can be mapped from the entity type that the lookup field resolves. The mapping
 establishes semantic equivalence between disparate type system members across
 source schemas and is used in cases where the argument does not 1:1 align with a
