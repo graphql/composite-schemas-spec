@@ -216,8 +216,8 @@ extend type Query {
 
 ```graphql
 directive @require(
-  field: FieldSelection!
-) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+  field: FieldSelectionMap!
+) on ARGUMENT_DEFINITION
 ```
 
 The `@require` directive is used to express data requirements with other source
