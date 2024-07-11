@@ -1,11 +1,9 @@
-This RFC proposes a syntax for `FieldSelection` that allows for flexible field selections and
-reshaping of input objects.
+This RFC proposes a syntax for `FieldSelection` that allows for flexible field selections and reshaping of input objects.
 
 # Motivation
 
-The directive `@is` specifies semantic equivalence between an argument and fields within the
-resulting type. The argument named `field` accepts a string which adheres to a specific format
-defined by the scalar type `FieldSelection`.
+The directive `@is` specifies semantic equivalence between an argument and fields within the resulting type.
+The argument named `field` accepts a string which adheres to a specific format defined by the scalar type `FieldSelection`.
 
 For instance, consider the following field definition:
 ```graphql
@@ -14,9 +12,8 @@ type Query {
 }
 ```
 
-In this example, the semantic equivalence is established between the argument `userId` and the field
-`User.id`. This equivalence instructs the system on composition, validation, and execution to treat
-`userId` as semantically identical to `User.id`.
+In this example, the semantic equivalence is established between the argument `userId` and the field `User.id`.
+This equivalence instructs the system on composition, validation, and execution to treat `userId` as semantically identical to `User.id`.
 
 Consider the execution of a query as follows:
 ```graphql
@@ -37,18 +34,16 @@ In this scenario, the only correct response that does not result in an error wou
 }
 ```
 
-The scalar `FieldSelection` is similarly used in the `@requires` directive, despite its use in
-different contexts. This document aims to explore various cases where `FieldSelection` is used
-and to discuss potential solutions to challenges presented by its use.
+The scalar `FieldSelection` is similarly used in the `@requires` directive, despite its use in different contexts.
+This document aims to explore various cases where `FieldSelection` is used and to discuss potential solutions to challenges presented by its use.
 
 # Cases
-This section outlines various scenarios that need to be addressed. It is intended to describe the
-problem cases and is not focused on providing solutions.
+This section outlines various scenarios that need to be addressed.
+It is intended to describe the problem cases and is not focused on providing solutions.
 
 ## Single field 
-This subsection addresses cases involving a single field reference. It details the simplest scenario
-where a single field must be referenced, establishing semantic equivalence between an argument and a
-corresponding field within a type.
+This subsection addresses cases involving a single field reference.
+It details the simplest scenario where a single field must be referenced, establishing semantic equivalence between an argument and a corresponding field within a type.
 
 In the following example we specifcy the semantic equivalence between the argument `id` and the field `User.id`.
 ```graphql
@@ -58,8 +53,8 @@ extend type Query {
 ```
 
 ### Single Field - Fieldname Matches
-In the simplest scenario, the field name in the argument matches the field name in the returned
-type. For example, the argument `id` is semantically equivalent to the field `User.id`.
+In the simplest scenario, the field name in the argument matches the field name in the returned type.
+For example, the argument `id` is semantically equivalent to the field `User.id`.
 
 ```graphql
 extend type Query {
@@ -72,19 +67,22 @@ type User {
 ```
 
 ### Single Field - Fieldname is Different
-In some instances, the field name in the returned type differs from the name of the argument. In
-this scenario, the argument `userId` is semantically equivalent to the field `User.id`.
+In some instances, the field name in the returned type differs from the name of the argument.
+In this scenario, the argument `userId` is semantically equivalent to the field `User.id`.
 
 ```graphql
 extend type Query {
     userById(userId: ID!): User @lookup
 }
+
+type User {
+    id: ID!
+}
 ```
 
 ### Single Field - Field is Deeper in the Tree
-This case addresses situations where the field is nested deeper within a type's structure. Here, the
-argument `addressId` is semantically equivalent to the field `User.address.id`.
-
+This case addresses situations where the field is nested deeper within a type's structure. 
+Here, the argument `addressId` is semantically equivalent to the field `User.address.id`.
 
 ```graphql
 extend type Query {
@@ -100,8 +98,7 @@ type Address {
 ```
 
 ### Single Field - Field is Deeper in the Tree and the Fieldname is Different
-This case is similar to the previous, but involves a different field name, where the argument
-`addressId` is semantically equivalent to `User.address.id`.
+This case is similar to the previous, but involves a different field name, where the argument `addressId` is semantically equivalent to `User.address.id`.
 
 ```graphql
 extend type Query {
@@ -114,18 +111,17 @@ type User {
 }
 
 type Address {
-    addressId: ID!
+    id: ID!
 }
 ```
 
 ### Single Field - Abstract Type - Field Matches Name
-In cases involving abstract types, the argument may correspond to fields in different concrete types
-but with matching field names. For instance, the argument `id` could be semantically equivalent to
-either `Movie.id` or `Book.id`.
+In cases involving abstract types, the argument may correspond to fields in different concrete types but with matching field names.
+For instance, the argument `id` could be semantically equivalent to either `Movie.id` or `Book.id`.
 
 ```graphql
 extend type Query {
-   mediaById(id: ID! ): MovieOrBook @lookup
+   mediaById(id: ID!): MovieOrBook @lookup
 }
 
 type Movie {
@@ -140,12 +136,12 @@ union MovieOrBook = Movie | Book
 ```
 
 ### Single Field - Abstract Type - Field is Different
-In this variation involving abstract types, the field names differ across implementations. Here, the
-argument `id` corresponds semantically to `Movie.movieId` or `Book.bookId`.
+In this variation involving abstract types, the field names differ across implementations. 
+Here, the argument `id` corresponds semantically to `Movie.movieId` or `Book.bookId`.
 
 ```graphql
 extend type Query {
-   mediaById(id: ID! ): MovieOrBook @lookup
+   mediaById(id: ID!): MovieOrBook @lookup
 }
 
 type Movie {
@@ -160,13 +156,11 @@ union MovieOrBook = Movie | Book
 ```
 
 ## Multiple Field Reference
-Another scenario is when a field references multiple fields within the returned type. This is
-particularly useful when the returning type has a composite key and the argument is an input
-type.
+Another scenario is when a field references multiple fields within the returned type.
+This is particularly useful when the returning type has a composite key and the argument is an input type.
 
 ### Multiple Field Reference - Fieldname Matches
-In this scenario, the input fields `UserInput.firstName` and `UserInput.lastName` are semantically
-equivalent to the fields `User.firstName` and `User.lastName`.
+In this scenario, the input fields `UserInput.firstName` and `UserInput.lastName` are semantically equivalent to the fields `User.firstName` and `User.lastName`.
 
 ```graphql
 type Query {
@@ -185,8 +179,7 @@ type User {
 ```
 
 ### Multiple Field Reference - Fieldname is Different
-Here, the input fields `UserInput.firstName` and `UserInput.lastName` are semantically equivalent to
-the fields `User.givenName` and `User.familyName`.
+Here, the input fields `UserInput.firstName` and `UserInput.lastName` are semantically equivalent to the fields `User.givenName` and `User.familyName`.
 
 ```graphql
 type Query {
@@ -205,8 +198,7 @@ type User {
 ```
 
 ### Multiple Field Reference - Output field is Deeper in the Tree
-This scenario involves the input fields `UserInput.firstName` and `UserInput.lastName` being
-semantically equivalent to the fields `Profile.firstName` and `User.lastName`.
+This scenario involves the input fields `UserInput.firstName` and `UserInput.lastName` being semantically equivalent to the fields `Profile.firstName` and `User.lastName`.
 
 ```graphql
 type Query {
@@ -229,8 +221,7 @@ type Profile {
 ```
 
 ### Multiple Field Reference - Output field is Deeper in the Tree with Abstract Type
-In this case, the input fields `UserInput.firstName` and `UserInput.lastName` correspond to either
-`EntraProfile.firstName` or `AdfsProfile.firstName`, and `User.lastName`.
+In this case, the input fields `UserInput.firstName` and `UserInput.lastName` correspond to either `EntraProfile.firstName` or `AdfsProfile.firstName`, and `User.lastName`.
 
 ```graphql
 type Query {
@@ -258,8 +249,7 @@ type AdfsProfile {
 ```
 
 ### Multiple Field Reference - Output field is Deeper in the Tree with Abstract Type and Fieldname is Different
-Here, the input fields `UserInput.firstName` and `UserInput.lastName` correspond to either
-`EntraProfile.name` or `AdfsProfile.userName`, and `User.lastName`.
+Here, the input fields `UserInput.firstName` and `UserInput.lastName` correspond to either `EntraProfile.name` or `AdfsProfile.userName`, and `User.lastName`.
 
 ```graphql
 type Query {
@@ -288,10 +278,8 @@ type AdfsProfile {
 ```
 
 ### Multiple Field Reference - Input field is Deeper in the Tree
-This introduces additional complexity as the input object requires reshaping. The input fields
-`UserInput.info.firstName` and `UserInput.name` correspond to the fields `User.firstName` and
-`User.name`.
-
+This introduces additional complexity as the input object requires reshaping.
+The input fields `UserInput.info.firstName` and `UserInput.name` correspond to the fields `User.firstName` and `User.name`.
 
 ```graphql
 type Query {
@@ -305,7 +293,7 @@ input UserInput {
 
 type Info {
     firstName: String!
-}
+e
 
 type User {
     firstName: String!
@@ -314,8 +302,7 @@ type User {
 ```
 
 ### Multiple Field Reference - Input field is Deeper in the Tree with Abstract Type
-In this instance, the input fields `UserInput.info.firstName` and `UserInput.name` correspond to
-either `EntraUser.firstName` or `AdfsUser.lastName`, and `User.name`.
+In this instance, the input fields `UserInput.info.firstName` and `UserInput.name` correspond to either `EntraUser.firstName` or `AdfsUser.lastName`, and `User.name`.
 
 ```graphql
 type Query {
@@ -345,8 +332,7 @@ type AdfsUser implements User {
 ```
 
 ### Multiple Field Reference - Input field is Deeper in the Tree and Output field is Deeper in the Tree
-Here, the input fields `UserInput.info.firstName` and `UserInput.name` correspond to the fields
-`User.profile.firstName` and `User.name`.
+Here, the input fields `UserInput.info.firstName` and `UserInput.name` correspond to the fields `User.profile.firstName` and `User.name`.
 
 ```graphql
 type Query {
@@ -373,8 +359,7 @@ type Profile {
 ```
 
 ### Multiple Field Reference - Input field is Deeper in the Tree and Output field is Deeper in the Tree with Abstract Type
-Finally, the input fields `UserInput.info.firstName` and `UserInput.name` correspond to the fields
-`EntraProfile.firstName` and `AdfsProfile.name`, and `User.name`.
+Finally, the input fields `UserInput.info.firstName` and `UserInput.name` correspond to the fields `EntraProfile.firstName` and `AdfsProfile.name`, and `User.name`.
 
 ```graphql
 type Query {
@@ -408,9 +393,8 @@ type AdfsProfile {
 
 ## Edge Cases - Input Field Shares Name with Argument and Output Field
 
-This subsection explores a the case where the input field `UserInput.id` is semantically equivalent
-to the field `User.id`. Such a scenario introduces ambiguity because the same field name `id` is
-used across different contexts, which current solutions struggle to express clearly.
+This subsection explores a the case where the input field `UserInput.id` is semantically equivalent to the field `User.id`.
+Such a scenario introduces ambiguity because the same field name `id` is used across different contexts, which current solutions struggle to express clearly.
 
 ```graphql
 type Query {
@@ -428,8 +412,7 @@ type User {
 
 # Different Possible Solutions
 
-There are numerous potential solutions to address the challenges presented by `FieldSelection`
-however, each solution introduces its own set of complexities.
+There are numerous potential solutions to address the challenges presented by `FieldSelection` however, each solution introduces its own set of complexities.
 
 ## FieldSelection as a selection set
 
@@ -454,6 +437,7 @@ extend type Query {
 ```
 
 Abstract fields across different types can also be specified easily:
+
 **Abstract Field Reference**
 ```graphql
 extend type Query {
@@ -462,6 +446,7 @@ extend type Query {
 ```
 
 For fields nested deeper in a type's hierarchy:
+
 **Single Field Nested Reference**
 ```graphql
 extend type Query {
@@ -617,7 +602,7 @@ if you need to rename a field you just use a `InputField` and set the value to a
 extend type Query {
     #                   Selection:                         +--------+           +---------+
     #                   InputField:            +---------+          +---------+
-    findUserByName(user: UserInput! @is(field: "fristName: givenName lastName: familyName")): User @lookup
+    findUserByName(user: UserInput! @is(field: "firstName: givenName lastName: familyName")): User @lookup
 }
 ```
 
