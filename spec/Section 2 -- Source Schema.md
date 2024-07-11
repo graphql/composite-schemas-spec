@@ -167,19 +167,21 @@ allows hiding "technical" lookup fields from the composite schema.
 ### @is
 
 ```graphql
-directive @is(map: FieldSelectionMap!) on ARGUMENT_DEFINITION
+directive @is(field: FieldSelectionMap!) on ARGUMENT_DEFINITION
 ```
 
-TODO : rwrite this to be more clear
-
-The `@is` directive is utilized in a lookup field to establish how the semantic
-equivalence between disparate type system members across distinct source
-schemas, which the schema composition uses to connect types.
+The `@is` directive is utilized in a lookup field to describe how the arguments
+can be mapped from the entity type that the lookup field resolves. The mapping
+establishes semantic equivalence between disparate type system members across
+source schemas and is used in cases where the argument does not 1:1 align with a
+field on the entity type.
 
 In the following example, the directive specifies that the `id` argument on the
 field `Query.personById` and the field `Person.id` on the return type of the
-field are semantically the same. This information is used to infer an entity
-resolver for `Person` from the field `Query.personById`.
+field are semantically the same.
+
+Note: In this case the `@is` directive could also be omitted as the argument and
+field names match.
 
 ```graphql example
 extend type Query {
