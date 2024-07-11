@@ -1,9 +1,9 @@
 # Source Schema
 
 The GraphQL _source schema_ is a GraphQL schema that is part of a larger
-_composte schema_. Sourc schemas use directives to express intend and
-requirements to the composition process. In the following chapters we will
-describe the directives that are used to annotate the source schemas.
+_composite schema_. Source schemas use directives to express intent and
+requirements for the composition process. In the following chapters, we will
+describe the directives that are used to annotate a source schema.
 
 ## Directives
 
@@ -17,16 +17,16 @@ The `@lookup` directive is used within a _source schema_ to specify output
 fields that can be used by the _distributed GraphQL executor_ to resolve an
 entity by a stable key.
 
-The stable key is defined by the arguments of the field. Only fields that are
-annotated with the `@lookup` directive will be recognized as lookup fields.
+The stable key is defined by the arguments of the field. Each argument must
+match a field on the return type of the lookup field.
 
-Source schemas can provide multiple lookup fields for the same entity with
-different sets of keys.
+Source schemas can provide multiple lookup fields for the same entity that
+resolve the entity by sets of keys.
 
 In this example, the source schema specifies that the `Product` entity can be
 resolved with the `productById` field or the `productByName` field on the
-`Query` type. Both fields can resolve the same entity but do so with different
-keys.
+`Query` type. Both fields can resolve the `Product` entity but do so with
+different keys.
 
 ```graphql example
 type Query {
@@ -41,8 +41,8 @@ type Product @key(fields: "id") @key(fields: "name") {
 }
 ```
 
-The arguments of a lookup field must correspond to fields specified by a `@key`
-directive annotated on the return type of the lookup field.
+The arguments of a lookup field must correspond to fields specified as an entity
+key with the `@key` directive.
 
 ```graphql example
 type Query {
@@ -101,6 +101,8 @@ type Electronics @key(fields: "id categoryId") {
   price: Float
 }
 
+# Clothing does not have a key that corresponds
+# with the lookup field's argument signature.
 type Clothing @key(fields: "id") {
   id: ID!
   categoryId: Int
@@ -143,24 +145,10 @@ type Product @key(fields: "id") {
 directive @internal on FIELD_DEFINITION
 ```
 
-TODO: make it more clerar that it only hides this for the source schema it is
-annotated with internal TODO: rethink firs use-case ... is it really needed?
-TODO: only used in combination with lookup
-
-The `@internal` directive signals to the composition process that annotated
-field definitions are not intended to be part of the composite schema. Internal
-field definitions can still be used by the distributed GraphQL executor to
-resolve data.
-
-```graphql example
-type Product @key(fields: "_internalId") {
-  _internalId: String @internal
-}
-```
-
-The `@internal` directive in combination with the `@lookup` directive allows
-defining lookup directives that are not used as global fields in the composite
-schema and thus are not used as entry points.
+The `@internal` directive is used to mark lookup fields as internal. Internal
+lookup fields are not used as entry points in the composite schema and can only
+be used by the _distributed GraphQL executor_ to resolve additional data for an
+entity.
 
 ```graphql example
 type Query {
@@ -172,9 +160,9 @@ type Query {
 }
 ```
 
-This provides control over which source schemas are used to resolve entities and
-which merely provide data to entities. It also allows hiding "technical" lookup
-fields from the composite schema.
+The `@internal` directive provides control over which source schemas are used to
+resolve entities and which merely provide data to entities. Additionally it also
+allows hiding "technical" lookup fields from the composite schema.
 
 ### @is
 
@@ -184,9 +172,9 @@ directive @is(map: FieldSelectionMap!) on ARGUMENT_DEFINITION
 
 TODO : rwrite this to be more clear
 
-The `@is` directive is utilized in a lookup field to establish how the
-semantic equivalence between disparate type system members across distinct
-source schemas, which the schema composition uses to connect types.
+The `@is` directive is utilized in a lookup field to establish how the semantic
+equivalence between disparate type system members across distinct source
+schemas, which the schema composition uses to connect types.
 
 In the following example, the directive specifies that the `id` argument on the
 field `Query.personById` and the field `Person.id` on the return type of the
