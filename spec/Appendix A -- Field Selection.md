@@ -79,7 +79,7 @@ In this case, `"dimension.size"` and `"dimension.weight"` refer to fields of the
 
 Consequently, a {FieldSelectionMap} must be interpreted in the context of a specific argument, its associated directive, and the relevant output type as determined by that directive's behavior.
 
-### Examples
+**Examples**
 
 Scalar fields can be mapped directly to arguments.
 
@@ -190,11 +190,19 @@ type Product {
 }
 ```
 
-Instead, use the path syntax to traverse into the list elements:
+Instead, use the path syntax and angle brackets to specify the list elements: 
 
 ```graphql example
 type Product {
-    shippingCost(dimensions: [DimensionInput] @require(field: "dimensions.{ width height }")): Currency
+    shippingCost(dimensions: [DimensionInput] @require(field: "dimensions[{ width height }]")): Currency
+}
+```
+
+With the path syntax it is possible to also select fields from a list of nested objects
+
+```graphql example
+type Product {
+    shippingCost(partIds: @require(field: "parts[id]")): Currency
 }
 ```
 
@@ -321,14 +329,114 @@ This operator is applied when mapping an abstract output type to a `@oneOf` inpu
 { nested: { movieId: <Movie>.id } | { productId: <Product>.id }}
 ```
 
-A {SelectedObjectValue} following a {Path} is scoped to the type of the field selected by the {Path}.
-This means that the root of all {Path} inside the selection is no longer scoped to the root (defined by @is or @require) but to the field selected by the {Path}.
+### SelectedObjectValue
+SelectedObjectValue :: 
+    - { SelectedObjectField+ }
 
-This allows reshaping lists of objects into input objects:
+SelectedObjectField :: 
+    - Name: SelectedValue
+
+{SelectedObjectValue} are unordered lists of keyed input values wrapped in curly-braces `{}`.
+It has to be used when the expected input type is an object type.
+
+This structure is similar to the `ObjectValue` defined in the GraphQL specification, but it differs by allowing the inclusion of {Path} values within a {SelectedValue}, thus extending the traditional `ObjectValue` capabilities to support direct path selections.
+
+A {SelectedObjectValue} following a {Path} is scoped to the type of the field selected by the {Path}.
+This means that the root of all {SelectedValue} inside the selection is no longer scoped to the root (defined by `@is` or `@require`) but to the field selected by the {Path}. The {Path} does not effect the structure of the input type.
+
+This allows to reduce repetition in the selection.
+
+The following example is valid:
+
+```graphql example
+type Product {
+    dimension: Dimension!
+    shippingCost(dimension: DimensionInput! @require(field: "dimension.{ size weight }")): Int! @lookup
+}
+```
+
+The following example is equivalent to the previous one:
+
+```graphql example
+type Product {
+    dimensions: Dimension!
+    shippingCost(dimensions: DimensionInput! @require(field: "{ size: dimensions.size weight: dimensions.weight }")): Int! @lookup
+}
+```
+
+
+### SelectedListValue
+SelectedListValue :: 
+    - [ SelectedValue ]
+
+A {SelectedListValue} is an ordered list of {SelectedValue} wrapped in square brackets `[]`. 
+It is used to express semantic equivalence between a an argument expecting a list of values and the values of a list fields within the output object.
+
+The {SelectedListValue} differs from the `ListValue` defined in the GraphQL specification by only allowing one {SelectedValue} as and element.
+
+The following example is valid:
+
+```graphql example
+type Product {
+    parts: [Part!]!
+    partIds(partIds: [ID!]! @require(field: "parts[id]")): [ID!]! 
+}
+``` 
+
+In this example, the `partIds` argument is semantically equivalent to the `id` fields of the `parts` list.
+
+The following example is invalid because it uses multiple {SelectedValue} as elements:
+
+```graphql counter-example
+type Product {
+    parts: [Part!]!
+    partIds(parts: [PartInput!]! @require(field: "parts[id name]")): [ID!]! 
+}
+
+input PartInput {
+    id: ID!
+    name: String!
+}
+``` 
+
+A {SelectedObjectValue} can be used as an element of a {SelectedListValue} to select multiple object fields as long as the input type is a list of structurally equivalent objects.
+
+Similar to {SelectedObjectValue}, a {SelectedListValue} following a {Path} is scoped to the type of the field selected by the {Path}.
+This means that the root of all {SelectedValue} inside the selection is no longer scoped to the root (defined by `@is` or `@require`) but to the field selected by the {Path}. The {Path} does not effect the structure of the input type.
+
+The following example is valid:
+
+```graphql example
+type Product {
+    parts: [Part!]!
+    partIds(parts: [PartInput!]! @require(field: "parts[{ id name }]")): [ID!]! 
+}
+
+input PartInput {
+    id: ID!
+    name: String!
+}
+```
+
+In case the input type is a nested list, the shape of the input object must match the shape of the output object.
+
+```graphql example
+type Product {
+    parts: [[Part!]]!
+    partIds(parts: [[PartInput!]]! @require(field: "parts[[{ id name }]]")): [ID!]! 
+}
+
+input PartInput {
+    id: ID!
+    name: String!
+}
+```
+
+The following example is valid:
 
 ```graphql example
 type Query {
-    findLocation(location: LocationInput! @is(field: "{ coordinates: coordinates.{ lat: x lon: y}}")): Location @lookup
+    findLocation(location: LocationInput! @is(field: "{ coordinates: coordinates[{lat: x lon: y}]}")): Location @lookup
 }
 
 type Coordinate {
@@ -349,39 +457,6 @@ input LocationInput {
     coordinates: [PositionInput!]!
 }
 ```
-
-The same principle applies to object values, which can be used to avoid repeating the same path multiple times.
-    
-The following example is valid:
-
-```graphql example
-type Product {
-    dimensions: Dimension!
-    shippingCost(dimensions: DimensionInput! @require(field: "{ size: dimensions.size weight: dimensions.weight }")): Int! @lookup
-}
-```
-
-The following example is equivalent to the previous one:
-
-```graphql example
-type Product {
-    dimensions: Dimension!
-    shippingCost(dimensions: DimensionInput! @require(field: "dimensions.{ size weight }")): Int! @lookup
-}
-```
-
-### SelectedObjectValue
-SelectedObjectValue :: 
-    - { SelectedObjectField+ }
-
-SelectedObjectField :: 
-    - Name: SelectedValue
-
-{SelectedObjectValue} are unordered lists of keyed input values wrapped in curly-braces `{}`.
-This structure is similar to the `ObjectValue` defined in the GraphQL specification, but it differs by allowing the inclusion of {Path} values within a {SelectedValue}, thus extending the traditional `ObjectValue` capabilities to support direct path selections.
-
-### Name
-Is equivalent to the `Name` defined in the GraphQL specification.
 
 ## Validation
 Validation ensures that {FieldSelectionMap} scalars are semantically correct within the given context. 
