@@ -1,9 +1,9 @@
 # Source Schema
 
-A _source schema_ is a GraphQL schema that is part of a larger
-_composite schema_. Source schemas use directives to express intent and
-requirements for the composition process. In the following chapters, we will
-describe the directives that are used to annotate a source schema.
+A _source schema_ is a GraphQL schema that is part of a larger _composite
+schema_. Source schemas use directives to express intent and requirements for
+the composition process. In the following chapters, we will describe the
+directives that are used to annotate a source schema.
 
 ## Directives
 
@@ -21,12 +21,11 @@ The stable key is defined by the arguments of the field. Each argument must
 match a field on the return type of the lookup field.
 
 Source schemas can provide multiple lookup fields for the same entity that
-resolve the entity by sets of keys.
+resolve the entity by different keys.
 
 In this example, the source schema specifies that the `Product` entity can be
-resolved with the `productById` field or the `productByName` field on the
-`Query` type. Both fields can resolve the `Product` entity but do so with
-different keys.
+resolved with the `productById` field or the `productByName` field. Both lookup
+fields are able to resolve the `Product` entity but do so with different keys.
 
 ```graphql example
 type Query {
@@ -42,7 +41,7 @@ type Product @key(fields: "id") @key(fields: "name") {
 ```
 
 The arguments of a lookup field must correspond to fields specified as an entity
-key with the `@key` directive.
+key with the `@key` directive on the entity type.
 
 ```graphql example
 type Query {
@@ -55,9 +54,9 @@ interface Node @key(fields: "id") {
 ```
 
 Lookup fields may return object, interface, or union types. In case a lookup
-field returns an interface or union type, all possible object types are
-considered entities and must have keys that correspond with the fields argument
-signature.
+field returns an abstract type (interface type or union type), all possible
+object types are considered entities and must have keys that correspond with the
+fields argument signature.
 
 ```graphql example
 type Query {
@@ -113,7 +112,7 @@ type Clothing @key(fields: "id") {
 ```
 
 If the lookup returns an interface, the interface must also be annotated with a
-`@key` directive.
+`@key` directive and declare it's keys.
 
 ```graphql example
 interface Node @key(fields: "id") {
@@ -139,6 +138,53 @@ type Product @key(fields: "id") {
 }
 ```
 
+Lookups, can also be nested with other lookups and allow resolving nested
+entities that are part of an aggregate. In the following example the `Product`
+can be resolved by it's id but also the `ProductPrice` can be resolved by
+passing in a composite key containing the product id and region name of the
+product price.
+
+```graphql example
+type Query {
+  productById(id: ID!): Product @lookup
+}
+
+type Product @key(fields: "id") {
+  id: ID!
+  price(regionName: String!): ProductPrice @lookup
+}
+
+type ProductPrice @key(fields: "regionName product { id }") {
+  regionName: String!
+  product: Product
+  value: Float!
+}
+```
+
+Nested lookups must imediately follow the parent lookup and cannot be nested
+with fields inbetween.
+
+```graphql counter-example
+type Query {
+  productById(id: ID!): Product @lookup
+}
+
+type Product @key(fields: "id") {
+  id: ID!
+  details: ProductDetails
+}
+
+type ProductDetails {
+  price(regionName: String!): ProductPrice @lookup
+}
+
+type ProductPrice @key(fields: "regionName product { id }") {
+  regionName: String!
+  product: Product
+  value: Float!
+}
+```
+
 ### @internal
 
 ```graphql
@@ -161,8 +207,9 @@ type Query {
 ```
 
 The `@internal` directive provides control over which source schemas are used to
-resolve entities and which merely provide data to entities. Additionally it also
-allows hiding "technical" lookup fields from the composite schema.
+resolve entities and which source schemas merely contribute data to entities.
+Further, using `@internal` allows hiding "technical" lookup fields that are not
+meant for the client-facing composite schema.
 
 ### @is
 
@@ -208,6 +255,23 @@ extend type Query {
 }
 ```
 
+The `@is` directive can also be used in combination with oneOf to specify lookup
+fields that can resolve entities by different keys.
+
+```graphql example
+extend type Query {
+  person(
+    by: PersonByInput @is(field: "{ id } | { addressId: address.id } { name }")
+  ): Person
+}
+
+input PersonByInput @oneOf {
+  id: ID
+  addressId: ID
+  name: String
+}
+```
+
 **Arguments:**
 
 - `field`: Represents a selection path map syntax.
@@ -215,9 +279,7 @@ extend type Query {
 ### @require
 
 ```graphql
-directive @require(
-  field: FieldSelectionMap!
-) on ARGUMENT_DEFINITION
+directive @require(field: FieldSelectionMap!) on ARGUMENT_DEFINITION
 ```
 
 The `@require` directive is used to express data requirements with other source
