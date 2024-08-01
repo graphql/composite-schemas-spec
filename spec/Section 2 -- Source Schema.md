@@ -112,7 +112,7 @@ type Clothing @key(fields: "id") {
 ```
 
 If the lookup returns an interface, the interface must also be annotated with a
-`@key` directive and declare it's keys.
+`@key` directive and declare its keys.
 
 ```graphql example
 interface Node @key(fields: "id") {
