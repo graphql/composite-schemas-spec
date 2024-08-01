@@ -350,6 +350,16 @@ input ProductDimensionInput {
 
 - `field`: Represents a selection path map syntax.
 
+### @key
+
+```graphql
+directive @key(fields: SelectionSet!) repeatable on OBJECT | INTERFACE
+```
+
+**Arguments:**
+
+- `fields`: Represents a selection set syntax.
+
 ### @shareable
 
 ```graphql
@@ -361,7 +371,7 @@ to an object type. This prevents source schemas from inadvertently defining
 similarly named fields that are semantically not the same.
 
 Fields have to be explicitly marked as `@shareable` to allow multiple source
-schemas to define it. And it ensures the step of allowing a field to be served
+schemas to define it, and ensures that the step of allowing a field to be served
 from multiple source schemas is an explicit, coordinated decision.
 
 If multiple source schemas define the same field, these are assumed to be
@@ -379,6 +389,10 @@ directive @provides(fields: SelectionSet!) on FIELD_DEFINITION
 The `@provides` directive is an optimization hint specifying child fields that
 can be resolved locally at the given source schema through a particular query
 path. This allows for a variation of overlapping field to improve data fetching.
+
+**Arguments:**
+
+- `fields`: Represents a selection set syntax.
 
 ### @external
 
