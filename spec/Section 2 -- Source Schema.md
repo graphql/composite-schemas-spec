@@ -255,7 +255,7 @@ extend type Query {
 }
 ```
 
-The `@is` directive can also be used in combination with oneOf to specify lookup
+The `@is` directive can also be used in combination with `@oneOf` to specify lookup
 fields that can resolve entities by different keys.
 
 ```graphql example
