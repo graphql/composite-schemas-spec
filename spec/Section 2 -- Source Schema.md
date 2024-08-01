@@ -138,7 +138,7 @@ type Product @key(fields: "id") {
 }
 ```
 
-Lookups, can also be nested with other lookups and allow resolving nested
+Lookups can also be nested within other lookups and allow resolving nested
 entities that are part of an aggregate. In the following example the `Product`
 can be resolved by it's id but also the `ProductPrice` can be resolved by
 passing in a composite key containing the product id and region name of the
