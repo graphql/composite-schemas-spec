@@ -18,7 +18,7 @@ run in sequence to produce the composite execution schema.
 
 **Error Code**
 
-TYPE_KIND_NOT_MERGABLE
+`TYPE_KIND_NOT_MERGABLE`
 
 **Formal Specification**
 
