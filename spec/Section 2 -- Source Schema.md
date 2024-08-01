@@ -161,7 +161,7 @@ type ProductPrice @key(fields: "regionName product { id }") {
 }
 ```
 
-Nested lookups must imediately follow the parent lookup and cannot be nested
+Nested lookups must immediately follow the parent lookup and cannot be nested
 with fields inbetween.
 
 ```graphql counter-example
