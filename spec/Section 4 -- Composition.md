@@ -14,6 +14,67 @@ run in sequence to produce the composite execution schema.
 
 ### Pre Merge Validation
 
+#### Semantical Equivalence of Types
+
+**Error Code**
+
+TYPE_KIND_NOT_MERGABLE
+
+**Formal Specification**
+
+- Let {typesByName} be the set of all types across all subgraphs involved in the
+  schema composition by their given type name.
+- Given each pair of types {typeA} and {typeB} in {typesByName}
+  - {typeA} and {typeB} must have the same kind
+
+**Explanatory Text**
+
+The GraphQL Composite Schemas specification considers types with the same name
+across source schemas as semantically equivalent and mergeable. Types that do not
+share the same kind are considered non-mergeable.
+
+```graphql example
+type User {
+  id: ID!
+  name: String!
+  displayName: String!
+  birthdate: String!
+}
+
+type User {
+  id: ID!
+  name: String!
+  reviews: [Review!]
+}
+```
+
+```graphql example
+scalar DateTime
+
+scalar DateTime
+```
+
+```graphql counter-example
+type User {
+  id: ID!
+  name: String!
+  displayName: String!
+  birthdate: String!
+}
+
+scalar User
+```
+
+```graphql counter-example
+enum UserKind {
+  A
+  B
+  C
+}
+
+scalar UserKind
+```
+
 ### Merge
 
 ### Post Merge Validation
