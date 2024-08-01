@@ -56,7 +56,7 @@ interface Node @key(fields: "id") {
 Lookup fields may return object, interface, or union types. In case a lookup
 field returns an abstract type (interface type or union type), all possible
 object types are considered entities and must have keys that correspond with the
-fields argument signature.
+field's argument signature.
 
 ```graphql example
 type Query {
