@@ -30,8 +30,8 @@ TYPE_KIND_NOT_MERGABLE
 **Explanatory Text**
 
 The GraphQL Composite Schemas specification considers types with the same name
-across source schemas as semantically equivalent and mergeable. Types that do not
-share the same kind are considered non-mergeable.
+across source schemas as semantically equivalent and mergeable. Types that do
+not share the same kind are considered non-mergeable.
 
 ```graphql example
 type User {
