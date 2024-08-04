@@ -22,10 +22,8 @@ OUTPUT_FIELD_TYPES_NOT_MERGEABLE
 
 **Formal Specification**
 
-- Let {fieldsByName} be a map of field lists where the key is the name of a
-  field and the value is a list of fields from mergeable types from different
-  subgraphs with the same name.
-- for each {fields} in {fieldsByName}
+- Let {fieldsByName} be a map of field lists where the key is the name of a field and the value is a list of fields from mergeable types from different source schemas with the same name.
+- For each {fields} in {fieldsByName}
   - {FieldsAreMergeable(fields)} must be true.
 
 FieldsAreMergeable(fields):
@@ -37,9 +35,7 @@ FieldsAreMergeable(fields):
 
 **Explanatory Text**
 
-Fields on mergeable objects or interfaces with that have the same name are
-considered semantically equivalent and mergeable when they have a mergeable
-field type.
+Fields on mergeable objects or interfaces that have the same name are considered semantically equivalent and mergeable when they have a mergeable field type.
 
 Fields with the same type are mergeable.
 
@@ -53,8 +49,7 @@ type User {
 }
 ```
 
-Fields with different nullability are mergeable, resulting in merged field with
-a nullable type.
+Fields with different nullability are mergeable, resulting in a merged field with a nullable type.
 
 ```graphql example
 type User {
