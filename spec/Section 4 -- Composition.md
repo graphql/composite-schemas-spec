@@ -90,7 +90,7 @@ INPUT_FIELD_REFERENCES_INACCESSIBLE_TYPE
 
 **Explanatory Text**
 
-In a composed schema, a field within a input type must only reference types that are exposed. 
+In a composed schema, a field within an input type must only reference types that are exposed. 
 This requirement guarantees that public types do not reference inaccessible structures which are intended for internal use.
 
 A valid case where a public input field references another public input type:
