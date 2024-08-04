@@ -44,7 +44,7 @@ When an input object is defined with differing fields across source schemas, it 
 A field expected in one source schema might be absent in another, leading to undefined behavior.
 This rule prevents such inconsistencies by enforcing that all instances of the same named input object across source schemas have a matching set of field names.
 
-In this example, both subgraphs define `Input1` with the same field `field1`, satisfying the rule:
+In this example, both source schemas define `Input1` with the same field `field1`, satisfying the rule:
 
 ```graphql example
 input Input1 {
