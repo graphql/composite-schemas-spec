@@ -28,8 +28,7 @@ INPUT_OBJECT_FIELDS_DIFFER
 
 InputFieldsAreMergeable(inputs):
 
-- Let {fields} be the set of all field names of the first input object in
-  {inputs}.
+- Let {fields} be the set of all field names of the first input object in {inputs}.
 - For each {input} in {inputs}:
   - Let {inputFields} be the set of all field names of {input}.
   - {fields} must be equal to {inputFields}.
