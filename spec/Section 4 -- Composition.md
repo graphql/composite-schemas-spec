@@ -132,5 +132,4 @@ input Input2 @inaccessible {
 }
 ```
 
-
 ## Validate Satisfiability
