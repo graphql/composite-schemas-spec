@@ -14,6 +14,58 @@ run in sequence to produce the composite execution schema.
 
 ### Pre Merge Validation
 
+#### Enum Type Values Must Be The Same Across Source Schemas
+
+**Error Code**
+
+ENUM_VALUES_MUST_BE_THE_SAME_ACROSS_SCHEMAS
+
+**Formal Specification**
+
+- Let {enumsByName} be a map where the key is the name of an enum type, and the value is a list of all enum types from different source schemas with that name.
+- For each {listOfEnum} in {enumsByName}:
+  - {EnumAreMergeable(listOfEnum)} must be true.
+
+EnumAreMergeable(enums):
+
+- Let {values} be the set of all values of the first enum in {enums}
+- For each {enum} in {enums}
+  - Let {enumValues} be the set of all values of {enum}
+  - {values} must be equal to {enumValues}
+
+**Explanatory Text**
+
+This rule ensures that enum types with the same name across different source schemas in a composite schema have identical sets of values. 
+Enums, must be consistent across source schemas to avoid conflicts and ambiguities in the composite schema.
+
+When an enum is defined with differing values, it can lead to confusion and errors in query execution. 
+For instance, a value valid in one schema might be passed to another where it's unrecognized, leading to unexpected behavior or failures. 
+This rule prevents such inconsistencies by enforcing that all instances of the same named enum across schemas have an exact match in their values.
+
+In this example, both subgraphs define `Enum1` with the same value `BAR`, satisfying the rule:
+
+```graphql example
+enum Enum1 {
+  BAR
+}
+
+enum Enum1 {
+  BAR
+}
+```
+
+Here, the two definitions of `Enum1` have different values (`BAR` and `Baz`), violating the rule:
+
+```graphql counter-example
+enum Enum1 {
+  BAR
+}
+
+enum Enum1 {
+  Baz
+}
+```
+
 ### Merge
 
 ### Post Merge Validation
