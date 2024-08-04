@@ -35,7 +35,7 @@ InputFieldsAreMergeable(inputs):
 
 **Explanatory Text**
 
-This rule ensures that input object types with the same name across different subgraphs have identical sets of field names. 
+This rule ensures that input object types with the same name across different source schemas have identical sets of field names. 
 Consistency in input object fields across subgraphs is required to avoid conflicts and ambiguities in the composed schema. 
 This rule only checks that the field names are the same, not that the field types are the same. 
 Field types are checked by the [Input Field Types mergeable](#sec-Input-Field-Types-mergeable) rule.
