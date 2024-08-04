@@ -68,7 +68,6 @@ input Input1 {
 }
 ```
 
-
 ### Merge
 
 ### Post Merge Validation
