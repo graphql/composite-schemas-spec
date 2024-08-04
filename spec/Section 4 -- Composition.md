@@ -33,27 +33,7 @@ FieldsAreMergeable(fields):
 - Given each pair of members {fieldA} and {fieldB} in {fields}:
   - Let {typeA} be the type of {fieldA}
   - Let {typeB} be the type of {fieldB}
-  - {SameTypeShape(typeA, typeB)} must be true.
-
-SameTypeShape(typeA, typeB):
-
-- If {typeA} is Non-Null:
-  - If {typeB} is nullable
-    - Let {innerType} be the inner type of {typeA}
-    - return SameTypeShape({innerType}, {typeB})
-- If {typeB} is Non-Null:
-  - If {typeA} is nullable
-    - Let {innerType} be the inner type of {typeB}
-    - return {SameTypeShape(typeA, innerType)}
-- If {typeA} or {typeB} is List:
-  - If {typeA} or {typeB} is not List, return false.
-  - Let {innerTypeA} be the item type of {typeA}.
-  - Let {innerTypeB} be the item type of {typeB}.
-  - return {SameTypeShape(innerTypeA, innerTypeB)}
-- If {typeA} and {typeB} are not of the same kind
-  - return false
-- If {typeA} and {typeB} do not have the same name
-  - return false
+  - {SameOutputTypeShape(typeA, typeB)} must be true.
 
 **Explanatory Text**
 
