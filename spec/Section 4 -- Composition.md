@@ -75,7 +75,7 @@ input Input2 {
 }
 ```
 
-#### Input Fields cannot reference be inaccessible type
+#### Input Fields cannot reference inaccessible type
 
 **Error Code**
 
