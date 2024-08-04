@@ -22,11 +22,9 @@ OUTPUT_FIELD_ARGUMENT_TYPES_NOT_MERGEABLE
 
 **Formal Specification**
 
-- Let {fieldsByName} be a map of field lists where the key is the name of a
-  field and the value is a list of fields from mergeable types from different
-  subgraphs with the same name.
-- for each {fields} in {fieldsByName}
-  - if {FieldsInSetCanMerge(fields)} must be true.
+- Let {fieldsByName} be a map of field lists where the key is the name of a field and the value is a list of fields from mergeable types from different source schemas with the same name.
+- For each {fields} in {fieldsByName}
+  - If {FieldsInSetCanMerge(fields)} must be true.
 
 FieldsAreMergeable(fields):
 
@@ -43,8 +41,7 @@ ArgumentsAreMergeable(fieldA, fieldB):
 
 **Explanatory Text**
 
-Fields on mergeable objects or interfaces that have the same name are considered semantically 
-equivalent and mergeable when they have a mergeable argument types.
+Fields on mergeable objects or interfaces that have the same name are considered semantically equivalent and mergeable when they have mergeable argument types.
 
 ```graphql example
 type User {
