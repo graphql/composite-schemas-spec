@@ -40,7 +40,7 @@ Consistency in input object fields across source schemas is required to avoid co
 This rule only checks that the field names are the same, not that the field types are the same. 
 Field types are checked by the [Input Field Types mergeable](#sec-Input-Field-Types-mergeable) rule.
 
-When an input object is defined with differing fields across subgraphs, it can lead to issues in query execution. 
+When an input object is defined with differing fields across source schemas, it can lead to issues in query execution. 
 A field expected in one subgraph might be absent in another, leading to undefined behavior. 
 This rule prevents such inconsistencies by enforcing that all instances of the same named input object across subgraphs have a matching set of field names.
 
