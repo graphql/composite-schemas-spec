@@ -42,7 +42,7 @@ IsObjectTypeEmpty(type):
 
 For object types defined across multiple source schemas, the merged object type is the superset of all fields defined in these schemas. 
 However, any field marked with `@inaccessible` in any schema is hidden and not included in the merged object type. 
-An object type with no fields, after considering `@inaccessible` markings, is considered empty and invalid.
+An object type with no fields, after considering `@inaccessible` directives, is considered empty and invalid.
 
 In the following example, the merged object type `ObjectType1` is valid. 
 
