@@ -23,10 +23,10 @@ ENUM_VALUES_MUST_BE_THE_SAME_ACROSS_SCHEMAS
 **Formal Specification**
 
 - Let {enumsByName} be a map where the key is the name of an enum type, and the value is a list of all enum types from different source schemas with that name.
-- For each {listOfEnum} in {enumsByName}:
-  - {EnumAreMergeable(listOfEnum)} must be true.
+- For each {listOfEnums} in {enumsByName}:
+  - {EnumsAreMergeable(listOfEnums)} must be true.
 
-EnumAreMergeable(enums):
+EnumsAreMergeable(enums):
 
 - Let {values} be the set of all values of the first enum in {enums}
 - For each {enum} in {enums}
