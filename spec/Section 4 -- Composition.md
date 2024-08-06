@@ -42,7 +42,7 @@ When an enum is defined with differing values, it can lead to confusion and erro
 For instance, a value valid in one schema might be passed to another where it's unrecognized, leading to unexpected behavior or failures. 
 This rule prevents such inconsistencies by enforcing that all instances of the same named enum across schemas have an exact match in their values.
 
-In this example, both subgraphs define `Enum1` with the same value `BAR`, satisfying the rule:
+In this example, both source schemas define `Enum1` with the same value `BAR`, satisfying the rule:
 
 ```graphql example
 enum Enum1 {
