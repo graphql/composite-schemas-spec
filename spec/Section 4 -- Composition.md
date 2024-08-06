@@ -37,9 +37,15 @@ InputFieldsAremergeable(fields):
 
 **Explanatory Text**
 
-The input fields of input objects with the same name must be mergeable. This rule ensures that input objects with the same name in different source schemas have fields that can be merged consistently without conflicts.
+The input fields of input objects with the same name must be mergeable. This
+rule ensures that input objects with the same name in different source schemas
+have fields that can be merged consistently without conflicts.
 
-Input fields are considered mergeable when they share the same name and have compatible types. The compatibility of types is determined by their structure (e.g., lists), excluding nullability. Mergeable input fields with different nullability are considered mergeable, and the resulting merged field will be the most permissive of the two.
+Input fields are considered mergeable when they share the same name and have
+compatible types. The compatibility of types is determined by their structure
+(e.g., lists), excluding nullability. Mergeable input fields with different
+nullability are considered mergeable, and the resulting merged field will be the
+most permissive of the two.
 
 In this example, the field `field` in `Input1` has compatible types across
 source schemas, making them mergeable:
@@ -54,9 +60,9 @@ input Input1 {
 }
 ```
 
-Fields are also consodered mergable if they have different nullability defined across 
-Here, the field `tags` in `Input1` is a list type with compatible inner types,
-satisfying the mergeable criteria:
+Fields are also consodered mergable if they have different nullability defined
+across Here, the field `tags` in `Input1` is a list type with compatible inner
+types, satisfying the mergeable criteria:
 
 ```graphql example
 input Input1 {
