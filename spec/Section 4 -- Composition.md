@@ -59,7 +59,7 @@ In this case, `ObjectType1` is defined in two source schemas, but all fields are
 ```graphql counter-example
 type ObjectType1 {
   field1: String @inaccessible
-  field2: Boolean @inaccessible
+  field2: Int @inaccessible
 }
 ```
 
