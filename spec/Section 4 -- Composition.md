@@ -26,7 +26,7 @@ INPUT_OBJECT_TYPE_EMPTY
 
 **Formal Specification**
 
-- Let {inputs} be the set of all input object in the merged schema
+- Let {inputs} be the set of all input objects in the merged schema
 - For each {input} in {inputs}:
   - {IsInputObjectTypeEmpty(input)} must be false
 
