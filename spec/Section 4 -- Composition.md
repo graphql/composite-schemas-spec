@@ -54,7 +54,7 @@ input Input1 {
 
 This counter-example shows an invalid merged input object type. 
 The `Input1` type is defined in two source schemas, but both `field1` and `field2` are flagged as
-`@inaccessible` in at least on of the schemas:
+`@inaccessible` in at least one of the schemas:
 
 ```graphql counter-example
 input Input1 {
