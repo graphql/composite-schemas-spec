@@ -60,7 +60,8 @@ input Input1 {
 }
 ```
 
-The following example shows that fields are mergeable if they have different nullability but the named type is the same and the list structure is the same.
+The following example shows that fields are mergeable if they have different
+nullability but the named type is the same and the list structure is the same.
 
 ```graphql example
 input Input1 {
@@ -76,7 +77,8 @@ input Input1 {
 }
 ```
 
-In this example, the field `field` on `Input1` is not mergable as the field has different named types across (`String` and `DateTime`) source schemas:
+In this example, the field `field` on `Input1` is not mergable as the field has
+different named types across (`String` and `DateTime`) source schemas:
 
 ```graphql counter-example
 input Input1 {
@@ -87,7 +89,6 @@ input Input1 {
   field: DateTime!
 }
 ```
-
 
 ### Merge
 
