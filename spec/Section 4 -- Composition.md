@@ -76,8 +76,7 @@ input Input1 {
 }
 ```
 
-In this counter-example, the field `field` in `Input1` has incompatible types
-(`String` and `DateTime`), making them not mergeable:
+In this example, the field `field` on `Input1` is not mergable as the field has different named types across (`String` and `DateTime`) source schemas:
 
 ```graphql counter-example
 input Input1 {
@@ -89,18 +88,6 @@ input Input1 {
 }
 ```
 
-Here, the field `tags` in `Input1` is a list type with incompatible inner types
-(`String` and `DateTime`), violating the mergeable rule:
-
-```graphql counter-example
-input Input1 {
-  tags: [String]
-}
-
-input Input1 {
-  tags: [DateTime]
-}
-```
 
 ### Merge
 
