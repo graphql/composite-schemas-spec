@@ -26,7 +26,7 @@ run in sequence to produce the composite execution schema.
   field and the value is a list of fields from mergeable input types from
   different source schemas with the same name.
 - For each {fields} in {fieldsByName}:
-  - if {InputFieldsAremergeable(fields)} must be true.
+  - {InputFieldsAreMergeable(fields)} must be true.
 
 InputFieldsAreMergeable(fields):
 
