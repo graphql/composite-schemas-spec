@@ -60,9 +60,7 @@ input Input1 {
 }
 ```
 
-Fields are also consodered mergable if they have different nullability defined
-across Here, the field `tags` in `Input1` is a list type with compatible inner
-types, satisfying the mergeable criteria:
+The following example shows that fields are mergeable if they have different nullability but the named type is the same and the list structure is the same.
 
 ```graphql example
 input Input1 {
