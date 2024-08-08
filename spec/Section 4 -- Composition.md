@@ -28,7 +28,7 @@ run in sequence to produce the composite execution schema.
 - For each {fields} in {fieldsByName}:
   - if {InputFieldsAremergeable(fields)} must be true.
 
-InputFieldsAremergeable(fields):
+InputFieldsAreMergeable(fields):
 
 - Given each pair of members {fieldA} and {fieldB} in {fields}:
   - Let {typeA} be the type of {fieldA}.
