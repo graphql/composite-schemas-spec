@@ -18,7 +18,7 @@ run in sequence to produce the composite execution schema.
 
 **Error Code**
 
-`INPUT_FIELD_TYPES_MERGABLE`
+`INPUT_FIELD_TYPES_NOT_MERGEABLE`
 
 **Formal Specification**
 
