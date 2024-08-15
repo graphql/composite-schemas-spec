@@ -31,4 +31,3 @@ words:
 ignoreWords:
   - Aremergeable
   - FXXXX
-  - TYPE_KIND_NOT_MERGABLE
