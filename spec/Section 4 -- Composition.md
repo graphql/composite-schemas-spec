@@ -14,7 +14,7 @@ run in sequence to produce the composite execution schema.
 
 ### Pre Merge Validation
 
-#### Semantical Equivalence of Types
+#### Semantic Equivalence of Types
 
 **Error Code**
 
