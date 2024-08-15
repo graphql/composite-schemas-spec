@@ -36,7 +36,7 @@ run in sequence to produce the composite execution schema.
 The GraphQL Composite Schemas specification considers types with the same name
 across source schemas as semantically equivalent and mergeable.
 
-For the schema schema composition process to be able to merge types with the
+For the schema composition process to be able to merge types with the
 same name, the types must have the same kind. In this example we have two types
 called `User` which are both object types and are mergeable.
 
