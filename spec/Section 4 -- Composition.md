@@ -55,7 +55,7 @@ type User {
 }
 ```
 
-However, if the second type would be a scalar type, the types would not be
+However, if the second type were a scalar type, the types would not be
 mergeable as they have different kinds.
 
 ```graphql counter-example
