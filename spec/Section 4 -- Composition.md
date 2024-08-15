@@ -22,10 +22,13 @@ run in sequence to produce the composite execution schema.
 
 **Formal Specification**
 
-- Let {typesByName} be the set of all types across all source schemas involved in the
-  schema composition by their given type name.
-- Given each pair of types {typeA} and {typeB} in {typesByName}
-  - {typeA} and {typeB} must have the same kind
+- Let {typesByName} be an empty unordered map of sets.
+- For each named type {type} across all source schemas:
+  - Let {name} be the name of {type}.
+  - Let {set} be the set in {typesByName} for {name}; if no such set exists, create it as an empty set.
+  - Add {type} to {set}.
+- For each {typesByName} as {name} and {types}:
+  - Each pair of types in {types} must have the same kind.
 
 **Explanatory Text**
 
