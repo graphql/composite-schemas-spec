@@ -25,7 +25,8 @@ run in sequence to produce the composite execution schema.
 - Let {typesByName} be an empty unordered map of sets.
 - For each named type {type} across all source schemas:
   - Let {name} be the name of {type}.
-  - Let {set} be the set in {typesByName} for {name}; if no such set exists, create it as an empty set.
+  - Let {set} be the set in {typesByName} for {name}; if no such set exists,
+    create it as an empty set.
   - Add {type} to {set}.
 - For each {typesByName} as {name} and {types}:
   - Each pair of types in {types} must have the same kind.
@@ -33,8 +34,11 @@ run in sequence to produce the composite execution schema.
 **Explanatory Text**
 
 The GraphQL Composite Schemas specification considers types with the same name
-across source schemas as semantically equivalent and mergeable. Types that do
-not share the same kind are considered non-mergeable.
+across source schemas as semantically equivalent and mergeable.
+
+For the schema schema composition process to be able to merge types with the
+same name, the types must have the same kind. In this example we have two types
+called `User` which are both object types and are mergeable.
 
 ```graphql example
 type User {
@@ -51,11 +55,8 @@ type User {
 }
 ```
 
-```graphql example
-scalar DateTime
-
-scalar DateTime
-```
+However, if the second type would be a scalar type, the types would not be
+mergeable as they have different kinds.
 
 ```graphql counter-example
 type User {
@@ -68,14 +69,12 @@ type User {
 scalar User
 ```
 
-```graphql counter-example
-enum UserKind {
-  A
-  B
-  C
-}
+All types with the same name must have the same kind to be mergeable.
 
-scalar UserKind
+```graphql example
+scalar User
+
+scalar User
 ```
 
 ### Merge
