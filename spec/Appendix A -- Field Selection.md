@@ -190,7 +190,7 @@ type Product {
 }
 ```
 
-Instead, use the path syntax and angle brackets to specify the list elements: 
+Instead, use the path syntax and brackets to specify the list elements: 
 
 ```graphql example
 type Product {
