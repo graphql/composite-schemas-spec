@@ -27,7 +27,7 @@ query {
 }
 ```
 
-Here, it is exptected that the `userId` "123" corresponds directly to `User.id`, resulting in the following response if correctly implemented:
+Here, it is expected that the `userId` "123" corresponds directly to `User.id`, resulting in the following response if correctly implemented:
 
 ```json
 {
@@ -268,13 +268,13 @@ Is equivalent to the {Name} defined in the [GraphQL specification](https://spec.
 
 ### Path
 Path :: 
-    - < TypeName > . PathSemgent
-    - PathSemgent
+    - < TypeName > . PathSegment
+    - PathSegment
 
 PathSegment :: 
     - FieldName
-    - FieldName . PathSemgent
-    - FieldName < TypeName > . PathSemgent
+    - FieldName . PathSegment
+    - FieldName < TypeName > . PathSegment
 
 FieldName ::
     - Name
@@ -575,13 +575,13 @@ For example, the following {Path} is valid if `title` is a scalar field on the `
 book.title
 ```
 
-The following {Path} is invalid because `title` should not have subselections:
+The following {Path} is invalid because `title` should not have sub selections:
 
 ```graphql counter-example
 book.title.something
 ```
 
-For non-leaf fields, the {Path} must continue to specify subselections until a leaf field is reached:
+For non-leaf fields, the {Path} must continue to specify sub selections until a leaf field is reached:
 
 ```graphql example
 book.author.id
