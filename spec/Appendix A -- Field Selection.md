@@ -344,7 +344,7 @@ This structure is similar to the `ObjectValue` defined in the GraphQL specificat
 A {SelectedObjectValue} following a {Path} is scoped to the type of the field selected by the {Path}.
 This means that the root of all {SelectedValue} inside the selection is no longer scoped to the root (defined by `@is` or `@require`) but to the field selected by the {Path}. The {Path} does not affect the structure of the input type.
 
-This allows to reduce repetition in the selection.
+This allows for reducing repetition in the selection.
 
 The following example is valid:
 
