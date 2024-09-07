@@ -402,7 +402,7 @@ input PartInput {
 A {SelectedObjectValue} can be used as an element of a {SelectedListValue} to select multiple object fields as long as the input type is a list of structurally equivalent objects.
 
 Similar to {SelectedObjectValue}, a {SelectedListValue} following a {Path} is scoped to the type of the field selected by the {Path}.
-This means that the root of all {SelectedValue} inside the selection is no longer scoped to the root (defined by `@is` or `@require`) but to the field selected by the {Path}. The {Path} does not effect the structure of the input type.
+This means that the root of all {SelectedValue} inside the selection is no longer scoped to the root (defined by `@is` or `@require`) but to the field selected by the {Path}. The {Path} does not affect the structure of the input type.
 
 The following example is valid:
 
