@@ -351,7 +351,7 @@ The following example is valid:
 ```graphql example
 type Product {
     dimension: Dimension!
-    shippingCost(dimension: DimensionInput! @require(field: "dimension.{ size weight }")): Int! @lookup
+    shippingCost(dimension: DimensionInput! @require(field: "dimension.{ size weight }")): Int!
 }
 ```
 
