@@ -370,7 +370,7 @@ SelectedListValue ::
     - [ SelectedValue ]
 
 A {SelectedListValue} is an ordered list of {SelectedValue} wrapped in square brackets `[]`. 
-It is used to express semantic equivalence between a an argument expecting a list of values and the values of a list fields within the output object.
+It is used to express semantic equivalence between an argument expecting a list of values and the values of a list field within the output object.
 
 The {SelectedListValue} differs from the `ListValue` defined in the GraphQL specification by only allowing one {SelectedValue} as and element.
 
