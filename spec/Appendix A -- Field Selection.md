@@ -342,7 +342,7 @@ It has to be used when the expected input type is an object type.
 This structure is similar to the `ObjectValue` defined in the GraphQL specification, but it differs by allowing the inclusion of {Path} values within a {SelectedValue}, thus extending the traditional `ObjectValue` capabilities to support direct path selections.
 
 A {SelectedObjectValue} following a {Path} is scoped to the type of the field selected by the {Path}.
-This means that the root of all {SelectedValue} inside the selection is no longer scoped to the root (defined by `@is` or `@require`) but to the field selected by the {Path}. The {Path} does not effect the structure of the input type.
+This means that the root of all {SelectedValue} inside the selection is no longer scoped to the root (defined by `@is` or `@require`) but to the field selected by the {Path}. The {Path} does not affect the structure of the input type.
 
 This allows to reduce repetition in the selection.
 
