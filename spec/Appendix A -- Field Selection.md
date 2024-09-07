@@ -198,7 +198,7 @@ type Product {
 }
 ```
 
-With the path syntax it is possible to also select fields from a list of nested objects
+With the path syntax it is possible to also select fields from a list of nested objects:
 
 ```graphql example
 type Product {
