@@ -140,9 +140,9 @@ type Product @key(fields: "id") {
 
 Lookups can also be nested within other lookups and allow resolving nested
 entities that are part of an aggregate. In the following example the `Product`
-can be resolved by its ID but also the `ProductPrice` can be resolved by
-passing in a composite key containing the product ID and region name of the
-product price.
+can be resolved by its ID but also the `ProductPrice` can be resolved by passing
+in a composite key containing the product ID and region name of the product
+price.
 
 ```graphql example
 type Query {
@@ -255,8 +255,8 @@ extend type Query {
 }
 ```
 
-The `@is` directive can also be used in combination with `@oneOf` to specify lookup
-fields that can resolve entities by different keys.
+The `@is` directive can also be used in combination with `@oneOf` to specify
+lookup fields that can resolve entities by different keys.
 
 ```graphql example
 extend type Query {
@@ -356,7 +356,11 @@ input ProductDimensionInput {
 directive @key(fields: SelectionSet!) repeatable on OBJECT | INTERFACE
 ```
 
-The `@key` directive defines an entity's unique key, which consists of one or more of the type's fields. Each key directive annotated to a type represents a single unique key that can be used to resolve the entity by using a lookup field. An entity type can have multiple keys, allowing it to be resolved by different lookup fields.
+The `@key` directive defines an entity's unique key, which consists of one or
+more of the type's fields. Each key directive annotated to a type represents a
+single unique key that can be used to resolve the entity by using a lookup
+field. An entity type can have multiple keys, allowing it to be resolved by
+different lookup fields.
 
 **Arguments:**
 
