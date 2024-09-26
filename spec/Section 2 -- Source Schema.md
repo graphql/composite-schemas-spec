@@ -356,6 +356,8 @@ input ProductDimensionInput {
 directive @key(fields: SelectionSet!) repeatable on OBJECT | INTERFACE
 ```
 
+The `@key` directive defines an entity's unique key, which consists of one or more of the type's fields. Each key directive annotated to a type represents a single unique key that can be used to resolve the entity by using a lookup field. An entity type can have multiple keys, allowing it to be resolved by different lookup fields.
+
 **Arguments:**
 
 - `fields`: Represents a selection set syntax.
