@@ -40,7 +40,7 @@ IsListType(type):
 **Explanatory Text**
 
 Fields annotated with the `@lookup` directive are intended to retrieve a single entity based on provided arguments. 
-To ensure ambiguity in entity resolution, such fields must return a single object and not a list. 
+To avoid ambiguity in entity resolution, such fields must return a single object and not a list. 
 This validation rule enforces that any field annotated with `@lookup` must have a return type that is NOT a list.
 
 For example, the following usage is valid:
