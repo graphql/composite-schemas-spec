@@ -38,7 +38,7 @@ To properly handle cases where the requested entity does not exist, such fields 
 This allows the field to return `null` when an entity matching the provided criteria is not found, following the standard GraphQL practices for representing missing data.
 
 In a distributed system, it is likely that some entities may not be found on other subgraphs, even when those subgraphs contribute fields to the type. 
-Ensuring that `@lookup` fields have nullable return types also avoids runtime errors on subgraphs and prevents result erasure through non-null propagation. 
+Ensuring that `@lookup` fields have nullable return types also avoids GraphQL errors on subgraphs and prevents result erasure through non-null propagation. 
 By allowing null to be returned when an entity is not found, the system can gracefully handle missing data without causing exceptions or unexpected behavior.
 
 Ensuring that `@lookup` fields have nullable return types allows gateways to distinguish between cases where an entity is not found (receiving null) and other error conditions that may have to be propagated to the client.
