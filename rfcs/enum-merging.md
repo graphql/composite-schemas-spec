@@ -48,6 +48,41 @@ enum ShippingMethod {
 }
 ```
 
+
+### Open Questions
+
+Before deciding on an approach for merging enums, it's important to consider several fundamental questions:
+
+1. **Should Enums Be Consistent Across Subgraphs?**
+
+   - **Consistency Expectation**: Do we expect enums to be consistent across all subgraphs, or can they differ?
+   - **Implications**: If enums must be the same across subgraphs (e.g., shared types), all options are viable. If enums differ across subgraphs (e.g., `UserKind` enums that are not aligned), some methods may not work, and only context-based merging may be applicable.
+
+2. **Common Usage of Enums: Single-Direction or Bi-Directional?**
+
+   - **Usage Patterns**: Are shared enums most commonly used only as input, only as output, or both?
+   - **Workflow Optimization**: If most shared enums are only input or output, it's unwise to choose an approach that requires a lot of ceremony to implement changes. Optimizations in workflow depend on whether we optimize for single-direction or bi-directional enums.
+
+3. **Team Velocity and Coordination**
+
+   - **Independent Evolution**: In enterprises, teams often want to move at different speeds. Some approaches support this better than others.
+   - **Blocking Issues**: With strict equality, a team may be blocked until other subgraphs are updated and deployed, affecting development velocity.
+
+4. **Schema Governance Policies**
+
+   - **Input and Output Separation**: Organizations may enforce policies that no enum is ever used as both input and output (e.g., using `UserStatusInput` and `UserStatus`).
+   - **Impact on Evolution**: This separation can simplify evolution and remove the need for strict equality, as changes in output enums don't affect input enums.
+
+5. **Centralized Type Repository**
+
+   - **Domain-Wide Consistency**: Ensuring domain-wide enum equality can be achieved through a central type repository where all enums are stored.
+   - **Deployment Coordination**: Updating enums requires all subgraphs to redeploy with the updated enums, which can be managed through schema governance.
+
+6. **Balancing Runtime and Composition Errors**
+
+   - **Error Timing**: It's important to alert developers as early as possible to issues, preferably during composition rather than at runtime.
+   - **Schema Evolution**: However, we should not completely block schema evolution during composition. A balance must be struck to allow for progress while maintaining safety.
+
 ## Problem Statement
 
 Merging enums across subgraphs can lead to several issues that affect both the composition of the schema and its runtime behavior. The main problems are:
@@ -66,7 +101,7 @@ Inconsistent enum definitions can cause runtime errors when:
 **Examples:**
 
 - **Input Error**: A client attempts to create an order with `shippingMethod: EXPRESS`, but Subgraph A, which handles order creation, does not recognize `EXPRESS`, leading to a runtime error in the subgraph.
-  
+
   ```graphql
   mutation {
     createOrder(input: { shippingMethod: EXPRESS }) {
@@ -82,7 +117,7 @@ Inconsistent enum definitions can cause runtime errors when:
 
 ### 2. Errors Not Surfacing Early
 
-When the there are no composition-time errors, developers may not be aware of inconsistencies until they manifest as runtime failures in production. Preferably, errors should be caught during schema composition to provide immediate feedback to developers.
+When there are no composition-time errors, developers may not be aware of inconsistencies until they manifest as runtime failures in production. Preferably, errors should be caught during schema composition to provide immediate feedback to developers.
 
 ### 3. Difficulty in Schema Evolution
 
@@ -93,9 +128,9 @@ Exposing a superset or intersection makes evolving the schema challenging:
 
 ## Proposed Solutions
 
-To address these problems, we consider three options for handling enum merging. Each option is analyzed with integrated pros, cons, and examples.
+To address these problems, we consider four options for handling enum merging. Each option is analyzed with integrated pros, cons, and examples.
 
-### Option 1: Strict Equality with Inaccessible Values (Recommended)
+### Option 1: Strict Equality with Inaccessible Values
 
 #### Approach
 
@@ -118,8 +153,8 @@ enum ShippingMethod {
 
 ```graphql
 enum ShippingMethod {
-  STANDARD 
-  ECONOMY 
+  STANDARD
+  ECONOMY
   EXPRESS @inaccessible
   INTERNATIONAL
 }
@@ -141,12 +176,12 @@ enum ShippingMethod {
 - **Prevents Runtime Errors**: By ensuring that only recognized enum values are exposed, runtime errors are minimized.
 - **Composition-Time Validation**: Differences in enum definitions are caught during schema composition.
 - **Explicit Control**: Developers explicitly manage enum exposure, increasing schema clarity, with the hope that they will not return the inaccessible values until they are exposed.
-- **Supports Evolvability**: A new enum value can be added by flagging it as `@inaccessible` in a subgraph which hides it from the gateway schema. The other subgraph can then expose it when ready. The flag can be removed once all subgraphs are updated. 
+- **Supports Evolvability**: A new enum value can be added by flagging it as `@inaccessible` in a subgraph, which hides it from the gateway schema. Other subgraphs can then expose it when ready. The flag can be removed once all subgraphs are updated.
 
 **Cons:**
 
 - **Annotation Overhead**: Requires developers to use `@inaccessible`.
-- **Runtime Errors are still possible**: If a subgraph returns an inaccessible value, it may cause serialization errors.
+- **Runtime Errors Still Possible**: If a subgraph returns an inaccessible value, it may cause serialization errors.
 
 ### Option 2: Contextual Merging Based on Usage
 
@@ -219,7 +254,7 @@ If an enum is only used as an output or input:
 
   ```graphql
   enum CancellationReason {
-    // Intersection is empty; Leads to a composition error
+    // Intersection is empty; leads to a composition error
   }
   ```
 
@@ -236,14 +271,14 @@ While this approach is pretty similar to the strict equality approach when enums
 
 - **Complexity**: Understanding different merging strategies increases complexity.
 - **Limited Evolvability for Enums Used in Both Contexts**: Requires strict equality, which may hinder independent evolution.
-- **Limited Evolvability for Enums changing context**: If an enum transitions from output-only to shared, it requires a change in merging strategy and changes in all subgraphs. 
+- **Limited Evolvability for Enums Changing Context**: If an enum transitions from output-only to shared, it requires a change in merging strategy and changes in all subgraphs.
 
 ### Option 3: Intersection Merging
 
 #### Approach
 
 - **Merge by Intersection**: Combine enums by including only the values common to all subgraphs.
-- **No Annotations**: Unlike the strict equality approach with `@inaccessible`, developers do not use explicit directives to manage enum exposure.
+- **No Annotations**: Developers do not use explicit directives to manage enum exposure.
 - **Uniform Enum Definitions**: Enums used in both input and output types at the gateway contain only the intersecting values.
 
 #### Implementation
@@ -282,10 +317,124 @@ enum ShippingMethod {
 **Pros:**
 
 - **Simplified Composition**: No need for developers to use `@inaccessible`; merging is straightforward based on common values.
-- **Reduced Composition Errors**: Since only common values are included, discrepancies are minimized during schema composition.
+- **Reduced Composition Errors**: Discrepancies are minimized during schema composition.
 
 **Cons:**
 
 - **Developer Unawareness**: Without explicit directives, developers might not realize that certain enum values are omitted from the gateway schema until runtime errors occur.
 - **Runtime Errors Potential**: If a subgraph returns an enum value not present in the gateway's enum, it leads to serialization errors at runtime.
 - **Evolvability Constraints**: Adding new enum values requires coordination across all subgraphs to ensure inclusion in the intersection, hindering independent evolution.
+
+### Option 4: Contextual Merging with Directives
+
+#### Approach
+
+- **Allow Developers to Force Enums to Be Input-Only or Output-Only**: Use directives (e.g., `@input` and `@output`) to specify the intended use of enums.
+- **Merge Based on Usage**: Enums annotated as input-only or output-only are merged accordingly.
+
+#### Implementation
+
+- **For Enums Used Only as Output**
+
+  **Subgraph A**
+
+  ```graphql
+  enum OrderStatus @output {
+    PENDING
+    SHIPPED
+  }
+  ```
+
+  **Subgraph B**
+
+  ```graphql
+  enum OrderStatus @output {
+    DELIVERED
+    RETURNED
+  }
+  ```
+
+  **Gateway**
+
+  ```graphql
+  enum OrderStatus {
+    PENDING
+    SHIPPED
+    DELIVERED
+    RETURNED
+  }
+  ```
+
+- **For Enums Used Only as Input**
+
+  **Subgraph A**
+
+  ```graphql
+  enum CancellationReason @input {
+    OUT_OF_STOCK
+    CUSTOMER_REQUEST
+  }
+  ```
+
+  **Subgraph B**
+
+  ```graphql
+  enum CancellationReason @input {
+    FRAUD_DETECTED
+    PAYMENT_ISSUE
+  }
+  ```
+
+  **Gateway**
+
+  ```graphql
+  enum CancellationReason {
+    // Intersection of input enums; may result in an empty enum or require special handling
+  }
+  ```
+
+- For Enums Used in Both Contexts
+
+  **Subgraph A**
+
+  ```graphql
+  enum ShippingMethod {
+    STANDARD
+    ECONOMY
+    EXPRESS
+  }
+  ```
+
+  **Subgraph B**
+
+  ```graphql
+  enum ShippingMethod {
+    ECONOMY
+    EXPRESS
+    INTERNATIONAL
+  }
+  ```
+
+  **Gateway**
+
+  ```graphql
+  enum ShippingMethod {
+    ECONOMY
+    EXPRESS
+  }
+  ```
+
+#### Pros and Cons
+
+**Pros:**
+
+- **Developer Control**: Developers can explicitly specify how enums should be used, providing greater flexibility.
+- **Optimized Merging**: Enums are merged based on their specific usage, potentially reducing conflicts.
+- **Easier Evolution**: Teams can add new enum values without affecting other teams if the enums are used in a single direction.
+
+**Cons:**
+
+- **Increased Complexity**: Introducing new directives adds complexity to the schema and requires developers to learn and apply them correctly.
+- **Runtime Errors**: If a subgraph returns an enum value not present in the gateway's enum, it leads to serialization errors at runtime.
+- **Still Requires Strict Equality for Shared Enums**: Enums used in both input and output types must still be strictly equal across subgraphs.
+- **Schema Evolution Challenges**: Transitioning an enum from input-only to shared requires changing the directive and updating all subgraphs, which can be cumbersome.
