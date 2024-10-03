@@ -62,7 +62,7 @@ This counter-example demonstrates an invalid usage:
 
 ```graphql counter-example
 extend type Query {
-  usersByRole(role: String!): [User] @lookup
+  usersByIds(ids: [ID!]!): [User!] @lookup
 }
 
 type User {
@@ -71,7 +71,9 @@ type User {
 }
 ```
 
-Here, `usersByRole` returns a list of `User` objects, which violates the requirement that a `@lookup` field must return a single object.
+Here, `usersByIds` returns a list of `User` objects, which violates the requirement that a `@lookup` field must return a single object.
+
+//TODO explain the `@requires`
 
 ### Merge
 
