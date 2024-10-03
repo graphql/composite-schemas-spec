@@ -1,4 +1,4 @@
-# RFC: Handling Merging of Enums in Composite GraphQL Specifications
+# RFC: Handling Merging of Enums
 
 ## Abstract
 
