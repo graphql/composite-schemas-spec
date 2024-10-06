@@ -399,7 +399,7 @@ enum ShippingMethod {
 
   ```graphql
   enum ShippingMethod {
-    STANDARD
+    STANDARD @inaccessible
     ECONOMY
     EXPRESS
   }
@@ -411,7 +411,7 @@ enum ShippingMethod {
   enum ShippingMethod {
     ECONOMY
     EXPRESS
-    INTERNATIONAL
+    INTERNATIONAL @inaccessible
   }
   ```
 
