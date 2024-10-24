@@ -405,6 +405,18 @@ implementations of that interface.
 
 - `fields`: Represents a selection set syntax.
 
+### @key
+
+The `@key` directive designates an object type as an entity and specifies its key fields (a set of fields that the _source schema_ can use to uniquely identify any instance of the entity).
+
+```graphql
+directive @key(fields: FieldSet!) repeatable on OBJECT | INTERFACE
+```
+
+**Arguments:**
+
+- `fields`: Represents a GraphQL selections set syntax that refers to fields of the annotated type that represent a unique key to resolve the same type.
+
 ### @shareable
 
 ```graphql
