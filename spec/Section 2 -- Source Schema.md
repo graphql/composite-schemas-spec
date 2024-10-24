@@ -356,11 +356,50 @@ input ProductDimensionInput {
 directive @key(fields: SelectionSet!) repeatable on OBJECT | INTERFACE
 ```
 
-The `@key` directive defines an entity's unique key, which consists of one or
-more of the type's fields. Each key directive annotated to a type represents a
-single unique key that can be used to resolve the entity by using a lookup
-field. An entity type can have multiple keys, allowing it to be resolved by
-different lookup fields.
+The @key directive is used to designate an entity's unique key, which identifies
+how to uniquely reference an instance of an entity across different source
+schemas. It allows a source schema to indicate which fields form a unique
+identifier, or **key**, for an entity.
+
+```graphql example
+type Product @key(fields: "id") {
+  id: ID!
+  sku: String!
+  name: String!
+  price: Float!
+}
+```
+
+Each occurrence of the @key directive on an object or interface type specifies
+one distinct unique key for that entity, which enables a gateway to perform
+lookups and resolve instances of the entity based on that key.
+
+```graphql example
+type Product @key(fields: "id") @key(fields: "key") {
+  id: ID!
+  sku: String!
+  name: String!
+  price: Float!
+}
+```
+
+While multiple keys define separate ways to reference the same entity based on
+different sets of fields, a composite key allows to uniquely identify an entity
+by using a combination of multiple fields.
+
+```graphql example
+type Product @key(fields: "id sku") {
+  id: ID!
+  sku: String!
+  name: String!
+  price: Float!
+}
+```
+
+The directive is applicable to both OBJECT and INTERFACE types. This allows
+entities that implement an interface to inherit the key(s) defined at the
+interface level, ensuring consistent identification across different
+implementations of that interface.
 
 **Arguments:**
 
@@ -372,9 +411,9 @@ different lookup fields.
 directive @shareable repeatable on OBJECT | FIELD_DEFINITION
 ```
 
-By default, only one source schema is allowed to contribute a particular field
-to an object type. This prevents source schemas from inadvertently defining
-similarly named fields that are semantically not the same.
+By default, only a single source schema is allowed to contribute a particular
+field to an object type. This prevents source schemas from inadvertently
+defining similarly named fields that are semantically not the same.
 
 Fields have to be explicitly marked as `@shareable` to allow multiple source
 schemas to define it, and ensures that the step of allowing a field to be served
