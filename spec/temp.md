@@ -66,16 +66,16 @@ Lookups can also be nested if they can be reached through other lookups.
 
 ```graphql example
 type Query {
-  organization(id: ID!): Ogranization @lookup
+  organization(id: ID!): Organization @lookup
 }
 
-type Ogranization {
+type Organization {
   repository(name: String!): Repository @lookup
 }
 
 type Repository @key(fields: "id organization { id }") {
   name: String!
-  organization: Ogranization
+  organization: Organization
 }
 ```
 
