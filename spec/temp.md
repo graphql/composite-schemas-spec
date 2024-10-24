@@ -91,6 +91,7 @@ interface Node @key(fields: "id") {
   id: ID!
 }
 ```
+
 # Composition
 
 The composition of subgraphs describes the process of merging multiple subgraph
