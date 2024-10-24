@@ -27,6 +27,7 @@ words:
   - tatooine
   - zuck
   - zuckerberg
+  - subselections
 
 ignoreWords:
   - Aremergeable

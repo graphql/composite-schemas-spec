@@ -31,7 +31,7 @@ query {
 }
 ```
 
-Here, it is exptected that the `userId` "123" corresponds directly to `User.id`,
+Here, it is expected that the `userId` "123" corresponds directly to `User.id`,
 resulting in the following response if correctly implemented:
 
 ```json
@@ -339,10 +339,10 @@ Is equivalent to the {Name} defined in the
 
 ### Path
 
-Path :: - < TypeName > . PathSemgent - PathSemgent
+Path :: - < TypeName > . PathSegment - PathSegment
 
-PathSegment :: - FieldName - FieldName . PathSemgent - FieldName < TypeName > .
-PathSemgent
+PathSegment :: - FieldName - FieldName . PathSegment - FieldName < TypeName > .
+PathSegment
 
 FieldName :: - Name
 
