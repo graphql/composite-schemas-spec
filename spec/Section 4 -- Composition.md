@@ -20,7 +20,7 @@ run in sequence to produce the composite execution schema.
 
 OUTPUT_FIELD_TYPES_NOT_MERGEABLE
 
-**Serverity**
+**Severity**
 
 ERROR
 
