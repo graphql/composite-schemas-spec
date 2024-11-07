@@ -18,49 +18,4 @@ run in sequence to produce the composite execution schema.
 
 ### Post Merge Validation
 
-#### Empty Merged Input Object Type
-
-**Error Code**
-
-INPUT_OBJECT_TYPE_EMPTY
-
-**Formal Specification**
-
-- Let {inputs} be the set of all input objects in the merged schema
-- For each {input} in {inputs}:
-  - {IsInputObjectTypeEmpty(input)} must be false
-
-IsInputObjectTypeEmpty(input):
-
-- Let {fields} be a set of all input fields of {input}
-- For each {field} in {fields}:
-  - If {field} is not flagged as `@inaccessible`:
-    - return false
-- return true
-
-**Explanatory Text**
-
-When an input object type is defined in multiple source schemas, fields flagged as `@inaccessible` are not included in the merged input object type. 
-If this process results in an input object type with no fields, the input object type is considered empty and invalid.
-
-In the following example, the merged input object type `Input1` is valid. 
-
-```graphql
-input Input1 {
-  field1: String @inaccessible
-  field2: Int
-}
-```
-
-This counter-example shows an invalid merged input object type. 
-The `Input1` type is defined in two source schemas, but both `field1` and `field2` are flagged as
-`@inaccessible` in at least one of the schemas:
-
-```graphql counter-example
-input Input1 {
-  field1: String @inaccessible
-  field2: Int @inaccessible
-}
-```
-
 ## Validate Satisfiability
