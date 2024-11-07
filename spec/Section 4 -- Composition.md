@@ -22,7 +22,9 @@ run in sequence to produce the composite execution schema.
 
 **Error Code**
 
-`Empty_Merged_Object_Type`
+`EMPTY_MERGED_OBJECT_TYPE`
+
+**Severity** ERROR
 
 **Formal Specification**
 
@@ -32,8 +34,9 @@ run in sequence to produce the composite execution schema.
 
 IsObjectTypeEmpty(type):
 
-- Let {fields} be a set of all fields of all types with coordinate and kind
-  {type} across all source schemas
+- If {type} has `@inaccessible` directive
+- return false
+- Let {fields} be a set of all fields in {type}
 - For each {field} in {fields}:
   - If {IsExposed(field)} is true
     - return false
@@ -59,6 +62,21 @@ type ObjectType1 {
 
 type ObjectType1 {
   field2: Int
+  field3: Boolean
+}
+```
+
+If the `@inaccessible` directive is applied to an object type itself, the entire
+merged object type is excluded from the composite execution schema, and it is
+not required to contain any fields.
+
+```graphql
+type ObjectType1 @inaccessible {
+  field1: String
+  field2: Int
+}
+
+type ObjectType1 {
   field3: Boolean
 }
 ```
