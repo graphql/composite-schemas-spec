@@ -20,6 +20,8 @@ run in sequence to produce the composite execution schema.
 
 LOOKUP_MUST_NOT_RETURN_LIST
 
+**Severity** ERROR
+
 **Formal Specification**
 
 - Let {fields} be the set of all field definitions annotated with `@lookup` in the schema.
