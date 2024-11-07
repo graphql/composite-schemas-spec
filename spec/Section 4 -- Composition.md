@@ -129,17 +129,17 @@ ERROR
 
 - Let {typeNames} be the set of all output type names from all source schemas.
 - For each {typeName} in {typeNames}
-  - Let {types} be the set of all types with the name {typeName} from all source
+  - Let {types} be the set of all types with the {typeName} from all source
     schemas.
   - Let {fieldNames} be the set of all field names from all {types}.
   - For each {fieldName} in {fieldNames}
-    - Let {fields} be the set of all fields with the name {fieldName} from all
+    - Let {fields} be the set of all fields with the {fieldName} from all
       {types}.
     - For each {field} in {fields}
       - Let {argumentNames} be the set of all argument names from all {fields}.
       - For each {argumentName} in {argumentNames}
-        - Let {arguments} be the set of all arguments with the name
-          {argumentName} from all {fields}.
+        - Let {arguments} be the set of all arguments with the {argumentName}
+          from all {fields}.
         - For each pair of {argumentA} and {argumentB} in {arguments}
           - ArgumentsAreMergeable({argumentA}, {argumentB}) must be true.
 
