@@ -23,12 +23,28 @@ financial support for the systems and people that power our community, please
 also consider membership in the
 [GraphQL Foundation](https://foundation.graphql.org/join).
 
+## Running a new build
+
+- Install the latest version of Node and NPM
+- Install the Node dependencies with `npm install`
+- Build a new spec with `npm run build`
+  - This will output the new spec text in `/public` as HTML files
+
 ## Contributing to the spec text
+
+### Auto-Formatting
+
+The specification is formatted using the `prettier` tool, so you should not need
+to think about gaps between paragraphs and titles, nor about word wrapping -
+this is handled for you.
 
 ### Adding spec examples
 
-To keep things consistent in the spec, we should use examples that reference an e-commerce store. We should use types like `Product`, `User`, `Reviews`, etc.
+To keep things consistent in the spec, we should use examples that reference an
+e-commerce store. We should use types like `Product`, `User`, `Reviews`, etc.
 
 ### Adding new sections
 
-Sections in the spec document are nested under top level sections, then topic sections, then specific sections. We should aim to limit to 3 nested levels and consider flattening once we reach 4 levels.
+Sections in the spec document are nested under top level sections, then topic
+sections, then specific sections. We should aim to limit to 3 nested levels and
+consider flattening once we reach 4 levels.

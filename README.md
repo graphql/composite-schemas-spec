@@ -18,26 +18,16 @@ specification as well.
 
 ### Contributing to this repo
 
-This repository is managed by EasyCLA. Project participants must sign the free
-([GraphQL Specification Membership agreement](https://preview-spec-membership.graphql.org)
-before making a contribution. You only need to do this one time, and it can be
-signed by
-[individual contributors](https://individual-spec-membership.graphql.org) or
-their [employers](https://corporate-spec-membership.graphql.org).
+See more in [CONTRIBUTING.md](CONTRIBUTING.md) about contributing spec changes.
+If you want to start a general discussion or concern, please
+[open an issue](https://github.com/graphql/composite-schemas-spec/issues).
 
-To initiate the signature process please open a PR against this repo. The
-EasyCLA bot will block the merge if we still need a membership agreement from
-you.
+If you would like to attend a meeting to discuss the spec or an issue, see the
+separate
+[Composite Schemas Working Group repository](https://github.com/graphql/composite-schemas-wg).
 
-You can find
-[detailed information here](https://github.com/graphql/graphql-wg/tree/main/membership).
-If you have issues, please email
-[operations@graphql.org](mailto:operations@graphql.org).
-
-If your company benefits from GraphQL and you would like to provide essential
-financial support for the systems and people that power our community, please
-also consider membership in the
-[GraphQL Foundation](https://foundation.graphql.org/join).
+- **Watch the replay of previous meetings:**
+  [Composite Schemas Working Group Meetings on YouTube](https://www.youtube.com/playlist?list=PLP1igyLx8foFjxyTg6wPn4pUkZwuAk2GR)
 
 ---
 
