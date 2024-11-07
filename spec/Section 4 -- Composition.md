@@ -18,7 +18,7 @@ run in sequence to produce the composite execution schema.
 
 ### Post Merge Validation
 
-#### Non-Null Input Fields cannot be inaccessible 
+#### Non-Null Input Fields cannot be inaccessible
 
 **Error Code**
 
@@ -33,8 +33,9 @@ NON_NULL_INPUT_FIELD_IS_INACCESSIBLE
 
 **Explanatory Text**
 
-In a composed schema, a non-null input field must not be inaccessible. 
-Otherwise, the field would be required to have a value, but the user would not be able to provide one.
+In a composed schema, a non-null input field must always be accessible. If it is
+not, the field would require a value, yet the user would be unable to supply
+one.
 
 A valid case where a public input field references another public input type:
 
@@ -53,7 +54,7 @@ Another valid case is where the field is not exposed in the composed schema:
 
 ```graphql example
 input Input1 {
-  field1: String! 
+  field1: String!
   field2: Input2 @inaccessible
 }
 
@@ -85,13 +86,15 @@ INPUT_FIELD_REFERENCES_INACCESSIBLE_TYPE
 
 - Let {fields} be the set of all fields of the input types
 - For each {field} in {fields}:
-  - Let {namedType} be the named type that {field} references
-  - {namedType} must not be declared as `@inaccessible`
+  - If {field} is not declared as `@inaccessible`
+    - Let {namedType} be the named type that {field} references
+    - {namedType} must not be declared as `@inaccessible`
 
 **Explanatory Text**
 
-In a composed schema, a field within an input type must only reference types that are exposed. 
-This requirement guarantees that public types do not reference inaccessible structures which are intended for internal use.
+In a composed schema, a field within an input type must only reference types
+that are exposed. This requirement guarantees that public types do not reference
+inaccessible structures which are intended for internal use.
 
 A valid case where a public input field references another public input type:
 
@@ -110,7 +113,7 @@ Another valid case is where the field is not exposed in the composed schema:
 
 ```graphql example
 input Input1 {
-  field1: String! 
+  field1: String!
   field2: Input2 @inaccessible
 }
 
