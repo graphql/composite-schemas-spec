@@ -38,7 +38,7 @@ EnumsAreMergeable(enums):
 **Explanatory Text**
 
 This rule ensures that enum types with the same name across different source schemas in a composite schema have identical sets of values. 
-Enums, must be consistent across source schemas to avoid conflicts and ambiguities in the composite schema.
+Enums must be consistent across source schemas to avoid conflicts and ambiguities in the composite schema.
 
 When an enum is defined with differing values, it can lead to confusion and errors in query execution. 
 For instance, a value valid in one schema might be passed to another where it's unrecognized, leading to unexpected behavior or failures. 
