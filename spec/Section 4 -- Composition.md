@@ -24,6 +24,9 @@ run in sequence to produce the composite execution schema.
 
 `Empty_Merged_Object_Type`
 
+**Severity**
+ERROR
+
 **Formal Specification**
 
 - Let {types} be the set of all object types across all source schemas
@@ -32,6 +35,8 @@ run in sequence to produce the composite execution schema.
 
 IsObjectTypeEmpty(type):
 
+_ If {type} has `@inaccessible` directive
+  - return false
 - Let {fields} be a set of all fields of all types with coordinate and kind
   {type} across all source schemas
 - For each {field} in {fields}:
@@ -41,11 +46,9 @@ IsObjectTypeEmpty(type):
 
 **Explanatory Text**
 
-For object types defined across multiple source schemas, the merged object type
-is the superset of all fields defined in these source schemas. However, any
-field marked with `@inaccessible` in any source schema is hidden and not
-included in the merged object type. An object type with no fields, after
-considering `@inaccessible` annotations, is considered empty and invalid.
+For object types defined across multiple source schemas, the merged object type is the superset of all fields defined in these source schemas. 
+However, any field marked with `@inaccessible` in any source schema is hidden and not included in the merged object type. 
+An object type with no fields, after considering `@inaccessible` annotations, is considered empty and invalid.
 
 In the following example, the merged object type `ObjectType1` is valid. It
 includes all fields from both source schemas, with `field2` being hidden due to
@@ -63,10 +66,22 @@ type ObjectType1 {
 }
 ```
 
-This counter-example demonstrates an invalid merged object type. In this case,
-`ObjectType1` is defined in two source schemas, but all fields are marked as
-`@inaccessible` in at least one of the source schemas, resulting in an empty
-merged object type:
+If the `@inaccessible` directive is applied to an object type itself, the entire merged object type is excluded from the composite execution schema, and it is not required to contain any fields.
+
+```graphql
+type ObjectType1 @inaccessible {
+  field1: String
+  field2: Int
+}
+
+type ObjectType1 {
+  field3: Boolean
+}
+```
+
+
+This counter-example demonstrates an invalid merged object type.
+In this case, `ObjectType1` is defined in two source schemas, but all fields are marked as `@inaccessible` in at least one of the source schemas, resulting in an empty merged object type:
 
 ```graphql counter-example
 type ObjectType1 {
