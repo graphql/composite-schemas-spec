@@ -90,3 +90,5 @@ Note: This is an example of a non-normative note.
 # [Execution](Section%205%20--%20Execution.md)
 
 # [Shared Types](Section%206%20--%20Shared%20Types.md)
+
+# [Appendix A -- Field Selection](Appendix%20A%20--%20Field%20Selection.md)
