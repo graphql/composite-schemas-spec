@@ -23,6 +23,12 @@ financial support for the systems and people that power our community, please
 also consider membership in the
 [GraphQL Foundation](https://foundation.graphql.org/join).
 
-## Adding spec examples
+## Contributing to the spec text
+
+### Adding spec examples
 
 To keep things consistent in the spec, we should use examples that reference an e-commerce store. We should use types like `Product`, `User`, `Reviews`, etc.
+
+### Adding new sections
+
+Sections in the spec document are nested under top level sections, then topic sections, then specific sections. We should aim to limit to 3 nested levels and consider flattening once we reach 4 levels.
