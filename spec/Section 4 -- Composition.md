@@ -49,9 +49,8 @@ For object types defined across multiple source schemas, the merged object type 
 However, any field marked with `@inaccessible` in any source schema is hidden and not included in the merged object type. 
 An object type with no fields, after considering `@inaccessible` annotations, is considered empty and invalid.
 
-In the following example, the merged object type `ObjectType1` is valid. It
-includes all fields from both source schemas, with `field2` being hidden due to
-the `@inaccessible` directive in one of the source schemas:
+In the following example, the merged object type `ObjectType1` is valid. 
+It includes all fields from both source schemas, with `field2` being hidden due to the `@inaccessible` directive in one of the source schemas:
 
 ```graphql
 type ObjectType1 {
@@ -77,7 +76,6 @@ type ObjectType1 {
   field3: Boolean
 }
 ```
-
 
 This counter-example demonstrates an invalid merged object type.
 In this case, `ObjectType1` is defined in two source schemas, but all fields are marked as `@inaccessible` in at least one of the source schemas, resulting in an empty merged object type:
