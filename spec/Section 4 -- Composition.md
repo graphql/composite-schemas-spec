@@ -14,59 +14,79 @@ run in sequence to produce the composite execution schema.
 
 ### Pre Merge Validation
 
-#### Input With Different Fields
+#### **Input With Missing Required Fields**
 
-**Error Code**
+**Error Code:** 
 
-INPUT_OBJECT_FIELDS_DIFFER
+REQUIRED_INPUT_FIELD_MISSING_IN_SOME_SUBGRAPH
 
-**Formal Specification**
+**Severity:** 
 
-- Let {inputsByName} be a map where the key is the name of an input object type, and the value is a list of all input object types from different source schemas with that name.
-- For each {listOfInputs} in {inputsByName}:
-  - {InputFieldsAreMergeable(listOfInputs)} must be true.
+ERROR
 
-InputFieldsAreMergeable(inputs):
+**Formal Specification:**
 
-- Let {fields} be the set of all field names of the first input object in {inputs}.
-- For each {input} in {inputs}:
-  - Let {inputFields} be the set of all field names of {input}.
-  - {fields} must be equal to {inputFields}.
+- Let {typeNames} be the set of all input object types from all source schemas that are not declared as `@inaccessible`.
+- For each {typeName} in {typeNames}:
+  - Let `{types}` be the list of all input object types from different source schemas with the name {typeName}.
+  - `{AreTypesConsistent(types)}` must be true.
+
+**Function Definition:**
+
+`AreTypesConsistent(inputs):`
+
+- Let `{requiredFields}` be the intersection of all required field names across all input objects in `{inputs}`.
+- For each `{input}` in `{inputs}`:
+  - Let `{inputFields}` be the set of all field names in of required fields in `{input}`.
+  - `{inputFields}` must equal `{requiredFields}`.
 
 **Explanatory Text**
 
-This rule ensures that input object types with the same name across different source schemas have identical sets of field names. 
-Consistency in input object fields across source schemas is required to avoid conflicts and ambiguities in the composed schema.
-This rule only checks that the field names are the same, not that the field types are the same. 
-Field types are checked by the [Input Field Types mergeable](#sec-Input-Field-Types-mergeable) rule.
+Input types are merged by intersection, meaning that the merged input type will have all fields that are present in all input types with the same name.
+This rule ensures that input object types with the same name across different subgraphs share a consistent set of required fields. 
 
-When an input object is defined with differing fields across source schemas, it can lead to issues in query execution. 
-A field expected in one source schema might be absent in another, leading to undefined behavior.
-This rule prevents such inconsistencies by enforcing that all instances of the same named input object across source schemas have a matching set of field names.
+When an input object is defined across multiple subgraphs, this rule ensures that any required field present in one subgraph is present in all others defining the input object. 
+This allows for reliable usage of input objects in queries across subgraphs.
 
-In this example, both source schemas define `Input1` with the same field `field1`, satisfying the rule:
+### Examples
 
-```graphql example
+**Valid Example:**
+
+If all subgraphs define `Input1` with the required field `field1`, the rule is satisfied:
+
+```graphql
+# Subgraph 1
 input Input1 {
-  field1: String
-}
-
-input Input1 {
-  field1: String
-}
-```
-
-Here, the two definitions of `Input1` have different fields (`field1` and `field2`), violating the rule:
-
-```graphql counter-example
-input Input1 {
-  field1: String
-}
-
-input Input1 {
+  field1: String!
   field2: String
 }
+
+# Subgraph 2
+input Input1 {
+  field1: String!
+  field3: Int
+}
 ```
+
+**Invalid Example:**
+
+If `field1` is required in one subgraph but missing in another, this violates the rule:
+
+```graphql
+# Subgraph 1
+input Input1 {
+  field1: String!
+  field2: String
+}
+
+# Subgraph 2
+input Input1 {
+  field2: String
+  field3: Int
+}
+```
+
+In this invalid case, `field1` is mandatory in `Subgraph 1` but not defined in `Subgraph 2`, causing inconsistency in required fields across subgraphs.
 
 ### Merge
 
