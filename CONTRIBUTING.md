@@ -3,7 +3,7 @@
 ## Contributing to this repo
 
 This repository is managed by EasyCLA. Project participants must sign the free
-([GraphQL Specification Membership agreement](https://preview-spec-membership.graphql.org)
+[GraphQL Specification Membership agreement](https://preview-spec-membership.graphql.org)
 before making a contribution. You only need to do this one time, and it can be
 signed by
 [individual contributors](https://individual-spec-membership.graphql.org) or
@@ -24,4 +24,5 @@ also consider membership in the
 [GraphQL Foundation](https://foundation.graphql.org/join).
 
 ## Adding spec examples
+
 To keep things consistent in the spec, we should use examples that reference an e-commerce store. We should use types like `Product`, `User`, `Reviews`, etc.
