@@ -14,6 +14,98 @@ run in sequence to produce the composite execution schema.
 
 ### Pre Merge Validation
 
+#### Empty Merged Input Object Type
+
+**Error Code**
+
+`EMPTY_MERGED_INPUT_OBJECT_TYPE`
+
+**Severity** ERROR
+
+**Formal Specification**
+
+- Let {inputTypes} be the set of all input object types across all source
+  schemas
+- For each {inputType} in {inputTypes}:
+  - {IsInputObjectTypeEmpty(inputType)} must be false.
+
+**IsInputObjectTypeEmpty(inputType):**
+
+1. If {inputType} has the `@inaccessible` directive
+   - return false
+2. Let {fields} be a set of all fields in {inputType}
+3. For each {field} in {fields}:
+   - If {IsExposed(field)} is true
+     - return false
+4. return true
+
+**Explanatory Text**
+
+For input object types defined across multiple source schemas, the merged input
+object type is the intersection of all fields defined in these source schemas.
+Any field marked with the `@inaccessible` directive in any source schema is
+hidden and not included in the merged input object type. An input object type
+with no fields, after considering `@inaccessible` annotations, is considered
+empty and invalid.
+
+In the following example, the merged input object type `InputObjectType1` is
+valid.
+
+```graphql
+input InputObjectType1 {
+  inputField1: String
+}
+
+input InputObjectType1 {
+  inputField1: String
+}
+```
+
+If the `@inaccessible` directive is applied to an input object type itself, the
+entire merged input object type is excluded from the composite execution schema,
+and it is not required to contain any fields.
+
+```graphql
+input InputObjectType1 @inaccessible {
+  inputField1: String
+  inputField2: Int
+}
+
+input InputObjectType1 {
+  inputField3: Boolean
+}
+```
+
+This counter-example demonstrates an invalid merged input object type. In this
+case, `InputObjectType1` is defined in two source schemas, but all fields are
+marked as `@inaccessible` in at least one of the source schemas, resulting in an
+empty merged input object type:
+
+```graphql counter-example
+input InputObjectType1 {
+  inputField1: String @inaccessible
+  inputField2: Boolean
+}
+
+input InputObjectType1 {
+  inputField1: String
+  inputField2: Boolean @inaccessible
+}
+```
+
+Here is another counter-example where the merged input object type is empty
+because no fields intersect between the two source schemas:
+
+```graphql counter-example
+input InputObjectType1 {
+  inputField2: Boolean
+}
+
+input InputObjectType1 {
+  inputField1: String
+}
+```
+
 #### Output Field Types Mergeable
 
 **Error Code**
