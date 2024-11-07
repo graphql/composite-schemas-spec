@@ -28,7 +28,7 @@ ERROR
 
 - Let {typeNames} be the set of all output type names from all source schemas.
 - For each {typeName} in {typeNames}
-  - Let {types} be the set of all types with the name {typeName} from all source
+  - Let {types} be the set of all types with the {typeName} from all source
     schemas.
   - Let {fieldNames} be the set of all field names from all {types}.
   - For each {fieldName} in {fieldNames}
