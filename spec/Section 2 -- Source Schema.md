@@ -211,6 +211,86 @@ resolve entities and which source schemas merely contribute data to entities.
 Further, using `@internal` allows hiding "technical" lookup fields that are not
 meant for the client-facing composite schema.
 
+### @inaccessible
+
+```graphql
+directive @inaccessible on OBJECT | FIELD_DEFINITION
+```
+
+The `@inaccessible` directive is used to prevent specific objects or fields from
+being accessible through the composite schema, even if they are accessible in
+the underlying source schemas.
+
+This directive is particularly useful for restricting access to fields or
+objects that are either irrelevant to the client-facing API or sensitive in
+nature, such as internal identifiers or fields intended only for backend use.
+
+```graphql example
+type Product @key(fields: "id") @key(fields: "sku") {
+  id: ID!
+  sku: String! @inaccessible
+  internalNote: String
+}
+
+type Query {
+  productById(id: ID!): Product
+  productBySku(sku: String!): Product @inaccessible
+}
+```
+
+The above example declares the key field `sku` to be inaccessible through from
+the composite schema. However, type system members marked as inaccessible can
+still be used within the composite execution schema to fulfill requirements or
+lookups.
+
+In contrast to the `@internal` directive the `@inaccessible` directive hides a
+type member from composite schema even if other source schemas on the same type
+system member have no `@inaccessible` directive.
+
+```graphql example
+# Source Schema A
+type Product @key(fields: "id") @key(fields: "sku") {
+  id: ID!
+  sku: String! @inaccessible
+  internalNote: String
+}
+
+# Source Schema B
+type Product @key(fields: "sku") {
+  sku: String!
+  price: Float!
+}
+
+# Composite Schema
+
+type Product {
+  id: ID!
+  internalNote: String
+  price: Float!
+}
+```
+
+The above example removes the field `internalProductById` and the type `Product`
+from the the composite schema. However, type system members marked as
+inaccessible can still be used within the composite execution schema to fulfill
+requirements.
+
+Unlike @internal, which restricts lookup fields to backend use, @inaccessible
+completely excludes the marked elements from the composite schema.
+
+```graphql example
+type Product @inaccessible {
+  id: ID!
+  sku: String!
+  internalNote: String
+}
+
+type Query {
+  publicProductById(id: ID!): Product
+  internalProductById(id: ID!): Product @inaccessible
+}
+```
+
 ### @is
 
 ```graphql
