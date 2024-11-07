@@ -22,7 +22,7 @@ run in sequence to produce the composite execution schema.
 
 **Error Code**
 
-`Empty_Merged_Object_Type`
+`EMPTY_MERGED_OBJECT_TYPE`
 
 **Severity**
 ERROR
