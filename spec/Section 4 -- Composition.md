@@ -20,11 +20,21 @@ run in sequence to produce the composite execution schema.
 
 OUTPUT_FIELD_TYPES_NOT_MERGEABLE
 
+**Serverity**
+
+ERROR
+
 **Formal Specification**
 
-- Let {fieldsByName} be a map of field lists where the key is the name of a field and the value is a list of fields from mergeable types from different source schemas with the same name.
-- For each {fields} in {fieldsByName}
-  - {FieldsAreMergeable(fields)} must be true.
+- Let {typeNames} be the set of all output type names from all source schemas.
+- For each {typeName} in {typeNames}
+  - Let {types} be the set of all types with the name {typeName} from all source
+    schemas.
+  - Let {fieldNames} be the set of all field names from all {types}.
+  - For each {fieldName} in {fieldNames}
+    - Let {fields} be the set of all fields with the name {fieldName} from all
+      {types}.
+    - {FieldsAreMergeable(fields)} must be true.
 
 FieldsAreMergeable(fields):
 
@@ -35,7 +45,8 @@ FieldsAreMergeable(fields):
 
 **Explanatory Text**
 
-Fields on mergeable objects or interfaces that have the same name are considered semantically equivalent and mergeable when they have a mergeable field type.
+Fields on objects or interfaces that have the same name are considered
+semantically equivalent and mergeable when they have a mergeable field type.
 
 Fields with the same type are mergeable.
 
@@ -49,7 +60,8 @@ type User {
 }
 ```
 
-Fields with different nullability are mergeable, resulting in a merged field with a nullable type.
+Fields with different nullability are mergeable, resulting in a merged field
+with a nullable type.
 
 ```graphql example
 type User {
