@@ -20,7 +20,9 @@ run in sequence to produce the composite execution schema.
 
 `EMPTY_MERGED_INPUT_OBJECT_TYPE`
 
-**Severity** ERROR
+**Severity** 
+
+ERROR
 
 **Formal Specification**
 
