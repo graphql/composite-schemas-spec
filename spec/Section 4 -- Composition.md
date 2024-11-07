@@ -22,16 +22,18 @@ ENUM_VALUES_MUST_BE_THE_SAME_ACROSS_SCHEMAS
 
 **Formal Specification**
 
-- Let {enumsByName} be a map where the key is the name of an enum type, and the value is a list of all enum types from different source schemas with that name.
-- For each {listOfEnums} in {enumsByName}:
-  - {EnumsAreMergeable(listOfEnums)} must be true.
+- Let {enumNames} be the set of all enum type names across all source schemas.
+- For each {enumName} in {enumNames}:
+  - Let {enums} be the list of all enum types from different source schemas with the name {enumName}.
+  - {EnumsAreMergeable(enums)} must be true.
 
 EnumsAreMergeable(enums):
 
-- Let {values} be the set of all values of the first enum in {enums}
+- Let {inaccessibleValues} be the set of values that are declared as `@inaccessible` in {enums}.
+- Let {requriedValues} be the set of values in {enums} that are not in {inaccessibleValues}.
 - For each {enum} in {enums}
-  - Let {enumValues} be the set of all values of {enum}
-  - {values} must be equal to {enumValues}
+  - Let {enumValues} be the set of all values of {enum} that are not in {inaccessibleValues}.
+  - {requriedValues} must be equal to {enumValues}
 
 **Explanatory Text**
 
@@ -65,6 +67,19 @@ enum Enum1 {
   Baz
 }
 ```
+
+Here, the two definitions of `Enum1` have shared values and additional values declared as `@inaccessible`, satisfying the rule:
+
+```graphql example
+enum Enum1 {
+  BAR
+  BAZ @inaccessible
+}
+
+enum Enum1 {
+  BAR
+}
+``` 
 
 ### Merge
 
