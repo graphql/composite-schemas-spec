@@ -34,20 +34,19 @@ ERROR
   - For each {fieldName} in {fieldNames}
     - Let {fields} be the set of all fields with the name {fieldName} from all
       {types}.
-    - {FieldsAreMergeable(fields)} must be true.
+    - For each {field} in {fields}
+      - Let {argumentNames} be the set of all argument names from all {fields}.
+      - For each {argumentName} in {argumentNames}
+        - Let {arguments} be the set of all arguments with the name
+          {argumentName} from all {fields}.
+        - For each pair of {argumentA} and {argumentB} in {arguments}
+          - ArgumentsAreMergeable({argumentA}, {argumentB}) must be true.
 
-FieldsAreMergeable(fields):
+ArgumentsAreMergeable(argumentA, argumentB):
 
-- Given each pair of members {fieldA} and {fieldB} in {fields}:
-  - {ArgumentsAreMergeable(fieldA, fieldB)} must be true.
-
-ArgumentsAreMergeable(fieldA, fieldB):
-
-- Given each pair of arguments {argumentA} and {argumentB} in {fieldA} and
-  {fieldB}:
-  - Let {typeA} be the type of {argumentA}
-  - Let {typeB} be the type of {argumentB}
-  - {SameInputTypeShape(typeA, typeB)} must be true.
+- Let {typeA} be the type of {argumentA}
+- Let {typeB} be the type of {argumentB}
+- {SameInputTypeShape(typeA, typeB)} must be true.
 
 **Explanatory Text**
 
