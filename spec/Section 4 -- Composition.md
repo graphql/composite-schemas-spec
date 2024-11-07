@@ -37,8 +37,7 @@ IsObjectTypeEmpty(type):
 
 _ If {type} has `@inaccessible` directive
   - return false
-- Let {fields} be a set of all fields of all types with coordinate and kind
-  {type} across all source schemas
+- Let {fields} be a set of all fields in {type} 
 - For each {field} in {fields}:
   - If {IsExposed(field)} is true
     - return false
