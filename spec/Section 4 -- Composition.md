@@ -30,7 +30,7 @@ ENUM_VALUES_MUST_BE_THE_SAME_ACROSS_SCHEMAS
 EnumsAreMergeable(enums):
 
 - Let {inaccessibleValues} be the set of values that are declared as `@inaccessible` in {enums}.
-- Let {requriedValues} be the set of values in {enums} that are not in {inaccessibleValues}.
+- Let {requiredValues} be the set of values in {enums} that are not in {inaccessibleValues}.
 - For each {enum} in {enums}
   - Let {enumValues} be the set of all values of {enum} that are not in {inaccessibleValues}.
   - {requiredValues} must be equal to {enumValues}
