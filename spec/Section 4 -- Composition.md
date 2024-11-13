@@ -33,7 +33,7 @@ EnumsAreMergeable(enums):
 - Let {requriedValues} be the set of values in {enums} that are not in {inaccessibleValues}.
 - For each {enum} in {enums}
   - Let {enumValues} be the set of all values of {enum} that are not in {inaccessibleValues}.
-  - {requriedValues} must be equal to {enumValues}
+  - {requiredValues} must be equal to {enumValues}
 
 **Explanatory Text**
 
