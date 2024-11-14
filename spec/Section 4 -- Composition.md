@@ -37,7 +37,7 @@ ValidateArgumentDefaultValues():
 
 ValidateInputFieldDefaultValues():
 
-- Let {inputFields} be all input fields of across all subgraphs
+- Let {inputFields} be all input fields across all source schemas
 - For each {inputField} in {inputFields}:
   - Let {type} be the type of {inputField}
   - If {IsExposed(inputField)} is true and {inputField} has a default value:
