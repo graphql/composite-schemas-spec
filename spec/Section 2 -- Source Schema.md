@@ -238,7 +238,7 @@ type Query {
 }
 ```
 
-The above example declares the key field `sku` to be inaccessible through from
+The above example declares the key field `sku` to be inaccessible from
 the composite schema. However, type system members marked as inaccessible can
 still be used within the composite execution schema to fulfill requirements or
 lookups.
