@@ -31,7 +31,7 @@ ValidateArgumentDefaultValues():
 - For each {argument} in {arguments}
   - If {IsExposed(argument)} is true and has a default value:
     - Let {defaultValue} be the default value of {argument}
-    - If not ValidateDefaultValue(defaultValue)
+    - If not {ValidateDefaultValue(defaultValue)}
       - return false
 - return true
 
