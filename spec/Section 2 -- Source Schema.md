@@ -262,7 +262,6 @@ type Product @key(fields: "sku") {
 }
 
 # Composite Schema
-
 type Product {
   id: ID!
   internalNote: String
