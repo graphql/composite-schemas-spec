@@ -42,7 +42,7 @@ ValidateInputFieldDefaultValues():
   - Let {type} be the type of {inputField}
   - If {IsExposed(inputField)} is true and {inputField} has a default value:
     - Let {defaultValue} be the default value of {inputField}
-    - if ValidateDefaultValue(defaultValue) is false
+    - If {ValidateDefaultValue(defaultValue)} is false
       - return false
 - return true
 
