@@ -27,7 +27,8 @@ run in sequence to produce the composite execution schema.
 
 ValidateArgumentDefaultValues():
 
-- Let {arguments} be all arguments of fields and directives across all source schemas
+- Let {arguments} be all arguments of fields and directives across all source
+  schemas
 - For each {argument} in {arguments}
   - If {IsExposed(argument)} is true and has a default value:
     - Let {defaultValue} be the default value of {argument}
@@ -68,8 +69,10 @@ ValidateDefaultValue(defaultValue):
 
 **Explanatory Text**
 
-This rule ensures that inaccessible enum values are not exposed in the composed schema through default values.
-Output field arguments, input fields, and directive arguments must only use enum values as their default value when not annotated with the `@inaccessible` directive.
+This rule ensures that inaccessible enum values are not exposed in the composed
+schema through default values. Output field arguments, input fields, and
+directive arguments must only use enum values as their default value when not
+annotated with the `@inaccessible` directive.
 
 In this example the `FOO` value in the `Enum1` enum is not marked with
 `@inaccessible`, hence it does not violate the rule.
