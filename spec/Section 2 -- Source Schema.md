@@ -244,7 +244,7 @@ still be used within the composite execution schema to fulfill requirements or
 lookups.
 
 In contrast to the `@internal` directive the `@inaccessible` directive hides a
-type member from composite schema even if other source schemas on the same type
+type member from the composite schema even if other source schemas on the same type
 system member have no `@inaccessible` directive.
 
 ```graphql example
