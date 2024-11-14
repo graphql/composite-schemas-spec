@@ -27,7 +27,7 @@ run in sequence to produce the composite execution schema.
 
 ValidateArgumentDefaultValues():
 
-- Let {arguments} be all arguments of fields and directives across all subgraphs
+- Let {arguments} be all arguments of fields and directives across all source schemas
 - For each {argument} in {arguments}
   - If {IsExposed(argument)} is true and has a default value:
     - Let {defaultValue} be the default value of {argument}
