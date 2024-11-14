@@ -115,6 +115,504 @@ type User {
 scalar Tag
 ```
 
+#### Disallowed Inaccessible Elements
+
+**Error Code**
+
+`DISALLOWED_INACCESSIBLE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {type} be the set of all types from all source schemas.
+- For each {type} in {types}:
+  - If {type} is a built-in scalar type or introspection type:
+    - {IsAccessible(type)} must be true.
+    - For each {field} in {type}:
+      - {IsAccessible(field)} must be true.
+      - For each {argument} in {field}:
+        - {IsAccessible(argument)} must be true.
+- For each {directive} in {directives}:
+  - If {directive} is a built-in directive:
+    - {IsAccessible(directive)} must be true.
+    - For each {argument} in {directive}:
+      - {IsAccessible(argument)} must be true.
+
+**Explanatory Text**
+
+This rule ensures that certain essential elements of a GraphQL schema,
+particularly built-in scalars, directives and introspection types, cannot be
+marked as `@inaccessible`. These types are fundamental to GraphQL's. Making
+these elements inaccessible would break core GraphQL functionalities.
+
+Here, the `String` type is not marked as `@inaccessible`, which adheres to the
+rule:
+
+```graphql example
+type Product {
+  price: Float
+  name: String
+}
+```
+
+In this example, the `String` scalar is marked as `@inaccessible`. This violates
+the rule because `String` is a required built-in type that cannot be
+inaccessible:
+
+```graphql counter-example
+scalar String @inaccessible
+
+type Product {
+  price: Float
+  name: String
+}
+```
+
+In this example, the introspection type `__Type` is marked as `@inaccessible`.
+This violates the rule because introspection types must remain accessible for
+GraphQL introspection queries to work.
+
+```graphql counter-example
+type __Type @inaccessible {
+  kind: __TypeKind!
+  name: String
+  fields(includeDeprecated: Boolean = false): [__Field!]
+}
+```
+
+#### External Argument Default Mismatch
+
+**Error Code**
+
+`EXTERNAL_ARGUMENT_DEFAULT_MISMATCH`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {typeNames} be the set of all output type names from all source schemas.
+- For each {typeName} in {typeNames}
+  - Let {types} be the set of all types with the name {typeName} from all source
+    schemas.
+  - Let {fieldNames} be the set of all field names from all types in {types}.
+  - For each {fieldName} in {fieldNames}
+    - Let {fields} be the set of all fields with the name {fieldName} from all
+      types in {types}.
+    - Let {externalFields} be the set of all fields in {fields} that are marked
+      with `@external`.
+    - If {externalFields} is not empty
+      - Let {argumentNames} be the set of all argument names from all fields in
+        {fields}.
+      - For each {argumentName} in {argumentNames}
+        - Let {arguments} be the set of all arguments with the name
+          {argumentName} from all fields in {fields}.
+        - Let {defaultValue} be the first default value found in {arguments}.
+        - Let {externalArguments} be the set of all arguments with the name
+          {argumentName} from all fields in {externalFields}.
+        - For each {externalArgument} in {externalArguments}
+          - The default value of {externalArgument} must be equal to
+            {defaultValue}.
+
+**Explanatory Text**
+
+This rule ensures that arguments on fields marked as `@external` have default
+values compatible with the corresponding arguments on fields from other source
+schemas where the field is defined (non-`@external`). Since `@external` fields
+represent fields that are resolved by other source schemas, their arguments and
+defaults must match to maintain consistent behavior across different source
+schemas.
+
+Here, the `name` field on `Product` is defined in one source schema and marked
+as `@external` in another. The argument `language` has the same default value in
+both source schemas, satisfying the rule:
+
+```graphql example
+# Subgraph A
+type Product {
+  name(language: String = "en"): String
+}
+
+# Subgraph B
+type Product {
+  name(language: String = "en") @external: String
+}
+```
+
+Here, the `name` field on `Product` is defined in one source schema and marked
+as `@external` in another. The argument `language` has different default values
+in the two source schemas, violating the rule:
+
+```graphql counter-example
+# Subgraph A
+type Product {
+  name(language: String = "en"): String
+}
+
+# Subgraph B
+type Product {
+  name(language: String = "de") @external: String
+}
+```
+
+In the following counter example, the `name` field on `Product` is defined in
+one source schema and marked as `@external` in another. The argument `language`
+has a default value in the source schema where the field is defined, but it does
+not have a default value in the source schema where the field is marked as
+`@external`, violating the rule:
+
+```graphql counter-example
+# Subgraph A
+type Product {
+  name(language: String = "en"): String
+}
+
+# Subgraph B
+type Product {
+  name(language: String): String @external
+}
+```
+
+#### External Argument Missing
+
+**Error Code**
+
+`EXTERNAL_ARGUMENT_MISSING`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {typeNames} be the set of all output type names from all source schemas.
+- For each {typeName} in {typeNames}
+  - Let {types} be the set of all types with the name {typeName} from all source
+    schemas.
+  - Let {fieldNames} be the set of all field names from all types in {types}.
+  - For each {fieldName} in {fieldNames}
+    - Let {fields} be the set of all fields with the name {fieldName} from all
+      types in {types}.
+    - Let {externalFields} be the set of all fields in {fields} that are marked
+      with `@external`.
+    - Let {nonExternalFields} be the set of all fields in {fields} that are not
+      marked with `@external`.
+    - If {externalFields} is not empty
+      - Let {argumentNames} be the set of all argument names from all fields in
+        {nonExternalFields}
+      - For each {argumentName} in {argumentNames}:
+        - For each {externalField} in {externalFields}
+          - {argumentName} must be present in the arguments of {externalField}.
+
+**Explanatory Text**
+
+This rule ensures that fields marked with `@external` have all the necessary
+arguments that exist on the corresponding field definitions in other source
+schemas. Each argument defined on the base field (the field definition in the
+source source schema) must be present on the `@external` field in other source
+schemas. If an argument is missing on an `@external` field, the field cannot be
+resolved correctly, which is an inconsistency.
+
+In this example, the `language` argument is present on both the `@external`
+field in source schema B and the base field in source schema A, satisfying the
+rule:
+
+```graphql example
+# Subgraph A
+type Product {
+  name(language: String): String
+}
+
+# Subgraph B
+type Product {
+  name(language: String): String @external
+}
+```
+
+Here, the `@external` field in source schema B is missing the `language`
+argument that is present in the base field definition in source schema A,
+violating the rule:
+
+```graphql counter-example
+# Subgraph A
+type Product {
+  name(language: String): String
+}
+
+# Subgraph B
+type Product {
+  name: String @external
+}
+```
+
+#### External Argument Type Mismatch
+
+**Error Code**
+
+`EXTERNAL_ARGUMENT_TYPE_MISMATCH`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {typeNames} be the set of all output type names from all source schemas.
+- For each {typeName} in {typeNames}
+  - Let {types} be the set of all types with the name {typeName} from all source
+    schemas.
+  - Let {fieldNames} be the set of all field names from all types in {types}.
+  - For each {fieldName} in {fieldNames}
+    - Let {fields} be the set of all fields with the name {fieldName} from all
+      types in {types}.
+    - Let {externalFields} be the set of all fields in {fields} that are marked
+      with `@external`.
+    - Let {nonExternalFields} be the set of all fields in {fields} that are not
+      marked with `@external`.
+    - If {externalFields} is not empty
+      - Let {argumentNames} be the set of all argument names from all fields in
+        {nonExternalFields}
+      - For each {argumentName} in {argumentNames}:
+        - For each {externalField} in {externalFields}
+          - Let {externalArgument} be the argument with the name {argumentName}
+            from {externalField}.
+          - {externalArgument} must strictly equal all arguments with the name
+            {argumentName} from {nonExternalFields}.
+
+**Explanatory Text**
+
+This rule ensures that arguments on fields marked as `@external` have types
+compatible with the corresponding arguments on the fields defined in other
+source schemas. The arguments must have the exact same type signature, including
+nullability and list nesting.
+
+Here, the `@external` field's `language` argument has the same type (`Language`)
+as the base field, satisfying the rule:
+
+```graphql example
+# Subgraph A
+type Product {
+  name(language: Language): String
+}
+
+# Subgraph B
+type Product {
+  name(language: Language): String
+}
+```
+
+In this example, the `@external` field's `language` argument type does not match
+the base field's `language` argument type (`Language` vs. `String`), violating
+the rule:
+
+```graphql example
+# Subgraph A
+type Product {
+  name(language: Language): String
+}
+
+# Subgraph B
+type Product {
+  name(language: String): String
+}
+```
+
+#### External Missing on Base
+
+**Error Code**
+
+`EXTERNAL_MISSING_ON_BASE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {typeNames} be the set of all output type names from all source schemas.
+- For each {typeName} in {typeNames}
+  - Let {types} be the set of all types with the name {typeName} from all source
+    schemas.
+  - Let {fieldNames} be the set of all field names from all types in {types}.
+  - For each {fieldName} in {fieldNames}
+    - Let {fields} be the set of all fields with the name {fieldName} from all
+      types in {types}.
+    - Let {externalFields} be the set of all fields in {fields} that are marked
+      with `@external`.
+    - Let {nonExternalFields} be the set of all fields in {fields} that are not
+      marked with `@external`.
+    - If {externalFields} is not empty
+      - {nonExternalFields} must not be empty.
+
+**Explanatory Text**
+
+This rule ensures that any field marked as `@external` in a source schema is
+actually defined (non-`@external`) in at least one other source schema. The
+`@external` directive is used to indicate that the field is not usually resolved
+by the source schema it is declared in, implying it should be resolvable by at
+least one other source schema.
+
+Here, the `name` field on `Product` is defined in source schema A and marked as
+`@external` in source schema B, which is valid because there is a base
+definition in source schema A:
+
+```graphql example
+# Subgraph A
+type Product {
+  id: ID
+  name: String
+}
+
+# Subgraph B
+type Product {
+  id: ID
+  name: String @external
+}
+```
+
+In this example, the `name` field on `Product` is marked as `@external` in
+source schema B but has no non-`@external` declaration in any other source
+schema, violating the rule:
+
+```graphql counter-example
+# Subgraph A
+type Product {
+  id: ID
+}
+
+# Subgraph B
+type Product {
+  id: ID
+  name: String @external
+}
+```
+
+#### External Type Mismatch
+
+**Error Code**
+
+`EXTERNAL_TYPE_MISMATCH`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {typeNames} be the set of all output type names from all source schemas.
+- For each {typeName} in {typeNames}
+  - Let {types} be the set of all types with the name {typeName} from all source
+    schemas.
+  - Let {fieldNames} be the set of all field names from all types in {types}.
+  - For each {fieldName} in {fieldNames}
+    - Let {fields} be the set of all fields with the name {fieldName} from all
+      types in {types}.
+    - Let {externalFields} be the set of all fields in {fields} that are marked
+      with `@external`.
+    - Let {nonExternalFields} be the set of all fields in {fields} that are not
+      marked with `@external`.
+    - For each {externalField} in {externalFields}
+      - The type of {externalField} must strictly equal all types of
+        {nonExternalFields}.
+
+**Explanatory Text**
+
+This rule ensures that a field marked as `@external` has a return type
+compatible with the corresponding field defined in other source schemas. Fields
+with the same name must represent the same data type to maintain schema
+consistency
+
+Here, the `@external` field `name` has the same return type (`String`) as the
+base field definition, satisfying the rule:
+
+```graphql example
+# Subgraph A
+type Product {
+  name: String
+}
+
+# Subgraph B
+type Product {
+  name: String @external
+}
+```
+
+In this example, the `@external` field `name` has a return type of `ProductName`
+that doesn't match the base field's return type `String`, violating the rule:
+
+```graphql counter-example
+# Subgraph A
+type Product {
+  name: String
+}
+
+# Subgraph B
+type Product {
+  name: ProductName @external
+}
+```
+
+#### External Unused
+
+**Error Code**
+
+`EXTERNAL_UNUSED`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- For each {schema} in all source schemas
+  - Let {types} be the set of all composite types (object, interface) in
+    {schema}.
+  - For each {type} in {types}:
+    - Let {fields} be the set of fields for {type}.
+    - For each {field} in {fields}:
+      - If {field} is marked with `@external`:
+        - Let {referencingFields} be the set of fields in {schema} that
+          reference {type}.
+        - {referencingFields} must contain at least one field that references
+          {field} in `@provides`
+
+**Explanatory Text**
+
+This rule ensures that every field marked as `@external` in a source schema is
+actually used by that source schema in a `@provides` directive.
+
+**Examples**
+
+In this example, the `name` field is marked with `@external` and is used by the
+`@provides` directive, satisfying the rule:
+
+```graphql example
+# Subgraph A
+type Product {
+  id: ID
+  name: String @external
+}
+
+type Query {
+  productByName(name: String): Product @provides(fields: "name")
+}
+```
+
+In this example, the `name` field is marked with `@external` but is not used by
+the `@provides` directive, violating the rule:
+
+```graphql counter-example
+# Subgraph A
+type Product {
+  title: String @external
+  author: Author
+}
+```
+
 ### Merge
 
 ### Post Merge Validation
@@ -139,7 +637,7 @@ IsObjectTypeEmpty(type):
 - return false
 - Let {fields} be a set of all fields in {type}
 - For each {field} in {fields}:
-  - If {IsExposed(field)} is true
+  - If {IsAccessible(field)} is true
     - return false
 - return true
 
