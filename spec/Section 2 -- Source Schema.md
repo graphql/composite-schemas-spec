@@ -271,7 +271,7 @@ type Product {
 
 The example below removes the field `internalProductById` and the type `Product`
 from the the composite schema. However, type system members marked as
-inaccessible can still be used within the composite execution schema to fulfill
+inaccessible can still be used within the composite execution schema to fulfil
 requirements.
 
 Unlike @internal, which restricts lookup fields to backend use, @inaccessible
