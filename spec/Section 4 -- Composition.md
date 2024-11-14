@@ -85,7 +85,7 @@ enum Enum1 {
 }
 ```
 
-This following example violates this rule because the default value for the field
+The following example violates this rule because the default value for the field
 `field` in type `Input1` references an enum value (`FOO`) that is marked as
 `@inaccessible`.
 
