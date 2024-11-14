@@ -72,7 +72,7 @@ This rule ensures that inaccessible enum values are not exposed in the composed 
 Output field arguments, input fields and directive arguments must only use enum values as their default value that is not annotated with the `@inaccessible` directive.
 
 In this example the `FOO` value in the `Enum1` enum is not marked with
-`@inaccessible`, hence it doesn't violate the rule.
+`@inaccessible`, hence it does not violate the rule.
 
 ```graphql
 type Query {
