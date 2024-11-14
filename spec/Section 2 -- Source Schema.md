@@ -269,7 +269,7 @@ type Product {
 }
 ```
 
-The above example removes the field `internalProductById` and the type `Product`
+The example below removes the field `internalProductById` and the type `Product`
 from the the composite schema. However, type system members marked as
 inaccessible can still be used within the composite execution schema to fulfill
 requirements.
