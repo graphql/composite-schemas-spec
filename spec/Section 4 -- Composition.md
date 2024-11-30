@@ -4,11 +4,11 @@ The schema composition describes the process of merging multiple source schemas
 into a single GraphQL schema, known as the _composite execution schema_, which
 is a valid GraphQL schema annotated with execution directives. This composite
 execution schema is the output of the schema composition process. The schema
-composition process is divided into four major algorithms: **Validate Source
-Schema**, **Merge Source Schema**, and **Validate Satisfiability**, which are
+composition process is divided into three main steps: **Validate Source
+Schemas**, **Merge Source Schemas**, and **Validate Satisfiability**, which are
 run in sequence to produce the composite execution schema.
 
-## Validate Source Schema
+## Validate Source Schemas
 
 ## Merge Source Schemas
 
@@ -126,7 +126,7 @@ input Input1 {
 
 **Error Code**
 
-OUTPUT_FIELD_TYPES_NOT_MERGEABLE
+`OUTPUT_FIELD_TYPES_NOT_MERGEABLE`
 
 **Severity**
 
@@ -253,8 +253,8 @@ ERROR
 
 This rule ensures that certain essential elements of a GraphQL schema,
 particularly built-in scalars, directives and introspection types, cannot be
-marked as `@inaccessible`. These types are fundamental to GraphQL's. Making
-these elements inaccessible would break core GraphQL functionalities.
+marked as `@inaccessible`. These types are fundamental to GraphQL. Making these
+elements inaccessible would break core GraphQL functionality.
 
 Here, the `String` type is not marked as `@inaccessible`, which adheres to the
 rule:
