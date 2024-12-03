@@ -339,20 +339,30 @@ Is equivalent to the {Name} defined in the
 
 ### Path
 
-Path :: - < TypeName > . PathSegment - PathSegment
+Path ::
 
-PathSegment :: - FieldName - FieldName . PathSegment - FieldName < TypeName > .
-PathSegment
+- < TypeName > . PathSegment
+- PathSegment
 
-FieldName :: - Name
+PathSegment ::
 
-TypeName :: - Name
+- FieldName
+- FieldName . PathSegment
+- FieldName < TypeName > . PathSegment
+
+FieldName ::
+
+- Name
+
+TypeName ::
+
+- Name
 
 The {Path} literal is a string used to select a single output value from the
 _return type_ by specifying a path to that value. This path is defined as a
 sequence of field names, each separated by a period (`.`) to create segments.
 
-```example
+```graphql example
 book.title
 ```
 
@@ -367,14 +377,18 @@ after the field name if the field is not defined on an interface.
 In the following example, the path `mediaById<Book>.isbn` specifies that
 `mediaById` returns a `Book`, and the `isbn` field is selected from that `Book`.
 
-```example
+```graphql example
 mediaById<Book>.isbn
 ```
 
 ### SelectedValue
 
-SelectedValue :: - Path - SelectedObjectValue - Path . SelectedObjectValue -
-SelectedValue | SelectedValue
+SelectedValue ::
+
+- Path
+- SelectedObjectValue
+- Path . SelectedObjectValue
+- SelectedValue | SelectedValue
 
 A {SelectedValue} is defined as either a {Path} or a {SelectedObjectValue}
 
@@ -386,7 +400,7 @@ paths based on type, a {Path} can include multiple paths separated by a pipe
 In the following example, the value could be `title` when referring to a `Book`
 and `movieTitle` when referring to a `Movie`.
 
-```example
+```graphql example
 mediaById<Book>.title | mediaById<Movie>.movieTitle
 ```
 
@@ -394,19 +408,23 @@ The `|` operator can be used to match multiple possible {SelectedValue}. This
 operator is applied when mapping an abstract output type to a `@oneOf` input
 type.
 
-```example
+```graphql example
 { movieId: <Movie>.id } | { productId: <Product>.id }
 ```
 
-```example
+```graphql example
 { nested: { movieId: <Movie>.id } | { productId: <Product>.id }}
 ```
 
 ### SelectedObjectValue
 
-SelectedObjectValue :: - { SelectedObjectField+ }
+SelectedObjectValue ::
 
-SelectedObjectField :: - Name: SelectedValue
+- { SelectedObjectField+ }
+
+SelectedObjectField ::
+
+- Name: SelectedValue
 
 {SelectedObjectValue} are unordered lists of keyed input values wrapped in
 curly-braces `{}`. It has to be used when the expected input type is an object
@@ -450,7 +468,9 @@ type Product {
 
 ### SelectedListValue
 
-SelectedListValue :: - [ SelectedValue ]
+SelectedListValue ::
+
+- [ SelectedValue ]
 
 A {SelectedListValue} is an ordered list of {SelectedValue} wrapped in square
 brackets `[]`. It is used to express semantic equivalence between an argument
@@ -628,9 +648,9 @@ type context.
 **Formal Specification**
 
 - For each {segment} in the {Path}:
-- If the {segment} is a field
-  - Let {fieldName} be the field name in the current {segment}.
-  - {fieldName} must be defined on the current type in scope.
+  - If the {segment} is a field
+    - Let {fieldName} be the field name in the current {segment}.
+    - {fieldName} must be defined on the current type in scope.
 
 **Explanatory Text**
 
@@ -669,11 +689,11 @@ selected field is a leaf node.
 **Formal Specification**
 
 - For each {segment} in the {Path}:
-- Let {selectedType} be the unwrapped type of the current {segment}.
-- If {selectedType} is a scalar or enum:
-  - There must not be any further segments in {Path}.
-- If {selectedType} is an object, interface, or union:
-  - There must be another segment in {Path}.
+  - Let {selectedType} be the unwrapped type of the current {segment}.
+  - If {selectedType} is a scalar or enum:
+    - There must not be any further segments in {Path}.
+  - If {selectedType} is an object, interface, or union:
+    - There must be another segment in {Path}.
 
 **Explanatory Text**
 
@@ -716,12 +736,12 @@ the current context.
 **Formal Specification**
 
 - For each {segment} in a {Path}:
-- If {segment} is a type reference:
-  - Let {type} be the type referenced in the {segment}.
-  - Let {parentType} be the type of the parent of the {segment}.
-  - Let {applicableTypes} be the intersection of {GetPossibleTypes(type)} and
-    {GetPossibleTypes(parentType)}.
-  - {applicableTypes} must not be empty.
+  - If {segment} is a type reference:
+    - Let {type} be the type referenced in the {segment}.
+    - Let {parentType} be the type of the parent of the {segment}.
+    - Let {applicableTypes} be the intersection of {GetPossibleTypes(type)} and
+      {GetPossibleTypes(parentType)}.
+    - {applicableTypes} must not be empty.
 
 GetPossibleTypes(type):
 
@@ -740,8 +760,8 @@ logically apply within the parent type.
 **Formal Specification**
 
 - For each SelectedValue {value}:
-- Let {type} be the type expected in the position {value} is found.
-- {value} must be coercible to {type}.
+  - Let {type} be the type expected in the position {value} is found.
+  - {value} must be coercible to {type}.
 
 **Explanatory Text**
 
@@ -780,10 +800,10 @@ type Store {
 **Formal Specification**
 
 - For each Selected Object Field {field} in the document:
-- Let {fieldName} be the Name of {field}.
-- Let {fieldDefinition} be the field definition provided by the parent selected
-  object type named {fieldName}.
-- {fieldDefinition} must exist.
+  - Let {fieldName} be the Name of {field}.
+  - Let {fieldDefinition} be the field definition provided by the parent
+    selected object type named {fieldName}.
+  - {fieldDefinition} must exist.
 
 **Explanatory Text**
 
@@ -822,10 +842,11 @@ type Store {
 **Formal Specification**
 
 - For each selected object value {selectedObject}:
-- For every {field} in {selectedObject}:
-  - Let {name} be the Name of {field}.
-  - Let {fields} be all Selected Object Fields named {name} in {selectedObject}.
-  - {fields} must be the set containing only {field}.
+  - For every {field} in {selectedObject}:
+    - Let {name} be the Name of {field}.
+    - Let {fields} be all Selected Object Fields named {name} in
+      {selectedObject}.
+    - {fields} must be the set containing only {field}.
 
 **Explanatory Text**
 
@@ -850,16 +871,16 @@ type Store {
 **Formal Specification**
 
 - For each Selected Object:
-- Let {fields} be the fields provided by that Selected Object.
-- Let {fieldDefinitions} be the set of input object field definitions of that
-  Selected Object.
-- For each {fieldDefinition} in {fieldDefinitions}:
-  - Let {type} be the expected type of {fieldDefinition}.
-  - Let {defaultValue} be the default value of {fieldDefinition}.
-  - If {type} is Non-Null and {defaultValue} does not exist:
-    - Let {fieldName} be the name of {fieldDefinition}.
-    - Let {field} be the input object field in {fields} named {fieldName}.
-    - {field} must exist.
+  - Let {fields} be the fields provided by that Selected Object.
+  - Let {fieldDefinitions} be the set of input object field definitions of that
+    Selected Object.
+  - For each {fieldDefinition} in {fieldDefinitions}:
+    - Let {type} be the expected type of {fieldDefinition}.
+    - Let {defaultValue} be the default value of {fieldDefinition}.
+    - If {type} is Non-Null and {defaultValue} does not exist:
+      - Let {fieldName} be the name of {fieldDefinition}.
+      - Let {field} be the input object field in {fields} named {fieldName}.
+      - {field} must exist.
 
 **Explanatory Text**
 
