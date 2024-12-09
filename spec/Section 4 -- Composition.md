@@ -149,7 +149,7 @@ FieldsAreMergeable(fields):
 - Given each pair of members {fieldA} and {fieldB} in {fields}:
   - Let {typeA} be the type of {fieldA}
   - Let {typeB} be the type of {fieldB}
-  - {SameOutputTypeShape(typeA, typeB)} must be true.
+  - {SameTypeShape(typeA, typeB)} must be true.
 
 **Explanatory Text**
 
