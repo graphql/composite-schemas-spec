@@ -340,12 +340,12 @@ as `@external` in another. The argument `language` has the same default value in
 both source schemas, satisfying the rule:
 
 ```graphql example
-# Subgraph A
+# Source schema A
 type Product {
   name(language: String = "en"): String
 }
 
-# Subgraph B
+# Source schema B
 type Product {
   name(language: String = "en") @external: String
 }
@@ -356,12 +356,12 @@ as `@external` in another. The argument `language` has different default values
 in the two source schemas, violating the rule:
 
 ```graphql counter-example
-# Subgraph A
+# Source schema A
 type Product {
   name(language: String = "en"): String
 }
 
-# Subgraph B
+# Source schema B
 type Product {
   name(language: String = "de") @external: String
 }
@@ -374,12 +374,12 @@ not have a default value in the source schema where the field is marked as
 `@external`, violating the rule:
 
 ```graphql counter-example
-# Subgraph A
+# Source schema A
 type Product {
   name(language: String = "en"): String
 }
 
-# Subgraph B
+# Source schema B
 type Product {
   name(language: String): String @external
 }
@@ -430,12 +430,12 @@ field in source schema B and the base field in source schema A, satisfying the
 rule:
 
 ```graphql example
-# Subgraph A
+# Source schema A
 type Product {
   name(language: String): String
 }
 
-# Subgraph B
+# Source schema B
 type Product {
   name(language: String): String @external
 }
@@ -446,12 +446,12 @@ argument that is present in the base field definition in source schema A,
 violating the rule:
 
 ```graphql counter-example
-# Subgraph A
+# Source schema A
 type Product {
   name(language: String): String
 }
 
-# Subgraph B
+# Source schema B
 type Product {
   name: String @external
 }
@@ -502,12 +502,12 @@ Here, the `@external` field's `language` argument has the same type (`Language`)
 as the base field, satisfying the rule:
 
 ```graphql example
-# Subgraph A
+# Source schema A
 type Product {
   name(language: Language): String
 }
 
-# Subgraph B
+# Source schema B
 type Product {
   name(language: Language): String
 }
@@ -518,12 +518,12 @@ the base field's `language` argument type (`Language` vs. `String`), violating
 the rule:
 
 ```graphql example
-# Subgraph A
+# Source schema A
 type Product {
   name(language: Language): String
 }
 
-# Subgraph B
+# Source schema B
 type Product {
   name(language: String): String
 }
@@ -569,13 +569,13 @@ Here, the `name` field on `Product` is defined in source schema A and marked as
 definition in source schema A:
 
 ```graphql example
-# Subgraph A
+# Source schema A
 type Product {
   id: ID
   name: String
 }
 
-# Subgraph B
+# Source schema B
 type Product {
   id: ID
   name: String @external
@@ -587,12 +587,12 @@ source schema B but has no non-`@external` declaration in any other source
 schema, violating the rule:
 
 ```graphql counter-example
-# Subgraph A
+# Source schema A
 type Product {
   id: ID
 }
 
-# Subgraph B
+# Source schema B
 type Product {
   id: ID
   name: String @external
@@ -638,12 +638,12 @@ Here, the `@external` field `name` has the same return type (`String`) as the
 base field definition, satisfying the rule:
 
 ```graphql example
-# Subgraph A
+# Source schema A
 type Product {
   name: String
 }
 
-# Subgraph B
+# Source schema B
 type Product {
   name: String @external
 }
@@ -653,12 +653,12 @@ In this example, the `@external` field `name` has a return type of `ProductName`
 that doesn't match the base field's return type `String`, violating the rule:
 
 ```graphql counter-example
-# Subgraph A
+# Source schema A
 type Product {
   name: String
 }
 
-# Subgraph B
+# Source schema B
 type Product {
   name: ProductName @external
 }
@@ -699,7 +699,7 @@ In this example, the `name` field is marked with `@external` and is used by the
 `@provides` directive, satisfying the rule:
 
 ```graphql example
-# Subgraph A
+# Source schema A
 type Product {
   id: ID
   name: String @external
@@ -714,7 +714,7 @@ In this example, the `name` field is marked with `@external` but is not used by
 the `@provides` directive, violating the rule:
 
 ```graphql counter-example
-# Subgraph A
+# Source schema A
 type Product {
   title: String @external
   author: Author
