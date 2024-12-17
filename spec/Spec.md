@@ -2,7 +2,7 @@
 
 **Introduction**
 
-The GraphQL Composite Schemas introduces a comprehensive specification for
+The GraphQL Composite Schemas Spec introduces a comprehensive specification for
 creating distributed GraphQL systems that seamlessly merges multiple GraphQL
 schemas. This specification describes the process of composing a federated
 GraphQL schema and outlines algorithms for executing GraphQL queries on the
@@ -41,9 +41,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 **Conformance**
 
-A conforming implementation of GraphQL over HTTP must fulfill all normative
-requirements. Conformance requirements are described in this document via both
-descriptive assertions and key words with clearly defined meanings.
+A conforming implementation of the GraphQL Composite Schemas Spec must fulfill
+all normative requirements. Conformance requirements are described in this
+document via both descriptive assertions and key words with clearly defined
+meanings.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in the normative portions of
@@ -52,9 +53,9 @@ this document are to be interpreted as described in
 in lowercase and still retain their meaning unless explicitly declared as
 non-normative.
 
-A conforming implementation of GraphQL over HTTP may provide additional
-functionality, but must not where explicitly disallowed or would otherwise
-result in non-conformance.
+A conforming implementation of the GraphQL Composite Schemas Spec may provide
+additional functionality, but must not where explicitly disallowed or would
+otherwise result in non-conformance.
 
 **Non-Normative Portions**
 

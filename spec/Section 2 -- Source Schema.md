@@ -261,7 +261,8 @@ lookup fields that can resolve entities by different keys.
 ```graphql example
 extend type Query {
   person(
-    by: PersonByInput @is(field: "{ id } | { addressId: address.id } { name }")
+    by: PersonByInput
+      @is(field: "{ id } | { addressId: address.id } | { name }")
   ): Person
 }
 
@@ -298,7 +299,7 @@ type Product {
 }
 ```
 
-The upper example would translate to the following in the _composite schema_.
+The above example would translate to the following in the _composite schema_.
 
 ```graphql example
 type Product {
@@ -309,7 +310,7 @@ type Product {
 
 This can also be done by using input types. The selection path map specifies
 which data is required and needs to be resolved from other source schemas. If
-the input type is only used to express a requirements it is removed from the
+the input type is only used to express requirements it is removed from the
 composite schema.
 
 ```graphql example
@@ -384,8 +385,8 @@ type Product @key(fields: "id") @key(fields: "key") {
 ```
 
 While multiple keys define separate ways to reference the same entity based on
-different sets of fields, a composite key allows to uniquely identify an entity
-by using a combination of multiple fields.
+different sets of fields, a composite key allows for uniquely identifying an
+entity by using a combination of multiple fields.
 
 ```graphql example
 type Product @key(fields: "id sku") {
@@ -416,8 +417,8 @@ field to an object type. This prevents source schemas from inadvertently
 defining similarly named fields that are semantically not the same.
 
 Fields have to be explicitly marked as `@shareable` to allow multiple source
-schemas to define it, and ensures that the step of allowing a field to be served
-from multiple source schemas is an explicit, coordinated decision.
+schemas to define it, and this ensures that the step of allowing a field to be
+served from multiple source schemas is an explicit, coordinated decision.
 
 If multiple source schemas define the same field, these are assumed to be
 semantically equivalent, and the executor is free to choose between them as it
@@ -433,7 +434,8 @@ directive @provides(fields: SelectionSet!) on FIELD_DEFINITION
 
 The `@provides` directive is an optimization hint specifying child fields that
 can be resolved locally at the given source schema through a particular query
-path. This allows for a variation of overlapping field to improve data fetching.
+path. This allows for a variation of overlapping fields to improve data
+fetching.
 
 **Arguments:**
 
@@ -446,7 +448,7 @@ directive @external on OBJECT_DEFINITION | INTERFACE_DEFINITION | FIELD_DEFINITI
 ```
 
 The `@external` directive is used in combination with the `@provides` directive
-and specifies data that is not owned ba a particular source schema.
+and specifies data that is not owned by a particular source schema.
 
 ### @override
 
@@ -454,5 +456,5 @@ and specifies data that is not owned ba a particular source schema.
 directive @override(from: String!) on FIELD_DEFINITION
 ```
 
-The `@override` directive allows to migrate fields from one source schema to
+The `@override` directive allows for migrating fields from one source schema to
 another.
