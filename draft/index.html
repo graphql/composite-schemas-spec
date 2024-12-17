@@ -15,7 +15,7 @@
 <section id="intro">
 <section id="sec-Introduction" class="subsec">
 <h6 data-source="spec/Spec.md#L3"><a href="#sec-Introduction" title="link to this subsection">Introduction</a></h6>
-<p data-source="spec/Spec.md#L5-L10">The GraphQL Composite Schemas introduces a comprehensive specification for creating distributed GraphQL systems that seamlessly merges multiple GraphQL schemas. This specification describes the process of composing a federated GraphQL schema and outlines algorithms for executing GraphQL queries on the federated schema effectively by using query plans. This specification was originally created by ChilliCream and was transferred to the GraphQL foundation.</p>
+<p data-source="spec/Spec.md#L5-L10">The GraphQL Composite Schemas Spec introduces a comprehensive specification for creating distributed GraphQL systems that seamlessly merges multiple GraphQL schemas. This specification describes the process of composing a federated GraphQL schema and outlines algorithms for executing GraphQL queries on the federated schema effectively by using query plans. This specification was originally created by ChilliCream and was transferred to the GraphQL foundation.</p>
 <p data-source="spec/Spec.md#L12-L15">The GraphQL Foundation was formed in 2019 as a neutral focal point for organizations who support the GraphQL ecosystem, and the GraphQL Specification Project was established also in 2019 as the Joint Development Foundation Projects, LLC, GraphQL Series.</p>
 <p data-source="spec/Spec.md#L17-L19">If your organization benefits from GraphQL, please consider becoming a member and helping us to sustain the activities that support the health of our neutral ecosystem.</p>
 <p data-source="spec/Spec.md#L21-L24">The GraphQL Specification Project has evolved and may continue to evolve in future editions of this specification. Previous editions of the GraphQL specification can be found at permalinks that match their release tag. The latest working draft release can be found at https://spec.graphql.org/draft.</p>
@@ -27,20 +27,20 @@
 </section>
 <section id="sec-Conformance" class="subsec">
 <h6 data-source="spec/Spec.md#L42"><a href="#sec-Conformance" title="link to this subsection">Conformance</a></h6>
-<p data-source="spec/Spec.md#L44-L46">A conforming implementation of GraphQL over HTTP must fulfill all normative requirements. Conformance requirements are described in this document via both descriptive assertions and key words with clearly defined meanings.</p>
-<p data-source="spec/Spec.md#L48-L53">The key words &ldquo;MUST&rdquo;, &ldquo;MUST NOT&rdquo;, &ldquo;REQUIRED&rdquo;, &ldquo;SHALL&rdquo;, &ldquo;SHALL NOT&rdquo;, &ldquo;SHOULD&rdquo;, &ldquo;SHOULD NOT&rdquo;, &ldquo;RECOMMENDED&rdquo;, &ldquo;MAY&rdquo;, and &ldquo;OPTIONAL&rdquo; in the normative portions of this document are to be interpreted as described in <a href="https://tools.ietf.org/html/rfc2119">IETF RFC 2119</a>. These key words may appear in lowercase and still retain their meaning unless explicitly declared as non-normative.</p>
-<p data-source="spec/Spec.md#L55-L57">A conforming implementation of GraphQL over HTTP may provide additional functionality, but must not where explicitly disallowed or would otherwise result in non-conformance.</p>
+<p data-source="spec/Spec.md#L44-L47">A conforming implementation of the GraphQL Composite Schemas Spec must fulfill all normative requirements. Conformance requirements are described in this document via both descriptive assertions and key words with clearly defined meanings.</p>
+<p data-source="spec/Spec.md#L49-L54">The key words &ldquo;MUST&rdquo;, &ldquo;MUST NOT&rdquo;, &ldquo;REQUIRED&rdquo;, &ldquo;SHALL&rdquo;, &ldquo;SHALL NOT&rdquo;, &ldquo;SHOULD&rdquo;, &ldquo;SHOULD NOT&rdquo;, &ldquo;RECOMMENDED&rdquo;, &ldquo;MAY&rdquo;, and &ldquo;OPTIONAL&rdquo; in the normative portions of this document are to be interpreted as described in <a href="https://tools.ietf.org/html/rfc2119">IETF RFC 2119</a>. These key words may appear in lowercase and still retain their meaning unless explicitly declared as non-normative.</p>
+<p data-source="spec/Spec.md#L56-L58">A conforming implementation of the GraphQL Composite Schemas Spec may provide additional functionality, but must not where explicitly disallowed or would otherwise result in non-conformance.</p>
 </section>
 <section id="sec-Non-Normative-Portions" class="subsec">
-<h6 data-source="spec/Spec.md#L59"><a href="#sec-Non-Normative-Portions" title="link to this subsection">Non-Normative Portions</a></h6>
-<p data-source="spec/Spec.md#L61-L62">All contents of this document are normative except portions explicitly declared as non-normative.</p>
-<p data-source="spec/Spec.md#L64-L67">Examples in this document are non-normative, and are presented to aid understanding of introduced concepts and the behavior of normative portions of the specification. Examples are either introduced explicitly in prose (e.g. &ldquo;for example&rdquo;) or are set apart in example or counter-example blocks, like this:</p>
-<pre id="example-fed99" class="spec-example" data-source="spec/Spec.md#L69-L71"><a href="#example-fed99">Example № 1</a><code>This is an example of a non-normative example.
+<h6 data-source="spec/Spec.md#L60"><a href="#sec-Non-Normative-Portions" title="link to this subsection">Non-Normative Portions</a></h6>
+<p data-source="spec/Spec.md#L62-L63">All contents of this document are normative except portions explicitly declared as non-normative.</p>
+<p data-source="spec/Spec.md#L65-L68">Examples in this document are non-normative, and are presented to aid understanding of introduced concepts and the behavior of normative portions of the specification. Examples are either introduced explicitly in prose (e.g. &ldquo;for example&rdquo;) or are set apart in example or counter-example blocks, like this:</p>
+<pre id="example-fed99" class="spec-example" data-source="spec/Spec.md#L70-L72"><a href="#example-fed99">Example № 1</a><code>This is an example of a non-normative example.
 </code></pre>
-<pre id="example-881bd" class="spec-counter-example" data-source="spec/Spec.md#L73-L75"><a href="#example-881bd">Counter Example № 2</a><code>This is an example of a non-normative counter-example.
+<pre id="example-881bd" class="spec-counter-example" data-source="spec/Spec.md#L74-L76"><a href="#example-881bd">Counter Example № 2</a><code>This is an example of a non-normative counter-example.
 </code></pre>
-<p data-source="spec/Spec.md#L77-L80">Notes in this document are non-normative, and are presented to clarify intent, draw attention to potential edge-cases and pit-falls, and answer common questions that arise during implementation. Notes are either introduced explicitly in prose (e.g. &ldquo;Note: &ldquo;) or are set apart in a note block, like this:</p>
-<div id="note-c0129" class="spec-note" data-source="spec/Spec.md#L82">
+<p data-source="spec/Spec.md#L78-L81">Notes in this document are non-normative, and are presented to clarify intent, draw attention to potential edge-cases and pit-falls, and answer common questions that arise during implementation. Notes are either introduced explicitly in prose (e.g. &ldquo;Note: &ldquo;) or are set apart in a note block, like this:</p>
+<div id="note-c0129" class="spec-note" data-source="spec/Spec.md#L83">
 <a href="#note-c0129">Note</a>
 This is an example of a non-normative note.</div>
 </section>
@@ -65,7 +65,7 @@ This is an example of a non-normative note.</div>
 </ol>
 </li>
 <li><a href="#sec-Schema-Composition"><span class="spec-secid">3</span>Schema Composition</a><ol>
-<li><a href="#sec-Validate-Source-Schema"><span class="spec-secid">3.1</span>Validate Source Schema</a></li>
+<li><a href="#sec-Validate-Source-Schemas"><span class="spec-secid">3.1</span>Validate Source Schemas</a></li>
 <li><a href="#sec-Merge-Source-Schemas"><span class="spec-secid">3.2</span>Merge Source Schemas</a><ol>
 <li><a href="#sec-Pre-Merge-Validation"><span class="spec-secid">3.2.1</span>Pre Merge Validation</a><ol>
 <li><a href="#sec-Enum-Type-Default-Value-Uses-Inaccessible-Value"><span class="spec-secid">3.2.1.1</span>Enum Type Default Value Uses Inaccessible Value</a></li>
@@ -322,9 +322,10 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%202%20--%20Source%20Schema.md#L258-L259">The <code>@is</code> directive can also be used in combination with <code>@oneOf</code> to specify lookup fields that can resolve entities by different keys.</p>
-<pre id="example-6845b" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L261-L273"><a href="#example-6845b">Example № 15</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<pre id="example-519a7" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L261-L274"><a href="#example-519a7">Example № 15</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token property-query">person</span><span class="token punctuation">(</span>
-    <span class="token attr-name">by</span><span class="token punctuation">:</span> <span class="token atom-input class-name">PersonByInput</span> <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ id } | { addressId: address.id } { name }"</span><span class="token punctuation">)</span>
+    <span class="token attr-name">by</span><span class="token punctuation">:</span> <span class="token atom-input class-name">PersonByInput</span>
+      <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ id } | { addressId: address.id } | { name }"</span><span class="token punctuation">)</span>
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Person</span>
 <span class="token punctuation">}</span>
 
@@ -335,18 +336,18 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
 <span class="token punctuation">}</span>
 </code></pre>
 <section id="sec--is.Arguments-" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Source%20Schema.md#L275"><a href="#sec--is.Arguments-" title="link to this subsection">Arguments:</a></h6>
+<h6 data-source="spec/Section%202%20--%20Source%20Schema.md#L276"><a href="#sec--is.Arguments-" title="link to this subsection">Arguments:</a></h6>
 <ul>
-<li data-source="spec/Section%202%20--%20Source%20Schema.md#L277"><code>field</code>: Represents a selection path map syntax.</li>
+<li data-source="spec/Section%202%20--%20Source%20Schema.md#L278"><code>field</code>: Represents a selection path map syntax.</li>
 </ul>
 </section>
 </section>
 <section id="sec--require" secid="2.1.4">
-<h3 data-source="spec/Section%202%20--%20Source%20Schema.md#L279"><span class="spec-secid" title="link to this section"><a href="#sec--require">2.1.4</a></span>@require</h3>
-<pre data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L281-L283"><code><span class="token keyword">directive</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token class-name">FieldSelectionMap</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">ARGUMENT_DEFINITION</span>
+<h3 data-source="spec/Section%202%20--%20Source%20Schema.md#L280"><span class="spec-secid" title="link to this section"><a href="#sec--require">2.1.4</a></span>@require</h3>
+<pre data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L282-L284"><code><span class="token keyword">directive</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token class-name">FieldSelectionMap</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">ARGUMENT_DEFINITION</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Source%20Schema.md#L285-L288">The <code>@require</code> directive is used to express data requirements with other source schemas. Arguments annotated with the <code>@require</code> directive are removed from the <em>composite schema</em> and the value for these will be resolved by the <em>distributed executor</em>.</p>
-<pre id="example-3d648" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L290-L299"><a href="#example-3d648">Example № 16</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Source%20Schema.md#L286-L289">The <code>@require</code> directive is used to express data requirements with other source schemas. Arguments annotated with the <code>@require</code> directive are removed from the <em>composite schema</em> and the value for these will be resolved by the <em>distributed executor</em>.</p>
+<pre id="example-3d648" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L291-L300"><a href="#example-3d648">Example № 16</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token property-query">delivery</span><span class="token punctuation">(</span>
     <span class="token attr-name">zip</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
@@ -355,14 +356,14 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">DeliveryEstimates</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Source%20Schema.md#L301">The upper example would translate to the following in the <em>composite schema</em>.</p>
-<pre id="example-20429" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L303-L308"><a href="#example-20429">Example № 17</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Source%20Schema.md#L302">The above example would translate to the following in the <em>composite schema</em>.</p>
+<pre id="example-20429" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L304-L309"><a href="#example-20429">Example № 17</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token attr-name">delivery</span><span class="token punctuation">(</span><span class="token attr-name">zip</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">DeliveryEstimates</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Source%20Schema.md#L310-L313">This can also be done by using input types. The selection path map specifies which data is required and needs to be resolved from other source schemas. If the input type is only used to express a requirements it is removed from the composite schema.</p>
-<pre id="example-88e3b" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L315-L323"><a href="#example-88e3b">Example № 18</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Source%20Schema.md#L311-L314">This can also be done by using input types. The selection path map specifies which data is required and needs to be resolved from other source schemas. If the input type is only used to express requirements it is removed from the composite schema.</p>
+<pre id="example-88e3b" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L316-L324"><a href="#example-88e3b">Example № 18</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token property-query">delivery</span><span class="token punctuation">(</span>
     <span class="token attr-name">zip</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
@@ -370,8 +371,8 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">DeliveryEstimates</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Source%20Schema.md#L325-L326">If the input types do not match the output type structure the selection map syntax can be used to specify how requirements translate to the input object.</p>
-<pre id="example-41596" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L328-L347"><a href="#example-41596">Example № 19</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Source%20Schema.md#L326-L327">If the input types do not match the output type structure the selection map syntax can be used to specify how requirements translate to the input object.</p>
+<pre id="example-41596" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L329-L348"><a href="#example-41596">Example № 19</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token property-query">delivery</span><span class="token punctuation">(</span>
     <span class="token attr-name">zip</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
@@ -391,90 +392,90 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
 <span class="token punctuation">}</span>
 </code></pre>
 <section id="sec--require.Arguments-" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Source%20Schema.md#L349"><a href="#sec--require.Arguments-" title="link to this subsection">Arguments:</a></h6>
+<h6 data-source="spec/Section%202%20--%20Source%20Schema.md#L350"><a href="#sec--require.Arguments-" title="link to this subsection">Arguments:</a></h6>
 <ul>
-<li data-source="spec/Section%202%20--%20Source%20Schema.md#L351"><code>field</code>: Represents a selection path map syntax.</li>
+<li data-source="spec/Section%202%20--%20Source%20Schema.md#L352"><code>field</code>: Represents a selection path map syntax.</li>
 </ul>
 </section>
 </section>
 <section id="sec--key" secid="2.1.5">
-<h3 data-source="spec/Section%202%20--%20Source%20Schema.md#L353"><span class="spec-secid" title="link to this section"><a href="#sec--key">2.1.5</a></span>@key</h3>
-<pre data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L355-L357"><code><span class="token keyword">directive</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token class-name">SelectionSet</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">repeatable</span> <span class="token keyword">on</span> <span class="token constant">OBJECT</span> <span class="token operator">|</span> <span class="token constant">INTERFACE</span>
+<h3 data-source="spec/Section%202%20--%20Source%20Schema.md#L354"><span class="spec-secid" title="link to this section"><a href="#sec--key">2.1.5</a></span>@key</h3>
+<pre data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L356-L358"><code><span class="token keyword">directive</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token class-name">SelectionSet</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">repeatable</span> <span class="token keyword">on</span> <span class="token constant">OBJECT</span> <span class="token operator">|</span> <span class="token constant">INTERFACE</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Source%20Schema.md#L359-L362">The @key directive is used to designate an entity&rsquo;s unique key, which identifies how to uniquely reference an instance of an entity across different source schemas. It allows a source schema to indicate which fields form a unique identifier, or <strong>key</strong>, for an entity.</p>
-<pre id="example-ad2f9" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L364-L371"><a href="#example-ad2f9">Example № 20</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Source%20Schema.md#L360-L363">The @key directive is used to designate an entity&rsquo;s unique key, which identifies how to uniquely reference an instance of an entity across different source schemas. It allows a source schema to indicate which fields form a unique identifier, or <strong>key</strong>, for an entity.</p>
+<pre id="example-ad2f9" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L365-L372"><a href="#example-ad2f9">Example № 20</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token attr-name">sku</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
   <span class="token attr-name">price</span><span class="token punctuation">:</span> <span class="token scalar">Float</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Source%20Schema.md#L373-L375">Each occurrence of the @key directive on an object or interface type specifies one distinct unique key for that entity, which enables a gateway to perform lookups and resolve instances of the entity based on that key.</p>
-<pre id="example-12197" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L377-L384"><a href="#example-12197">Example № 21</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"key"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Source%20Schema.md#L374-L376">Each occurrence of the @key directive on an object or interface type specifies one distinct unique key for that entity, which enables a gateway to perform lookups and resolve instances of the entity based on that key.</p>
+<pre id="example-12197" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L378-L385"><a href="#example-12197">Example № 21</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"key"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token attr-name">sku</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
   <span class="token attr-name">price</span><span class="token punctuation">:</span> <span class="token scalar">Float</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Source%20Schema.md#L386-L388">While multiple keys define separate ways to reference the same entity based on different sets of fields, a composite key allows to uniquely identify an entity by using a combination of multiple fields.</p>
-<pre id="example-4e25f" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L390-L397"><a href="#example-4e25f">Example № 22</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id sku"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Source%20Schema.md#L387-L389">While multiple keys define separate ways to reference the same entity based on different sets of fields, a composite key allows for uniquely identifying an entity by using a combination of multiple fields.</p>
+<pre id="example-4e25f" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L391-L398"><a href="#example-4e25f">Example № 22</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id sku"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token attr-name">sku</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
   <span class="token attr-name">price</span><span class="token punctuation">:</span> <span class="token scalar">Float</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Source%20Schema.md#L399-L402">The directive is applicable to both OBJECT and INTERFACE types. This allows entities that implement an interface to inherit the key(s) defined at the interface level, ensuring consistent identification across different implementations of that interface.</p>
+<p data-source="spec/Section%202%20--%20Source%20Schema.md#L400-L403">The directive is applicable to both OBJECT and INTERFACE types. This allows entities that implement an interface to inherit the key(s) defined at the interface level, ensuring consistent identification across different implementations of that interface.</p>
 <section id="sec--key.Arguments-" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Source%20Schema.md#L404"><a href="#sec--key.Arguments-" title="link to this subsection">Arguments:</a></h6>
+<h6 data-source="spec/Section%202%20--%20Source%20Schema.md#L405"><a href="#sec--key.Arguments-" title="link to this subsection">Arguments:</a></h6>
 <ul>
-<li data-source="spec/Section%202%20--%20Source%20Schema.md#L406"><code>fields</code>: Represents a selection set syntax.</li>
+<li data-source="spec/Section%202%20--%20Source%20Schema.md#L407"><code>fields</code>: Represents a selection set syntax.</li>
 </ul>
 </section>
 </section>
 <section id="sec--shareable" secid="2.1.6">
-<h3 data-source="spec/Section%202%20--%20Source%20Schema.md#L408"><span class="spec-secid" title="link to this section"><a href="#sec--shareable">2.1.6</a></span>@shareable</h3>
-<pre data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L410-L412"><code><span class="token keyword">directive</span> <span class="token directive function">@shareable</span> <span class="token keyword">repeatable</span> <span class="token keyword">on</span> <span class="token constant">OBJECT</span> <span class="token operator">|</span> <span class="token constant">FIELD_DEFINITION</span>
+<h3 data-source="spec/Section%202%20--%20Source%20Schema.md#L409"><span class="spec-secid" title="link to this section"><a href="#sec--shareable">2.1.6</a></span>@shareable</h3>
+<pre data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L411-L413"><code><span class="token keyword">directive</span> <span class="token directive function">@shareable</span> <span class="token keyword">repeatable</span> <span class="token keyword">on</span> <span class="token constant">OBJECT</span> <span class="token operator">|</span> <span class="token constant">FIELD_DEFINITION</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Source%20Schema.md#L414-L416">By default, only a single source schema is allowed to contribute a particular field to an object type. This prevents source schemas from inadvertently defining similarly named fields that are semantically not the same.</p>
-<p data-source="spec/Section%202%20--%20Source%20Schema.md#L418-L420">Fields have to be explicitly marked as <code>@shareable</code> to allow multiple source schemas to define it, and ensures that the step of allowing a field to be served from multiple source schemas is an explicit, coordinated decision.</p>
-<p data-source="spec/Section%202%20--%20Source%20Schema.md#L422-L424">If multiple source schemas define the same field, these are assumed to be semantically equivalent, and the executor is free to choose between them as it sees fit.</p>
-<div id="note-1634f" class="spec-note" data-source="spec/Section%202%20--%20Source%20Schema.md#L426">
+<p data-source="spec/Section%202%20--%20Source%20Schema.md#L415-L417">By default, only a single source schema is allowed to contribute a particular field to an object type. This prevents source schemas from inadvertently defining similarly named fields that are semantically not the same.</p>
+<p data-source="spec/Section%202%20--%20Source%20Schema.md#L419-L421">Fields have to be explicitly marked as <code>@shareable</code> to allow multiple source schemas to define it, and this ensures that the step of allowing a field to be served from multiple source schemas is an explicit, coordinated decision.</p>
+<p data-source="spec/Section%202%20--%20Source%20Schema.md#L423-L425">If multiple source schemas define the same field, these are assumed to be semantically equivalent, and the executor is free to choose between them as it sees fit.</p>
+<div id="note-1634f" class="spec-note" data-source="spec/Section%202%20--%20Source%20Schema.md#L427">
 <a href="#note-1634f">Note</a>
 Key fields are always considered sharable.</div>
 </section>
 <section id="sec--provides" secid="2.1.7">
-<h3 data-source="spec/Section%202%20--%20Source%20Schema.md#L428"><span class="spec-secid" title="link to this section"><a href="#sec--provides">2.1.7</a></span>@provides</h3>
-<pre data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L430-L432"><code><span class="token keyword">directive</span> <span class="token directive function">@provides</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token class-name">SelectionSet</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD_DEFINITION</span>
+<h3 data-source="spec/Section%202%20--%20Source%20Schema.md#L429"><span class="spec-secid" title="link to this section"><a href="#sec--provides">2.1.7</a></span>@provides</h3>
+<pre data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L431-L433"><code><span class="token keyword">directive</span> <span class="token directive function">@provides</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token class-name">SelectionSet</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD_DEFINITION</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Source%20Schema.md#L434-L436">The <code>@provides</code> directive is an optimization hint specifying child fields that can be resolved locally at the given source schema through a particular query path. This allows for a variation of overlapping field to improve data fetching.</p>
+<p data-source="spec/Section%202%20--%20Source%20Schema.md#L435-L438">The <code>@provides</code> directive is an optimization hint specifying child fields that can be resolved locally at the given source schema through a particular query path. This allows for a variation of overlapping fields to improve data fetching.</p>
 <section id="sec--provides.Arguments-" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Source%20Schema.md#L438"><a href="#sec--provides.Arguments-" title="link to this subsection">Arguments:</a></h6>
+<h6 data-source="spec/Section%202%20--%20Source%20Schema.md#L440"><a href="#sec--provides.Arguments-" title="link to this subsection">Arguments:</a></h6>
 <ul>
-<li data-source="spec/Section%202%20--%20Source%20Schema.md#L440"><code>fields</code>: Represents a selection set syntax.</li>
+<li data-source="spec/Section%202%20--%20Source%20Schema.md#L442"><code>fields</code>: Represents a selection set syntax.</li>
 </ul>
 </section>
 </section>
 <section id="sec--external" secid="2.1.8">
-<h3 data-source="spec/Section%202%20--%20Source%20Schema.md#L442"><span class="spec-secid" title="link to this section"><a href="#sec--external">2.1.8</a></span>@external</h3>
-<pre data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L444-L446"><code><span class="token keyword">directive</span> <span class="token directive function">@external</span> <span class="token keyword">on</span> <span class="token constant">OBJECT_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">INTERFACE_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">FIELD_DEFINITION</span>
+<h3 data-source="spec/Section%202%20--%20Source%20Schema.md#L444"><span class="spec-secid" title="link to this section"><a href="#sec--external">2.1.8</a></span>@external</h3>
+<pre data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L446-L448"><code><span class="token keyword">directive</span> <span class="token directive function">@external</span> <span class="token keyword">on</span> <span class="token constant">OBJECT_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">INTERFACE_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">FIELD_DEFINITION</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Source%20Schema.md#L448-L449">The <code>@external</code> directive is used in combination with the <code>@provides</code> directive and specifies data that is not owned ba a particular source schema.</p>
+<p data-source="spec/Section%202%20--%20Source%20Schema.md#L450-L451">The <code>@external</code> directive is used in combination with the <code>@provides</code> directive and specifies data that is not owned by a particular source schema.</p>
 </section>
 <section id="sec--override" secid="2.1.9">
-<h3 data-source="spec/Section%202%20--%20Source%20Schema.md#L451"><span class="spec-secid" title="link to this section"><a href="#sec--override">2.1.9</a></span>@override</h3>
-<pre data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L453-L455"><code><span class="token keyword">directive</span> <span class="token directive function">@override</span><span class="token punctuation">(</span><span class="token attr-name">from</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD_DEFINITION</span>
+<h3 data-source="spec/Section%202%20--%20Source%20Schema.md#L453"><span class="spec-secid" title="link to this section"><a href="#sec--override">2.1.9</a></span>@override</h3>
+<pre data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L455-L457"><code><span class="token keyword">directive</span> <span class="token directive function">@override</span><span class="token punctuation">(</span><span class="token attr-name">from</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD_DEFINITION</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Source%20Schema.md#L457-L459">The <code>@override</code> directive allows to migrate fields from one source schema to another. </p>
+<p data-source="spec/Section%202%20--%20Source%20Schema.md#L459-L461">The <code>@override</code> directive allows for migrating fields from one source schema to another. </p>
 </section>
 </section>
 </section>
 <section id="sec-Schema-Composition" secid="3">
 <h1 data-source="spec/Section%204%20--%20Composition.md#L1"><span class="spec-secid" title="link to this section"><a href="#sec-Schema-Composition">3</a></span>Schema Composition</h1>
-<p data-source="spec/Section%204%20--%20Composition.md#L3-L9">The schema composition describes the process of merging multiple source schemas into a single GraphQL schema, known as the <em>composite execution schema</em>, which is a valid GraphQL schema annotated with execution directives. This composite execution schema is the output of the schema composition process. The schema composition process is divided into four major algorithms: <strong>Validate Source Schema</strong>, <strong>Merge Source Schema</strong>, and <strong>Validate Satisfiability</strong>, which are run in sequence to produce the composite execution schema.</p>
-<section id="sec-Validate-Source-Schema" secid="3.1">
-<h2 data-source="spec/Section%204%20--%20Composition.md#L11"><span class="spec-secid" title="link to this section"><a href="#sec-Validate-Source-Schema">3.1</a></span>Validate Source Schema</h2>
+<p data-source="spec/Section%204%20--%20Composition.md#L3-L9">The schema composition describes the process of merging multiple source schemas into a single GraphQL schema, known as the <em>composite execution schema</em>, which is a valid GraphQL schema annotated with execution directives. This composite execution schema is the output of the schema composition process. The schema composition process is divided into three main steps: <strong>Validate Source Schemas</strong>, <strong>Merge Source Schemas</strong>, and <strong>Validate Satisfiability</strong>, which are run in sequence to produce the composite execution schema.</p>
+<section id="sec-Validate-Source-Schemas" secid="3.1">
+<h2 data-source="spec/Section%204%20--%20Composition.md#L11"><span class="spec-secid" title="link to this section"><a href="#sec-Validate-Source-Schemas">3.1</a></span>Validate Source Schemas</h2>
 </section>
 <section id="sec-Merge-Source-Schemas" secid="3.2">
 <h2 data-source="spec/Section%204%20--%20Composition.md#L13"><span class="spec-secid" title="link to this section"><a href="#sec-Merge-Source-Schemas">3.2</a></span>Merge Source Schemas</h2>
@@ -613,7 +614,7 @@ Key fields are always considered sharable.</div>
 <h4 data-source="spec/Section%204%20--%20Composition.md#L125"><span class="spec-secid" title="link to this section"><a href="#sec-Output-Field-Types-Mergeable">3.2.1.2</a></span>Output Field Types Mergeable</h4>
 <section id="sec-Output-Field-Types-Mergeable.Error-Code" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L127"><a href="#sec-Output-Field-Types-Mergeable.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L129">OUTPUT<em>FIELD</em>TYPES<em>NOT</em>MERGEABLE</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L129"><code>OUTPUT_FIELD_TYPES_NOT_MERGEABLE</code></p>
 </section>
 <section id="sec-Output-Field-Types-Mergeable.Severity" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L131"><a href="#sec-Output-Field-Types-Mergeable.Severity" title="link to this subsection">Severity</a></h6>
@@ -747,7 +748,7 @@ Key fields are always considered sharable.</div>
 </section>
 <section id="sec-Disallowed-Inaccessible-Elements.Explanatory-Text" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L252"><a href="#sec-Disallowed-Inaccessible-Elements.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L254-L257">This rule ensures that certain essential elements of a GraphQL schema, particularly built-in scalars, directives and introspection types, cannot be marked as <code>@inaccessible</code>. These types are fundamental to GraphQL&rsquo;s. Making these elements inaccessible would break core GraphQL functionalities.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L254-L257">This rule ensures that certain essential elements of a GraphQL schema, particularly built-in scalars, directives and introspection types, cannot be marked as <code>@inaccessible</code>. These types are fundamental to GraphQL. Making these elements inaccessible would break core GraphQL functionality.</p>
 <p data-source="spec/Section%204%20--%20Composition.md#L259-L260">Here, the <code>String</code> type is not marked as <code>@inaccessible</code>, which adheres to the rule:</p>
 <pre id="example-99a08" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L262-L267"><a href="#example-99a08">Example № 30</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">price</span><span class="token punctuation">:</span> <span class="token scalar">Float</span>
@@ -1996,7 +1997,7 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <li id="_sidebar_3"><a href="#sec-Schema-Composition"><span class="spec-secid">3</span>Schema Composition</a>
 <input hidden class="toggle" type="checkbox" id="_toggle_3" /><label for="_toggle_3"></label>
 <ol>
-<li id="_sidebar_3.1"><a href="#sec-Validate-Source-Schema"><span class="spec-secid">3.1</span>Validate Source Schema</a></li>
+<li id="_sidebar_3.1"><a href="#sec-Validate-Source-Schemas"><span class="spec-secid">3.1</span>Validate Source Schemas</a></li>
 <li id="_sidebar_3.2"><a href="#sec-Merge-Source-Schemas"><span class="spec-secid">3.2</span>Merge Source Schemas</a>
 <input hidden class="toggle" type="checkbox" id="_toggle_3.2" /><label for="_toggle_3.2"></label>
 <ol>
