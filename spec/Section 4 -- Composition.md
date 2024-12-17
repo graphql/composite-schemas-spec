@@ -40,7 +40,6 @@ ValidateInputFieldDefaultValues():
 
 - Let {inputFields} be all input fields across all source schemas
 - For each {inputField} in {inputFields}:
-  - Let {type} be the type of {inputField}
   - If {IsExposed(inputField)} is true and {inputField} has a default value:
     - Let {defaultValue} be the default value of {inputField}
     - If {ValidateDefaultValue(defaultValue)} is false
