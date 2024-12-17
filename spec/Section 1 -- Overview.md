@@ -41,6 +41,11 @@ The GraphQL Composite Schemas specification has a number of design principles:
   GraphQL Composite Schemas specification prefers to be explicit about
   intentions and minimize reliance on inference and convention.
 
+Note: Although the GraphQL Composite Schemas specification does not describe how
+to combine arbitrary schemas, tooling may be built to transform existing or
+external schemas into compliant _source schemas_. Details of building such
+tooling is beyond the scope of this specification.
+
 To enable greater interoperability between different implementations of tooling
 and gateways, this specification focuses on two core components: schema
 composition and distributed execution.
