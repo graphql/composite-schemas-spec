@@ -251,9 +251,9 @@ ERROR
 **Explanatory Text**
 
 This rule ensures that certain essential elements of a GraphQL schema,
-particularly built-in scalars, directive arguments, and introspection types, cannot be
-marked as `@inaccessible`. These types are fundamental to GraphQL. Making these
-elements inaccessible would break core GraphQL functionality.
+particularly built-in scalars, directive arguments, and introspection types,
+cannot be marked as `@inaccessible`. These types are fundamental to GraphQL.
+Making these elements inaccessible would break core GraphQL functionality.
 
 Here, the `String` type is not marked as `@inaccessible`, which adheres to the
 rule:
