@@ -77,8 +77,8 @@ input Input1 {
 }
 ```
 
-In this example, the field `field` on `Input1` is not mergable as the field has
-different named types across (`String` and `DateTime`) source schemas:
+In this example, the field `field` on `Input1` is not mergeable as the field has
+different named types (`String` and `DateTime`) across source schemas:
 
 ```graphql counter-example
 input Input1 {
