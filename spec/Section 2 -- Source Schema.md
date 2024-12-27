@@ -608,5 +608,76 @@ produces a composition error.
 directive @override(from: String!) on FIELD_DEFINITION
 ```
 
-The `@override` directive allows for migrating fields from one source schema to
-another.
+The `@override` directive is used to migrate a field from one source schema to
+another. When a field in the local schema is annotated with
+`@override(from: "Catalog")`, it signals that the local schema overrides the
+field previously contributed by the `Catalog` source schema. As a result, the
+composite schema will source this field from the local schema, rather than from
+the original source schema.
+
+The following example shows how a field can be migrated from the `Catalog`
+schema to the new `Payments` schema. By using `@override`, a field can be moved
+to a new schema without requiring any change to the original `Catalog` schema.
+
+```graphql example
+# The original "Catalog" schema:
+type Product @key(fields: "id") {
+  id: ID!
+  name: String!
+  price: Float!
+}
+
+# The new "Payments" schema:
+extend type Product @key(fields: "id") {
+  id: ID! @external
+  price: Float! @override(from: "Catalog")
+  tax: Float!
+}
+```
+
+Fields that are annotated can themselves be migrated.
+
+```graphql example
+# The original "Catalog" schema:
+type Product @key(fields: "id") {
+  id: ID!
+  name: String!
+  price: Float!
+}
+
+# The new "Payments" schema:
+extend type Product @key(fields: "id") {
+  id: ID! @external
+  price: Float! @override(from: "Catalog")
+  tax: Float!
+}
+
+# The new "Pricing" schema:
+extend type Product @key(fields: "id") {
+  id: ID! @external
+  price: Float! @override(from: "Payments")
+  tax: Float!
+}
+```
+
+If the composition detects cyclic overrides it must throw a composition error.
+
+```graphql example
+# The original "Catalog" schema:
+type Product @key(fields: "id") {
+  id: ID!
+  name: String!
+  price: Float! @override(from: "Pricing")
+}
+
+# The new "Payments" schema:
+extend type Product @key(fields: "id") {
+  id: ID! @external
+  price: Float! @override(from: "Catalog")
+  tax: Float!
+}
+```
+
+**Arguments:**
+
+- `from`: The name of the source schema that originally provided this field.
