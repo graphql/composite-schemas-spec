@@ -1224,7 +1224,6 @@ ValidateInputFieldDefaultValues():
 
 - Let {inputFields} be all input fields of across all subgraphs
 - For each {inputField} in {inputFields}:
-  - Let {type} be the type of {inputField}
   - If {IsExposed(inputField)} is true and {inputField} has a default value:
     - Let {defaultValue} be the default value of {inputField}
     - if ValidateDefaultValue(defaultValue) is false

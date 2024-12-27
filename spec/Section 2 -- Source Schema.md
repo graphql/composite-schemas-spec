@@ -340,7 +340,8 @@ lookup fields that can resolve entities by different keys.
 ```graphql example
 extend type Query {
   person(
-    by: PersonByInput @is(field: "{ id } | { addressId: address.id } { name }")
+    by: PersonByInput
+      @is(field: "{ id } | { addressId: address.id } | { name }")
   ): Person
 }
 
@@ -377,7 +378,7 @@ type Product {
 }
 ```
 
-The upper example would translate to the following in the _composite schema_.
+The above example would translate to the following in the _composite schema_.
 
 ```graphql example
 type Product {
@@ -388,7 +389,7 @@ type Product {
 
 This can also be done by using input types. The selection path map specifies
 which data is required and needs to be resolved from other source schemas. If
-the input type is only used to express a requirements it is removed from the
+the input type is only used to express requirements it is removed from the
 composite schema.
 
 ```graphql example
@@ -463,8 +464,8 @@ type Product @key(fields: "id") @key(fields: "key") {
 ```
 
 While multiple keys define separate ways to reference the same entity based on
-different sets of fields, a composite key allows to uniquely identify an entity
-by using a combination of multiple fields.
+different sets of fields, a composite key allows for uniquely identifying an
+entity by using a combination of multiple fields.
 
 ```graphql example
 type Product @key(fields: "id sku") {
@@ -495,8 +496,8 @@ field to an object type. This prevents source schemas from inadvertently
 defining similarly named fields that are semantically not the same.
 
 Fields have to be explicitly marked as `@shareable` to allow multiple source
-schemas to define it, and ensures that the step of allowing a field to be served
-from multiple source schemas is an explicit, coordinated decision.
+schemas to define it, and this ensures that the step of allowing a field to be
+served from multiple source schemas is an explicit, coordinated decision.
 
 If multiple source schemas define the same field, these are assumed to be
 semantically equivalent, and the executor is free to choose between them as it
@@ -510,22 +511,175 @@ Note: Key fields are always considered sharable.
 directive @provides(fields: SelectionSet!) on FIELD_DEFINITION
 ```
 
-The `@provides` directive is an optimization hint specifying child fields that
-can be resolved locally at the given source schema through a particular query
-path. This allows for a variation of overlapping field to improve data fetching.
+The `@provides` directive indicates that a field can provide certain subfields
+of its return type from the same source schema, without requiring an additional
+resolution step elsewhere.
+
+```graphql example
+type Review {
+  id: ID!
+  body: String!
+  author: User @provides(fields: "email")
+}
+
+type User @key(fields: "id") {
+  id: ID!
+  email: String! @external
+  name: String!
+}
+
+type Query {
+  reviews: [Review!]
+  users: [User!]
+}
+```
+
+When a field annotated with `@provides` returns an object, interface or union
+type that may also be contributed by other source schemas, this directive
+declares which of that type’s subfields the current source schema can resolve
+directly.
+
+```graphql example
+{
+  reviews {
+    body
+    author {
+      name
+      email
+    }
+  }
+}
+```
+
+If a client tries to fetch the same subfield (`User.email`) through a different
+path (e.g., users query field), the source schema will not be able to resolve it
+and will throw an error.
+
+```graphql counter-example
+{
+  users {
+    # The source schema does NOT provide email in this context,
+    # and this field will fail at runtime.
+    email
+  }
+}
+```
+
+The `@provides` directive may reference multiple fields or nested fields:
+
+```graphql example
+type Review {
+  id: ID!
+  product: Product @provides(fields: "sku variation { size }")
+}
+
+type Product @key(fields: "sku variation { id }") {
+  sku: String! @external
+  variation: ProductVariation!
+  name: String!
+}
+
+type ProductVariation {
+  id: String!
+  size: String! @external
+}
+```
+
+When a field annotated with the provides directive has an abstract return type
+the fields syntax can leverage inline fragments to express fields that can be
+resolved locally.
+
+```graphql example
+type Review {
+  id: ID!
+  # The @provides directive tells us that this source schema can supply different
+  # fields depending on which concrete type of Product is returned.
+  product: Product
+    @provides(
+      fields: """
+      ... on Book { author }
+      ... on Clothing { size }
+      """
+    )
+}
+
+interface Product @key(fields: "id") {
+  id: ID!
+}
+
+type Book implements Product {
+  id: ID!
+  title: String!
+  author: String! @external
+}
+
+type Clothing implements Product {
+  id: ID!
+  name: String!
+  size: String! @external
+}
+
+type Query {
+  reviews: [Review!]!
+}
+```
 
 **Arguments:**
 
-- `fields`: Represents a selection set syntax.
+- `fields`: Represents a selection set syntax describing the subfields of the
+  returned type that can be provided by the current source schema.
 
 ### @external
 
 ```graphql
-directive @external on OBJECT_DEFINITION | INTERFACE_DEFINITION | FIELD_DEFINITION
+directive @external on FIELD_DEFINITION
 ```
 
-The `@external` directive is used in combination with the `@provides` directive
-and specifies data that is not owned ba a particular source schema.
+The @external directive indicates that a field is recognized by the current
+source schema but is not directly contributed (resolved) by it. Instead, this
+schema references the field for specific composition purposes.
+
+**Entity Keys**
+
+When combined with one or more `@key` directives, an external field can serve as
+an entity identifier (or part of a composite identifier).
+
+```graphql example
+type Query {
+  productBySku(sku: String!): Product @lookup
+  productByUpc(upc: String!): Product @lookup
+}
+
+type Product @key(fields: "sku") @key(fields: "upc") {
+  sku: String! @external
+  upc: String! @external
+  name: String
+}
+```
+
+**Field Resolution**
+
+When another field in the same source schema uses `@provides` to declare that it
+can resolve certain external fields in a single data-fetching step.
+
+```graphql example
+type Review {
+  id: ID!
+  text: String
+  author: User @provides(fields: "email")
+}
+
+extend type User {
+  id: ID!
+  email: String! @external
+}
+```
+
+When a field is marked `@external`, the composition process understands that the
+field is provided by another source schema. The current source schema references
+it only for entity identification (via `@key`) or for providing a field through
+`@provides`. If no such usage exists, the presence of an `@external` field
+produces a composition error.
 
 ### @override
 
@@ -533,5 +687,76 @@ and specifies data that is not owned ba a particular source schema.
 directive @override(from: String!) on FIELD_DEFINITION
 ```
 
-The `@override` directive allows to migrate fields from one source schema to
-another.
+The `@override` directive is used to migrate a field from one source schema to
+another. When a field in the local schema is annotated with
+`@override(from: "Catalog")`, it signals that the local schema overrides the
+field previously contributed by the `Catalog` source schema. As a result, the
+composite schema will source this field from the local schema, rather than from
+the original source schema.
+
+The following example shows how a field can be migrated from the `Catalog`
+schema to the new `Payments` schema. By using `@override`, a field can be moved
+to a new schema without requiring any change to the original `Catalog` schema.
+
+```graphql example
+# The original "Catalog" schema:
+type Product @key(fields: "id") {
+  id: ID!
+  name: String!
+  price: Float!
+}
+
+# The new "Payments" schema:
+extend type Product @key(fields: "id") {
+  id: ID! @external
+  price: Float! @override(from: "Catalog")
+  tax: Float!
+}
+```
+
+Fields that are annotated can themselves be migrated.
+
+```graphql example
+# The original "Catalog" schema:
+type Product @key(fields: "id") {
+  id: ID!
+  name: String!
+  price: Float!
+}
+
+# The new "Payments" schema:
+extend type Product @key(fields: "id") {
+  id: ID! @external
+  price: Float! @override(from: "Catalog")
+  tax: Float!
+}
+
+# The new "Pricing" schema:
+extend type Product @key(fields: "id") {
+  id: ID! @external
+  price: Float! @override(from: "Payments")
+  tax: Float!
+}
+```
+
+If the composition detects cyclic overrides it must throw a composition error.
+
+```graphql example
+# The original "Catalog" schema:
+type Product @key(fields: "id") {
+  id: ID!
+  name: String!
+  price: Float! @override(from: "Pricing")
+}
+
+# The new "Payments" schema:
+extend type Product @key(fields: "id") {
+  id: ID! @external
+  price: Float! @override(from: "Catalog")
+  tax: Float!
+}
+```
+
+**Arguments:**
+
+- `from`: The name of the source schema that originally provided this field.
