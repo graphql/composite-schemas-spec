@@ -229,7 +229,7 @@ nature, such as internal identifiers or fields intended only for backend use.
 type Product @key(fields: "id") @key(fields: "sku") {
   id: ID!
   sku: String! @inaccessible
-  internalNote: String
+  note: String
 }
 
 type Query {
@@ -252,7 +252,7 @@ system member have no `@inaccessible` directive.
 type Product @key(fields: "id") @key(fields: "sku") {
   id: ID!
   sku: String! @inaccessible
-  internalNote: String
+  note: String
 }
 
 # Source Schema B
@@ -264,7 +264,7 @@ type Product @key(fields: "sku") {
 # Composite Schema
 type Product {
   id: ID!
-  internalNote: String
+  note: String
   price: Float!
 }
 ```
@@ -281,7 +281,7 @@ completely excludes the marked elements from the composite schema.
 type Product @inaccessible {
   id: ID!
   sku: String!
-  internalNote: String
+  note: String
 }
 
 type Query {
