@@ -432,14 +432,123 @@ Note: Key fields are always considered sharable.
 directive @provides(fields: SelectionSet!) on FIELD_DEFINITION
 ```
 
-The `@provides` directive is an optimization hint specifying child fields that
-can be resolved locally at the given source schema through a particular query
-path. This allows for a variation of overlapping fields to improve data
-fetching.
+The `@provides` directive indicates that a field can provide certain subfields
+of its return type from the same source schema, without requiring an additional
+resolution step elsewhere.
+
+```graphql example
+type Review {
+  id: ID!
+  body: String!
+  author: User @provides(fields: "email")
+}
+
+type User @key(fields: "id") {
+  id: ID!
+  email: String! @external
+  name: String!
+}
+
+type Query {
+  reviews: [Review!]
+  users: [User!]
+}
+```
+
+When a field annotated with `@provides` returns an object, interface or union
+type that may also be contributed by other source schemas, this directive
+declares which of that type’s subfields the current source schema can resolve
+directly.
+
+```graphql example
+{
+  reviews {
+    body
+    user {
+      name
+      email
+    }
+  }
+}
+```
+
+If a client tries to fetch the same subfield (`User.email`) through a different
+path (e.g., users query field), the source schema will not be able to resolve it
+and will throw an error.
+
+```graphql counter-example
+{
+  users {
+    # The source schema does NOT provide email in this context,
+    # and this field will fail at runtime.
+    email
+  }
+}
+```
+
+The `@provides` directive may reference multiple fields or nested fields:
+
+```graphql example
+type Review {
+  id: ID!
+  product: Product @provides(fields: "sku variation { size }")
+}
+
+type Product @key(fields: "sku variation { id }") {
+  sku: String! @external
+  variation: ProductVariation!
+  name: String!
+}
+
+type ProductVariation {
+  id: String!
+  size: String! @external
+}
+```
+
+When a field annotated with the provides directive has an abstract return type
+the fields syntax can leverage inline fragments to express fields that can be
+resolved locally.
+
+```graphql example
+type Review {
+  id: ID!
+  # The @provides directive tells us that this source schema can supply different
+  # fields depending on which concrete type of Product is returned.
+  product: Product
+    @provides(
+      fields: """
+      ... on Book { author }
+      ... on Clothing { size }
+      """
+    )
+}
+
+interface Product @key(fields: "id") {
+  id: ID!
+}
+
+type Book implements Product {
+  id: ID!
+  title: String!
+  author: String! @external
+}
+
+type Clothing implements Product {
+  id: ID!
+  name: String!
+  size: String! @external
+}
+
+type Query {
+  reviews: [Review!]!
+}
+```
 
 **Arguments:**
 
-- `fields`: Represents a selection set syntax.
+- `fields`: Represents a selection set syntax describing the subfields of the
+  returned type that can be provided by the current source schema.
 
 ### @external
 
