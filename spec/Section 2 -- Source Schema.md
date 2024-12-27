@@ -464,7 +464,7 @@ directly.
 {
   reviews {
     body
-    user {
+    author {
       name
       email
     }
