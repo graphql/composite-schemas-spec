@@ -629,69 +629,68 @@ Key fields are always considered sharable.</div>
 <li data-source="spec/Section%204%20--%20Composition.md#L37">return true</li>
 </ol>
 </div>
-<div class="spec-algo" id="ValidateInputFieldDefaultValues()" data-source="spec/Section%204%20--%20Composition.md#L39-L48">
+<div class="spec-algo" id="ValidateInputFieldDefaultValues()" data-source="spec/Section%204%20--%20Composition.md#L39-L47">
 <span class="spec-call"><a href="#ValidateInputFieldDefaultValues()" data-name="ValidateInputFieldDefaultValues">ValidateInputFieldDefaultValues</a>()</span><ol>
 <li data-source="spec/Section%204%20--%20Composition.md#L41">Let <var data-name="inputFields">inputFields</var> be all input fields across all source schemas</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L42-L47">For each <var data-name="inputField">inputField</var> in <var data-name="inputFields">inputFields</var>:<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L43">Let <var data-name="type">type</var> be the type of <var data-name="inputField">inputField</var></li>
-<li data-source="spec/Section%204%20--%20Composition.md#L44-L47">If <span class="spec-call"><span data-name="IsExposed">IsExposed</span>(<var data-name="inputField">inputField</var>)</span> is true and <var data-name="inputField">inputField</var> has a default value:<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L45">Let <var data-name="defaultValue">defaultValue</var> be the default value of <var data-name="inputField">inputField</var></li>
-<li data-source="spec/Section%204%20--%20Composition.md#L46-L47">If <span class="spec-call"><a href="#ValidateDefaultValue()" data-name="ValidateDefaultValue">ValidateDefaultValue</a>(<var data-name="defaultValue">defaultValue</var>)</span> is false<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L47">return false</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L42-L46">For each <var data-name="inputField">inputField</var> in <var data-name="inputFields">inputFields</var>:<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L43-L46">If <span class="spec-call"><span data-name="IsExposed">IsExposed</span>(<var data-name="inputField">inputField</var>)</span> is true and <var data-name="inputField">inputField</var> has a default value:<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L44">Let <var data-name="defaultValue">defaultValue</var> be the default value of <var data-name="inputField">inputField</var></li>
+<li data-source="spec/Section%204%20--%20Composition.md#L45-L46">If <span class="spec-call"><a href="#ValidateDefaultValue()" data-name="ValidateDefaultValue">ValidateDefaultValue</a>(<var data-name="defaultValue">defaultValue</var>)</span> is false<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L46">return false</li>
 </ol>
 </li>
 </ol>
 </li>
 </ol>
 </li>
-<li data-source="spec/Section%204%20--%20Composition.md#L48">return true</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L47">return true</li>
 </ol>
 </div>
-<div class="spec-algo" id="ValidateDefaultValue()" data-source="spec/Section%204%20--%20Composition.md#L50-L68">
+<div class="spec-algo" id="ValidateDefaultValue()" data-source="spec/Section%204%20--%20Composition.md#L49-L67">
 <span class="spec-call"><a href="#ValidateDefaultValue()" data-name="ValidateDefaultValue">ValidateDefaultValue</a>(<var data-name="defaultValue">defaultValue</var>)</span><ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L52-L55">If <var data-name="defaultValue">defaultValue</var> is a ListValue:<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L53-L55">For each <var data-name="valueNode">valueNode</var> in <var data-name="defaultValue">defaultValue</var>:<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L54-L55">If <span class="spec-call"><a href="#ValidateDefaultValue()" data-name="ValidateDefaultValue">ValidateDefaultValue</a>(<var data-name="valueNode">valueNode</var>)</span> is false<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L55">return false</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L51-L54">If <var data-name="defaultValue">defaultValue</var> is a ListValue:<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L52-L54">For each <var data-name="valueNode">valueNode</var> in <var data-name="defaultValue">defaultValue</var>:<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L53-L54">If <span class="spec-call"><a href="#ValidateDefaultValue()" data-name="ValidateDefaultValue">ValidateDefaultValue</a>(<var data-name="valueNode">valueNode</var>)</span> is false<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L54">return false</li>
 </ol>
 </li>
 </ol>
 </li>
 </ol>
 </li>
-<li data-source="spec/Section%204%20--%20Composition.md#L56-L64">If <var data-name="defaultValue">defaultValue</var> is an ObjectValue:<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L57">Let <var data-name="objectFields">objectFields</var> be a list of all fields of <var data-name="defaultValue">defaultValue</var></li>
-<li data-source="spec/Section%204%20--%20Composition.md#L58">Let <var data-name="fields">fields</var> be a list of all fields <var data-name="objectFields">objectFields</var> are referring to</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L59-L61">For each <var data-name="field">field</var> in <var data-name="fields">fields</var>:<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L60-L61">If <span class="spec-call"><span data-name="IsExposed">IsExposed</span>(<var data-name="field">field</var>)</span> is false<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L61">return false</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L55-L63">If <var data-name="defaultValue">defaultValue</var> is an ObjectValue:<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L56">Let <var data-name="objectFields">objectFields</var> be a list of all fields of <var data-name="defaultValue">defaultValue</var></li>
+<li data-source="spec/Section%204%20--%20Composition.md#L57">Let <var data-name="fields">fields</var> be a list of all fields <var data-name="objectFields">objectFields</var> are referring to</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L58-L60">For each <var data-name="field">field</var> in <var data-name="fields">fields</var>:<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L59-L60">If <span class="spec-call"><span data-name="IsExposed">IsExposed</span>(<var data-name="field">field</var>)</span> is false<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L60">return false</li>
 </ol>
 </li>
 </ol>
 </li>
-<li data-source="spec/Section%204%20--%20Composition.md#L62-L64">For each <var data-name="objectField">objectField</var> in <var data-name="objectFields">objectFields</var>:<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L63">Let <var data-name="value">value</var> be the value of <var data-name="objectField">objectField</var></li>
-<li data-source="spec/Section%204%20--%20Composition.md#L64">return <span class="spec-call"><a href="#ValidateDefaultValue()" data-name="ValidateDefaultValue">ValidateDefaultValue</a>(<var data-name="value">value</var>)</span></li>
+<li data-source="spec/Section%204%20--%20Composition.md#L61-L63">For each <var data-name="objectField">objectField</var> in <var data-name="objectFields">objectFields</var>:<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L62">Let <var data-name="value">value</var> be the value of <var data-name="objectField">objectField</var></li>
+<li data-source="spec/Section%204%20--%20Composition.md#L63">return <span class="spec-call"><a href="#ValidateDefaultValue()" data-name="ValidateDefaultValue">ValidateDefaultValue</a>(<var data-name="value">value</var>)</span></li>
 </ol>
 </li>
 </ol>
 </li>
-<li data-source="spec/Section%204%20--%20Composition.md#L65-L67">If <var data-name="defaultValue">defaultValue</var> is an EnumValue:<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L66-L67">If <span class="spec-call"><span data-name="IsExposed">IsExposed</span>(<var data-name="defaultValue">defaultValue</var>)</span> is false<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L67">return false</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L64-L66">If <var data-name="defaultValue">defaultValue</var> is an EnumValue:<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L65-L66">If <span class="spec-call"><span data-name="IsExposed">IsExposed</span>(<var data-name="defaultValue">defaultValue</var>)</span> is false<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L66">return false</li>
 </ol>
 </li>
 </ol>
 </li>
-<li data-source="spec/Section%204%20--%20Composition.md#L68">return true</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L67">return true</li>
 </ol>
 </div>
 </section>
 <section id="sec-Enum-Type-Default-Value-Uses-Inaccessible-Value.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L70"><a href="#sec-Enum-Type-Default-Value-Uses-Inaccessible-Value.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L72-L75">This rule ensures that inaccessible enum values are not exposed in the composed schema through default values. Output field arguments, input fields, and directive arguments must only use enum values as their default value when not annotated with the <code>@inaccessible</code> directive.</p>
-<p data-source="spec/Section%204%20--%20Composition.md#L77-L78">In this example the <code>FOO</code> value in the <code>Enum1</code> enum is not marked with <code>@inaccessible</code>, hence it does not violate the rule.</p>
-<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L80-L89"><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L69"><a href="#sec-Enum-Type-Default-Value-Uses-Inaccessible-Value.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L71-L74">This rule ensures that inaccessible enum values are not exposed in the composed schema through default values. Output field arguments, input fields, and directive arguments must only use enum values as their default value when not annotated with the <code>@inaccessible</code> directive.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L76-L77">In this example the <code>FOO</code> value in the <code>Enum1</code> enum is not marked with <code>@inaccessible</code>, hence it does not violate the rule.</p>
+<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L79-L88"><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">field</span><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">:</span> <span class="token class-name">Enum1</span> <span class="token operator">=</span> <span class="token constant">FOO</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">Baz</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 
@@ -700,8 +699,8 @@ Key fields are always considered sharable.</div>
   <span class="token constant">BAR</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L91-L93">The following example violates this rule because the default value for the field <code>field</code> in type <code>Input1</code> references an enum value (<code>FOO</code>) that is marked as <code>@inaccessible</code>.</p>
-<pre id="example-bfabf" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L95-L110"><a href="#example-bfabf">Counter Example № 30</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L90-L92">The following example violates this rule because the default value for the field <code>field</code> in type <code>Input1</code> references an enum value (<code>FOO</code>) that is marked as <code>@inaccessible</code>.</p>
+<pre id="example-bfabf" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L94-L109"><a href="#example-bfabf">Counter Example № 30</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">field</span><span class="token punctuation">(</span><span class="token attr-name">arg</span><span class="token punctuation">:</span> <span class="token class-name">Enum1</span> <span class="token operator">=</span> <span class="token constant">FOO</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">Baz</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 
@@ -716,7 +715,7 @@ Key fields are always considered sharable.</div>
   <span class="token constant">BAR</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<pre id="example-1031b" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L112-L123"><a href="#example-1031b">Counter Example № 31</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<pre id="example-1031b" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L111-L122"><a href="#example-1031b">Counter Example № 31</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">field</span><span class="token punctuation">(</span><span class="token attr-name">arg</span><span class="token punctuation">:</span> <span class="token class-name">Input1</span> <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token attr-name">field2</span><span class="token punctuation">:</span> <span class="token string">"ERROR"</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">Baz</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 
@@ -730,46 +729,46 @@ Key fields are always considered sharable.</div>
 </section>
 </section>
 <section id="sec-Output-Field-Types-Mergeable" secid="3.2.1.2">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L125"><span class="spec-secid" title="link to this section"><a href="#sec-Output-Field-Types-Mergeable">3.2.1.2</a></span>Output Field Types Mergeable</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L124"><span class="spec-secid" title="link to this section"><a href="#sec-Output-Field-Types-Mergeable">3.2.1.2</a></span>Output Field Types Mergeable</h4>
 <section id="sec-Output-Field-Types-Mergeable.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L127"><a href="#sec-Output-Field-Types-Mergeable.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L129"><code>OUTPUT_FIELD_TYPES_NOT_MERGEABLE</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L126"><a href="#sec-Output-Field-Types-Mergeable.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L128"><code>OUTPUT_FIELD_TYPES_NOT_MERGEABLE</code></p>
 </section>
 <section id="sec-Output-Field-Types-Mergeable.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L131"><a href="#sec-Output-Field-Types-Mergeable.Severity" title="link to this subsection">Severity</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L133">ERROR</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L130"><a href="#sec-Output-Field-Types-Mergeable.Severity" title="link to this subsection">Severity</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L132">ERROR</p>
 </section>
 <section id="sec-Output-Field-Types-Mergeable.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L135"><a href="#sec-Output-Field-Types-Mergeable.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L134"><a href="#sec-Output-Field-Types-Mergeable.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L137">Let <var data-name="typeNames">typeNames</var> be the set of all output type names from all source schemas.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L138-L145">For each <var data-name="typeName">typeName</var> in <var data-name="typeNames">typeNames</var><ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L139-L140">Let <var data-name="types">types</var> be the set of all types with the name <var data-name="typeName">typeName</var> from all source schemas.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L141">Let <var data-name="fieldNames">fieldNames</var> be the set of all field names from all <var data-name="types">types</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L142-L145">For each <var data-name="fieldName">fieldName</var> in <var data-name="fieldNames">fieldNames</var><ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L143-L144">Let <var data-name="fields">fields</var> be the set of all fields with the name <var data-name="fieldName">fieldName</var> from all <var data-name="types">types</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L145"><span class="spec-call"><a href="#FieldsAreMergeable()" data-name="FieldsAreMergeable">FieldsAreMergeable</a>(<var data-name="fields">fields</var>)</span> must be true.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L136">Let <var data-name="typeNames">typeNames</var> be the set of all output type names from all source schemas.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L137-L144">For each <var data-name="typeName">typeName</var> in <var data-name="typeNames">typeNames</var><ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L138-L139">Let <var data-name="types">types</var> be the set of all types with the name <var data-name="typeName">typeName</var> from all source schemas.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L140">Let <var data-name="fieldNames">fieldNames</var> be the set of all field names from all <var data-name="types">types</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L141-L144">For each <var data-name="fieldName">fieldName</var> in <var data-name="fieldNames">fieldNames</var><ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L142-L143">Let <var data-name="fields">fields</var> be the set of all fields with the name <var data-name="fieldName">fieldName</var> from all <var data-name="types">types</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L144"><span class="spec-call"><a href="#FieldsAreMergeable()" data-name="FieldsAreMergeable">FieldsAreMergeable</a>(<var data-name="fields">fields</var>)</span> must be true.</li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
-<div class="spec-algo" id="FieldsAreMergeable()" data-source="spec/Section%204%20--%20Composition.md#L147-L152">
+<div class="spec-algo" id="FieldsAreMergeable()" data-source="spec/Section%204%20--%20Composition.md#L146-L151">
 <span class="spec-call"><a href="#FieldsAreMergeable()" data-name="FieldsAreMergeable">FieldsAreMergeable</a>(<var data-name="fields">fields</var>)</span><ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L149-L152">Given each pair of members <var data-name="fieldA">fieldA</var> and <var data-name="fieldB">fieldB</var> in <var data-name="fields">fields</var>:<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L150">Let <var data-name="typeA">typeA</var> be the type of <var data-name="fieldA">fieldA</var></li>
-<li data-source="spec/Section%204%20--%20Composition.md#L151">Let <var data-name="typeB">typeB</var> be the type of <var data-name="fieldB">fieldB</var></li>
-<li data-source="spec/Section%204%20--%20Composition.md#L152"><span class="spec-call"><span data-name="SameTypeShape">SameTypeShape</span>(<var data-name="typeA">typeA</var>, <var data-name="typeB">typeB</var>)</span> must be true.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L148-L151">Given each pair of members <var data-name="fieldA">fieldA</var> and <var data-name="fieldB">fieldB</var> in <var data-name="fields">fields</var>:<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L149">Let <var data-name="typeA">typeA</var> be the type of <var data-name="fieldA">fieldA</var></li>
+<li data-source="spec/Section%204%20--%20Composition.md#L150">Let <var data-name="typeB">typeB</var> be the type of <var data-name="fieldB">fieldB</var></li>
+<li data-source="spec/Section%204%20--%20Composition.md#L151"><span class="spec-call"><span data-name="SameTypeShape">SameTypeShape</span>(<var data-name="typeA">typeA</var>, <var data-name="typeB">typeB</var>)</span> must be true.</li>
 </ol>
 </li>
 </ol>
 </div>
 </section>
 <section id="sec-Output-Field-Types-Mergeable.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L154"><a href="#sec-Output-Field-Types-Mergeable.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L156-L157">Fields on objects or interfaces that have the same name are considered semantically equivalent and mergeable when they have a mergeable field type.</p>
-<p data-source="spec/Section%204%20--%20Composition.md#L159">Fields with the same type are mergeable.</p>
-<pre id="example-65bd6" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L161-L169"><a href="#example-65bd6">Example № 32</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L153"><a href="#sec-Output-Field-Types-Mergeable.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L155-L156">Fields on objects or interfaces that have the same name are considered semantically equivalent and mergeable when they have a mergeable field type.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L158">Fields with the same type are mergeable.</p>
+<pre id="example-65bd6" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L160-L168"><a href="#example-65bd6">Example № 32</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
   <span class="token attr-name">birthdate</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 
@@ -777,8 +776,8 @@ Key fields are always considered sharable.</div>
   <span class="token attr-name">birthdate</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L171-L172">Fields with different nullability are mergeable, resulting in a merged field with a nullable type.</p>
-<pre id="example-6c133" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L174-L182"><a href="#example-6c133">Example № 33</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L170-L171">Fields with different nullability are mergeable, resulting in a merged field with a nullable type.</p>
+<pre id="example-6c133" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L173-L181"><a href="#example-6c133">Example № 33</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
   <span class="token attr-name">birthdate</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 
@@ -786,7 +785,7 @@ Key fields are always considered sharable.</div>
   <span class="token attr-name">birthdate</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<pre id="example-a9f42" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L184-L196"><a href="#example-a9f42">Example № 34</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
+<pre id="example-a9f42" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L183-L195"><a href="#example-a9f42">Example № 34</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
   <span class="token attr-name">tags</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token scalar">String</span><span class="token operator">!</span><span class="token punctuation">]</span>
 <span class="token punctuation">}</span>
 
@@ -798,8 +797,8 @@ Key fields are always considered sharable.</div>
   <span class="token attr-name">tags</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token scalar">String</span><span class="token punctuation">]</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L198">Fields are not mergeable if the named types are different in kind or name.</p>
-<pre id="example-1b751" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L200-L208"><a href="#example-1b751">Counter Example № 35</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L197">Fields are not mergeable if the named types are different in kind or name.</p>
+<pre id="example-1b751" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L199-L207"><a href="#example-1b751">Counter Example № 35</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
   <span class="token attr-name">birthdate</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 
@@ -807,7 +806,7 @@ Key fields are always considered sharable.</div>
   <span class="token attr-name">birthdate</span><span class="token punctuation">:</span> <span class="token class-name">DateTime</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<pre id="example-70adb" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L210-L224"><a href="#example-70adb">Counter Example № 36</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
+<pre id="example-70adb" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L209-L223"><a href="#example-70adb">Counter Example № 36</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
   <span class="token attr-name">tags</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">Tag</span><span class="token punctuation">]</span>
 <span class="token punctuation">}</span>
 
@@ -824,26 +823,26 @@ Key fields are always considered sharable.</div>
 </section>
 </section>
 <section id="sec-Disallowed-Inaccessible-Elements" secid="3.2.1.3">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L226"><span class="spec-secid" title="link to this section"><a href="#sec-Disallowed-Inaccessible-Elements">3.2.1.3</a></span>Disallowed Inaccessible Elements</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L225"><span class="spec-secid" title="link to this section"><a href="#sec-Disallowed-Inaccessible-Elements">3.2.1.3</a></span>Disallowed Inaccessible Elements</h4>
 <section id="sec-Disallowed-Inaccessible-Elements.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L228"><a href="#sec-Disallowed-Inaccessible-Elements.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L230"><code>DISALLOWED_INACCESSIBLE</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L227"><a href="#sec-Disallowed-Inaccessible-Elements.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L229"><code>DISALLOWED_INACCESSIBLE</code></p>
 </section>
 <section id="sec-Disallowed-Inaccessible-Elements.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L232"><a href="#sec-Disallowed-Inaccessible-Elements.Severity" title="link to this subsection">Severity</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L234">ERROR</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L231"><a href="#sec-Disallowed-Inaccessible-Elements.Severity" title="link to this subsection">Severity</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L233">ERROR</p>
 </section>
 <section id="sec-Disallowed-Inaccessible-Elements.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L236"><a href="#sec-Disallowed-Inaccessible-Elements.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L235"><a href="#sec-Disallowed-Inaccessible-Elements.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L238">Let <var data-name="type">type</var> be the set of all types from all source schemas.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L239-L245">For each <var data-name="type">type</var> in <var data-name="types">types</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L240-L245">If <var data-name="type">type</var> is a built-in scalar type or introspection type:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L241"><span class="spec-call"><span data-name="IsAccessible">IsAccessible</span>(<var data-name="type">type</var>)</span> must be true.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L242-L245">For each <var data-name="field">field</var> in <var data-name="type">type</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L243"><span class="spec-call"><span data-name="IsAccessible">IsAccessible</span>(<var data-name="field">field</var>)</span> must be true.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L244-L245">For each <var data-name="argument">argument</var> in <var data-name="field">field</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L245"><span class="spec-call"><span data-name="IsAccessible">IsAccessible</span>(<var data-name="argument">argument</var>)</span> must be true.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L237">Let <var data-name="type">type</var> be the set of all types from all source schemas.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L238-L244">For each <var data-name="type">type</var> in <var data-name="types">types</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L239-L244">If <var data-name="type">type</var> is a built-in scalar type or introspection type:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L240"><span class="spec-call"><span data-name="IsAccessible">IsAccessible</span>(<var data-name="type">type</var>)</span> must be true.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L241-L244">For each <var data-name="field">field</var> in <var data-name="type">type</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L242"><span class="spec-call"><span data-name="IsAccessible">IsAccessible</span>(<var data-name="field">field</var>)</span> must be true.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L243-L244">For each <var data-name="argument">argument</var> in <var data-name="field">field</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L244"><span class="spec-call"><span data-name="IsAccessible">IsAccessible</span>(<var data-name="argument">argument</var>)</span> must be true.</li>
 </ul>
 </li>
 </ul>
@@ -852,10 +851,10 @@ Key fields are always considered sharable.</div>
 </li>
 </ul>
 </li>
-<li data-source="spec/Section%204%20--%20Composition.md#L246-L249">For each <var data-name="directive">directive</var> in <var data-name="directives">directives</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L247-L249">If <var data-name="directive">directive</var> is a built-in directive:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L248-L249">For each <var data-name="argument">argument</var> in <var data-name="directive">directive</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L249"><span class="spec-call"><span data-name="IsAccessible">IsAccessible</span>(<var data-name="argument">argument</var>)</span> must be true.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L245-L248">For each <var data-name="directive">directive</var> in <var data-name="directives">directives</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L246-L248">If <var data-name="directive">directive</var> is a built-in directive:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L247-L248">For each <var data-name="argument">argument</var> in <var data-name="directive">directive</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L248"><span class="spec-call"><span data-name="IsAccessible">IsAccessible</span>(<var data-name="argument">argument</var>)</span> must be true.</li>
 </ul>
 </li>
 </ul>
@@ -865,24 +864,24 @@ Key fields are always considered sharable.</div>
 </ul>
 </section>
 <section id="sec-Disallowed-Inaccessible-Elements.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L251"><a href="#sec-Disallowed-Inaccessible-Elements.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L253-L256">This rule ensures that certain essential elements of a GraphQL schema, particularly built-in scalars, directive arguments, and introspection types, cannot be marked as <code>@inaccessible</code>. These types are fundamental to GraphQL. Making these elements inaccessible would break core GraphQL functionality.</p>
-<p data-source="spec/Section%204%20--%20Composition.md#L258-L259">Here, the <code>String</code> type is not marked as <code>@inaccessible</code>, which adheres to the rule:</p>
-<pre id="example-99a08" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L261-L266"><a href="#example-99a08">Example № 37</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L250"><a href="#sec-Disallowed-Inaccessible-Elements.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L252-L255">This rule ensures that certain essential elements of a GraphQL schema, particularly built-in scalars, directive arguments, and introspection types, cannot be marked as <code>@inaccessible</code>. These types are fundamental to GraphQL. Making these elements inaccessible would break core GraphQL functionality.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L257-L258">Here, the <code>String</code> type is not marked as <code>@inaccessible</code>, which adheres to the rule:</p>
+<pre id="example-99a08" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L260-L265"><a href="#example-99a08">Example № 37</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">price</span><span class="token punctuation">:</span> <span class="token scalar">Float</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L268-L270">In this example, the <code>String</code> scalar is marked as <code>@inaccessible</code>. This violates the rule because <code>String</code> is a required built-in type that cannot be inaccessible:</p>
-<pre id="example-23d3f" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L272-L279"><a href="#example-23d3f">Counter Example № 38</a><code><span class="token keyword">scalar</span> <span class="token scalar">String</span> <span class="token directive function">@inaccessible</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L267-L269">In this example, the <code>String</code> scalar is marked as <code>@inaccessible</code>. This violates the rule because <code>String</code> is a required built-in type that cannot be inaccessible:</p>
+<pre id="example-23d3f" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L271-L278"><a href="#example-23d3f">Counter Example № 38</a><code><span class="token keyword">scalar</span> <span class="token scalar">String</span> <span class="token directive function">@inaccessible</span>
 
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">price</span><span class="token punctuation">:</span> <span class="token scalar">Float</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L281-L283">In this example, the introspection type <code>__Type</code> is marked as <code>@inaccessible</code>. This violates the rule because introspection types must remain accessible for GraphQL introspection queries to work.</p>
-<pre id="example-f1652" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L285-L291"><a href="#example-f1652">Counter Example № 39</a><code><span class="token keyword">type</span> <span class="token class-name">__Type</span> <span class="token directive function">@inaccessible</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L280-L282">In this example, the introspection type <code>__Type</code> is marked as <code>@inaccessible</code>. This violates the rule because introspection types must remain accessible for GraphQL introspection queries to work.</p>
+<pre id="example-f1652" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L284-L290"><a href="#example-f1652">Counter Example № 39</a><code><span class="token keyword">type</span> <span class="token class-name">__Type</span> <span class="token directive function">@inaccessible</span> <span class="token punctuation">{</span>
   <span class="token attr-name">kind</span><span class="token punctuation">:</span> <span class="token class-name">__TypeKind</span><span class="token operator">!</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
   <span class="token attr-name">fields</span><span class="token punctuation">(</span><span class="token attr-name">includeDeprecated</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span> <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">__Field</span><span class="token operator">!</span><span class="token punctuation">]</span>
@@ -891,33 +890,33 @@ Key fields are always considered sharable.</div>
 </section>
 </section>
 <section id="sec-External-Argument-Default-Mismatch" secid="3.2.1.4">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L293"><span class="spec-secid" title="link to this section"><a href="#sec-External-Argument-Default-Mismatch">3.2.1.4</a></span>External Argument Default Mismatch</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L292"><span class="spec-secid" title="link to this section"><a href="#sec-External-Argument-Default-Mismatch">3.2.1.4</a></span>External Argument Default Mismatch</h4>
 <section id="sec-External-Argument-Default-Mismatch.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L295"><a href="#sec-External-Argument-Default-Mismatch.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L297"><code>EXTERNAL_ARGUMENT_DEFAULT_MISMATCH</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L294"><a href="#sec-External-Argument-Default-Mismatch.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L296"><code>EXTERNAL_ARGUMENT_DEFAULT_MISMATCH</code></p>
 </section>
 <section id="sec-External-Argument-Default-Mismatch.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L299"><a href="#sec-External-Argument-Default-Mismatch.Severity" title="link to this subsection">Severity</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L301">ERROR</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L298"><a href="#sec-External-Argument-Default-Mismatch.Severity" title="link to this subsection">Severity</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L300">ERROR</p>
 </section>
 <section id="sec-External-Argument-Default-Mismatch.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L303"><a href="#sec-External-Argument-Default-Mismatch.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L302"><a href="#sec-External-Argument-Default-Mismatch.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L305">Let <var data-name="typeNames">typeNames</var> be the set of all output type names from all source schemas.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L306-L326">For each <var data-name="typeName">typeName</var> in <var data-name="typeNames">typeNames</var><ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L307-L308">Let <var data-name="types">types</var> be the set of all types with the name <var data-name="typeName">typeName</var> from all source schemas.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L309">Let <var data-name="fieldNames">fieldNames</var> be the set of all field names from all types in <var data-name="types">types</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L310-L326">For each <var data-name="fieldName">fieldName</var> in <var data-name="fieldNames">fieldNames</var><ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L311-L312">Let <var data-name="fields">fields</var> be the set of all fields with the name <var data-name="fieldName">fieldName</var> from all types in <var data-name="types">types</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L313-L314">Let <var data-name="externalFields">externalFields</var> be the set of all fields in <var data-name="fields">fields</var> that are marked with <code>@external</code>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L315-L326">If <var data-name="externalFields">externalFields</var> is not empty<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L316-L317">Let <var data-name="argumentNames">argumentNames</var> be the set of all argument names from all fields in <var data-name="fields">fields</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L318-L326">For each <var data-name="argumentName">argumentName</var> in <var data-name="argumentNames">argumentNames</var><ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L319-L320">Let <var data-name="arguments">arguments</var> be the set of all arguments with the name <var data-name="argumentName">argumentName</var> from all fields in <var data-name="fields">fields</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L321">Let <var data-name="defaultValue">defaultValue</var> be the first default value found in <var data-name="arguments">arguments</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L322-L323">Let <var data-name="externalArguments">externalArguments</var> be the set of all arguments with the name <var data-name="argumentName">argumentName</var> from all fields in <var data-name="externalFields">externalFields</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L324-L326">For each <var data-name="externalArgument">externalArgument</var> in <var data-name="externalArguments">externalArguments</var><ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L325-L326">The default value of <var data-name="externalArgument">externalArgument</var> must be equal to <var data-name="defaultValue">defaultValue</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L304">Let <var data-name="typeNames">typeNames</var> be the set of all output type names from all source schemas.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L305-L325">For each <var data-name="typeName">typeName</var> in <var data-name="typeNames">typeNames</var><ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L306-L307">Let <var data-name="types">types</var> be the set of all types with the name <var data-name="typeName">typeName</var> from all source schemas.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L308">Let <var data-name="fieldNames">fieldNames</var> be the set of all field names from all types in <var data-name="types">types</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L309-L325">For each <var data-name="fieldName">fieldName</var> in <var data-name="fieldNames">fieldNames</var><ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L310-L311">Let <var data-name="fields">fields</var> be the set of all fields with the name <var data-name="fieldName">fieldName</var> from all types in <var data-name="types">types</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L312-L313">Let <var data-name="externalFields">externalFields</var> be the set of all fields in <var data-name="fields">fields</var> that are marked with <code>@external</code>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L314-L325">If <var data-name="externalFields">externalFields</var> is not empty<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L315-L316">Let <var data-name="argumentNames">argumentNames</var> be the set of all argument names from all fields in <var data-name="fields">fields</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L317-L325">For each <var data-name="argumentName">argumentName</var> in <var data-name="argumentNames">argumentNames</var><ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L318-L319">Let <var data-name="arguments">arguments</var> be the set of all arguments with the name <var data-name="argumentName">argumentName</var> from all fields in <var data-name="fields">fields</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L320">Let <var data-name="defaultValue">defaultValue</var> be the first default value found in <var data-name="arguments">arguments</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L321-L322">Let <var data-name="externalArguments">externalArguments</var> be the set of all arguments with the name <var data-name="argumentName">argumentName</var> from all fields in <var data-name="externalFields">externalFields</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L323-L325">For each <var data-name="externalArgument">externalArgument</var> in <var data-name="externalArguments">externalArguments</var><ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L324-L325">The default value of <var data-name="externalArgument">externalArgument</var> must be equal to <var data-name="defaultValue">defaultValue</var>.</li>
 </ul>
 </li>
 </ul>
@@ -931,10 +930,10 @@ Key fields are always considered sharable.</div>
 </ul>
 </section>
 <section id="sec-External-Argument-Default-Mismatch.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L328"><a href="#sec-External-Argument-Default-Mismatch.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L330-L335">This rule ensures that arguments on fields marked as <code>@external</code> have default values compatible with the corresponding arguments on fields from other source schemas where the field is defined (non-<code>@external</code>). Since <code>@external</code> fields represent fields that are resolved by other source schemas, their arguments and defaults must match to maintain consistent behavior across different source schemas.</p>
-<p data-source="spec/Section%204%20--%20Composition.md#L337-L339">Here, the <code>name</code> field on <code>Product</code> is defined in one source schema and marked as <code>@external</code> in another. The argument <code>language</code> has the same default value in both source schemas, satisfying the rule:</p>
-<pre id="example-64ce1" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L341-L351"><a href="#example-64ce1">Example № 40</a><code><span class="token comment"># Source schema A</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L327"><a href="#sec-External-Argument-Default-Mismatch.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L329-L334">This rule ensures that arguments on fields marked as <code>@external</code> have default values compatible with the corresponding arguments on fields from other source schemas where the field is defined (non-<code>@external</code>). Since <code>@external</code> fields represent fields that are resolved by other source schemas, their arguments and defaults must match to maintain consistent behavior across different source schemas.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L336-L338">Here, the <code>name</code> field on <code>Product</code> is defined in one source schema and marked as <code>@external</code> in another. The argument <code>language</code> has the same default value in both source schemas, satisfying the rule:</p>
+<pre id="example-64ce1" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L340-L350"><a href="#example-64ce1">Example № 40</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token operator">=</span> <span class="token string">"en"</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
@@ -944,8 +943,8 @@ Key fields are always considered sharable.</div>
   <span class="token property-query">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token operator">=</span> <span class="token string">"en"</span><span class="token punctuation">)</span> <span class="token directive function">@external</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L353-L355">Here, the <code>name</code> field on <code>Product</code> is defined in one source schema and marked as <code>@external</code> in another. The argument <code>language</code> has different default values in the two source schemas, violating the rule:</p>
-<pre id="example-434fe" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L357-L367"><a href="#example-434fe">Counter Example № 41</a><code><span class="token comment"># Source schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L352-L354">Here, the <code>name</code> field on <code>Product</code> is defined in one source schema and marked as <code>@external</code> in another. The argument <code>language</code> has different default values in the two source schemas, violating the rule:</p>
+<pre id="example-434fe" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L356-L366"><a href="#example-434fe">Counter Example № 41</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token operator">=</span> <span class="token string">"en"</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
@@ -955,8 +954,8 @@ Key fields are always considered sharable.</div>
   <span class="token property-query">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token operator">=</span> <span class="token string">"de"</span><span class="token punctuation">)</span> <span class="token directive function">@external</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L369-L373">In the following counter example, the <code>name</code> field on <code>Product</code> is defined in one source schema and marked as <code>@external</code> in another. The argument <code>language</code> has a default value in the source schema where the field is defined, but it does not have a default value in the source schema where the field is marked as <code>@external</code>, violating the rule:</p>
-<pre id="example-dd53e" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L375-L385"><a href="#example-dd53e">Counter Example № 42</a><code><span class="token comment"># Source schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L368-L372">In the following counter example, the <code>name</code> field on <code>Product</code> is defined in one source schema and marked as <code>@external</code> in another. The argument <code>language</code> has a default value in the source schema where the field is defined, but it does not have a default value in the source schema where the field is marked as <code>@external</code>, violating the rule:</p>
+<pre id="example-dd53e" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L374-L384"><a href="#example-dd53e">Counter Example № 42</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token operator">=</span> <span class="token string">"en"</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
@@ -969,31 +968,31 @@ Key fields are always considered sharable.</div>
 </section>
 </section>
 <section id="sec-External-Argument-Missing" secid="3.2.1.5">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L387"><span class="spec-secid" title="link to this section"><a href="#sec-External-Argument-Missing">3.2.1.5</a></span>External Argument Missing</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L386"><span class="spec-secid" title="link to this section"><a href="#sec-External-Argument-Missing">3.2.1.5</a></span>External Argument Missing</h4>
 <section id="sec-External-Argument-Missing.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L389"><a href="#sec-External-Argument-Missing.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L391"><code>EXTERNAL_ARGUMENT_MISSING</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L388"><a href="#sec-External-Argument-Missing.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L390"><code>EXTERNAL_ARGUMENT_MISSING</code></p>
 </section>
 <section id="sec-External-Argument-Missing.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L393"><a href="#sec-External-Argument-Missing.Severity" title="link to this subsection">Severity</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L395">ERROR</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L392"><a href="#sec-External-Argument-Missing.Severity" title="link to this subsection">Severity</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L394">ERROR</p>
 </section>
 <section id="sec-External-Argument-Missing.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L397"><a href="#sec-External-Argument-Missing.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L396"><a href="#sec-External-Argument-Missing.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L399">Let <var data-name="typeNames">typeNames</var> be the set of all output type names from all source schemas.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L400-L416">For each <var data-name="typeName">typeName</var> in <var data-name="typeNames">typeNames</var><ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L401-L402">Let <var data-name="types">types</var> be the set of all types with the name <var data-name="typeName">typeName</var> from all source schemas.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L403">Let <var data-name="fieldNames">fieldNames</var> be the set of all field names from all types in <var data-name="types">types</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L404-L416">For each <var data-name="fieldName">fieldName</var> in <var data-name="fieldNames">fieldNames</var><ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L405-L406">Let <var data-name="fields">fields</var> be the set of all fields with the name <var data-name="fieldName">fieldName</var> from all types in <var data-name="types">types</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L407-L408">Let <var data-name="externalFields">externalFields</var> be the set of all fields in <var data-name="fields">fields</var> that are marked with <code>@external</code>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L409-L410">Let <var data-name="nonExternalFields">nonExternalFields</var> be the set of all fields in <var data-name="fields">fields</var> that are not marked with <code>@external</code>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L411-L416">If <var data-name="externalFields">externalFields</var> is not empty<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L412-L413">Let <var data-name="argumentNames">argumentNames</var> be the set of all argument names from all fields in <var data-name="nonExternalFields">nonExternalFields</var></li>
-<li data-source="spec/Section%204%20--%20Composition.md#L414-L416">For each <var data-name="argumentName">argumentName</var> in <var data-name="argumentNames">argumentNames</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L415-L416">For each <var data-name="externalField">externalField</var> in <var data-name="externalFields">externalFields</var><ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L416"><var data-name="argumentName">argumentName</var> must be present in the arguments of <var data-name="externalField">externalField</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L398">Let <var data-name="typeNames">typeNames</var> be the set of all output type names from all source schemas.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L399-L415">For each <var data-name="typeName">typeName</var> in <var data-name="typeNames">typeNames</var><ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L400-L401">Let <var data-name="types">types</var> be the set of all types with the name <var data-name="typeName">typeName</var> from all source schemas.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L402">Let <var data-name="fieldNames">fieldNames</var> be the set of all field names from all types in <var data-name="types">types</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L403-L415">For each <var data-name="fieldName">fieldName</var> in <var data-name="fieldNames">fieldNames</var><ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L404-L405">Let <var data-name="fields">fields</var> be the set of all fields with the name <var data-name="fieldName">fieldName</var> from all types in <var data-name="types">types</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L406-L407">Let <var data-name="externalFields">externalFields</var> be the set of all fields in <var data-name="fields">fields</var> that are marked with <code>@external</code>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L408-L409">Let <var data-name="nonExternalFields">nonExternalFields</var> be the set of all fields in <var data-name="fields">fields</var> that are not marked with <code>@external</code>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L410-L415">If <var data-name="externalFields">externalFields</var> is not empty<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L411-L412">Let <var data-name="argumentNames">argumentNames</var> be the set of all argument names from all fields in <var data-name="nonExternalFields">nonExternalFields</var></li>
+<li data-source="spec/Section%204%20--%20Composition.md#L413-L415">For each <var data-name="argumentName">argumentName</var> in <var data-name="argumentNames">argumentNames</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L414-L415">For each <var data-name="externalField">externalField</var> in <var data-name="externalFields">externalFields</var><ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L415"><var data-name="argumentName">argumentName</var> must be present in the arguments of <var data-name="externalField">externalField</var>.</li>
 </ul>
 </li>
 </ul>
@@ -1007,10 +1006,10 @@ Key fields are always considered sharable.</div>
 </ul>
 </section>
 <section id="sec-External-Argument-Missing.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L418"><a href="#sec-External-Argument-Missing.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L420-L425">This rule ensures that fields marked with <code>@external</code> have all the necessary arguments that exist on the corresponding field definitions in other source schemas. Each argument defined on the base field (the field definition in the source source schema) must be present on the <code>@external</code> field in other source schemas. If an argument is missing on an <code>@external</code> field, the field cannot be resolved correctly, which is an inconsistency.</p>
-<p data-source="spec/Section%204%20--%20Composition.md#L427-L429">In this example, the <code>language</code> argument is present on both the <code>@external</code> field in source schema B and the base field in source schema A, satisfying the rule:</p>
-<pre id="example-1b0de" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L431-L441"><a href="#example-1b0de">Example № 43</a><code><span class="token comment"># Source schema A</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L417"><a href="#sec-External-Argument-Missing.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L419-L424">This rule ensures that fields marked with <code>@external</code> have all the necessary arguments that exist on the corresponding field definitions in other source schemas. Each argument defined on the base field (the field definition in the source source schema) must be present on the <code>@external</code> field in other source schemas. If an argument is missing on an <code>@external</code> field, the field cannot be resolved correctly, which is an inconsistency.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L426-L428">In this example, the <code>language</code> argument is present on both the <code>@external</code> field in source schema B and the base field in source schema A, satisfying the rule:</p>
+<pre id="example-1b0de" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L430-L440"><a href="#example-1b0de">Example № 43</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
@@ -1020,8 +1019,8 @@ Key fields are always considered sharable.</div>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@external</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L443-L445">Here, the <code>@external</code> field in source schema B is missing the <code>language</code> argument that is present in the base field definition in source schema A, violating the rule:</p>
-<pre id="example-30492" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L447-L457"><a href="#example-30492">Counter Example № 44</a><code><span class="token comment"># Source schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L442-L444">Here, the <code>@external</code> field in source schema B is missing the <code>language</code> argument that is present in the base field definition in source schema A, violating the rule:</p>
+<pre id="example-30492" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L446-L456"><a href="#example-30492">Counter Example № 44</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
@@ -1034,32 +1033,32 @@ Key fields are always considered sharable.</div>
 </section>
 </section>
 <section id="sec-External-Argument-Type-Mismatch" secid="3.2.1.6">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L459"><span class="spec-secid" title="link to this section"><a href="#sec-External-Argument-Type-Mismatch">3.2.1.6</a></span>External Argument Type Mismatch</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L458"><span class="spec-secid" title="link to this section"><a href="#sec-External-Argument-Type-Mismatch">3.2.1.6</a></span>External Argument Type Mismatch</h4>
 <section id="sec-External-Argument-Type-Mismatch.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L461"><a href="#sec-External-Argument-Type-Mismatch.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L463"><code>EXTERNAL_ARGUMENT_TYPE_MISMATCH</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L460"><a href="#sec-External-Argument-Type-Mismatch.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L462"><code>EXTERNAL_ARGUMENT_TYPE_MISMATCH</code></p>
 </section>
 <section id="sec-External-Argument-Type-Mismatch.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L465"><a href="#sec-External-Argument-Type-Mismatch.Severity" title="link to this subsection">Severity</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L467">ERROR</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L464"><a href="#sec-External-Argument-Type-Mismatch.Severity" title="link to this subsection">Severity</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L466">ERROR</p>
 </section>
 <section id="sec-External-Argument-Type-Mismatch.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L469"><a href="#sec-External-Argument-Type-Mismatch.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L468"><a href="#sec-External-Argument-Type-Mismatch.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L471">Let <var data-name="typeNames">typeNames</var> be the set of all output type names from all source schemas.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L472-L491">For each <var data-name="typeName">typeName</var> in <var data-name="typeNames">typeNames</var><ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L473-L474">Let <var data-name="types">types</var> be the set of all types with the name <var data-name="typeName">typeName</var> from all source schemas.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L475">Let <var data-name="fieldNames">fieldNames</var> be the set of all field names from all types in <var data-name="types">types</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L476-L491">For each <var data-name="fieldName">fieldName</var> in <var data-name="fieldNames">fieldNames</var><ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L477-L478">Let <var data-name="fields">fields</var> be the set of all fields with the name <var data-name="fieldName">fieldName</var> from all types in <var data-name="types">types</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L479-L480">Let <var data-name="externalFields">externalFields</var> be the set of all fields in <var data-name="fields">fields</var> that are marked with <code>@external</code>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L481-L482">Let <var data-name="nonExternalFields">nonExternalFields</var> be the set of all fields in <var data-name="fields">fields</var> that are not marked with <code>@external</code>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L483-L491">If <var data-name="externalFields">externalFields</var> is not empty<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L484-L485">Let <var data-name="argumentNames">argumentNames</var> be the set of all argument names from all fields in <var data-name="nonExternalFields">nonExternalFields</var></li>
-<li data-source="spec/Section%204%20--%20Composition.md#L486-L491">For each <var data-name="argumentName">argumentName</var> in <var data-name="argumentNames">argumentNames</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L487-L491">For each <var data-name="externalField">externalField</var> in <var data-name="externalFields">externalFields</var><ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L488-L489">Let <var data-name="externalArgument">externalArgument</var> be the argument with the name <var data-name="argumentName">argumentName</var> from <var data-name="externalField">externalField</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L490-L491"><var data-name="externalArgument">externalArgument</var> must strictly equal all arguments with the name <var data-name="argumentName">argumentName</var> from <var data-name="nonExternalFields">nonExternalFields</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L470">Let <var data-name="typeNames">typeNames</var> be the set of all output type names from all source schemas.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L471-L490">For each <var data-name="typeName">typeName</var> in <var data-name="typeNames">typeNames</var><ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L472-L473">Let <var data-name="types">types</var> be the set of all types with the name <var data-name="typeName">typeName</var> from all source schemas.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L474">Let <var data-name="fieldNames">fieldNames</var> be the set of all field names from all types in <var data-name="types">types</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L475-L490">For each <var data-name="fieldName">fieldName</var> in <var data-name="fieldNames">fieldNames</var><ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L476-L477">Let <var data-name="fields">fields</var> be the set of all fields with the name <var data-name="fieldName">fieldName</var> from all types in <var data-name="types">types</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L478-L479">Let <var data-name="externalFields">externalFields</var> be the set of all fields in <var data-name="fields">fields</var> that are marked with <code>@external</code>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L480-L481">Let <var data-name="nonExternalFields">nonExternalFields</var> be the set of all fields in <var data-name="fields">fields</var> that are not marked with <code>@external</code>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L482-L490">If <var data-name="externalFields">externalFields</var> is not empty<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L483-L484">Let <var data-name="argumentNames">argumentNames</var> be the set of all argument names from all fields in <var data-name="nonExternalFields">nonExternalFields</var></li>
+<li data-source="spec/Section%204%20--%20Composition.md#L485-L490">For each <var data-name="argumentName">argumentName</var> in <var data-name="argumentNames">argumentNames</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L486-L490">For each <var data-name="externalField">externalField</var> in <var data-name="externalFields">externalFields</var><ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L487-L488">Let <var data-name="externalArgument">externalArgument</var> be the argument with the name <var data-name="argumentName">argumentName</var> from <var data-name="externalField">externalField</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L489-L490"><var data-name="externalArgument">externalArgument</var> must strictly equal all arguments with the name <var data-name="argumentName">argumentName</var> from <var data-name="nonExternalFields">nonExternalFields</var>.</li>
 </ul>
 </li>
 </ul>
@@ -1073,10 +1072,10 @@ Key fields are always considered sharable.</div>
 </ul>
 </section>
 <section id="sec-External-Argument-Type-Mismatch.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L493"><a href="#sec-External-Argument-Type-Mismatch.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L495-L498">This rule ensures that arguments on fields marked as <code>@external</code> have types compatible with the corresponding arguments on the fields defined in other source schemas. The arguments must have the exact same type signature, including nullability and list nesting.</p>
-<p data-source="spec/Section%204%20--%20Composition.md#L500-L501">Here, the <code>@external</code> field&rsquo;s <code>language</code> argument has the same type (<code>Language</code>) as the base field, satisfying the rule:</p>
-<pre id="example-6bb90" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L503-L513"><a href="#example-6bb90">Example № 45</a><code><span class="token comment"># Source schema A</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L492"><a href="#sec-External-Argument-Type-Mismatch.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L494-L497">This rule ensures that arguments on fields marked as <code>@external</code> have types compatible with the corresponding arguments on the fields defined in other source schemas. The arguments must have the exact same type signature, including nullability and list nesting.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L499-L500">Here, the <code>@external</code> field&rsquo;s <code>language</code> argument has the same type (<code>Language</code>) as the base field, satisfying the rule:</p>
+<pre id="example-6bb90" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L502-L512"><a href="#example-6bb90">Example № 45</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token class-name">Language</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
@@ -1086,8 +1085,8 @@ Key fields are always considered sharable.</div>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token class-name">Language</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L515-L517">In this example, the <code>@external</code> field&rsquo;s <code>language</code> argument type does not match the base field&rsquo;s <code>language</code> argument type (<code>Language</code> vs. <code>String</code>), violating the rule:</p>
-<pre id="example-cbf2f" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L519-L529"><a href="#example-cbf2f">Example № 46</a><code><span class="token comment"># Source schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L514-L516">In this example, the <code>@external</code> field&rsquo;s <code>language</code> argument type does not match the base field&rsquo;s <code>language</code> argument type (<code>Language</code> vs. <code>String</code>), violating the rule:</p>
+<pre id="example-cbf2f" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L518-L528"><a href="#example-cbf2f">Example № 46</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token class-name">Language</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
@@ -1100,28 +1099,28 @@ Key fields are always considered sharable.</div>
 </section>
 </section>
 <section id="sec-External-Missing-on-Base" secid="3.2.1.7">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L531"><span class="spec-secid" title="link to this section"><a href="#sec-External-Missing-on-Base">3.2.1.7</a></span>External Missing on Base</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L530"><span class="spec-secid" title="link to this section"><a href="#sec-External-Missing-on-Base">3.2.1.7</a></span>External Missing on Base</h4>
 <section id="sec-External-Missing-on-Base.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L533"><a href="#sec-External-Missing-on-Base.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L535"><code>EXTERNAL_MISSING_ON_BASE</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L532"><a href="#sec-External-Missing-on-Base.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L534"><code>EXTERNAL_MISSING_ON_BASE</code></p>
 </section>
 <section id="sec-External-Missing-on-Base.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L537"><a href="#sec-External-Missing-on-Base.Severity" title="link to this subsection">Severity</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L539">ERROR</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L536"><a href="#sec-External-Missing-on-Base.Severity" title="link to this subsection">Severity</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L538">ERROR</p>
 </section>
 <section id="sec-External-Missing-on-Base.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L541"><a href="#sec-External-Missing-on-Base.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L540"><a href="#sec-External-Missing-on-Base.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L543">Let <var data-name="typeNames">typeNames</var> be the set of all output type names from all source schemas.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L544-L556">For each <var data-name="typeName">typeName</var> in <var data-name="typeNames">typeNames</var><ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L545-L546">Let <var data-name="types">types</var> be the set of all types with the name <var data-name="typeName">typeName</var> from all source schemas.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L547">Let <var data-name="fieldNames">fieldNames</var> be the set of all field names from all types in <var data-name="types">types</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L548-L556">For each <var data-name="fieldName">fieldName</var> in <var data-name="fieldNames">fieldNames</var><ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L549-L550">Let <var data-name="fields">fields</var> be the set of all fields with the name <var data-name="fieldName">fieldName</var> from all types in <var data-name="types">types</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L551-L552">Let <var data-name="externalFields">externalFields</var> be the set of all fields in <var data-name="fields">fields</var> that are marked with <code>@external</code>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L553-L554">Let <var data-name="nonExternalFields">nonExternalFields</var> be the set of all fields in <var data-name="fields">fields</var> that are not marked with <code>@external</code>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L555-L556">If <var data-name="externalFields">externalFields</var> is not empty<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L556"><var data-name="nonExternalFields">nonExternalFields</var> must not be empty.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L542">Let <var data-name="typeNames">typeNames</var> be the set of all output type names from all source schemas.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L543-L555">For each <var data-name="typeName">typeName</var> in <var data-name="typeNames">typeNames</var><ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L544-L545">Let <var data-name="types">types</var> be the set of all types with the name <var data-name="typeName">typeName</var> from all source schemas.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L546">Let <var data-name="fieldNames">fieldNames</var> be the set of all field names from all types in <var data-name="types">types</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L547-L555">For each <var data-name="fieldName">fieldName</var> in <var data-name="fieldNames">fieldNames</var><ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L548-L549">Let <var data-name="fields">fields</var> be the set of all fields with the name <var data-name="fieldName">fieldName</var> from all types in <var data-name="types">types</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L550-L551">Let <var data-name="externalFields">externalFields</var> be the set of all fields in <var data-name="fields">fields</var> that are marked with <code>@external</code>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L552-L553">Let <var data-name="nonExternalFields">nonExternalFields</var> be the set of all fields in <var data-name="fields">fields</var> that are not marked with <code>@external</code>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L554-L555">If <var data-name="externalFields">externalFields</var> is not empty<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L555"><var data-name="nonExternalFields">nonExternalFields</var> must not be empty.</li>
 </ul>
 </li>
 </ul>
@@ -1131,10 +1130,10 @@ Key fields are always considered sharable.</div>
 </ul>
 </section>
 <section id="sec-External-Missing-on-Base.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L558"><a href="#sec-External-Missing-on-Base.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L560-L564">This rule ensures that any field marked as <code>@external</code> in a source schema is actually defined (non-<code>@external</code>) in at least one other source schema. The <code>@external</code> directive is used to indicate that the field is not usually resolved by the source schema it is declared in, implying it should be resolvable by at least one other source schema.</p>
-<p data-source="spec/Section%204%20--%20Composition.md#L566-L568">Here, the <code>name</code> field on <code>Product</code> is defined in source schema A and marked as <code>@external</code> in source schema B, which is valid because there is a base definition in source schema A:</p>
-<pre id="example-998d2" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L570-L582"><a href="#example-998d2">Example № 47</a><code><span class="token comment"># Source schema A</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L557"><a href="#sec-External-Missing-on-Base.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L559-L563">This rule ensures that any field marked as <code>@external</code> in a source schema is actually defined (non-<code>@external</code>) in at least one other source schema. The <code>@external</code> directive is used to indicate that the field is not usually resolved by the source schema it is declared in, implying it should be resolvable by at least one other source schema.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L565-L567">Here, the <code>name</code> field on <code>Product</code> is defined in source schema A and marked as <code>@external</code> in source schema B, which is valid because there is a base definition in source schema A:</p>
+<pre id="example-998d2" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L569-L581"><a href="#example-998d2">Example № 47</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
@@ -1146,8 +1145,8 @@ Key fields are always considered sharable.</div>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@external</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L584-L586">In this example, the <code>name</code> field on <code>Product</code> is marked as <code>@external</code> in source schema B but has no non-<code>@external</code> declaration in any other source schema, violating the rule:</p>
-<pre id="example-35ced" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L588-L599"><a href="#example-35ced">Counter Example № 48</a><code><span class="token comment"># Source schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L583-L585">In this example, the <code>name</code> field on <code>Product</code> is marked as <code>@external</code> in source schema B but has no non-<code>@external</code> declaration in any other source schema, violating the rule:</p>
+<pre id="example-35ced" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L587-L598"><a href="#example-35ced">Counter Example № 48</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span>
 <span class="token punctuation">}</span>
@@ -1161,28 +1160,28 @@ Key fields are always considered sharable.</div>
 </section>
 </section>
 <section id="sec-External-Type-Mismatch" secid="3.2.1.8">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L601"><span class="spec-secid" title="link to this section"><a href="#sec-External-Type-Mismatch">3.2.1.8</a></span>External Type Mismatch</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L600"><span class="spec-secid" title="link to this section"><a href="#sec-External-Type-Mismatch">3.2.1.8</a></span>External Type Mismatch</h4>
 <section id="sec-External-Type-Mismatch.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L603"><a href="#sec-External-Type-Mismatch.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L605"><code>EXTERNAL_TYPE_MISMATCH</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L602"><a href="#sec-External-Type-Mismatch.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L604"><code>EXTERNAL_TYPE_MISMATCH</code></p>
 </section>
 <section id="sec-External-Type-Mismatch.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L607"><a href="#sec-External-Type-Mismatch.Severity" title="link to this subsection">Severity</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L609">ERROR</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L606"><a href="#sec-External-Type-Mismatch.Severity" title="link to this subsection">Severity</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L608">ERROR</p>
 </section>
 <section id="sec-External-Type-Mismatch.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L611"><a href="#sec-External-Type-Mismatch.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L610"><a href="#sec-External-Type-Mismatch.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L613">Let <var data-name="typeNames">typeNames</var> be the set of all output type names from all source schemas.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L614-L627">For each <var data-name="typeName">typeName</var> in <var data-name="typeNames">typeNames</var><ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L615-L616">Let <var data-name="types">types</var> be the set of all types with the name <var data-name="typeName">typeName</var> from all source schemas.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L617">Let <var data-name="fieldNames">fieldNames</var> be the set of all field names from all types in <var data-name="types">types</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L618-L627">For each <var data-name="fieldName">fieldName</var> in <var data-name="fieldNames">fieldNames</var><ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L619-L620">Let <var data-name="fields">fields</var> be the set of all fields with the name <var data-name="fieldName">fieldName</var> from all types in <var data-name="types">types</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L621-L622">Let <var data-name="externalFields">externalFields</var> be the set of all fields in <var data-name="fields">fields</var> that are marked with <code>@external</code>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L623-L624">Let <var data-name="nonExternalFields">nonExternalFields</var> be the set of all fields in <var data-name="fields">fields</var> that are not marked with <code>@external</code>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L625-L627">For each <var data-name="externalField">externalField</var> in <var data-name="externalFields">externalFields</var><ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L626-L627">The type of <var data-name="externalField">externalField</var> must strictly equal all types of <var data-name="nonExternalFields">nonExternalFields</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L612">Let <var data-name="typeNames">typeNames</var> be the set of all output type names from all source schemas.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L613-L626">For each <var data-name="typeName">typeName</var> in <var data-name="typeNames">typeNames</var><ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L614-L615">Let <var data-name="types">types</var> be the set of all types with the name <var data-name="typeName">typeName</var> from all source schemas.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L616">Let <var data-name="fieldNames">fieldNames</var> be the set of all field names from all types in <var data-name="types">types</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L617-L626">For each <var data-name="fieldName">fieldName</var> in <var data-name="fieldNames">fieldNames</var><ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L618-L619">Let <var data-name="fields">fields</var> be the set of all fields with the name <var data-name="fieldName">fieldName</var> from all types in <var data-name="types">types</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L620-L621">Let <var data-name="externalFields">externalFields</var> be the set of all fields in <var data-name="fields">fields</var> that are marked with <code>@external</code>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L622-L623">Let <var data-name="nonExternalFields">nonExternalFields</var> be the set of all fields in <var data-name="fields">fields</var> that are not marked with <code>@external</code>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L624-L626">For each <var data-name="externalField">externalField</var> in <var data-name="externalFields">externalFields</var><ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L625-L626">The type of <var data-name="externalField">externalField</var> must strictly equal all types of <var data-name="nonExternalFields">nonExternalFields</var>.</li>
 </ul>
 </li>
 </ul>
@@ -1192,10 +1191,10 @@ Key fields are always considered sharable.</div>
 </ul>
 </section>
 <section id="sec-External-Type-Mismatch.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L629"><a href="#sec-External-Type-Mismatch.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L631-L634">This rule ensures that a field marked as <code>@external</code> has a return type compatible with the corresponding field defined in other source schemas. Fields with the same name must represent the same data type to maintain schema consistency</p>
-<p data-source="spec/Section%204%20--%20Composition.md#L636-L637">Here, the <code>@external</code> field <code>name</code> has the same return type (<code>String</code>) as the base field definition, satisfying the rule:</p>
-<pre id="example-df40b" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L639-L649"><a href="#example-df40b">Example № 49</a><code><span class="token comment"># Source schema A</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L628"><a href="#sec-External-Type-Mismatch.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L630-L633">This rule ensures that a field marked as <code>@external</code> has a return type compatible with the corresponding field defined in other source schemas. Fields with the same name must represent the same data type to maintain schema consistency</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L635-L636">Here, the <code>@external</code> field <code>name</code> has the same return type (<code>String</code>) as the base field definition, satisfying the rule:</p>
+<pre id="example-df40b" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L638-L648"><a href="#example-df40b">Example № 49</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
@@ -1205,8 +1204,8 @@ Key fields are always considered sharable.</div>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@external</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L651-L652">In this example, the <code>@external</code> field <code>name</code> has a return type of <code>ProductName</code> that doesn&rsquo;t match the base field&rsquo;s return type <code>String</code>, violating the rule:</p>
-<pre id="example-857ab" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L654-L664"><a href="#example-857ab">Counter Example № 50</a><code><span class="token comment"># Source schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L650-L651">In this example, the <code>@external</code> field <code>name</code> has a return type of <code>ProductName</code> that doesn&rsquo;t match the base field&rsquo;s return type <code>String</code>, violating the rule:</p>
+<pre id="example-857ab" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L653-L663"><a href="#example-857ab">Counter Example № 50</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
@@ -1219,26 +1218,26 @@ Key fields are always considered sharable.</div>
 </section>
 </section>
 <section id="sec-External-Unused" secid="3.2.1.9">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L666"><span class="spec-secid" title="link to this section"><a href="#sec-External-Unused">3.2.1.9</a></span>External Unused</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L665"><span class="spec-secid" title="link to this section"><a href="#sec-External-Unused">3.2.1.9</a></span>External Unused</h4>
 <section id="sec-External-Unused.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L668"><a href="#sec-External-Unused.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L670"><code>EXTERNAL_UNUSED</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L667"><a href="#sec-External-Unused.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L669"><code>EXTERNAL_UNUSED</code></p>
 </section>
 <section id="sec-External-Unused.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L672"><a href="#sec-External-Unused.Severity" title="link to this subsection">Severity</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L674">ERROR</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L671"><a href="#sec-External-Unused.Severity" title="link to this subsection">Severity</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L673">ERROR</p>
 </section>
 <section id="sec-External-Unused.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L676"><a href="#sec-External-Unused.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L675"><a href="#sec-External-Unused.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L678-L688">For each <var data-name="schema">schema</var> in all source schemas<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L679-L680">Let <var data-name="types">types</var> be the set of all composite types (object, interface) in <var data-name="schema">schema</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L681-L688">For each <var data-name="type">type</var> in <var data-name="types">types</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L682">Let <var data-name="fields">fields</var> be the set of fields for <var data-name="type">type</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L683-L688">For each <var data-name="field">field</var> in <var data-name="fields">fields</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L684-L688">If <var data-name="field">field</var> is marked with <code>@external</code>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L685-L686">Let <var data-name="referencingFields">referencingFields</var> be the set of fields in <var data-name="schema">schema</var> that reference <var data-name="type">type</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L687-L688"><var data-name="referencingFields">referencingFields</var> must contain at least one field that references <var data-name="field">field</var> in <code>@provides</code></li>
+<li data-source="spec/Section%204%20--%20Composition.md#L677-L687">For each <var data-name="schema">schema</var> in all source schemas<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L678-L679">Let <var data-name="types">types</var> be the set of all composite types (object, interface) in <var data-name="schema">schema</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L680-L687">For each <var data-name="type">type</var> in <var data-name="types">types</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L681">Let <var data-name="fields">fields</var> be the set of fields for <var data-name="type">type</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L682-L687">For each <var data-name="field">field</var> in <var data-name="fields">fields</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L683-L687">If <var data-name="field">field</var> is marked with <code>@external</code>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L684-L685">Let <var data-name="referencingFields">referencingFields</var> be the set of fields in <var data-name="schema">schema</var> that reference <var data-name="type">type</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L686-L687"><var data-name="referencingFields">referencingFields</var> must contain at least one field that references <var data-name="field">field</var> in <code>@provides</code></li>
 </ul>
 </li>
 </ul>
@@ -1250,13 +1249,13 @@ Key fields are always considered sharable.</div>
 </ul>
 </section>
 <section id="sec-External-Unused.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L690"><a href="#sec-External-Unused.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L692-L693">This rule ensures that every field marked as <code>@external</code> in a source schema is actually used by that source schema in a <code>@provides</code> directive.</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L689"><a href="#sec-External-Unused.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L691-L692">This rule ensures that every field marked as <code>@external</code> in a source schema is actually used by that source schema in a <code>@provides</code> directive.</p>
 </section>
 <section id="sec-External-Unused.Examples" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L695"><a href="#sec-External-Unused.Examples" title="link to this subsection">Examples</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L697-L698">In this example, the <code>name</code> field is marked with <code>@external</code> and is used by the <code>@provides</code> directive, satisfying the rule:</p>
-<pre id="example-51c97" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L700-L710"><a href="#example-51c97">Example № 51</a><code><span class="token comment"># Source schema A</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L694"><a href="#sec-External-Unused.Examples" title="link to this subsection">Examples</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L696-L697">In this example, the <code>name</code> field is marked with <code>@external</code> and is used by the <code>@provides</code> directive, satisfying the rule:</p>
+<pre id="example-51c97" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L699-L709"><a href="#example-51c97">Example № 51</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@external</span>
@@ -1266,8 +1265,8 @@ Key fields are always considered sharable.</div>
   <span class="token attr-name">productByName</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Product</span> <span class="token directive function">@provides</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"name"</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L712-L713">In this example, the <code>name</code> field is marked with <code>@external</code> but is not used by the <code>@provides</code> directive, violating the rule:</p>
-<pre id="example-30f36" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L715-L721"><a href="#example-30f36">Counter Example № 52</a><code><span class="token comment"># Source schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L711-L712">In this example, the <code>name</code> field is marked with <code>@external</code> but is not used by the <code>@provides</code> directive, violating the rule:</p>
+<pre id="example-30f36" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L714-L720"><a href="#example-30f36">Counter Example № 52</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">title</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@external</span>
   <span class="token attr-name">author</span><span class="token punctuation">:</span> <span class="token class-name">Author</span>
@@ -1277,47 +1276,47 @@ Key fields are always considered sharable.</div>
 </section>
 </section>
 <section id="sec-Merge" secid="3.2.2">
-<h3 data-source="spec/Section%204%20--%20Composition.md#L723"><span class="spec-secid" title="link to this section"><a href="#sec-Merge">3.2.2</a></span>Merge</h3>
+<h3 data-source="spec/Section%204%20--%20Composition.md#L722"><span class="spec-secid" title="link to this section"><a href="#sec-Merge">3.2.2</a></span>Merge</h3>
 </section>
 <section id="sec-Post-Merge-Validation" secid="3.2.3">
-<h3 data-source="spec/Section%204%20--%20Composition.md#L725"><span class="spec-secid" title="link to this section"><a href="#sec-Post-Merge-Validation">3.2.3</a></span>Post Merge Validation</h3>
+<h3 data-source="spec/Section%204%20--%20Composition.md#L724"><span class="spec-secid" title="link to this section"><a href="#sec-Post-Merge-Validation">3.2.3</a></span>Post Merge Validation</h3>
 <section id="sec-Empty-Merged-Object-Type" secid="3.2.3.1">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L727"><span class="spec-secid" title="link to this section"><a href="#sec-Empty-Merged-Object-Type">3.2.3.1</a></span>Empty Merged Object Type</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L726"><span class="spec-secid" title="link to this section"><a href="#sec-Empty-Merged-Object-Type">3.2.3.1</a></span>Empty Merged Object Type</h4>
 <section id="sec-Empty-Merged-Object-Type.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L729"><a href="#sec-Empty-Merged-Object-Type.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L731"><code>EMPTY_MERGED_OBJECT_TYPE</code></p>
-<p data-source="spec/Section%204%20--%20Composition.md#L733"><strong>Severity</strong> ERROR</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L728"><a href="#sec-Empty-Merged-Object-Type.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L730"><code>EMPTY_MERGED_OBJECT_TYPE</code></p>
+<p data-source="spec/Section%204%20--%20Composition.md#L732"><strong>Severity</strong> ERROR</p>
 </section>
 <section id="sec-Empty-Merged-Object-Type.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L735"><a href="#sec-Empty-Merged-Object-Type.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L734"><a href="#sec-Empty-Merged-Object-Type.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L737">Let <var data-name="types">types</var> be the set of all object types across all source schemas</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L738-L739">For each <var data-name="type">type</var> in <var data-name="types">types</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L739"><span class="spec-call"><a href="#IsObjectTypeEmpty()" data-name="IsObjectTypeEmpty">IsObjectTypeEmpty</a>(<var data-name="type">type</var>)</span> must be false.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L736">Let <var data-name="types">types</var> be the set of all object types across all source schemas</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L737-L738">For each <var data-name="type">type</var> in <var data-name="types">types</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L738"><span class="spec-call"><a href="#IsObjectTypeEmpty()" data-name="IsObjectTypeEmpty">IsObjectTypeEmpty</a>(<var data-name="type">type</var>)</span> must be false.</li>
 </ul>
 </li>
 </ul>
-<div class="spec-algo" id="IsObjectTypeEmpty()" data-source="spec/Section%204%20--%20Composition.md#L741-L749">
+<div class="spec-algo" id="IsObjectTypeEmpty()" data-source="spec/Section%204%20--%20Composition.md#L740-L748">
 <span class="spec-call"><a href="#IsObjectTypeEmpty()" data-name="IsObjectTypeEmpty">IsObjectTypeEmpty</a>(<var data-name="type">type</var>)</span><ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L743">If <var data-name="type">type</var> has <code>@inaccessible</code> directive</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L744">return false</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L745">Let <var data-name="fields">fields</var> be a set of all fields in <var data-name="type">type</var></li>
-<li data-source="spec/Section%204%20--%20Composition.md#L746-L748">For each <var data-name="field">field</var> in <var data-name="fields">fields</var>:<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L747-L748">If <span class="spec-call"><span data-name="IsAccessible">IsAccessible</span>(<var data-name="field">field</var>)</span> is true<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L748">return false</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L742">If <var data-name="type">type</var> has <code>@inaccessible</code> directive</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L743">return false</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L744">Let <var data-name="fields">fields</var> be a set of all fields in <var data-name="type">type</var></li>
+<li data-source="spec/Section%204%20--%20Composition.md#L745-L747">For each <var data-name="field">field</var> in <var data-name="fields">fields</var>:<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L746-L747">If <span class="spec-call"><span data-name="IsAccessible">IsAccessible</span>(<var data-name="field">field</var>)</span> is true<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L747">return false</li>
 </ol>
 </li>
 </ol>
 </li>
-<li data-source="spec/Section%204%20--%20Composition.md#L749">return true</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L748">return true</li>
 </ol>
 </div>
 </section>
 <section id="sec-Empty-Merged-Object-Type.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L751"><a href="#sec-Empty-Merged-Object-Type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L753-L757">For object types defined across multiple source schemas, the merged object type is the superset of all fields defined in these source schemas. However, any field marked with <code>@inaccessible</code> in any source schema is hidden and not included in the merged object type. An object type with no fields, after considering <code>@inaccessible</code> annotations, is considered empty and invalid.</p>
-<p data-source="spec/Section%204%20--%20Composition.md#L759-L761">In the following example, the merged object type <code>ObjectType1</code> is valid. It includes all fields from both source schemas, with <code>field2</code> being hidden due to the <code>@inaccessible</code> directive in one of the source schemas:</p>
-<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L763-L773"><code><span class="token keyword">type</span> <span class="token class-name">ObjectType1</span> <span class="token punctuation">{</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L750"><a href="#sec-Empty-Merged-Object-Type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L752-L756">For object types defined across multiple source schemas, the merged object type is the superset of all fields defined in these source schemas. However, any field marked with <code>@inaccessible</code> in any source schema is hidden and not included in the merged object type. An object type with no fields, after considering <code>@inaccessible</code> annotations, is considered empty and invalid.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L758-L760">In the following example, the merged object type <code>ObjectType1</code> is valid. It includes all fields from both source schemas, with <code>field2</code> being hidden due to the <code>@inaccessible</code> directive in one of the source schemas:</p>
+<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L762-L772"><code><span class="token keyword">type</span> <span class="token class-name">ObjectType1</span> <span class="token punctuation">{</span>
   <span class="token attr-name">field1</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
   <span class="token attr-name">field2</span><span class="token punctuation">:</span> <span class="token scalar">Int</span> <span class="token directive function">@inaccessible</span>
 <span class="token punctuation">}</span>
@@ -1327,8 +1326,8 @@ Key fields are always considered sharable.</div>
   <span class="token attr-name">field3</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L775-L777">If the <code>@inaccessible</code> directive is applied to an object type itself, the entire merged object type is excluded from the composite execution schema, and it is not required to contain any fields.</p>
-<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L779-L788"><code><span class="token keyword">type</span> <span class="token class-name">ObjectType1</span> <span class="token directive function">@inaccessible</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L774-L776">If the <code>@inaccessible</code> directive is applied to an object type itself, the entire merged object type is excluded from the composite execution schema, and it is not required to contain any fields.</p>
+<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L778-L787"><code><span class="token keyword">type</span> <span class="token class-name">ObjectType1</span> <span class="token directive function">@inaccessible</span> <span class="token punctuation">{</span>
   <span class="token attr-name">field1</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
   <span class="token attr-name">field2</span><span class="token punctuation">:</span> <span class="token scalar">Int</span>
 <span class="token punctuation">}</span>
@@ -1337,8 +1336,8 @@ Key fields are always considered sharable.</div>
   <span class="token attr-name">field3</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L790-L793">This counter-example demonstrates an invalid merged object type. In this case, <code>ObjectType1</code> is defined in two source schemas, but all fields are marked as <code>@inaccessible</code> in at least one of the source schemas, resulting in an empty merged object type:</p>
-<pre id="example-a5d81" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L795-L805"><a href="#example-a5d81">Counter Example № 53</a><code><span class="token keyword">type</span> <span class="token class-name">ObjectType1</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L789-L792">This counter-example demonstrates an invalid merged object type. In this case, <code>ObjectType1</code> is defined in two source schemas, but all fields are marked as <code>@inaccessible</code> in at least one of the source schemas, resulting in an empty merged object type:</p>
+<pre id="example-a5d81" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L794-L804"><a href="#example-a5d81">Counter Example № 53</a><code><span class="token keyword">type</span> <span class="token class-name">ObjectType1</span> <span class="token punctuation">{</span>
   <span class="token attr-name">field1</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@inaccessible</span>
   <span class="token attr-name">field2</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span>
 <span class="token punctuation">}</span>
@@ -1353,7 +1352,7 @@ Key fields are always considered sharable.</div>
 </section>
 </section>
 <section id="sec-Validate-Satisfiability" secid="3.3">
-<h2 data-source="spec/Section%204%20--%20Composition.md#L807"><span class="spec-secid" title="link to this section"><a href="#sec-Validate-Satisfiability">3.3</a></span>Validate Satisfiability</h2>
+<h2 data-source="spec/Section%204%20--%20Composition.md#L806"><span class="spec-secid" title="link to this section"><a href="#sec-Validate-Satisfiability">3.3</a></span>Validate Satisfiability</h2>
 </section>
 </section>
 <section id="sec-Executor" secid="4">
