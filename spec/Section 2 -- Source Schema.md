@@ -597,10 +597,10 @@ extend type User {
 ```
 
 When a field is marked `@external`, the composition process understands that the
-field belongs to another source schema. The current source schema references it
-only for entity identification (via `@key`) or for providing a field through
-`@provides`. If no such usage exists, the presence of an @external field would
-produce a composition error.
+field is provided by another source schema. The current source schema references
+it only for entity identification (via `@key`) or for providing a field through
+`@provides`. If no such usage exists, the presence of an `@external` field
+produces a composition error.
 
 ### @override
 
