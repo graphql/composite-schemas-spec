@@ -455,9 +455,10 @@ type Query {
 }
 ```
 
-When a field annotated with `@provides` returns an object, interface or union type that may also be contributed by
-other source schemas, this directive declares which of that type’s subfields
-the current source schema can resolve directly.
+When a field annotated with `@provides` returns an object, interface or union
+type that may also be contributed by other source schemas, this directive
+declares which of that type’s subfields the current source schema can resolve
+directly.
 
 ```graphql example
 {
@@ -471,9 +472,9 @@ the current source schema can resolve directly.
 }
 ```
 
-If a client tries to fetch the same subfield (`User.email`) through
-a different path (e.g., users query field), the source schema will not be able to
-resolve it and will throw an error.
+If a client tries to fetch the same subfield (`User.email`) through a different
+path (e.g., users query field), the source schema will not be able to resolve it
+and will throw an error.
 
 ```graphql counter-example
 {
@@ -490,8 +491,7 @@ The `@provides` directive may reference multiple fields or nested fields:
 ```graphql example
 type Review {
   id: ID!
-  product: Product
-    @provides(fields: "sku variation { size }")
+  product: Product @provides(fields: "sku variation { size }")
 }
 
 type Product @key(fields: "sku variation { id }") {
@@ -506,7 +506,9 @@ type ProductVariation {
 }
 ```
 
-When a field annotated with the provides directive has an abstract return type the fields syntax can leverage inline fragments to express fields that can be resolved locally.
+When a field annotated with the provides directive has an abstract return type
+the fields syntax can leverage inline fragments to express fields that can be
+resolved locally.
 
 ```graphql example
 type Review {
@@ -516,8 +518,8 @@ type Review {
   product: Product
     @provides(
       fields: """
-        ... on Book { author }
-        ... on Clothing { size }
+      ... on Book { author }
+      ... on Clothing { size }
       """
     )
 }
