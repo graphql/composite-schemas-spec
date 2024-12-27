@@ -245,16 +245,15 @@ ERROR
         - {IsAccessible(argument)} must be true.
 - For each {directive} in {directives}:
   - If {directive} is a built-in directive:
-    - {IsAccessible(directive)} must be true.
     - For each {argument} in {directive}:
       - {IsAccessible(argument)} must be true.
 
 **Explanatory Text**
 
 This rule ensures that certain essential elements of a GraphQL schema,
-particularly built-in scalars, directives and introspection types, cannot be
-marked as `@inaccessible`. These types are fundamental to GraphQL. Making these
-elements inaccessible would break core GraphQL functionality.
+particularly built-in scalars, directive arguments, and introspection types,
+cannot be marked as `@inaccessible`. These types are fundamental to GraphQL.
+Making these elements inaccessible would break core GraphQL functionality.
 
 Here, the `String` type is not marked as `@inaccessible`, which adheres to the
 rule:
