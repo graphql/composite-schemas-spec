@@ -26,6 +26,7 @@
 | ✅     | KEY_FIELDS_SELECT_INVALID_TYPE            | The fields argument of @key directive includes a field whose type is a list, interface, or union type. Fields of these types cannot be part of a @key.                                                                            |
 | ✅     | KEY_INVALID_FIELDS                        | The fields argument of a @key directive is invalid (it has invalid syntax, includes unknown fields, ...).                                                                                                                         |
 | ✅     | PROVIDES_DIRECTIVE_IN_FIELDS_ARG          | The fields argument of a @provides directive includes some directive applications. This is not supported.                                                                                                                         |
+| ✅     | IMPLEMENTED_BY_INACCESSIBLE               | An element is marked as @inaccessible but implements an element visible in the API schema.                                                                                                                                        |
 
 ## Covered by other rule
 
@@ -42,7 +43,6 @@
 
 | Status | Error                                     | Description                                                                                                                                                                                                                       |
 | ------ | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 📋     | IMPLEMENTED_BY_INACCESSIBLE               | An element is marked as @inaccessible but implements an element visible in the API schema.                                                                                                                                        |
 | 📋     | INTERFACE_FIELD_NO_IMPLEM                 | After subgraph merging, an implementation is missing a field of one of the interfaces it implements (which can happen for valid subgraphs).                                                                                       |
 | 📋     | INTERFACE_KEY_MISSING_IMPLEMENTATION_TYPE | A subgraph has a @key on an interface type, but that subgraph does not define an implementation (in the supergraph) of that interface.                                                                                            |
 | 📋     | INTERFACE_KEY_NOT_ON_IMPLEMENTATION       | A @key is defined on an interface type, but is not defined (or is not resolvable) on at least one of the interface implementations.                                                                                               |
