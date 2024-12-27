@@ -553,11 +553,55 @@ type Query {
 ### @external
 
 ```graphql
-directive @external on OBJECT_DEFINITION | INTERFACE_DEFINITION | FIELD_DEFINITION
+directive @external on FIELD_DEFINITION
 ```
 
-The `@external` directive is used in combination with the `@provides` directive
-and specifies data that is not owned by a particular source schema.
+The @external directive indicates that a field is recognized by the current
+source schema but is not directly contributed (resolved) by it. Instead,
+this schema references the field for specific composition purposes.
+
+**Entity Keys**
+
+When combined with one or more `@key` directives, an external
+field can serve as an entity identifier (or part of a composite identifier).
+
+```graphql example
+type Query {
+  productBySku(sku: String!): Product @lookup
+  productByUpc(upc: String!): Product @lookup
+}
+
+type Product
+  @key(fields: "sku")
+  @key(fields: "upc") {
+  sku: String! @external
+  upc: String! @external
+  name: String
+}
+```
+
+**Field Resolution**
+
+When another field in the same source schema uses `@provides` to declare that it can resolve certain external fields in a single data-fetching step.
+
+```graphql example
+type Review {
+  id: ID!
+  text: String
+  author: User @provides(fields: "email")
+}
+
+extend type User {
+  id: ID!
+  email: String! @external
+}
+```
+
+When a field is marked `@external`, the composition process understands that the
+field belongs to another source schema. The current source schema references it
+only for entity identification (via `@key`) or for providing a field through
+`@provides`. If no such usage exists, the presence of an @external field
+would produce a composition error.
 
 ### @override
 
