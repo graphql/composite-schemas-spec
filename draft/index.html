@@ -935,34 +935,34 @@ Key fields are always considered sharable.</div>
 <h6 data-source="spec/Section%204%20--%20Composition.md#L329"><a href="#sec-External-Argument-Default-Mismatch.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L331-L336">This rule ensures that arguments on fields marked as <code>@external</code> have default values compatible with the corresponding arguments on fields from other source schemas where the field is defined (non-<code>@external</code>). Since <code>@external</code> fields represent fields that are resolved by other source schemas, their arguments and defaults must match to maintain consistent behavior across different source schemas.</p>
 <p data-source="spec/Section%204%20--%20Composition.md#L338-L340">Here, the <code>name</code> field on <code>Product</code> is defined in one source schema and marked as <code>@external</code> in another. The argument <code>language</code> has the same default value in both source schemas, satisfying the rule:</p>
-<pre id="example-2756d" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L342-L352"><a href="#example-2756d">Example № 40</a><code><span class="token comment"># Subgraph A</span>
+<pre id="example-64ce1" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L342-L352"><a href="#example-64ce1">Example № 40</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token operator">=</span> <span class="token string">"en"</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 
-<span class="token comment"># Subgraph B</span>
+<span class="token comment"># Source schema B</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token property-query">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token operator">=</span> <span class="token string">"en"</span><span class="token punctuation">)</span> <span class="token directive function">@external</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%204%20--%20Composition.md#L354-L356">Here, the <code>name</code> field on <code>Product</code> is defined in one source schema and marked as <code>@external</code> in another. The argument <code>language</code> has different default values in the two source schemas, violating the rule:</p>
-<pre id="example-c16f3" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L358-L368"><a href="#example-c16f3">Counter Example № 41</a><code><span class="token comment"># Subgraph A</span>
+<pre id="example-434fe" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L358-L368"><a href="#example-434fe">Counter Example № 41</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token operator">=</span> <span class="token string">"en"</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 
-<span class="token comment"># Subgraph B</span>
+<span class="token comment"># Source schema B</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token property-query">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token operator">=</span> <span class="token string">"de"</span><span class="token punctuation">)</span> <span class="token directive function">@external</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%204%20--%20Composition.md#L370-L374">In the following counter example, the <code>name</code> field on <code>Product</code> is defined in one source schema and marked as <code>@external</code> in another. The argument <code>language</code> has a default value in the source schema where the field is defined, but it does not have a default value in the source schema where the field is marked as <code>@external</code>, violating the rule:</p>
-<pre id="example-2a740" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L376-L386"><a href="#example-2a740">Counter Example № 42</a><code><span class="token comment"># Subgraph A</span>
+<pre id="example-dd53e" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L376-L386"><a href="#example-dd53e">Counter Example № 42</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token operator">=</span> <span class="token string">"en"</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 
-<span class="token comment"># Subgraph B</span>
+<span class="token comment"># Source schema B</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@external</span>
 <span class="token punctuation">}</span>
@@ -1011,23 +1011,23 @@ Key fields are always considered sharable.</div>
 <h6 data-source="spec/Section%204%20--%20Composition.md#L419"><a href="#sec-External-Argument-Missing.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L421-L426">This rule ensures that fields marked with <code>@external</code> have all the necessary arguments that exist on the corresponding field definitions in other source schemas. Each argument defined on the base field (the field definition in the source source schema) must be present on the <code>@external</code> field in other source schemas. If an argument is missing on an <code>@external</code> field, the field cannot be resolved correctly, which is an inconsistency.</p>
 <p data-source="spec/Section%204%20--%20Composition.md#L428-L430">In this example, the <code>language</code> argument is present on both the <code>@external</code> field in source schema B and the base field in source schema A, satisfying the rule:</p>
-<pre id="example-8a7af" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L432-L442"><a href="#example-8a7af">Example № 43</a><code><span class="token comment"># Subgraph A</span>
+<pre id="example-1b0de" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L432-L442"><a href="#example-1b0de">Example № 43</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 
-<span class="token comment"># Subgraph B</span>
+<span class="token comment"># Source schema B</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@external</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%204%20--%20Composition.md#L444-L446">Here, the <code>@external</code> field in source schema B is missing the <code>language</code> argument that is present in the base field definition in source schema A, violating the rule:</p>
-<pre id="example-6cf80" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L448-L458"><a href="#example-6cf80">Counter Example № 44</a><code><span class="token comment"># Subgraph A</span>
+<pre id="example-30492" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L448-L458"><a href="#example-30492">Counter Example № 44</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 
-<span class="token comment"># Subgraph B</span>
+<span class="token comment"># Source schema B</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@external</span>
 <span class="token punctuation">}</span>
@@ -1077,23 +1077,23 @@ Key fields are always considered sharable.</div>
 <h6 data-source="spec/Section%204%20--%20Composition.md#L494"><a href="#sec-External-Argument-Type-Mismatch.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L496-L499">This rule ensures that arguments on fields marked as <code>@external</code> have types compatible with the corresponding arguments on the fields defined in other source schemas. The arguments must have the exact same type signature, including nullability and list nesting.</p>
 <p data-source="spec/Section%204%20--%20Composition.md#L501-L502">Here, the <code>@external</code> field&rsquo;s <code>language</code> argument has the same type (<code>Language</code>) as the base field, satisfying the rule:</p>
-<pre id="example-d13a3" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L504-L514"><a href="#example-d13a3">Example № 45</a><code><span class="token comment"># Subgraph A</span>
+<pre id="example-6bb90" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L504-L514"><a href="#example-6bb90">Example № 45</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token class-name">Language</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 
-<span class="token comment"># Subgraph B</span>
+<span class="token comment"># Source schema B</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token class-name">Language</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%204%20--%20Composition.md#L516-L518">In this example, the <code>@external</code> field&rsquo;s <code>language</code> argument type does not match the base field&rsquo;s <code>language</code> argument type (<code>Language</code> vs. <code>String</code>), violating the rule:</p>
-<pre id="example-92bc7" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L520-L530"><a href="#example-92bc7">Example № 46</a><code><span class="token comment"># Subgraph A</span>
+<pre id="example-cbf2f" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L520-L530"><a href="#example-cbf2f">Example № 46</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token class-name">Language</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 
-<span class="token comment"># Subgraph B</span>
+<span class="token comment"># Source schema B</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
@@ -1135,25 +1135,25 @@ Key fields are always considered sharable.</div>
 <h6 data-source="spec/Section%204%20--%20Composition.md#L559"><a href="#sec-External-Missing-on-Base.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L561-L565">This rule ensures that any field marked as <code>@external</code> in a source schema is actually defined (non-<code>@external</code>) in at least one other source schema. The <code>@external</code> directive is used to indicate that the field is not usually resolved by the source schema it is declared in, implying it should be resolvable by at least one other source schema.</p>
 <p data-source="spec/Section%204%20--%20Composition.md#L567-L569">Here, the <code>name</code> field on <code>Product</code> is defined in source schema A and marked as <code>@external</code> in source schema B, which is valid because there is a base definition in source schema A:</p>
-<pre id="example-1af49" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L571-L583"><a href="#example-1af49">Example № 47</a><code><span class="token comment"># Subgraph A</span>
+<pre id="example-998d2" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L571-L583"><a href="#example-998d2">Example № 47</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 
-<span class="token comment"># Subgraph B</span>
+<span class="token comment"># Source schema B</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@external</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%204%20--%20Composition.md#L585-L587">In this example, the <code>name</code> field on <code>Product</code> is marked as <code>@external</code> in source schema B but has no non-<code>@external</code> declaration in any other source schema, violating the rule:</p>
-<pre id="example-84786" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L589-L600"><a href="#example-84786">Counter Example № 48</a><code><span class="token comment"># Subgraph A</span>
+<pre id="example-35ced" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L589-L600"><a href="#example-35ced">Counter Example № 48</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span>
 <span class="token punctuation">}</span>
 
-<span class="token comment"># Subgraph B</span>
+<span class="token comment"># Source schema B</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@external</span>
@@ -1196,23 +1196,23 @@ Key fields are always considered sharable.</div>
 <h6 data-source="spec/Section%204%20--%20Composition.md#L630"><a href="#sec-External-Type-Mismatch.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L632-L635">This rule ensures that a field marked as <code>@external</code> has a return type compatible with the corresponding field defined in other source schemas. Fields with the same name must represent the same data type to maintain schema consistency</p>
 <p data-source="spec/Section%204%20--%20Composition.md#L637-L638">Here, the <code>@external</code> field <code>name</code> has the same return type (<code>String</code>) as the base field definition, satisfying the rule:</p>
-<pre id="example-36593" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L640-L650"><a href="#example-36593">Example № 49</a><code><span class="token comment"># Subgraph A</span>
+<pre id="example-df40b" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L640-L650"><a href="#example-df40b">Example № 49</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 
-<span class="token comment"># Subgraph B</span>
+<span class="token comment"># Source schema B</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@external</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%204%20--%20Composition.md#L652-L653">In this example, the <code>@external</code> field <code>name</code> has a return type of <code>ProductName</code> that doesn&rsquo;t match the base field&rsquo;s return type <code>String</code>, violating the rule:</p>
-<pre id="example-d6f91" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L655-L665"><a href="#example-d6f91">Counter Example № 50</a><code><span class="token comment"># Subgraph A</span>
+<pre id="example-857ab" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L655-L665"><a href="#example-857ab">Counter Example № 50</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 
-<span class="token comment"># Subgraph B</span>
+<span class="token comment"># Source schema B</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token class-name">ProductName</span> <span class="token directive function">@external</span>
 <span class="token punctuation">}</span>
@@ -1257,7 +1257,7 @@ Key fields are always considered sharable.</div>
 <section id="sec-External-Unused.Examples" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L696"><a href="#sec-External-Unused.Examples" title="link to this subsection">Examples</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L698-L699">In this example, the <code>name</code> field is marked with <code>@external</code> and is used by the <code>@provides</code> directive, satisfying the rule:</p>
-<pre id="example-2d62f" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L701-L711"><a href="#example-2d62f">Example № 51</a><code><span class="token comment"># Subgraph A</span>
+<pre id="example-51c97" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L701-L711"><a href="#example-51c97">Example № 51</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@external</span>
@@ -1268,7 +1268,7 @@ Key fields are always considered sharable.</div>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%204%20--%20Composition.md#L713-L714">In this example, the <code>name</code> field is marked with <code>@external</code> but is not used by the <code>@provides</code> directive, violating the rule:</p>
-<pre id="example-e0737" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L716-L722"><a href="#example-e0737">Counter Example № 52</a><code><span class="token comment"># Subgraph A</span>
+<pre id="example-30f36" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L716-L722"><a href="#example-30f36">Counter Example № 52</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">title</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@external</span>
   <span class="token attr-name">author</span><span class="token punctuation">:</span> <span class="token class-name">Author</span>
