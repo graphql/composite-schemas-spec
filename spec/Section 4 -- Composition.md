@@ -3453,5 +3453,95 @@ enum DeliveryStatus {
 }
 ```
 
+### Require Invalid Fields
+
+**Error Code**
+
+`REQUIRE_INVALID_FIELDS`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the merged composite execution schema.
+- Let {compositeTypes} be the set of all composite types in {schema}.
+- For each {composite} in {compositeTypes}:
+  - Let {fields} be the set of fields on {composite}.
+  - Let {arguments} be the set of all arguments on {fields}.
+  - For each {argument} in {arguments}:
+    - If {argument} is **not** annotated with `@require`:
+      - Continue
+    - Let {fieldsArg} be the string value of the `fields` argument of the
+      `@require` directive on {argument}.
+    - Let {parsedFieldsArg} be the parsed selection map from {fieldsArg}.
+    - {ValidateSelectionMap(parsedFieldsArg, parentType)} must be true.
+
+ValidateSelectionMap(selectionMap, parentType):
+
+- For each {selection} in {selectionMap}:
+  - Let {field} be the field selected by {selection} on {parentType}.
+  - If {field} is **not** defined on {parentType}:
+    - return false
+  - Let {fieldType} be the type of {field}.
+  - If {fieldType} is not a scalar type
+    - Let {subSelections} be the selections in {selection}
+    - If {subSelections} is empty
+      - return false
+    - If {ValidateSelectionMap(subSelections, fieldType)} is false
+      - return false
+- return true
+
+**Explanatory Text**
+
+Even if the selection map for `@require(fields: "…")` is syntactically valid,
+its contents must also be valid within the composed schema. Fields must exist on
+the parent type for them to be referenced by `@require`. In addition, fields
+requiring unknown fields break the valid usage of `@require`, leading to a
+`REQUIRE_INVALID_FIELDS` error.
+
+**Examples**
+
+In the following example, the `@require` directive’s `fields` argument is a
+valid selection set and satisfies the rule.
+
+```graphql example
+type User @key(fields: "id") {
+  id: ID!
+  name: String!
+  profile(name: String! @require(fields: "name")): Profile
+}
+
+type Profile {
+  id: ID!
+  name: String
+}
+```
+
+In this counter-example, the `@require` directive does not have a valid
+selection set and triggers a `REQUIRE_INVALID_FIELDS` error.
+
+```graphql counter-example
+type Book {
+  id: ID!
+  title(lang: String! @require(fields: "author { }")): String
+}
+
+type Author {
+  name: String
+}
+```
+
+In this counter-example, the `@require` directive references a field (`unknown`)
+that does not exist on the parent type (`Book`), causing a
+`REQUIRE_INVALID_FIELDS` error.
+
+```graphql counter-example
+type Book {
+  id: ID!
+  pages(pageSize: Int @require(fields: "unknownField")): Int
+}
+```
 
 ## Validate Satisfiability
