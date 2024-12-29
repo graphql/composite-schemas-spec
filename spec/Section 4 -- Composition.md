@@ -2074,6 +2074,67 @@ type Payment {
 }
 ```
 
+### Override from Self Error
+
+**Error Code**  
+`OVERRIDE_FROM_SELF_ERROR`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas to be composed.
+- For each {schema} in {schemas}:
+  - Let {types} be the set of all composite types in {schema}.
+  - For each {type} in {types}:
+    - Let {fields} be the set of fields on {type}.
+    - For each {field} in {fields}:
+      - If {field} is annotated with `@override`:
+        - Let {from} be the value of the `from` argument of the `@override`
+          directive on {field}.
+        - {from} must **not** be the same as the name of {schema}:
+
+**Explanatory Text**
+
+When using `@override`, the `from` argument indicates the name of the source
+schema that originally owns the field. Overriding from the **same** schema
+creates a contradiction, as it implies both local and transferred ownership of
+the field within one schema. If the `from` value matches the local schema name,
+it triggers an `OVERRIDE_FROM_SELF_ERROR`.
+
+**Examples**
+
+In the following example, **Schema B** overrides the field `amount` from
+**Schema A**. The two schema names are different, so no error is raised.
+
+```graphql example
+# Source Schema A
+type Bill {
+  id: ID!
+  amount: Int
+}
+
+# Source Schema B
+type Bill {
+  id: ID!
+  amount: Int @override(from: "SchemaA")
+}
+```
+
+In the following counter-example, the local schema is also `"SchemaA"`, and the
+`from` argument is `"SchemaA"`. Overriding a field from the same schema is not
+allowed, causing an `OVERRIDE_FROM_SELF_ERROR`.
+
+```graphql counter-example
+# Source Schema A (named "SchemaA")
+type Bill {
+  id: ID!
+  amount: Int @override(from: "SchemaA")
+}
+```
+
+
 ### Merge
 
 ### Post Merge Validation
