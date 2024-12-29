@@ -3245,4 +3245,62 @@ type Subscription {
 }
 ```
 
+### Invalid Shareable Usage
+
+**Error Code**
+
+`INVALID_SHAREABLE_USAGE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be one of the composed schemas.
+- Let {types} be the set of types defined in {schema}.
+- For each {type} in {types}:
+  - If {type} is an interface type:
+    - For each field definition {field} in {type}:
+      - If {field} is annotated with `@shareable`, produce an
+        `INVALID_SHAREABLE_USAGE` error.
+
+**Explanatory Text**
+
+The `@shareable` directive is intended to indicate that a field on an **object
+type** can be resolved by multiple schemas without conflict. As a result, it is
+only valid to use `@shareable` on fields **of object types** (or on the entire
+object type itself).
+
+Applying `@shareable` to interface fields is disallowed and violates the valid
+usage of the directive. This rule prevents schema composition errors and data
+conflicts by ensuring that `@shareable` is used only in contexts where shared
+field resolution is meaningful and unambiguous.
+
+**Examples**
+
+In this example, the field `orderStatus` on the `Order` object type is marked
+with `@shareable`, which is allowed. It signals that this field can be served
+from multiple schemas without creating a conflict.
+
+```graphql example
+type Order {
+  id: ID!
+  orderStatus: String @shareable
+  total: Float
+}
+```
+
+In this example, the `InventoryItem` interface has a field `sku` marked with
+`@shareable`, which is invalid usage. Marking an interface field as shareable
+leads to an `INVALID_SHAREABLE_USAGE` error.
+
+```graphql counter-example
+interface InventoryItem {
+  sku: ID! @shareable
+  name: String
+}
+```
+
+
 ## Validate Satisfiability
