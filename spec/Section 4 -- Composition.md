@@ -2495,6 +2495,74 @@ type User @key(fields: true) {
 }
 ```
 
+### Provides Invalid Fields Type
+
+**Error Code**  
+`PROVIDES_INVALID_FIELDS_TYPE`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas to be composed.
+- For each {schema} in {schemas}:
+  - Let {types} be the set of all composite types in {schema}.
+  - For each {type} in {types}:
+    - Let {fields} be the set of fields on {type}.
+    - For each {field} in {fields}:
+      - If {field} is annotated with `@provides`:
+        - Let {fieldsArg} be the value of the `fields` argument on the
+          `@provides` directive.
+        - {fieldsArg} must be a string.
+
+**Explanatory Text**
+
+The `@provides` directive indicates that a field is **providing** one or more
+additional fields on the returned (child) type. The `fields` argument accepts a
+**string** representing a GraphQL selection set (for example, `"title author"`).
+If the `fields` argument is given as a non-string type (e.g., `Boolean`, `Int`,
+`Array`), the schema fails to compose because it cannot interpret a valid
+selection set.
+
+**Examples**
+
+In this valid example, the `@provides` directive on `details` uses the string
+`"features specifications"` to specify that both fields are provided in the
+child type `ProductDetails`.
+
+```graphql example
+type Product {
+  id: ID!
+  details: ProductDetails @provides(fields: "features specifications")
+}
+
+type ProductDetails {
+  features: [String]
+  specifications: String
+}
+
+type Query {
+  products: [Product]
+}
+```
+
+Here, the `@provides` directive includes a numeric value (`123`) instead of a
+string in its `fields` argument. This invalid usage raises a
+`PROVIDES_INVALID_FIELDS_TYPE` error.
+
+```graphql counter-example
+type Product {
+  id: ID!
+  details: ProductDetails @provides(fields: 123)
+}
+
+type ProductDetails {
+  features: [String]
+  specifications: String
+}
+```
+
 
 ### Merge
 
