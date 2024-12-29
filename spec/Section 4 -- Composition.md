@@ -2626,6 +2626,69 @@ type User {
 }
 ```
 
+### External on Interface
+
+**Error Code**  
+`EXTERNAL_ON_INTERFACE`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas to be composed.
+- For each {schema} in {schemas}:
+  - Let {types} be the set of all composite types in {schema}.
+  - For each {type} in {types}:
+    - If {type} is an interface type:
+      - Let {fields} be the set of fields on {type}.
+      - For each {field} in {fields}:
+        - {field} must **not** be annotated with `@external`
+
+**Explanatory Text**
+
+The `@external` directive indicates that a field is **defined** and **resolved**
+elsewhere, not in the current schema. In the case of an **interface** type,
+fields are **abstract** - they do not have direct resolutions at the interface
+level. Instead, each implementing object type provides the concrete field
+implementations. Marking an **interface** field with `@external` is therefore
+nonsensical, as there is no actual field resolution in the interface itself to
+“borrow” from another schema. Such usage raises an `EXTERNAL_ON_INTERFACE`
+error.
+
+**Examples**
+
+Here, the interface `Node` merely describes the field `id`. Object types `User`
+and `Product` implement and resolve `id`. No `@external` usage occurs on the
+interface itself, so no error is triggered.
+
+```graphql example
+interface Node {
+  id: ID!
+}
+
+type User implements Node {
+  id: ID!
+  name: String
+}
+
+type Product implements Node {
+  id: ID!
+  price: Int
+}
+```
+
+Since `id` is declared on an **interface** and marked with `@external`, the
+composition fails with `EXTERNAL_ON_INTERFACE`. An interface does not own the
+concrete field resolution, so it is invalid to mark any of its fields as
+external.
+
+```graphql counter-example
+interface Node {
+  id: ID! @external
+}
+```
+
 
 ### Merge
 
