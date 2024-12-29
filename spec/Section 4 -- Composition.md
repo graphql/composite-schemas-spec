@@ -1795,6 +1795,84 @@ input FieldSelectionMap {
 }
 ```
 
+### Type Kind Mismatch
+
+**Error Code**  
+`TYPE_KIND_MISMATCH`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas.
+- For each type name {typeName} defined in at least one of these schemas:
+  - Let {types} be the set of all types named {typeName} across all source
+    schemas.
+  - Let {typeKinds} be the set of
+    [type kinds](https://spec.graphql.org/October2021/#sec-Type-Kinds) in
+    {types}
+  - {typeKinds} must contain exactly one element.
+
+**Explanatory Text**
+
+Each named type must represent the **same** kind of GraphQL type across all
+source schemas. For instance, a type named `User` must consistently be an object
+type, or consistently be an interface, and so forth. If one schema defines
+`User` as an object type, while another schema declares `User` as an interface
+(or input object, union, etc.), the schema composition process cannot merge
+these definitions coherently.
+
+This rule ensures semantic consistency: a single type name cannot serve
+multiple, incompatible purposes in the final composed schema.
+
+**Examples**
+
+All schemas agree that `User` is an object type:
+
+```graphql
+# Schema A
+type User {
+  id: ID!
+  name: String
+}
+
+# Schema B
+type User {
+  id: ID!
+  email: String
+}
+
+# Schema C
+type User {
+  id: ID!
+  joinedAt: String
+}
+```
+
+In the following counter-example, `User` is defined as an object type in one of
+the schemas and as an interface in another. This violates the rule and results
+
+```graphql
+# Schema A: `User` is an object type
+type User {
+  id: ID!
+  name: String
+}
+
+# Schema B: `User` is an interface
+extend interface User {
+  id: ID!
+  friends: [User!]!
+}
+
+# Schema C: `User` is an input object
+extend input User {
+  id: ID!
+}
+```
+
+
 ### Merge
 
 ### Post Merge Validation
