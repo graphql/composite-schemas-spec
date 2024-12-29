@@ -1193,6 +1193,74 @@ interface Node {
 }
 ```
 
+### Key Invalid Fields
+
+**Error Code**
+
+`KEY_INVALID_FIELDS`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the set of all source schemas.
+  - Let {types} be the set of all object and interface types in {schema}.
+  - For each {type} in {types}:
+    - Let {keyDirectives} be the set of all `@key` directives on {type}.
+    - For each {keyDirective} in {keyDirectives}:
+      - Let {fieldsArg} be the string value of the `fields` argument of
+        {keyDirective}.
+      - Let {selections} be the set of fields in the selection set of
+        {fieldsArg}.
+      - For each {selection} in {selections}:
+        - {IsValidKeyField(selection, type)} must be true.
+
+IsValidKeyField(selection, type):
+
+- If {selection} is not defined on {type}:
+  - return false
+- If {selection} has a selection set:
+  - Let {subType} be the return type of {field}.
+  - Let {subFields} be the set of all fields in the selection set of {field}.
+  - For each {subField} in {subFields}:
+    - {IsValidKeyField(subField, subType)} must be true.
+- return true
+
+**Explanatory Text**
+
+Even if the selection set for `@key(fields: "…")` is syntactically valid, field
+reference within that selection set must also refer to **actual** fields on the
+annotated type. This includes nested selections, which must appear on the
+corresponding return type. If any referenced field is missing or incorrectly
+named, composition fails with a `KEY_INVALID_FIELDS` error because the entity
+key cannot be resolved correctly.
+
+**Examples**
+
+In this valid example, the `fields` argument of the `@key` directive is properly
+defined with valid syntax and references existing fields.
+
+```graphql example
+type Product @key(fields: "sku featuredItem { id }") {
+  sku: String!
+  featuredItem: Node!
+}
+
+interface Node {
+  id: ID!
+}
+```
+
+In this counter-example, the `fields` argument of the `@key` directive
+references a field `id`, which does not exist on the `Product` type.
+
+```graphql counter-example
+type Product @key(fields: "id") {
+  sku: String!
+}
+```
 
 ### Merge
 
