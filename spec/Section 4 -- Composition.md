@@ -1938,7 +1938,7 @@ ERROR
 - Let {schemas} be the set of all source schemas to be composed.
 - For Each {schema} in {schemas}
   - {schema} must be a syntactically valid
-  - {schama} must be a semantically valid GraphQL schema according to the
+  - {schema} must be a semantically valid GraphQL schema according to the
     [GraphQL specification](https://spec.graphql.org/).
 
 **Explanatory Text**
@@ -2222,7 +2222,7 @@ ERROR
       - Continue
     - Let {firstOverride} be the first directive in {overrides}.
     - Let {from} be the value of the `from` argument on {firstOverride}.
-    - Let {sourceSchema} be the schema definining {firstOverride}.
+    - Let {sourceSchema} be the schema defining {firstOverride}.
     - Let {visited} be an empty set.
     - Add {sourceSchema} to {visited}.
     - While {from} is not null:
@@ -2376,8 +2376,7 @@ local ownership or resolution responsibility, such as:
 
 - **`@override`**: Transfers ownership of the field’s definition from one schema
   to another, which is incompatible with an already-external field definition.
-  Yet this behaviour is covered by the
-  `OVERRIDE_COLLISION_WITH_ANOTHER_DIRECTIVE` rule.
+  Yet this is covered by the `OVERRIDE_COLLISION_WITH_ANOTHER_DIRECTIVE` rule.
 
 Any combination of `@external` with either `@provides` or `@require` on the same
 field results in inconsistent semantics. In such scenarios, an
@@ -2689,7 +2688,6 @@ interface Node {
 }
 ```
 
-
 ### Merge
 
 ### Post Merge Validation
@@ -2990,7 +2988,7 @@ type User implements Node {
 
 **Error Code**
 
-`INTERFACE_FIELD_NO_IMPLEM`
+`INTERFACE_FIELD_NO_IMPLEMENTATION`
 
 **Severity**
 
@@ -3007,7 +3005,7 @@ ERROR
       visible in the merged schema.
     - For each {field} in {interfaceFields}:
       - If {field} is not present on {objectType}:
-        - Produce an `INTERFACE_FIELD_NO_IMPLEM` error.
+        - Produce an `INTERFACE_FIELD_NO_IMPLEMENTATION` error.
 
 **Explanatory Text**
 
@@ -3060,12 +3058,12 @@ type GuestUser implements User {
 
 In this counter-example, the `User` interface is defined with three fields, but
 the `GuestUser` type omits one of them (`email`), causing an
-`INTERFACE_FIELD_NO_IMPLEM` error.
+`INTERFACE_FIELD_NO_IMPLEMENTATION` error.
 
 Although `GuestUser` implements `User`, it does not provide the `email` field.
 Since the merged schema sees that the interface `User` has `email` but
 `GuestUser` does not provide it, the schema composition fails with the
-`INTERFACE_FIELD_NO_IMPLEM` error.
+`INTERFACE_FIELD_NO_IMPLEMENTATION` error.
 
 ```graphql counter-example
 # Schema A
@@ -3162,7 +3160,7 @@ type User @key(fields: "id") {
 }
 ```
 
-In the following example, `User.fullName` is overriden in one schema and
+In the following example, `User.fullName` is overridden in one schema and
 therefore the field can be define in multiple schemas without being marked as
 `@shareable`.
 
