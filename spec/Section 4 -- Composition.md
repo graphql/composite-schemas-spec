@@ -3302,5 +3302,156 @@ interface InventoryItem {
 }
 ```
 
+### Only Inaccessible Children
+
+**Error Code**  
+`ONLY_INACCESSIBLE_CHILDREN`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the composed schema.
+- Let {types} be the set of all types in {schema}.
+- For each {type} in {types}:
+  - If {IsExposed(type)} is false:
+    - continue
+  - If {type} is the query, mutation, or subscription root type:
+    - continue
+  - If {type} is an object type:
+    - {HasObjectTypeAccessibleChildren(type)} must be true
+  - If {type} is an enum type:
+    - {HasEnumAccessibleChildren(type)} must be true
+  - If {type} is an input object type:
+    - {HasInputObjectAccessibleChildren(type)} must be true
+  - If {type} is an interface type:
+    - {HasInterfaceAccessibleChildren(type)} must be true
+  - If {type} is a union type:
+    - {HasUnionAccessibleChildren(type)} must be true
+
+HasObjectTypeAccessibleChildren(type):
+
+- Let {fields} be the set of all fields in {type}.
+- For each {field} in {fields}:
+  - If {field} is **not** marked with `@inaccessible` and **not** `@internal`:
+    - return true
+- return false
+
+HasEnumAccessibleChildren(type):
+
+- Let {values} be the set of all values in {type}.
+- For each {value} in {values}:
+  - If {value} is **not** marked with `@inaccessible`:
+    - return true
+- return false
+
+HasInputObjectAccessibleChildren(type):
+
+- Let {fields} be the set of all fields in {type}.
+- For each {field} in {fields}:
+  - If {value} is **not** marked with `@inaccessible`:
+    - return true
+- return false
+
+HasInterfaceAccessibleChildren(type):
+
+- Let {fields} be the set of all fields in {type}.
+- For each {field} in {fields}:
+  - If {field} is **not** marked with `@inaccessible`:
+    - return true
+- return false
+
+HasUnionAccessibleChildren(type):
+
+- Let {members} be the set of all member types in {type}.
+- For each {member} in {members}:
+  - Let {type} be the type of {member}.
+  - If {type} is **not** marked with `@inaccessible`:
+    - return true
+- return false
+
+**Explanatory Text**
+
+A type that is **not** annotated with `@inaccessible` is expected to appear in
+the composed schema. If, however, all of its child elements (fields in an object
+or interface, values in an enum, fields in an input object or all types of a
+union) are individually marked `@inaccessible` (or `@internal`), then there are
+no accessible sub-parts of that type for consumers to query or reference.
+
+Allowing such a type to remain in the composed schema despite having no publicly
+visible fields or values leads to an invalid schema. This rule enforces that a
+type visible in the composed schema must have at least one accessible child.
+Otherwise, it triggers an `ONLY_INACCESSIBLE_CHILDREN` error, prompting the user
+to either make the entire type `@inaccessible` or expose at least one child
+element.
+
+Additionally, the rule applies to all types except the query, mutation, and
+subscription root types.
+
+**Examples**
+
+In the following example, the `Profile` type is included in the composed schema,
+and `Profile.email` is **not** marked with `@inaccessible`. This satisfies the
+rule, as there is at least one accessible child element.
+
+```graphql
+type User {
+  id: ID!
+  profile: Profile
+}
+
+type Profile {
+  name: String @inaccessible
+  email: String
+}
+```
+
+In the following example, all fields of the `Profile` type are marked with
+`@inaccessible`. But since `Profile` itself is marked with `@inaccessible`, it
+is not required to have any accessible children.
+
+```graphql
+type User {
+  id: ID!
+  profile: Profile @inaccessible
+}
+
+type Profile @inaccessible {
+  name: String @inaccessible
+  email: String @inaccessible
+}
+```
+
+The `Profile` type is included in the composed schema (no `@inaccessible` on the
+type), but **all** of its fields are marked `@inaccessible`, triggering an
+`ONLY_INACCESSIBLE_CHILDREN` error.
+
+```graphql counter-example
+type User {
+  id: ID!
+  profile: Profile
+}
+
+type Profile {
+  name: String @inaccessible
+  email: String @inaccessible
+}
+```
+
+In this example, the `DeliveryStatus` enum is not annotated with
+`@inaccessible`, yet all of its values are.
+
+Since there are no publicly visible values, an `ONLY_INACCESSIBLE_CHILDREN`
+error is produced.
+
+```graphql counter-example
+enum DeliveryStatus {
+  PENDING @inaccessible
+  SHIPPED @inaccessible
+  DELIVERED @inaccessible
+}
+```
+
 
 ## Validate Satisfiability
