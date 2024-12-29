@@ -2986,5 +2986,113 @@ type User implements Node {
 }
 ```
 
+### Interface Field No Implementation
+
+**Error Code**
+
+`INTERFACE_FIELD_NO_IMPLEM`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the merged composite execution schema.
+- Let {objectTypes} be the set of all object types defined in {schema}.
+- For each {objectType} in {objectTypes}:
+  - Let {interfaces} be the set of interface types that {objectType} implements.
+  - For each {interface} in {interfaces}:
+    - Let {interfaceFields} be the set of fields defined on {interface} that are
+      visible in the merged schema.
+    - For each {field} in {interfaceFields}:
+      - If {field} is not present on {objectType}:
+        - Produce an `INTERFACE_FIELD_NO_IMPLEM` error.
+
+**Explanatory Text**
+
+In GraphQL, any object type that implements an interface must provide a field
+definition for every field declared by that interface. If an object type fails
+to implement a particular field required by one of its interfaces, the composite
+schema becomes invalid because the resulting schema breaks the contract defined
+by that interface.
+
+This rule checks that object types merged from different sources correctly
+implement all interface fields. In scenarios where a schema defines an interface
+field, but the implementing object type in another schema omits that field, an
+error is raised.
+
+**Examples**
+
+In this valid example, the `User` interface has three fields: `id`, `name`, and
+`email`. Both the `RegisteredUser` and `GuestUser` types implement all three
+fields, satisfying the interface contract.
+
+```graphql example
+# Schema A
+interface User {
+  id: ID!
+  name: String!
+  email: String
+}
+
+type RegisteredUser implements User {
+  id: ID!
+  name: String!
+  email: String
+  lastLogin: DateTime
+}
+
+# Schema B
+interface User {
+  id: ID!
+  name: String!
+  email: String
+}
+
+type GuestUser implements User {
+  id: ID!
+  name: String!
+  email: String
+  temporaryCartId: String
+}
+```
+
+In this counter-example, the `User` interface is defined with three fields, but
+the `GuestUser` type omits one of them (`email`), causing an
+`INTERFACE_FIELD_NO_IMPLEM` error.
+
+Although `GuestUser` implements `User`, it does not provide the `email` field.
+Since the merged schema sees that the interface `User` has `email` but
+`GuestUser` does not provide it, the schema composition fails with the
+`INTERFACE_FIELD_NO_IMPLEM` error.
+
+```graphql counter-example
+# Schema A
+interface User {
+  id: ID!
+  name: String!
+  email: String
+}
+
+type RegisteredUser implements User {
+  id: ID!
+  name: String!
+  email: String
+  lastLogin: DateTime
+}
+
+# Schema B
+interface User {
+  id: ID!
+  name: String!
+}
+
+type GuestUser implements User {
+  id: ID!
+  name: String!
+  temporaryCartId: String
+}
+```
 
 ## Validate Satisfiability
