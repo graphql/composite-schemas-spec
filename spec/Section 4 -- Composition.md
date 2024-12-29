@@ -1925,6 +1925,85 @@ type User @key(fields: "id") {
 }
 ```
 
+### Invalid GraphQL
+
+**Error Code**  
+`INVALID_GRAPHQL`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas to be composed.
+- For Each {schema} in {schemas}
+  - {schema} must be a syntactically valid
+  - {schama} must be a semantically valid GraphQL schema according to the
+    [GraphQL specification](https://spec.graphql.org/).
+
+**Explanatory Text**
+
+Before composition, every individual source schema must be valid as per the
+official GraphQL specification. Common reasons a schema may be considered
+"invalid GraphQL" include:
+
+- **Syntax Errors**: Missing braces, invalid tokens, or misplaced punctuation.
+- **Unknown Types**: Referencing types that are not defined within the schema or
+  imported from elsewhere.
+- **Invalid Directive Usage**: Omitting required arguments to directives or
+  using directives in disallowed locations.
+- **Invalid Default Values**: Providing default values for arguments or fields
+  that do not conform to the type (e.g., a default of `null` for a non-null
+  field, an invalid enum value, etc.).
+- **Conflicting Type Definitions**: Defining or overriding a built-in type or
+  directive incorrectly.
+
+When any of these validation checks fail for a particular source schema, that
+schema does not meet the baseline requirements for composition, and the
+composition process cannot proceed. An `INVALID_GRAPHQL` error is raised,
+prompting the schema owner to correct the GraphQL violations before retrying
+composition.
+
+**Examples**
+
+In the following counter-example, the schema is invalid because the type `User`
+is referenced in the `Query` type but never defined:
+
+```graphql counter-example
+type Query {
+  user: User
+}
+
+# The type "User" is never defined; this is invalid GraphQL.
+```
+
+In this counter-example, `"INVALID_VALUE"` is not a valid `Role`, causing
+`INVALID_GRAPHQL`.
+
+```graphql counter-example
+enum Role {
+  ADMIN
+  USER
+}
+
+type Query {
+  users(role: Role = "INVALID_VALUE"): [String]
+}
+```
+
+The GraphQL spec requires all non-null directive arguments to be supplied. The
+omission of the `fields` argument in the `@provides` directive triggers
+`INVALID_GRAPHQL`.
+
+```graphql counter-example
+directive @provides(fields: String!) on FIELD_DEFINITION
+
+type Product {
+  price: Float @provides
+  # "fields" argument is required, but not provided.
+}
+```
+
 
 ### Merge
 
