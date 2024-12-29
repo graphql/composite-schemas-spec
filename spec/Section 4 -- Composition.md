@@ -785,6 +785,71 @@ type Mutation {
 }
 ```
 
+### Root Query Used
+
+**Error Code**
+
+`ROOT_QUERY_USED`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas.
+- For each {schema} in {schemas}:
+  - Let {rootQuery} be the root mutation type defined in {schema}, if it exists.
+  - Let {namedQueryType} be the type with the name `Query` in {schema}, if it
+    exists.
+  - If {rootQuery} is defined:
+    - {rootQuery} must be named `Query`.
+  - Otherwise, {namedQueryType} must not be defined.
+
+**Explanatory Text**
+
+This rule enforces that the root query type in any source schema must be named
+`Query`. Defining a root query type with a name other than `Query` or using a
+differently named type alongside a type explicitly named `Query` creates
+inconsistencies in schema design and violates the composite schema
+specification.
+
+**Examples**
+
+Valid example:
+
+```graphql example
+schema {
+  query: Query
+}
+
+type Query {
+  product(id: ID!): Product
+}
+
+type Product {
+  id: ID!
+  name: String
+}
+```
+
+The following counter-example violates the rule because `RootQuery` is used as
+the root query type, but a type named `Query` is also defined.
+
+```graphql counter-example
+schema {
+  query: RootQuery
+}
+
+type RootQuery {
+  product(id: ID!): Product
+}
+
+type Query {
+  deprecatedField: String
+}
+```
+
 
 ### Merge
 
