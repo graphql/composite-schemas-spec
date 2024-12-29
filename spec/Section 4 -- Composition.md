@@ -2897,5 +2897,94 @@ type AdminStats {
 }
 ```
 
+### Implemented by Inaccessible
+
+**Error Code**
+
+`IMPLEMENTED_BY_INACCESSIBLE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the merged composite execution schema.
+- Let {types} be the set of all object types in {schema}.
+- For each {type} in {types}:
+  - If {type} is not marked with `@inaccessible`:
+    - Let {implementedInterfaces} be the set of all interfaces implemented by
+      {type}.
+    - For each {field} in {type}'s fields:
+      - If {field} is marked with `@inaccessible`:
+        - For each {implementedInterface} in {implementedInterfaces}:
+          - Let {interfaceField} be the field on {implementedInterface} that has
+            the same name as {field}
+          - If {interfaceField} exists:
+            - {IsExposed(interfaceField)} must be false
+
+**Explanatory Text**
+
+This rule ensures that inaccessible fields (`@inaccessible`) on an object type
+are not exposed through an interface. An object type that implements an
+interface must provide public access to each field defined by the interface. If
+a field on an object type is marked as `@inaccessible` but implements an
+interface field that is visible in the composed schema, this creates a
+contradiction: the interface contract requires that field to be accessible, yet
+the object type implementation hides it.
+
+This rule prevents inconsistencies in the composed schema, ensuring that every
+interface field visible in the composed schema is also publicly visible on all
+types implementing that interface.
+
+**Examples**
+
+In the following example, `User.id` is accessible and implements `Node.id` which
+is also accessible, no error occurs.
+
+```graphql
+# The interface field `id` is visible and provided by `User` without @inaccessible.
+interface Node {
+  id: ID!
+}
+
+type User implements Node {
+  id: ID!
+  name: String
+}
+```
+
+Since `Auditable` and its field `lastAudit` are `@inaccessible`, the
+`Order.lastAudit` field is allowed to be `@inaccessible` because it does not
+implement any visible interface field in the composed schema.
+
+```graphql
+# The entire interface is @inaccessible, thus its fields are not publicly visible.
+interface Auditable @inaccessible {
+  lastAudit: DateTime!
+}
+
+type Order implements Auditable {
+  lastAudit: DateTime! @inaccessible
+  orderNumber: String
+}
+```
+
+In this example, `Node.id` is visible in the public schema (no `@inaccessible`),
+but `User.id` is marked `@inaccessible`. This violates the interface contract
+because `User` claims to implement `Node`, yet does not expose the `id` field to
+the public schema.
+
+```graphql counter-example
+interface Node {
+  id: ID!
+}
+
+type User implements Node {
+  id: ID! @inaccessible
+  name: String
+}
+```
+
 
 ## Validate Satisfiability
