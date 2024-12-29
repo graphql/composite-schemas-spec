@@ -2004,6 +2004,75 @@ type Product {
 }
 ```
 
+### Override Collision with Another Directive
+
+**Error Code**  
+`OVERRIDE_COLLISION_WITH_ANOTHER_DIRECTIVE`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas to be composed.
+- For each {schema} in {schemas}:
+  - Let {types} be the set of all composite types in {schema}.
+  - For each {type} in {types}:
+    - Let {fields} be the set of fields on {type}.
+    - For each {field} in {fields}:
+      - If {field} is annotated with `@override`:
+        - {field} must **not** be annotated with `@external`
+
+**Explanatory Text**
+
+The `@override` directive designates that ownership of a field is transferred
+from one source schema to another in the resulting composite schema. When such a
+transfer occurs, that field **cannot** also be annotated `@external`. A field
+declared as `@external` is originally defined in a **different** source schema.
+Overriding a field and simultaneously claiming it is external to the local
+schema is contradictory.
+
+In this case composition fails with an
+`OVERRIDE_COLLISION_WITH_ANOTHER_DIRECTIVE` error.
+
+**Examples**
+
+In this scenario, `User.fullName` is defined in **Schema A** but overridden in
+**Schema B**. Since `@override` is **not** combined with any of `@external` on
+the same field, no collision occurs.
+
+```graphql example
+# Source Schema A
+type User {
+  id: ID!
+  fullName: String
+}
+
+# Source Schema B
+type User {
+  id: ID!
+  fullName: String @override(from: "SchemaA")
+}
+```
+
+Here, `amount` is marked with both `@override` and `@external`. This violates
+the rule because the field is simultaneously labeled as “override from another
+schema” and “external” in the local schema, producing an
+`OVERRIDE_COLLISION_WITH_ANOTHER_DIRECTIVE` error.
+
+```graphql counter-example
+# Source Schema A
+type Payment {
+  id: ID!
+  amount: Int
+}
+
+# Source Schema B
+type Payment {
+  id: ID!
+  amount: Int @override(from: "SchemaA") @external
+}
+```
 
 ### Merge
 
