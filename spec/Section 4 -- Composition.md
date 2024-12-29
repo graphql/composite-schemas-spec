@@ -1485,6 +1485,70 @@ type Order {
 }
 ```
 
+### Query Root Type Inaccessible
+
+**Error Code**
+
+`QUERY_ROOT_TYPE_INACCESSIBLE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas.
+- For each {schema} in {schemas}:
+  - Let {queryType} be the query operation type defined in {schema}.
+  - If {queryType} is annotated with `@inaccessible`:
+    - Produce a `QUERY_ROOT_TYPE_INACCESSIBLE` error.
+
+**Explanatory Text**
+
+Every source schema that contributes to the final composite schema must expose a
+public (accessible) root query type. Marking the root query type as
+`@inaccessible` makes it invisible to the gateway, defeating its purpose as the
+primary entry point for queries and lookups.
+
+**Examples**
+
+In this example, no `@inaccessible` annotation is applied to the query root, so
+the rule is satisfied.
+
+```graphql example
+extend schema {
+  query: Query
+}
+
+type Query {
+  allBooks: [Book]
+}
+
+type Book {
+  id: ID!
+  title: String
+}
+```
+
+Since the schema marks the query root type as `@inaccessible`, the rule is
+violated. `QUERY_ROOT_TYPE_INACCESSIBLE` is raised because a schema’s root query
+type cannot be hidden from consumers.
+
+```graphql counter-example
+extend schema {
+  query: Query
+}
+
+type Query @inaccessible {
+  allBooks: [Book]
+}
+
+type Book {
+  id: ID!
+  title: String
+}
+```
+
 
 
 ### Merge
