@@ -850,6 +850,72 @@ type Query {
 }
 ```
 
+### Root Subscription Used
+
+**Error Code**
+
+`ROOT_SUBSCRIPTION_USED`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas.
+- For each {schema} in {schemas}:
+  - Let {rootSubscription} be the root mutation type defined in {schema}, if it
+    exists.
+  - Let {namedSubscriptionType} be the type with the name `Subscription` in
+    {schema}, if it exists.
+  - If {rootSubscription} is defined:
+    - {rootSubscription} must be named `Subscription`.
+  - Otherwise, {namedSubscriptionType} must not be defined.
+
+**Explanatory Text**
+
+This rule enforces that, for any source schema, if a root subscription type is
+defined, it must be named `Subscription`. Defining a root subscription type with
+a name other than `Subscription` or using a differently named type alongside a
+type explicitly named `Subscription` creates inconsistencies in schema design
+and violates the composite schema specification.
+
+**Examples**
+
+Valid example:
+
+```graphql example
+schema {
+  subscription: Subscription
+}
+
+type Subscription {
+  productCreated: Product
+}
+
+type Product {
+  id: ID!
+  name: String
+}
+```
+
+The following counter-example violates the rule because `RootSubscription` is
+used as the root subscription type, but a type named `Subscription` is also
+defined.
+
+```graphql counter-example
+schema {
+  subscription: RootSubscription
+}
+
+type RootSubscription {
+  productCreated: Product
+}
+
+type Subscription {
+  deprecatedField: String
+}
+```
 
 ### Merge
 
