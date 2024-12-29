@@ -1412,6 +1412,80 @@ type Article @key(fields: "id") {
 }
 ```
 
+### Provides Fields Missing External
+
+**Error Code**
+
+`PROVIDES_FIELDS_MISSING_EXTERNAL`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas.
+- For each {schema} in {schemas}
+  - Let {objectTypes} be the set of all object types in {schema}.
+  - For each {objectType} in {objectTypes}:
+    - Let {providingFields} be the set of fields on {objectType} annotated with
+      `@provides`.
+    - For each {field} in {providingFields}:
+      - Let {referencedFields} be the set of fields referenced by the `fields`
+        argument of the `@provides` directive on {field}.
+      - For each {referencedField} in {referencedFields}:
+        - If {referencedField} is **not** marked as `@external`
+          - Produce a `PROVIDES_FIELDS_MISSING_EXTERNAL` error.
+
+**Explanatory Text**
+
+The `@provides` directive indicates that an object type field will supply
+additional fields belonging to the return type in this execution specific path.
+Any field listed in the `@provides(fields: ...)` argument must therefore be
+_external_ in the local schema, meaning that the local schema itself does
+**not** provide it.
+
+This rule disallows selecting non-external fields in a `@provides` selection
+set. If a field is already provided by the same schema in all execution paths,
+there is no need to `@provide`.
+
+**Examples**
+
+Here, the `Order` type from this schema is providing fields on `User` through
+`@provides`. The `name` field of `User` is **not** defined in this schema; it is
+declared with `@external` indicating that the `name` field comes from elsewhere.
+Thus, referencing `name` under `@provides(fields: "name")` is valid.
+
+```graphql example
+type Order {
+  id: ID!
+  customer: User @provides(fields: "name")
+}
+
+type User @key(fields: "id") {
+  id: ID!
+  name: String @external
+}
+```
+
+In this counter-example, `User.address` is **not** marked as `@external` in the
+same schema that applies `@provides`. This means the schema already provides the
+`address` field in all possible paths, so using `@provides(fields: "address")`
+is invalid.
+
+```graphql counter-example
+type User {
+  id: ID!
+  address: String
+}
+
+type Order {
+  id: ID!
+  buyer: User @provides(fields: "address")
+}
+```
+
+
 
 ### Merge
 
