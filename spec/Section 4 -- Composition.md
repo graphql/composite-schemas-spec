@@ -2774,4 +2774,128 @@ type ObjectType1 {
 }
 ```
 
+### No Queries
+
+**Error Code**
+
+`NO_QUERIES`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {fields} be the set of all fields in the `Query` type of the merged
+  schema.
+- {HasPublicField(fields)} must be true.
+
+HasPublicField(fields):
+
+- For each {field} in {fields}:
+  - If {IsExposed(field)} is true
+    - return true
+- return false
+
+**Explanatory Text**
+
+This rule ensures that the composed schema includes at least one accessible
+field on the root `Query` type.
+
+In GraphQL, the `Query` type is essential as it defines the entry points for
+read operations. If none of the composed schemas expose any query fields, the
+composed schema would lack a root query, making it a invalid GraphQL schema.
+
+**Examples**
+
+In this example, at least one schema provides accessible query fields,
+satisfying the rule.
+
+```graphql
+# Schema A
+type Query {
+  product(id: ID!): Product
+}
+
+type Product {
+  id: ID!
+}
+```
+
+```graphql
+type Query {
+  review(id: ID!): Review
+}
+
+# Schema B
+type Review {
+  id: ID!
+  content: String
+  rating: Int
+}
+```
+
+Even if some query fields are marked as `@inaccessible`, as long as there is at
+least one accessible query field in the composed schema, the rule is satisfied.
+
+In this case, Schema A exposes an internal query field `internalData` marked
+with `@inaccessible`, making it hidden in the composed schema. However, Schema B
+provides an accessible `product` query field. Therefore, the composed schema has
+at least one accessible query field, adhering to the rule.
+
+```graphql
+# Schema A
+type Query {
+  internalData: InternalData @inaccessible
+}
+
+type InternalData {
+  secret: String
+}
+```
+
+```graphql
+# Schema B
+type Query {
+  product(id: ID!): Product
+}
+
+type Product {
+  id: ID!
+  name: String
+}
+```
+
+If all query fields in all schemas are marked as `@inaccessible`, the composed
+schema will lack accessible query fields, violating the rule.
+
+In the following counter-example, both schemas have query fields, but all are
+marked as `@inaccessible`.
+
+This means there are no accessible query fields in the composed schema,
+triggering the `NO_QUERIES` error.
+
+```graphql
+# Schema A
+type Query {
+  internalData: InternalData @inaccessible
+}
+
+type InternalData {
+  secret: String
+}
+```
+
+```graphql
+# Schema B
+type Query {
+  adminStats: AdminStats @inaccessible
+}
+
+type AdminStats {
+  userCount: Int
+}
+```
+
+
 ## Validate Satisfiability
