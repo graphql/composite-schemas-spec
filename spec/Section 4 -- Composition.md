@@ -2338,6 +2338,108 @@ type Bill {
 }
 ```
 
+### External Collision with Another Directive
+
+**Error Code**  
+`EXTERNAL_COLLISION_WITH_ANOTHER_DIRECTIVE`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas to be composed.
+- For each {schema} in {schemas}:
+  - Let {types} be the set of all composite types in {schema}.
+  - For each {type} in {types}:
+    - Let {fields} be the set of fields on {type}.
+    - For each {field} in {fields}:
+      - If {field} is annotated with `@external`:
+        - For each {argument} in {field}:
+          - {argument} must **not** be annotated with `@require`
+        - {field} must **not** be annotated with `@provides`
+
+**Explanatory Text**
+
+The `@external` directive indicates that a field is **defined** in a different
+source schema, and the current schema merely references it. Therefore, a field
+marked with `@external` must **not** simultaneously carry directives that assume
+local ownership or resolution responsibility, such as:
+
+- **`@provides`**: Declares that the field can supply additional nested fields
+  from the local schema, which conflicts with the notion of an external field
+  whose definition resides elsewhere.
+
+- **`@require`**: Specifies dependencies on other fields to resolve this field.
+  Since `@external` fields are not locally resolved, there is no need for
+  `@require`.
+
+- **`@override`**: Transfers ownership of the field’s definition from one schema
+  to another, which is incompatible with an already-external field definition.
+  Yet this behaviour is covered by the
+  `OVERRIDE_COLLISION_WITH_ANOTHER_DIRECTIVE` rule.
+
+Any combination of `@external` with either `@provides` or `@require` on the same
+field results in inconsistent semantics. In such scenarios, an
+`EXTERNAL_COLLISION_WITH_ANOTHER_DIRECTIVE` error is raised.
+
+**Examples**
+
+In this example, `method` is **only** annotated with `@external` in Schema B,
+without any other directive. This usage is valid.
+
+```graphql example
+# Source Schema A
+type Payment {
+  id: ID!
+  method: String
+}
+
+# Source Schema B
+type Payment {
+  id: ID!
+  # This field is external, defined in Schema A.
+  method: String @external
+}
+```
+
+In this counter-example, `description` is annotated with `@external` and also
+with `@provides`. Because `@external` and `@provides` cannot co-exist on the
+same field, an `EXTERNAL_COLLISION_WITH_ANOTHER_DIRECTIVE` error is produced.
+
+```graphql counter-example
+# Source Schema A
+type Invoice {
+  id: ID!
+  description: String
+}
+
+# Source Schema B
+type Invoice {
+  id: ID!
+  description: String @external @provides(fields: "length")
+}
+```
+
+The following example is invalid, since `title` is marked with both `@external`
+and has an argument that is annotated with `@require`. This conflict leads to an
+`EXTERNAL_COLLISION_WITH_ANOTHER_DIRECTIVE` error.
+
+```graphql counter-example
+# Source Schema A
+type Book {
+  id: ID!
+  title: String
+  subtitle: String
+}
+
+# Source Schema B
+type Book {
+  id: ID!
+  title(subtitle: String @require(fields: "subtitle")) @external
+}
+```
+
 
 ### Merge
 
