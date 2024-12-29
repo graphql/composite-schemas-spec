@@ -1749,6 +1749,52 @@ type Author {
 }
 ```
 
+### Type Definition Invalid
+
+**Error Code**
+
+`TYPE_DEFINITION_INVALID`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be one of the source schemas.
+- Let {types} be the set of built-in types (for example, `FieldSelectionMap`)
+  defined by the composition specification.
+- For each {type} in {types}:
+  - {type} must strictly equal the built-in type defined by the composition
+    specification.
+
+**Explanatory Text**
+
+Certain types are reserved in composite schema specification for specific
+purposes and must adhere to the specification’s definitions. For example,
+`FieldSelectionMap` is a built-in scalar that represents a selection of fields
+as a string. Redefining these built-in types with a different kind (e.g., an
+input object, enum, union, or object type) is disallowed and makes the
+composition invalid.
+
+This rule ensures that built-in types maintain their expected shapes and
+semantics so the composed schema can correctly interpret them.
+
+**Examples**
+
+In the following counter-example, `FieldSelectionMap` is declared as an `input`
+type instead of the required `scalar`. This leads to a `TYPE_DEFINITION_INVALID`
+error because the defined scalar `FieldSelectionMap` is being overridden by an
+incompatible definition.
+
+```graphql counter-example
+directive @require(field: FieldSelectionMap!) on ARGUMENT_DEFINITION
+
+input FieldSelectionMap {
+  fields: [String!]!
+}
+```
+
 ### Merge
 
 ### Post Merge Validation
