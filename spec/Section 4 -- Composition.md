@@ -1872,6 +1872,59 @@ extend input User {
 }
 ```
 
+### Provides Invalid Syntax
+
+**Error Code**  
+`PROVIDES_INVALID_SYNTAX`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas.
+- For each {schema} in {schemas}
+  - Let {fieldsWithProvides} be the set of all fields annotated with the
+    `@provides` directive in {schema}.
+  - For each {field} in {fieldsWithProvides}:
+    - Let {fieldsArg} be the string value of the `fields` argument of the
+      `@provides` directive on {field}.
+    - {fieldsArg} must be a valid selection set string
+
+**Explanatory Text**
+
+The `@provides` directive’s `fields` argument must be a syntactically valid
+selection set string, as if you were selecting fields in a GraphQL query. If the
+selection set is malformed (e.g., missing braces, unbalanced quotes, or invalid
+tokens), the schema composition fails with a `PROVIDES_INVALID_SYNTAX` error.
+
+**Examples**
+
+Here, the `@provides` directive’s `fields` argument is a valid selection set:
+
+```graphql example
+type User @key(fields: "id") {
+  id: ID!
+  address: Address @provides(fields: "street city")
+}
+
+type Address {
+  street: String
+  city: String
+}
+```
+
+In this counter-example, the `fields` argument is missing a closing brace. It
+cannot be parsed as a valid GraphQL selection set, triggering a
+`PROVIDES_INVALID_SYNTAX` error.
+
+```graphql counter-example
+type User @key(fields: "id") {
+  id: ID!
+  address: Address @provides(fields: "{ street city ")
+}
+```
+
 
 ### Merge
 
