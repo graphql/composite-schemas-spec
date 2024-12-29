@@ -719,6 +719,73 @@ type Product {
 }
 ```
 
+### Root Mutation Used
+
+**Error Code**
+
+`ROOT_MUTATION_USED`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas.
+- For each {schema} in {schemas}:
+  - Let {rootMutation} be the root mutation type defined in {schema}, if it
+    exists.
+  - Let {namedMutationType} be the type with the name `Mutation` in {schema}, if
+    it exists.
+  - If {rootMutation} is defined:
+    - {rootMutation} must be named `Mutation`.
+  - Otherwise, {namedMutationType} must not be defined.
+
+**Explanatory Text**
+
+This rule enforces that, for any source schema, if a root mutation type is
+defined, it must be named `Mutation`. Defining a root mutation type with a name
+other than `Mutation` or using a differently named type alongside a type
+explicitly named `Mutation` creates inconsistencies in schema design and
+violates the composite schema specification.
+
+**Examples**
+
+Valid example:
+
+```graphql example
+schema {
+  mutation: Mutation
+}
+
+type Mutation {
+  createProduct(name: String): Product
+}
+
+type Product {
+  id: ID!
+  name: String
+}
+```
+
+The following counter-example violates the rule because `RootMutation` is used
+as the root mutation type, but a type named `Mutation` is also defined.
+
+```graphql counter-example
+schema {
+  mutation: RootMutation
+}
+
+type RootMutation {
+  createProduct(name: String): Product
+}
+
+type Mutation {
+  deprecatedField: String
+}
+```
+
+
 ### Merge
 
 ### Post Merge Validation
