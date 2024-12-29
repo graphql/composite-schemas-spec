@@ -8,11 +8,35 @@ composition process is divided into three main steps: **Validate Source
 Schemas**, **Merge Source Schemas**, and **Validate Satisfiability**, which are
 run in sequence to produce the composite execution schema.
 
+Although this chapter describes schema composition as a sequence of phases, an
+implementation is not required to implement these steps exactly as presented.
+Implementations may interleave or reorder the specified checks, or introduce
+additional processing stages, provided that the final composed schema complies
+with the requirements set forth in this specification. The composition rules and
+resulting schema must remain consistent, but the specific structure or timing of
+each validation step is left to the implementer.
+
 ## Validate Source Schemas
+
+In this phase, each source schema is validated in isolation to ensure that it
+satisfies the GraphQL specification and composition requirements. No
+cross-schema references are considered here. Each source schema must have valid
+syntax, well-formed type definitions, and correct directive usage. If any source
+schema fails these checks, composition does not proceed.
 
 ## Merge Source Schemas
 
+Once all source schemas have passed individual validation, they are merged into
+a single composite schema. This merging process is subdivided into three stages:
+pre-merge validation, merge, and post-merge validation.
+
 ### Pre Merge Validation
+
+Prior to merging the schemas, additional validations are performed that require
+visibility into all source schemas but treat them as separate entities. This
+step detects conflicts such as incompatible fields or default argument values
+that would render the merged schema unusable. Detecting such conflicts early
+prevents errors that would otherwise be discovered during the merge process.
 
 #### Enum Type Default Value Uses Inaccessible Value
 
@@ -2690,7 +2714,19 @@ interface Node {
 
 ### Merge
 
+During this stage, all definitions from each source schema are combined into a
+single schema. This section defines the rules for merging schema definitions.
+The goal is to create a composite schema that includes all type system members
+from each source schema that are publicly accessible.
+
 ### Post Merge Validation
+
+After the schema is composed, there are certain validations that are only
+possible in the context of the fully merged schema. These validations verify
+overall consistency: for example, ensuring that no type is left without
+accessible fields, or that interfaces and their implementors remain compatible.
+This stage confirms that the combined schema remains coherent when considered as
+a whole.
 
 #### Empty Merged Object Type
 
@@ -3616,3 +3652,8 @@ type UserDetails {
 ```
 
 ## Validate Satisfiability
+
+The final step confirms that the composite schema supports executable queries
+without leading to invalid conditions. Each query path defined in the merged
+schema is checked to ensure that every field can be resolved. If any query path
+is unresolvable, the schema is deemed unsatisfiable, and composition fails.
