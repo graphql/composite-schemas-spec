@@ -39,6 +39,16 @@
 | ✅     | TYPE_DEFINITION_INVALID                   | A built-in or Federation type has an invalid definition in the schema.                                                                                                                                                            |
 | ✅     | TYPE_KIND_MISMATCH                        | A type has the same name in different subgraphs, but a different kind. For instance, one definition is an object type but another is an interface.Replaces VALUE_TYPE_KIND_MISMATCH, EXTENSION_OF_WRONG_KIND, ENUM_MISMATCH_TYPE. |
 | ✅     | PROVIDES_INVALID_FIELDS                   | The fields argument of a @provides directive is invalid (it has invalid syntax, includes unknown fields, ...).                                                                                                                    |
+| ✅     | INVALID_GRAPHQL                           | A schema is invalid GraphQL: it violates one of the rules of the specification.                                                                                                                                                   |
+| ✅     ️     | OVERRIDE_COLLISION_WITH_ANOTHER_DIRECTIVE | The @override directive cannot be used on external fields, nor to override fields with either @external, @provides, or @requires.     |
+| ✅     ️️     | OVERRIDE_FROM_SELF_ERROR                  | Field with @override directive has "from" location that references its own subgraph.                                                  |
+| ✅     ️️️     | OVERRIDE_ON_INTERFACE                     | The @override directive cannot be used on the fields of an interface type.                                                            |
+| ✅     ️️️️     | OVERRIDE_SOURCE_HAS_OVERRIDE              | Field which is overridden to another subgraph is also marked @override.                                                               |
+| ✅     ️️️️️     | EXTERNAL_COLLISION_WITH_ANOTHER_DIRECTIVE | The @external directive collides with other directives in some situations.                             |
+| ✅     ️️️️️     ️| KEY_INVALID_FIELDS_TYPE                   | The value passed to the fields argument of a @key directive is not a string.                           |
+| ✅     ️️️️️️     | PROVIDES_INVALID_FIELDS_TYPE              | The value passed to the fields argument of a @provides directive is not a string.                      |
+| ✅     ️️️️️️     | PROVIDES_ON_NON_OBJECT_FIELD              | A @provides directive is used to mark a field whose base type is not an object type.                   |
+| ✅     ️️️️️️️   | EXTERNAL_ON_INTERFACE             | The field of an interface type is marked with @external: as external is about marking field not resolved by the subgraph and as interface field are not resolved (only implementations of those fields are), an "external" interface field is nonsensical                                                                                                                                                                                                                                                                  |
 
 ## Covered by other rule
 
@@ -59,41 +69,31 @@
 | 📋     | INTERFACE_KEY_NOT_ON_IMPLEMENTATION       | A @key is defined on an interface type, but is not defined (or is not resolvable) on at least one of the interface implementations.                                                                                               |
 | 📋     | SATISFIABILITY_ERROR                      | Subgraphs can be merged, but the resulting supergraph API would have queries that cannot be satisfied by those subgraphs.                                                                                                         |
 | 📋     | SHAREABLE_HAS_MISMATCHED_RUNTIME_TYPES    | A shareable field return type has mismatched possible runtime types in the subgraphs in which the field is declared. As shared fields must resolve the same way in all subgraphs, this is almost surely a mistake.                |
-| 📋     | INVALID_GRAPHQL                           | A schema is invalid GraphQL: it violates one of the rules of the specification.                                                                                                                                                   |
 
 ## Later
 
 | Status | Error                                     | Description                                                                                                                           |
 | ------ | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| ⏭️     | OVERRIDE_LABEL_INVALID                    | The @override directive label argument must match the pattern `/^[a-zA-Z]a-zA-Z0-9\*-:./]\*$/ or /^percent((d{1,2}(.d{1,8})I 100))$/` |
 | ⏭️     | DIRECTIVE_COMPOSITION_ERROR               | Error when composing custom directives.                                                                                               |
 | ⏭️     | DIRECTIVE_DEFINITION_INVALID              | A built-in or Federation directive has an invalid definition in the schema.                                                           |
 | ⏭️     | DOWNSTREAM_SERVICE_ERROR                  | Indicates an error in a subgraph service query during query execution in a                                                            |
 | ⏭️     | EXTENSION_WITH_NO_BASE                    | A subgraph is attempting to extend a type that is not originally defined in any known subgraph.                                       |
 | ⏭️     | KEY_UNSUPPORTED_ON_INTERFACE              | A @key directive is used on an interface, which is only supported when @linking to Federation v2.3 or later.                          |
-| ⏭️     | OVERRIDE_COLLISION_WITH_ANOTHER_DIRECTIVE | The @override directive cannot be used on external fields, nor to override fields with either @external, @provides, or @requires.     |
-| ⏭️     | OVERRIDE_FROM_SELF_ERROR                  | Field with @override directive has "from" location that references its own subgraph.                                                  |
-| ⏭️     | OVERRIDE_LABEL_INVALID                    | The @override directive label argument must match the pattern `/^[a-zA-Z]a-zA-Z0-9\*-:./]\*$/ or /^percent((d{1,2}(.d{1,8})I 100))$/` |
-| ⏭️     | OVERRIDE_ON_INTERFACE                     | The @override directive cannot be used on the fields of an interface type.                                                            |
-| ⏭️     | OVERRIDE_SOURCE_HAS_OVERRIDE              | Field which is overridden to another subgraph is also marked @override.                                                               |
+| ⏭️     | MERGED_DIRECTIVE_APPLICATION_ON_EXTERNAL  | In a subgraph, a field is both marked @external and has a merged directive applied to it.              |
+| ⏭️     | PROVIDES_UNSUPPORTED_ON_INTERFACE         | A @provides directive is used on an interface, which is not (yet) supported.                           |
+
 
 ## Open Questions
 
 | Status | Error                                     | Description                                                                                            |
 | ------ | ----------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| ❓     | EXTERNAL_COLLISION_WITH_ANOTHER_DIRECTIVE | The @external directive collides with other directives in some situations.                             |
 | ❓     | INTERFACE_OBJECT_USAGE_ERROR              | Error in the usage of the @interfaceObject directive.                                                  |
 | ❓     | INVALID_FEDERATION_SUPERGRAPH             | Indicates that a schema provided for an Apollo Federation supergraph is not a valid supergraph schema. |
-| ❓     | KEY_INVALID_FIELDS_TYPE                   | The value passed to the fields argument of a @key directive is not a string.                           |
-| ❓     | MERGED_DIRECTIVE_APPLICATION_ON_EXTERNAL  | In a subgraph, a field is both marked @external and has a merged directive applied to it.              |
-| ❓     | PROVIDES_INVALID_FIELDS_TYPE              | The value passed to the fields argument of a @provides directive is not a string.                      |
-| ❓     | PROVIDES_ON_NON_OBJECT_FIELD              | A @provides directive is used to mark a field whose base type is not an object type.                   |
-| ❓     | PROVIDES_UNSUPPORTED_ON_INTERFACE         | A @provides directive is used on an interface, which is not (yet) supported.                           |
-
 ## Not needed in composite schemas
 
 | Status | Error                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | ------ | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🔴     | EXTERNAL_ON_INTERFACE             | The field of an interface type is marked with @external: as external is about marking field not resolved by the subgraph and as interface field are not resolved (only implementations of those fields are), an "external" interface field is nonsensical                                                                                                                                                                                                                                                                  |
 | 🔴     | INVALID_LINK_DIRECTIVE_USAGE      | An application of the @link directive is invalid/does not respect the specification.                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | 🔴     | INVALID_LINK_IDENTIFIER           | A URL/version for a @link feature is invalid/does not respect the specification.                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | 🔴     | INVALID_SUBGRAPH_NAME             | A subgraph name is invalid. (Subgraph names cannot be a single underscore (\*)).                                                                                                                                                                                                                                                                                                                                                                                                                                           |

@@ -139,13 +139,15 @@ ERROR
 
 **Explanatory Text**
 
-This rule enforces that, for any subgraph schema, if a root mutation type is
+This rule enforces that, for any source schema, if a root mutation type is
 defined, it must be named `Mutation`. Defining a root mutation type with a name
 other than `Mutation` or using a differently named type alongside a type
 explicitly named `Mutation` creates inconsistencies in schema design and
 violates the composite schema specification.
 
-Valid Example:
+**Examples**
+
+Valid example:
 
 ```graphql example
 schema {
@@ -202,7 +204,7 @@ ERROR
 
 **Explanatory Text**
 
-This rule enforces that the root query type in any subgraph schema must be named
+This rule enforces that the root query type in any source schema must be named
 `Query`. Defining a root query type with a name other than `Query` or using a
 differently named type alongside a type explicitly named `Query` creates
 inconsistencies in schema design and violates the composite schema
@@ -210,7 +212,7 @@ specification.
 
 **Examples**
 
-Valid Example:
+Valid example:
 
 ```graphql example
 schema {
@@ -231,7 +233,6 @@ The following counter-example violates the rule because `RootQuery` is used as
 the root query type, but a type named `Query` is also defined.
 
 ```graphql counter-example
-# Subgraph A
 schema {
   query: RootQuery
 }
@@ -269,7 +270,7 @@ ERROR
 
 **Explanatory Text**
 
-This rule enforces that, for any subgraph schema, if a root subscription type is
+This rule enforces that, for any source schema, if a root subscription type is
 defined, it must be named `Subscription`. Defining a root subscription type with
 a name other than `Subscription` or using a differently named type alongside a
 type explicitly named `Subscription` creates inconsistencies in schema design
@@ -277,10 +278,9 @@ and violates the composite schema specification.
 
 **Examples**
 
-Valid Example:
+Valid example:
 
 ```graphql example
-# Subgraph A
 schema {
   subscription: Subscription
 }
@@ -300,7 +300,6 @@ used as the root subscription type, but a type named `Subscription` is also
 defined.
 
 ```graphql counter-example
-# Subgraph A
 schema {
   subscription: RootSubscription
 }
@@ -327,20 +326,22 @@ ERROR
 **Formal Specification**
 
 - Let {schema} be the set of all source schemas.
-  - Let {types} be the set of all object types that are annotated with the
-    `@key` directive in {schema}.
+  - Let {types} be the set of all object or interface types that are annotated
+    with the `@key` directive in {schema}.
   - For each {type} in {types}:
-    - Let {keyFields} be the set of fields referenced by the `fields` argument
-      of the `@key` directive on {type}.
-    - For each {field} in {keyFields}:
-      - Let {fieldType} be the type of {field}.
-      - {fieldType} must not be a `List`, `Interface`, or `Union` type.
+    - Let {keyDirectives} be the set of all `@key` directives on {type}.
+    - For each {keyDirective} in {keyDirectives}
+      - Let {keyFields} be the set of all fields (including nested) referenced
+        by the `fields` argument of {keyDirective}.
+      - For each {field} in {keyFields}:
+        - Let {fieldType} be the type of {field}.
+        - {fieldType} must not be a `List`, `Interface`, or `Union` type.
 
 **Explanatory Text**
 
 The `@key` directive is used to define the set of fields that uniquely identify
 an entity. These fields must reference scalars or object types to ensure a valid
-and consistent representation of the entity across subgraphs. Fields of types
+and consistent representation of the entity across schemas. Fields of types
 `List`, `Interface`, or `Union` cannot be part of a `@key` because they do not
 have a well-defined unique value.
 
@@ -371,8 +372,8 @@ interface Node {
 }
 ```
 
-In this following counter example, the `@key` directive references a field
-(`tags`) of type `List`, which is also not allowed.
+In this counter example, the `@key` directive references a field (`tags`) of
+type `List`, which is also not allowed.
 
 ```graphql counter-example
 type Product @key(fields: "tags") {
@@ -410,13 +411,13 @@ ERROR
 **Formal Specification**
 
 - Let {schema} be the set of all source schemas.
-  - Let {types} be the set of all object types that are annotated with the
-    `@key` directive in {schema}.
+  - Let {types} be the set of all object and interface types in {schema}.
   - For each {type} in {types}:
-    - Let {fields} be the string value of the `fields` argument of the `@key`
-      directive on {type}.
-    - For each {selection} in {fields}:
-      - {selection} must not contain a directive application.
+    - Let {keyDirectives} be the set of all `@key` directives on {type}.
+    - For each {keyDirective} in {keyDirectives}:
+      - Let {fields} be the string value of the `fields` argument of
+        {keyDirective}.
+      - {fields} must not contain a directive application.
 
 **Explanatory Text**
 
@@ -431,8 +432,6 @@ In this example, the `fields` argument of the `@key` directive does not include
 any directive applications, satisfying the rule.
 
 ```graphql example
-directive @lowercase on FIELD_DEFINITION
-
 type User @key(fields: "id name") {
   id: ID!
   name: String
@@ -504,13 +503,13 @@ HasKeyFieldsArguments(field):
 The `@key` directive is used to define the set of fields that uniquely identify
 an entity. These fields must not include any field that is defined with
 arguments, as arguments introduce variability that prevents consistent and valid
-entity resolution across subgraphs. Fields included in the `fields` argument of
+entity resolution across schemas. Fields included in the `fields` argument of
 the `@key` directive must be static and consistently resolvable.
 
 **Examples**
 
 In this example, the `User` type has a valid `@key` directive that references
-the argument free fields `id` and `name`.
+the argument-free fields `id` and `name`.
 
 ```graphql example
 type User @key(fields: "id name") {
@@ -530,6 +529,66 @@ type User @key(fields: "id tags") {
 }
 ```
 
+### Key Invalid Syntax
+
+**Error Code**  
+`KEY_INVALID_SYNTAX`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas.
+  - Let {types} be the set of all object or interface types in each {schema}.
+  - For each {type} in {types}:
+    - Let {keyDirectives} be the set of all `@key` directives on {type}.
+    - For each {keyDirective} in {keyDirectives}:
+      - Let {fieldsArg} be the string value of the `fields` argument of
+        {keyDirective}.
+      - Attempt to parse {fieldsArg} as a valid GraphQL selection set.
+      - Parsing must **not** fail (e.g., missing braces, invalid tokens,
+        unbalanced curly braces, or other syntax errors).
+
+**Explanatory Text**
+
+Each `@key` directive must specify the fields that uniquely identify an entity
+using a valid GraphQL selection set in its `fields` argument. If the `fields`
+argument string is syntactically incorrect—missing closing braces, containing
+invalid tokens, or otherwise malformed - it cannot be composed into a valid
+schema and triggers the `KEY_INVALID_SYNTAX` error.
+
+**Examples**
+
+In this valid scenario, the `fields` argument is a correctly formed selection
+set: `"sku featuredItem { id }"` is properly balanced and contains no syntax
+errors.
+
+```graphql example
+type Product @key(fields: "sku featuredItem { id }") {
+  sku: String!
+  featuredItem: Node!
+}
+
+interface Node {
+  id: ID!
+}
+```
+
+Here, the selection set `"featuredItem { id"` is missing the closing brace `}`.
+It is thus invalid syntax, causing a `KEY_INVALID_SYNTAX` error.
+
+```graphql counter-example
+type Product @key(fields: "featuredItem { id") {
+  featuredItem: Node!
+  sku: String!
+}
+
+interface Node {
+  id: ID!
+}
+```
+
 ### Key Invalid Fields
 
 **Error Code**
@@ -543,35 +602,36 @@ ERROR
 **Formal Specification**
 
 - Let {schema} be the set of all source schemas.
-  - Let {types} be the set of all object types that are annotated with the
-    `@key` directive in {schema}.
+  - Let {types} be the set of all object and interface types in {schema}.
   - For each {type} in {types}:
-    - Let {fields} be the set of string values of the `fields` argument of the
-      `@key` directive on {type}.
-    - For each {field} in {fields}:
-      - IsValidKeyField(field, type) must be true.
+    - Let {keyDirectives} be the set of all `@key` directives on {type}.
+    - For each {keyDirective} in {keyDirectives}:
+      - Let {fieldsArg} be the string value of the `fields` argument of
+        {keyDirective}.
+      - Let {selections} be the set of fields in the selection set of
+        {fieldsArg}.
+      - For each {selection} in {selections}:
+        - {IsValidKeyField(selection, type)} must be true.
 
-IsValidKeyField(field, type):
+IsValidKeyField(selection, type):
 
-- If {field} is not defined on {type}:
+- If {selection} is not defined on {type}:
   - return false
-- If {field} has a selection set:
+- If {selection} has a selection set:
   - Let {subType} be the return type of {field}.
   - Let {subFields} be the set of all fields in the selection set of {field}.
   - For each {subField} in {subFields}:
-    - IsValidKeyField(subField, subType) must be true.
+    - {IsValidKeyField(subField, subType)} must be true.
 - return true
 
 **Explanatory Text**
 
-The `@key` directive specifies the set of fields used to uniquely identify an
-entity. The `fields` argument must be valid and meet the following conditions:
-
-1. It must have valid GraphQL syntax.
-2. It must reference fields that are defined on the annotated type.
-
-Violations of these conditions result in an invalid schema composition, as the
-entity key cannot be properly resolved.
+Even if the selection set for `@key(fields: "…")` is syntactically valid, field
+reference within that selection set must also refer to **actual** fields on the
+annotated type. This includes nested selections, which must appear on the
+corresponding return type. If any referenced field is missing or incorrectly
+named, composition fails with a `KEY_INVALID_FIELDS` error because the entity
+key cannot be resolved correctly.
 
 **Examples**
 
@@ -582,20 +642,6 @@ defined with valid syntax and references existing fields.
 type Product @key(fields: "sku featuredItem { id }") {
   sku: String!
   featuredItem: Node!
-}
-
-interface Node {
-  id: ID!
-}
-```
-
-In this counter-example, the `fields` argument of the `@key` directive has
-invalid syntax because it is missing a closing brace.
-
-```graphql counter-example
-type Product @key(fields: "featuredItem { id") {
-  featuredItem: Node!
-  sku: String!
 }
 
 interface Node {
@@ -656,8 +702,6 @@ In this example, the `fields` argument of the `@provides` directive does not
 have any directive applications, satisfying the rule.
 
 ```graphql example
-directive @lowercase on FIELD_DEFINITION
-
 type User @key(fields: "id name") {
   id: ID!
   name: String
@@ -901,11 +945,11 @@ type Book {
 }
 ```
 
-### Requires Directive in Fields Argument
+### Require Directive in Fields Argument
 
 **Error Code**
 
-`REQUIRES_DIRECTIVE_IN_FIELDS_ARG`
+`REQUIRE_DIRECTIVE_IN_FIELDS_ARG`
 
 **Severity**
 
@@ -920,31 +964,31 @@ ERROR
     - Let {fields} be the set of fields on {composite}
     - Let {arguments} be the set of all arguments on {fields}
     - For each {argument} in {arguments}:
-      - If {argument} is **not** marked with `@requires`:
+      - If {argument} is **not** marked with `@require`:
         - Continue
-      - Let {fieldsArg} be the value of the `fields` argument of the `@requires`
+      - Let {fieldsArg} be the value of the `fields` argument of the `@require`
         directive on {argument}.
       - If {fieldsArg} contains a directive application:
-        - Produce a `REQUIRES_DIRECTIVE_IN_FIELDS_ARG` error.
+        - Produce a `REQUIRE_DIRECTIVE_IN_FIELDS_ARG` error.
 
 **Explanatory Text**
 
-The `@requires` directive is used to specify fields on the same type that an
+The `@require` directive is used to specify fields on the same type that an
 argument depends on in order to resolve the annotated field.  
-When using `@requires(fields: "…")`, the `fields` argument must be a valid
+When using `@require(fields: "…")`, the `fields` argument must be a valid
 selection set string **without** any additional directive applications.  
 Applying a directive (e.g., `@lowercase`) inside this selection set is not
-supported and triggers the `REQUIRES_DIRECTIVE_IN_FIELDS_ARG` error.
+supported and triggers the `REQUIRE_DIRECTIVE_IN_FIELDS_ARG` error.
 
 **Examples**
 
-In this valid usage, the `@requires` directive’s `fields` argument references
+In this valid usage, the `@require` directive’s `fields` argument references
 `name` without any directive applications, avoiding the error.
 
 ```graphql example
 type User @key(fields: "id name") {
   id: ID!
-  profile(name: String! @requires(fields: "name")): Profile
+  profile(name: String! @require(fields: "name")): Profile
 }
 
 type Profile {
@@ -953,15 +997,15 @@ type Profile {
 }
 ```
 
-Because the `@requires` selection (`name @lowercase`) includes a directive
+Because the `@require` selection (`name @lowercase`) includes a directive
 application (`@lowercase`), this violates the rule and triggers a
-`REQUIRES_DIRECTIVE_IN_FIELDS_ARG` error.
+`REQUIRE_DIRECTIVE_IN_FIELDS_ARG` error.
 
 ```graphql counter-example
 type User @key(fields: "id name") {
   id: ID!
   name: String
-  profile(name: String! @requires(fields: "name @lowercase")): Profile
+  profile(name: String! @require(fields: "name @lowercase")): Profile
 }
 
 type Profile {
@@ -970,11 +1014,11 @@ type Profile {
 }
 ```
 
-### Requires Invalid Fields Type
+### Require Invalid Fields Type
 
 **Error Code**
 
-`REQUIRES_INVALID_FIELDS_TYPE`
+`REQUIRE_INVALID_FIELDS_TYPE`
 
 **Severity**
 
@@ -989,16 +1033,16 @@ ERROR
     - Let {fields} be the set of fields on {composite}.
     - Let {arguments} be the set of all arguments on {fields}.
     - For each {argument} in {arguments}:
-      - If {argument} is **not** annotated with `@requires`:
+      - If {argument} is **not** annotated with `@require`:
         - Continue
-      - Let {fieldsArg} be the value of the `fields` argument of the `@requires`
+      - Let {fieldsArg} be the value of the `fields` argument of the `@require`
         directive on {argument}.
       - If {fieldsArg} is **not** a string:
-        - Produce a `REQUIRES_INVALID_FIELDS_TYPE` error.
+        - Produce a `REQUIRE_INVALID_FIELDS_TYPE` error.
 
 **Explanatory Text**
 
-When using the `@requires` directive, the `fields` argument must always be a
+When using the `@require` directive, the `fields` argument must always be a
 string that defines a (potentially nested) selection set of fields from the same
 type. If the `fields` argument is provided as a type other than a string (such
 as an integer, boolean, or enum), the directive usage is invalid and will cause
@@ -1006,13 +1050,13 @@ schema composition to fail.
 
 **Examples**
 
-In the following example, the `@requires` directive’s `fields` argument is a
+In the following example, the `@require` directive’s `fields` argument is a
 valid string and satisfies the rule.
 
 ```graphql example
 type User @key(fields: "id") {
   id: ID!
-  profile(name: String! @requires(fields: "name")): Profile
+  profile(name: String! @require(fields: "name")): Profile
 }
 
 type Profile {
@@ -1022,12 +1066,12 @@ type Profile {
 ```
 
 Since `fields` is set to `123` (an integer) instead of a string, this violates
-the rule and triggers a `REQUIRES_INVALID_FIELDS_TYPE` error.
+the rule and triggers a `REQUIRE_INVALID_FIELDS_TYPE` error.
 
 ```graphql counter-example
 type User @key(fields: "id") {
   id: ID!
-  profile(name: String! @requires(fields: 123)): Profile
+  profile(name: String! @require(fields: 123)): Profile
 }
 
 type Profile {
@@ -1036,11 +1080,11 @@ type Profile {
 }
 ```
 
-### Requires Invalid Syntax
+### Require Invalid Syntax
 
 **Error Code**
 
-`REQUIRES_INVALID_SYNTAX`
+`REQUIRE_INVALID_SYNTAX`
 
 **Severity**
 
@@ -1055,28 +1099,28 @@ ERROR
     - Let {fields} be the set of fields on {composite}.
     - Let {arguments} be the set of all arguments on {fields}.
     - For each {argument} in {arguments}:
-      - If {argument} is **not** annotated with `@requires`:
+      - If {argument} is **not** annotated with `@require`:
         - Continue
       - Let {fieldsArg} be the string value of the `fields` argument of the
-        `@requires` directive on {argument}.
+        `@require` directive on {argument}.
       - {fieldsArg} must be be parsable as a valid selection map
 
 **Explanatory Text**
 
-The `@requires` directive’s `fields` argument must be syntactically valid
+The `@require` directive’s `fields` argument must be syntactically valid
 GraphQL. If the selection map string is malformed (e.g., missing closing braces,
 unbalanced quotes, invalid tokens), then the schema cannot be composed
-correctly. In such cases, the error `REQUIRES_INVALID_SYNTAX` is raised.
+correctly. In such cases, the error `REQUIRE_INVALID_SYNTAX` is raised.
 
 **Examples**
 
-In the following example, the `@requires` directive’s `fields` argument is a
+In the following example, the `@require` directive’s `fields` argument is a
 valid selection map and satisfies the rule.
 
 ```graphql example
 type User @key(fields: "id") {
   id: ID!
-  profile(name: String! @requires(fields: "name")): Profile
+  profile(name: String! @require(fields: "name")): Profile
 }
 
 type Profile {
@@ -1085,15 +1129,15 @@ type Profile {
 }
 ```
 
-In the following counter-example, the `@requires` directive’s `fields` argument
+In the following counter-example, the `@require` directive’s `fields` argument
 has invalid syntax because it is missing a closing brace.
 
-This violates the rule and triggers a `REQUIRES_INVALID_FIELDS` error.
+This violates the rule and triggers a `REQUIRE_INVALID_FIELDS` error.
 
 ```graphql counter-example
 type Book {
   id: ID!
-  title(lang: String! @requires(fields: "author { name ")): String
+  title(lang: String! @require(fields: "author { name ")): String
 }
 
 type Author {
@@ -1277,6 +1321,770 @@ type User @key(fields: "id") {
 }
 ```
 
+### Invalid GraphQL
+
+**Error Code**  
+`INVALID_GRAPHQL`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas to be composed.
+- For Each {schema} in {schemas}
+  - {schema} must be a syntactically valid
+  - {schama} must be a semantically valid GraphQL schema according to the
+    [GraphQL specification](https://spec.graphql.org/).
+
+**Explanatory Text**
+
+Before composition, every individual source schema must be valid as per the
+official GraphQL specification. Common reasons a schema may be considered
+"invalid GraphQL" include:
+
+- **Syntax Errors**: Missing braces, invalid tokens, or misplaced punctuation.
+- **Unknown Types**: Referencing types that are not defined within the schema or
+  imported from elsewhere.
+- **Invalid Directive Usage**: Omitting required arguments to directives or
+  using directives in disallowed locations.
+- **Invalid Default Values**: Providing default values for arguments or fields
+  that do not conform to the type (e.g., a default of `null` for a non-null
+  field, an invalid enum value, etc.).
+- **Conflicting Type Definitions**: Defining or overriding a built-in type or
+  directive incorrectly.
+
+When any of these validation checks fail for a particular source schema, that
+schema does not meet the baseline requirements for composition, and the
+composition process cannot proceed. An `INVALID_GRAPHQL` error is raised,
+prompting the schema owner to correct the GraphQL violations before retrying
+composition.
+
+**Examples**
+
+In the following counter-example, the schema is invalid because the type `User`
+is referenced in the `Query` type but never defined:
+
+```graphql counter-example
+type Query {
+  user: User
+}
+
+# The type "User" is never defined; this is invalid GraphQL.
+```
+
+In this counter-example, `"INVALID_VALUE"` is not a valid `Role`, causing
+`INVALID_GRAPHQL`.
+
+```graphql counter-example
+enum Role {
+  ADMIN
+  USER
+}
+
+type Query {
+  users(role: Role = "INVALID_VALUE"): [String]
+}
+```
+
+The GraphQL spec requires all non-null directive arguments to be supplied. The
+omission of the `fields` argument in the `@provides` directive triggers
+`INVALID_GRAPHQL`.
+
+```graphql counter-example
+directive @provides(fields: String!) on FIELD_DEFINITION
+
+type Product {
+  price: Float @provides
+  # "fields" argument is required, but not provided.
+}
+```
+
+### Override Collision with Another Directive
+
+**Error Code**  
+`OVERRIDE_COLLISION_WITH_ANOTHER_DIRECTIVE`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas to be composed.
+- For each {schema} in {schemas}:
+  - Let {types} be the set of all composite types in {schema}.
+  - For each {type} in {types}:
+    - Let {fields} be the set of fields on {type}.
+    - For each {field} in {fields}:
+      - If {field} is annotated with `@override`:
+        - {field} must **not** be annotated with `@external`
+
+**Explanatory Text**
+
+The `@override` directive designates that ownership of a field is transferred
+from one source schema to another in the resulting composite schema. When such a
+transfer occurs, that field **cannot** also be annotated `@external`. A field
+declared as `@external` is originally defined in a **different** source schema.
+Overriding a field and simultaneously claiming it is external to the local
+schema is contradictory.
+
+In this case composition fails with an
+`OVERRIDE_COLLISION_WITH_ANOTHER_DIRECTIVE` error.
+
+**Examples**
+
+In this scenario, `User.fullName` is defined in **Schema A** but overridden in
+**Schema B**. Since `@override` is **not** combined with any of `@external` on
+the same field, no collision occurs.
+
+```graphql example
+# Source Schema A
+type User {
+  id: ID!
+  fullName: String
+}
+
+# Source Schema B
+type User {
+  id: ID!
+  fullName: String @override(from: "SchemaA")
+}
+```
+
+Here, `amount` is marked with both `@override` and `@external`. This violates
+the rule because the field is simultaneously labeled as “override from another
+schema” and “external” in the local schema, producing an
+`OVERRIDE_COLLISION_WITH_ANOTHER_DIRECTIVE` error.
+
+```graphql counter-example
+# Source Schema A
+type Payment {
+  id: ID!
+  amount: Int
+}
+
+# Source Schema B
+type Payment {
+  id: ID!
+  amount: Int @override(from: "SchemaA") @external
+}
+```
+
+### Override from Self Error
+
+**Error Code**  
+`OVERRIDE_FROM_SELF_ERROR`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas to be composed.
+- For each {schema} in {schemas}:
+  - Let {types} be the set of all composite types in {schema}.
+  - For each {type} in {types}:
+    - Let {fields} be the set of fields on {type}.
+    - For each {field} in {fields}:
+      - If {field} is annotated with `@override`:
+        - Let {from} be the value of the `from` argument of the `@override`
+          directive on {field}.
+        - {from} must **not** be the same as the name of {schema}:
+
+**Explanatory Text**
+
+When using `@override`, the `from` argument indicates the name of the source
+schema that originally owns the field. Overriding from the **same** schema
+creates a contradiction, as it implies both local and transferred ownership of
+the field within one schema. If the `from` value matches the local schema name,
+it triggers an `OVERRIDE_FROM_SELF_ERROR`.
+
+**Examples**
+
+In the following example, **Schema B** overrides the field `amount` from
+**Schema A**. The two schema names are different, so no error is raised.
+
+```graphql example
+# Source Schema A
+type Bill {
+  id: ID!
+  amount: Int
+}
+
+# Source Schema B
+type Bill {
+  id: ID!
+  amount: Int @override(from: "SchemaA")
+}
+```
+
+In the following counter-example, the local schema is also `"SchemaA"`, and the
+`from` argument is `"SchemaA"`. Overriding a field from the same schema is not
+allowed, causing an `OVERRIDE_FROM_SELF_ERROR`.
+
+```graphql counter-example
+# Source Schema A (named "SchemaA")
+type Bill {
+  id: ID!
+  amount: Int @override(from: "SchemaA")
+}
+```
+
+### Override on Interface
+
+**Error Code**  
+`OVERRIDE_ON_INTERFACE`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas to be composed.
+- For each {schema} in {schemas}:
+  - Let {types} be the set of all interface types in {schema}.
+  - For each {type} in {types}:
+    - Let {fields} be the set of fields on {type}.
+    - For each {field} in {fields}:
+      - {field} must **not** be annotated with `@override`
+
+**Explanatory Text**
+
+The `@override` directive designates that ownership of a field is transferred
+from one source schema to another. In the context of interface types, fields are
+abstract—objects that implement the interface are responsible for providing the
+actual fields. Consequently, it is invalid to attach `@override` directly to an
+interface field. Doing so leads to an `OVERRIDE_ON_INTERFACE` error because
+there is no concrete field implementation on the interface itself that can be
+overridden.
+
+**Examples**
+
+In this valid example, `@override` is used on a field of an object type,
+ensuring that the field definition is concrete and can be reassigned to another
+schema.
+
+Since `@override` is **not** used on any interface fields, no error is produced.
+
+```graphql example
+# Source Schema A
+type Order {
+  id: ID!
+  amount: Int
+}
+
+# Source Schema B
+type Order {
+  id: ID!
+  amount: Int @override(from: "SchemaA")
+}
+```
+
+In the following counter-example, `Bill.amount` is declared on an **interface**
+type and annotated with `@override`. This violates the rule because the
+interface field itself is not eligible for ownership transfer. The composition
+fails with an `OVERRIDE_ON_INTERFACE` error.
+
+```graphql counter-example
+# Source Schema A
+interface Bill {
+  id: ID!
+  amount: Int @override(from: "SchemaB")
+}
+```
+
+### Override Source Has Override
+
+**Error Code**  
+`OVERRIDE_SOURCE_HAS_OVERRIDE`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas to be composed.
+- Let {groupedTypes} be a map grouping all object types from {schemas} by their
+  type name.
+- For each {typeGroup} in {groupedTypes}:
+  - Let {types} be the set of object types in {typeGroup}.
+  - Let {groupedFields} be a map grouping every field across all {types} by
+    their field name.
+  - For each {fieldGroup} in {groupedFields}:
+    - Let {fields} be the set of field definitions in {fieldGroup}.
+    - Let {overrides} be the list of `@override` directives present among those
+      {fields}.
+    - If {overrides} has fewer than 2 elements:
+      - Continue
+    - Let {firstOverride} be the first directive in {overrides}.
+    - Let {from} be the value of the `from` argument on {firstOverride}.
+    - Let {sourceSchema} be the schema definining {firstOverride}.
+    - Let {visited} be an empty set.
+    - Add {sourceSchema} to {visited}.
+    - While {from} is not null:
+      - {from} must **not** be in {visited}.
+      - Add {from} to {visited}.
+      - Let {sourceField} be the field in {fields} that belongs to the schema
+        named {from}.
+      - If {sourceField} does not exist:
+        - Break
+      - If {sourceField} is **not** annotated with `@override`:
+        - Break
+      - Let {from} be the value of the `from` argument on that `@override`
+        directive.
+    - The size of {visited} must be equal to the size of {overrides}.
+
+**Explanatory Text**
+
+A field marked with `@override` signifies that its ownership is being taken over
+by another schema. If multiple schemas try to override the same field, or if the
+ownership chain loops back on itself, the composed schema has more than one
+`@override` for a single field. This creates ambiguity about which schema
+ultimately owns that field.
+
+Hence, **only one** `@override` may ever apply to a particular field across all
+source schemas. Attempting multiple overrides, or forming any cycle of overrides
+for the same field, triggers the `OVERRIDE_SOURCE_HAS_OVERRIDE` error.
+
+**Examples**
+
+In this scenario, `Bill.amount` is originally owned by **Schema A** but is
+overridden in **Schema B**. No other schema further attempts to override the
+same field, so the composition is valid.
+
+```graphql example
+# Source Schema A
+type Bill {
+  id: ID!
+  amount: Int
+}
+
+# Source Schema B
+type Bill {
+  id: ID!
+  amount: Int @override(from: "SchemaA")
+}
+```
+
+Here, **Schema A** overrides `Bill.amount` from **Schema B**, while **Schema B**
+also overrides the same field from **Schema A**. This circular override makes it
+impossible to discern a single “owner” of the field `Bill.amount`, raising an
+`OVERRIDE_SOURCE_HAS_OVERRIDE` error.
+
+```graphql counter-example
+# Source Schema A (named "SchemaA")
+type Bill {
+  id: ID!
+  amount: Int @override(from: "SchemaB")
+}
+
+# Source Schema B (named "SchemaB")
+type Bill {
+  id: ID!
+  amount: Int @override(from: "SchemaA")
+}
+```
+
+In this case, the same field `Bill.amount` is overridden successively by A, then
+B, then C. Tracing these overrides forms a cycle (A → B → C → A). This again
+produces an `OVERRIDE_SOURCE_HAS_OVERRIDE` error.
+
+```graphql counter-example
+# Source Schema A (named "A")
+type Bill {
+  id: ID!
+  amount: Int @override(from: "B")
+}
+
+# Source Schema B (named "B")
+type Bill {
+  id: ID!
+  amount: Int @override(from: "C")
+}
+
+# Source Schema C (named "C")
+type Bill {
+  id: ID!
+  amount: Int @override(from: "A")
+}
+```
+
+In the following counter-example, the field `Bill.amount` is overridden by
+multiple schemas. The overrides do not form a cycle, hence there are multiple
+overrides for the same field, triggering an `OVERRIDE_SOURCE_HAS_OVERRIDE`
+error.
+
+```graphql counter-example
+# Source Schema A
+type Bill {
+  id: ID!
+  amount: Int @override(from: "SchemaC")
+}
+
+# Source Schema B
+type Bill {
+  id: ID!
+  amount: Int @override(from: "SchemaC")
+}
+
+# Source Schema C
+type Bill {
+  id: ID!
+  amount: Int
+}
+```
+
+### External Collision with Another Directive
+
+**Error Code**  
+`EXTERNAL_COLLISION_WITH_ANOTHER_DIRECTIVE`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas to be composed.
+- For each {schema} in {schemas}:
+  - Let {types} be the set of all composite types in {schema}.
+  - For each {type} in {types}:
+    - Let {fields} be the set of fields on {type}.
+    - For each {field} in {fields}:
+      - If {field} is annotated with `@external`:
+        - For each {argument} in {field}:
+          - {argument} must **not** be annotated with `@require`
+        - {field} must **not** be annotated with `@provides`
+
+**Explanatory Text**
+
+The `@external` directive indicates that a field is **defined** in a different
+source schema, and the current schema merely references it. Therefore, a field
+marked with `@external` must **not** simultaneously carry directives that assume
+local ownership or resolution responsibility, such as:
+
+- **`@provides`**: Declares that the field can supply additional nested fields
+  from the local schema, which conflicts with the notion of an external field
+  whose definition resides elsewhere.
+
+- **`@require`**: Specifies dependencies on other fields to resolve this field.
+  Since `@external` fields are not locally resolved, there is no need for
+  `@require`.
+
+- **`@override`**: Transfers ownership of the field’s definition from one schema
+  to another, which is incompatible with an already-external field definition.
+  Yet this behaviour is covered by the
+  `OVERRIDE_COLLISION_WITH_ANOTHER_DIRECTIVE` rule.
+
+Any combination of `@external` with either `@provides` or `@require` on the same
+field results in inconsistent semantics. In such scenarios, an
+`EXTERNAL_COLLISION_WITH_ANOTHER_DIRECTIVE` error is raised.
+
+**Examples**
+
+In this example, `method` is **only** annotated with `@external` in Schema B,
+without any other directive. This usage is valid.
+
+```graphql example
+# Source Schema A
+type Payment {
+  id: ID!
+  method: String
+}
+
+# Source Schema B
+type Payment {
+  id: ID!
+  # This field is external, defined in Schema A.
+  method: String @external
+}
+```
+
+In this counter-example, `description` is annotated with `@external` and also
+with `@provides`. Because `@external` and `@provides` cannot co-exist on the
+same field, an `EXTERNAL_COLLISION_WITH_ANOTHER_DIRECTIVE` error is produced.
+
+```graphql counter-example
+# Source Schema A
+type Invoice {
+  id: ID!
+  description: String
+}
+
+# Source Schema B
+type Invoice {
+  id: ID!
+  description: String @external @provides(fields: "length")
+}
+```
+
+The following example is invalid, since `title` is marked with both `@external`
+and has an argument that is annotated with `@require`. This conflict leads to an
+`EXTERNAL_COLLISION_WITH_ANOTHER_DIRECTIVE` error.
+
+```graphql counter-example
+# Source Schema A
+type Book {
+  id: ID!
+  title: String
+  subtitle: String
+}
+
+# Source Schema B
+type Book {
+  id: ID!
+  title(subtitle: String @require(fields: "subtitle")) @external
+}
+```
+
+### Key Invalid Fields Type
+
+**Error Code**  
+`KEY_INVALID_FIELDS_TYPE`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas to be composed.
+- For each {schema} in {schemas}:
+  - Let {types} be the set of all composite types in {schema}.
+  - For each {type} in {types}:
+    - If {type} is annotated with `@key`:
+      - Let {fieldsArg} be the value of the `fields` argument in the `@key`
+        directive.
+      - {fieldsArg} must be a string.
+
+**Explanatory Text**
+
+The `@key` directive designates the fields used to identify a particular object
+uniquely. The `fields` argument accepts a **string** that represents a selection
+set (for example, `"id"`, or `"id otherField"`). If the `fields` argument is
+provided as any non-string type (e.g., `Boolean`, `Int`, `Array`), the schema
+fails to compose correctly because it cannot parse a valid field selection.
+
+**Examples**
+
+In this example, the `@key` directive’s `fields` argument is the string
+`"id uuid"`, identifying two fields that form the object key. This usage is
+valid.
+
+```graphql example
+type User @key(fields: "id uuid") {
+  id: ID!
+  uuid: ID!
+  name: String
+}
+
+type Query {
+  users: [User]
+}
+```
+
+Here, the `fields` argument is provided as a boolean (`true`) instead of a
+string. This violates the directive requirement and triggers a
+`KEY_INVALID_FIELDS_TYPE` error.
+
+```graphql counter-example
+type User @key(fields: true) {
+  id: ID
+}
+```
+
+### Provides Invalid Fields Type
+
+**Error Code**  
+`PROVIDES_INVALID_FIELDS_TYPE`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas to be composed.
+- For each {schema} in {schemas}:
+  - Let {types} be the set of all composite types in {schema}.
+  - For each {type} in {types}:
+    - Let {fields} be the set of fields on {type}.
+    - For each {field} in {fields}:
+      - If {field} is annotated with `@provides`:
+        - Let {fieldsArg} be the value of the `fields` argument on the
+          `@provides` directive.
+        - {fieldsArg} must be a string.
+
+**Explanatory Text**
+
+The `@provides` directive indicates that a field is **providing** one or more
+additional fields on the returned (child) type. The `fields` argument accepts a
+**string** representing a GraphQL selection set (for example, `"title author"`).
+If the `fields` argument is given as a non-string type (e.g., `Boolean`, `Int`,
+`Array`), the schema fails to compose because it cannot interpret a valid
+selection set.
+
+**Examples**
+
+In this valid example, the `@provides` directive on `details` uses the string
+`"features specifications"` to specify that both fields are provided in the
+child type `ProductDetails`.
+
+```graphql example
+type Product {
+  id: ID!
+  details: ProductDetails @provides(fields: "features specifications")
+}
+
+type ProductDetails {
+  features: [String]
+  specifications: String
+}
+
+type Query {
+  products: [Product]
+}
+```
+
+Here, the `@provides` directive includes a numeric value (`123`) instead of a
+string in its `fields` argument. This invalid usage raises a
+`PROVIDES_INVALID_FIELDS_TYPE` error.
+
+```graphql counter-example
+type Product {
+  id: ID!
+  details: ProductDetails @provides(fields: 123)
+}
+
+type ProductDetails {
+  features: [String]
+  specifications: String
+}
+```
+
+### Provides on Non-Composite Field
+
+**Error Code**  
+`PROVIDES_ON_NON_COMPOSITE_FIELD`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas to be composed.
+- For each {schema} in {schemas}:
+  - Let {types} be the set of all object and interface types in {schema}.
+  - For each {type} in {types}:
+    - Let {fields} be the set of fields on {type}.
+    - For each {field} in {fields}:
+      - If {field} is annotated with `@provides`:
+        - Let {fieldType} be the base return type of {field} (i.e., unwrapped of
+          any `[ ]` or `!`).
+        - {fieldType} must be a interface or object type.
+
+**Explanatory Text**
+
+The `@provides` directive allows a field to “provide” additional nested fields
+on the composite type it returns. If a field’s base type is not an object or
+interface type (e.g., `String`, `Int`, `Boolean`, `Enum`, `Union`, or an `Input`
+type), it cannot hold nested fields for `@provides` to select. Consequently,
+attaching `@provides` to such a field is invalid and raises a
+`PROVIDES_ON_NON_OBJECT_FIELD` error.
+
+**Examples**
+
+Here, `profile` has an **object** base type `Profile`. The `@provides` directive
+can validly specify sub-fields like `settings { theme }`.
+
+```graphql example
+type Profile {
+  email: String
+  settings: Settings
+}
+
+type Settings {
+  notificationsEnabled: Boolean
+  theme: String
+}
+
+type User {
+  id: ID!
+  profile: Profile @provides(fields: "settings { theme }")
+}
+```
+
+In this counter-example, `email` has a scalar base type (`String`). Because
+scalars do not expose sub-fields, attaching `@provides` to `email` triggers a
+`PROVIDES_ON_NON_OBJECT_FIELD` error.
+
+```graphql counter-example
+type User {
+  id: ID!
+  email: String @provides(fields: "length")
+}
+```
+
+### External on Interface
+
+**Error Code**  
+`EXTERNAL_ON_INTERFACE`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas to be composed.
+- For each {schema} in {schemas}:
+  - Let {types} be the set of all composite types in {schema}.
+  - For each {type} in {types}:
+    - If {type} is an interface type:
+      - Let {fields} be the set of fields on {type}.
+      - For each {field} in {fields}:
+        - {field} must **not** be annotated with `@external`
+
+**Explanatory Text**
+
+The `@external` directive indicates that a field is **defined** and **resolved**
+elsewhere, not in the current schema. In the case of an **interface** type,
+fields are **abstract** - they do not have direct resolutions at the interface
+level. Instead, each implementing object type provides the concrete field
+implementations. Marking an **interface** field with `@external` is therefore
+nonsensical, as there is no actual field resolution in the interface itself to
+“borrow” from another schema. Such usage raises an `EXTERNAL_ON_INTERFACE`
+error.
+
+**Examples**
+
+Here, the interface `Node` merely describes the field `id`. Object types `User`
+and `Product` implement and resolve `id`. No `@external` usage occurs on the
+interface itself, so no error is triggered.
+
+```graphql example
+interface Node {
+  id: ID!
+}
+
+type User implements Node {
+  id: ID!
+  name: String
+}
+
+type Product implements Node {
+  id: ID!
+  price: Int
+}
+```
+
+Since `id` is declared on an **interface** and marked with `@external`, the
+composition fails with `EXTERNAL_ON_INTERFACE`. An interface does not own the
+concrete field resolution, so it is invalid to mark any of its fields as
+external.
+
+```graphql counter-example
+interface Node {
+  id: ID! @external
+}
+```
+
 ### Merge
 
 ### Post Merge Validation
@@ -1390,16 +2198,16 @@ This rule ensures that the composed schema includes at least one accessible
 field on the root `Query` type.
 
 In GraphQL, the `Query` type is essential as it defines the entry points for
-read operations. If none of the composed subgraphs expose any query fields, the
+read operations. If none of the composed schemas expose any query fields, the
 composed schema would lack a root query, making it a invalid GraphQL schema.
 
 **Examples**
 
-In this example, at least one subgraph provides accessible query fields,
+In this example, at least one schema provides accessible query fields,
 satisfying the rule.
 
 ```graphql
-# Subgraph A
+# Schema A
 type Query {
   product(id: ID!): Product
 }
@@ -1414,7 +2222,7 @@ type Query {
   review(id: ID!): Review
 }
 
-# Subgraph B
+# Schema B
 type Review {
   id: ID!
   content: String
@@ -1425,13 +2233,13 @@ type Review {
 Even if some query fields are marked as `@inaccessible`, as long as there is at
 least one accessible query field in the composed schema, the rule is satisfied.
 
-In this case, Subgraph A exposes an internal query field `internalData` marked
-with `@inaccessible`, making it hidden in the composed schema. However, Subgraph
-B provides an accessible `product` query field. Therefore, the composed schema
-has at least one accessible query field, adhering to the rule.
+In this case, Schema A exposes an internal query field `internalData` marked
+with `@inaccessible`, making it hidden in the composed schema. However, Schema B
+provides an accessible `product` query field. Therefore, the composed schema has
+at least one accessible query field, adhering to the rule.
 
 ```graphql
-# Subgraph A
+# Schema A
 type Query {
   internalData: InternalData @inaccessible
 }
@@ -1442,7 +2250,7 @@ type InternalData {
 ```
 
 ```graphql
-# Subgraph B
+# Schema B
 type Query {
   product(id: ID!): Product
 }
@@ -1453,17 +2261,17 @@ type Product {
 }
 ```
 
-If all query fields in all subgraphs are marked as `@inaccessible`, the composed
+If all query fields in all schemas are marked as `@inaccessible`, the composed
 schema will lack accessible query fields, violating the rule.
 
-In the following counter-example, both subgraphs have query fields, but all are
+In the following counter-example, both schemas have query fields, but all are
 marked as `@inaccessible`.
 
 This means there are no accessible query fields in the composed schema,
 triggering the `NO_QUERIES` error.
 
 ```graphql
-# Subgraph A
+# Schema A
 type Query {
   internalData: InternalData @inaccessible
 }
@@ -1474,7 +2282,7 @@ type InternalData {
 ```
 
 ```graphql
-# Subgraph B
+# Schema B
 type Query {
   adminStats: AdminStats @inaccessible
 }
@@ -2040,11 +2848,11 @@ enum DeliveryStatus {
 }
 ```
 
-### Requires Invalid Fields
+### Require Invalid Fields
 
 **Error Code**
 
-`REQUIRES_INVALID_FIELDS`
+`REQUIRE_INVALID_FIELDS`
 
 **Severity**
 
@@ -2058,10 +2866,10 @@ ERROR
   - Let {fields} be the set of fields on {composite}.
   - Let {arguments} be the set of all arguments on {fields}.
   - For each {argument} in {arguments}:
-    - If {argument} is **not** annotated with `@requires`:
+    - If {argument} is **not** annotated with `@require`:
       - Continue
     - Let {fieldsArg} be the string value of the `fields` argument of the
-      `@requires` directive on {argument}.
+      `@require` directive on {argument}.
     - Let {parsedFieldsArg} be the parsed selection map from {fieldsArg}.
     - {ValidateSelectionMap(parsedFieldsArg, parentType)} must be true.
 
@@ -2082,22 +2890,22 @@ ValidateSelectionMap(selectionMap, parentType):
 
 **Explanatory Text**
 
-Even if the selection map for `@requires(fields: "…")` is syntactically valid,
+Even if the selection map for `@require(fields: "…")` is syntactically valid,
 its contents must also be valid within the composed schema. Fields must exist on
-the parent type for them to be referenced by `@requires`. In addition, fields
-requiring unknown fields break the valid usage of `@requires`, leading to a
-`REQUIRES_INVALID_FIELDS` error.
+the parent type for them to be referenced by `@require`. In addition, fields
+requiring unknown fields break the valid usage of `@require`, leading to a
+`REQUIRE_INVALID_FIELDS` error.
 
 **Examples**
 
-In the following example, the `@requires` directive’s `fields` argument is a
+In the following example, the `@require` directive’s `fields` argument is a
 valid selection set and satisfies the rule.
 
 ```graphql example
 type User @key(fields: "id") {
   id: ID!
   name: String!
-  profile(name: String! @requires(fields: "name")): Profile
+  profile(name: String! @require(fields: "name")): Profile
 }
 
 type Profile {
@@ -2106,13 +2914,13 @@ type Profile {
 }
 ```
 
-In this counter-example, the `@requires` directive does not have a valid
-selection set and triggers a `REQUIRES_INVALID_FIELDS` error.
+In this counter-example, the `@require` directive does not have a valid
+selection set and triggers a `REQUIRE_INVALID_FIELDS` error.
 
 ```graphql counter-example
 type Book {
   id: ID!
-  title(lang: String! @requires(fields: "author { }")): String
+  title(lang: String! @require(fields: "author { }")): String
 }
 
 type Author {
@@ -2120,14 +2928,14 @@ type Author {
 }
 ```
 
-In this counter-example, the `@requires` directive references a field
-(`unknown`) that does not exist on the parent type (`Book`), causing a
-`REQUIRES_INVALID_FIELDS` error.
+In this counter-example, the `@require` directive references a field (`unknown`)
+that does not exist on the parent type (`Book`), causing a
+`REQUIRE_INVALID_FIELDS` error.
 
 ```graphql counter-example
 type Book {
   id: ID!
-  pages(pageSize: Int @requires(fields: "unknownField")): Int
+  pages(pageSize: Int @require(fields: "unknownField")): Int
 }
 ```
 
