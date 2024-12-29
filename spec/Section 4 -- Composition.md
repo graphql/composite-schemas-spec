@@ -3095,4 +3095,154 @@ type GuestUser implements User {
 }
 ```
 
+### Invalid Field Sharing
+
+**Error Code**
+
+`INVALID_FIELD_SHARING`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the merged composite execution schema.
+- Let {types} be the set of all object and interface types in {schema}.
+- For each {type} in {types}:
+  - If {type} is the `Subscription` type:
+    - Let {fields} be the set of all fields in {type}.
+    - For each {field} in {fields}:
+      - If {field} is marked with `@shareable`:
+        - Produce an `INVALID_FIELD_SHARING` error.
+  - Otherwise:
+    - Let {fields} be the set of all fields on {type}.
+    - For each {field} in {fields}:
+      - If {field} is not part of a `@key` directive:
+        - Let {fieldDefinitions} be the set of all field definitions for {field}
+          across all source schemas excluding fields marked with `@external` or
+          `@override`.
+        - If {fieldDefinitions} has more than one element:
+          - {field} must be marked as `@shareable` in at least one schema.
+
+**Explanatory Text**
+
+A field in a federated GraphQL schema may be marked `@shareable`, indicating
+that the same field can be resolved by multiple schemas without conflict. When a
+field is **not** marked as `@shareable` (sometimes called "non-shareable"), it
+cannot be provided by more than one schema.
+
+Field definitions marked as `@external` or `@override` are excluded when
+validating whether a field is shareable. These annotations indicate specific
+cases where field ownership lies with another schema or has been replaced.
+
+Additionally, subscription root fields cannot be shared (i.e., they are
+effectively non-shareable), as subscription events from multiple schemas would
+create conflicts in the composed schema. Attempting to mark a subscription field
+as shareable or to define it in multiple schemas triggers the same error.
+
+**Examples**
+
+In this example, the `User` type field `fullName` is marked as shareable in both
+schemas, allowing them to serve consistent data for that field without conflict.
+
+```graphql example
+# Schema A
+type User @key(fields: "id") {
+  id: ID!
+  username: String
+  fullName: String @shareable
+}
+
+# Schema B
+type User @key(fields: "id") {
+  id: ID!
+  fullName: String @shareable
+  email: String
+}
+```
+
+In the following example, `User.fullName` is overriden in one schema and
+therefore the field can be define in multiple schemas without being marked as
+`@shareable`.
+
+```graphql example
+# Schema A
+type User @key(fields: "id") {
+  id: ID!
+  fullName: String @override(from": "B")
+}
+
+# Schema B
+type User @key(fields: "id") {
+  id: ID!
+  fullName: String
+}
+```
+
+In the following example, `User.fullName` is marked as `@external` in one schema
+and therefore the field can be define in the other schema without being marked
+as `@shareable`.
+
+```graphql example
+# Schema A
+type User @key(fields: "id") {
+  id: ID!
+  fullName: String @external
+}
+
+# Schema B
+type User @key(fields: "id") {
+  id: ID!
+  fullName: String
+}
+```
+
+In the following counter-example, `User.profile` is non-shareable but is defined
+and resolved by two different schemas, resulting in an `INVALID_FIELD_SHARING`
+error.
+
+```graphql counter-example
+# Schema A
+type User @key(fields: "id") {
+  id: ID!
+  profile: Profile
+}
+
+type Profile {
+  avatarUrl: String
+}
+
+# Schema B
+type User @key(fields: "id") {
+  id: ID!
+  profile: Profile
+}
+
+type Profile {
+  avatarUrl: String
+}
+```
+
+By definition, root subscription fields cannot be shared across multiple
+schemas. In this example, both schemas define a subscription field
+`newOrderPlaced`:
+
+```graphql counter-example
+# Schema A
+type Subscription {
+  newOrderPlaced: Order @shareable
+}
+
+type Order {
+  id: ID!
+  items: [String]
+}
+
+# Schema B
+type Subscription {
+  newOrderPlaced: Order @shareable
+}
+```
+
 ## Validate Satisfiability
