@@ -1549,7 +1549,74 @@ type Book {
 }
 ```
 
+### Require Directive in Fields Argument
 
+**Error Code**
+
+`REQUIRE_DIRECTIVE_IN_FIELDS_ARG`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas.
+- For each {schema} in {schemas}:
+  - Let {compositeTypes} be the set of all composite types in {schema}.
+  - For each {composite} in {compositeTypes}:
+    - Let {fields} be the set of fields on {composite}
+    - Let {arguments} be the set of all arguments on {fields}
+    - For each {argument} in {arguments}:
+      - If {argument} is **not** marked with `@require`:
+        - Continue
+      - Let {fieldsArg} be the value of the `fields` argument of the `@require`
+        directive on {argument}.
+      - If {fieldsArg} contains a directive application:
+        - Produce a `REQUIRE_DIRECTIVE_IN_FIELDS_ARG` error.
+
+**Explanatory Text**
+
+The `@require` directive is used to specify fields on the same type that an
+argument depends on in order to resolve the annotated field.  
+When using `@require(fields: "…")`, the `fields` argument must be a valid
+selection set string **without** any additional directive applications.  
+Applying a directive (e.g., `@lowercase`) inside this selection set is not
+supported and triggers the `REQUIRE_DIRECTIVE_IN_FIELDS_ARG` error.
+
+**Examples**
+
+In this valid usage, the `@require` directive’s `fields` argument references
+`name` without any directive applications, avoiding the error.
+
+```graphql example
+type User @key(fields: "id name") {
+  id: ID!
+  profile(name: String! @require(fields: "name")): Profile
+}
+
+type Profile {
+  id: ID!
+  name: String
+}
+```
+
+Because the `@require` selection (`name @lowercase`) includes a directive
+application (`@lowercase`), this violates the rule and triggers a
+`REQUIRE_DIRECTIVE_IN_FIELDS_ARG` error.
+
+```graphql counter-example
+type User @key(fields: "id name") {
+  id: ID!
+  name: String
+  profile(name: String! @require(fields: "name @lowercase")): Profile
+}
+
+type Profile {
+  id: ID!
+  name: String
+}
+```
 
 ### Merge
 
