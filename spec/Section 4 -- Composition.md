@@ -3544,4 +3544,77 @@ type Book {
 }
 ```
 
+### Provides Invalid Fields
+
+**Error Code**  
+`PROVIDES_INVALID_FIELDS`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the merged composite execution schema.
+- Let {fieldsWithProvides} be the set of all fields annotated with the
+  `@provides` directive in {schema}.
+- For each {field} in {fieldsWithProvides}:
+  - Let {fieldsArg} be the string value of the `fields` argument of the
+    `@provides` directive on {field}.
+  - Let {parsedSelectionSet} be the parsed selection set from {fieldsArg}.
+  - Let {returnType} be the return type of {field}.
+  - {ValidateSelectionSet(parsedSelectionSet, returnType)} must be true.
+
+ValidateSelectionSet(selectionSet, parentType):
+
+- For each {selection} in {selectionSet}:
+  - Let {selectedField} be the field named by {selection} in {parentType}.
+  - If {selectedField} does not exist on {parentType}:
+    - return false
+  - If {selectedField} returns a composite type then {selection}
+    - Let {subSelections} be the selections in {selection}
+    - If {subSelections} is empty
+      - return false
+    - If {ValidateSelectionSet(subSelections, fieldType)} is false
+      - return false
+- return true
+
+**Explanatory Text**
+
+Even if the `@provides(fields: "…")` argument is well-formed syntactically, the
+selected fields must actually exist on the return type of the field. Invalid
+field references— e.g., selecting non-existent fields, referencing fields on the
+wrong type, or incorrectly omitting required nested selections—lead to a
+`PROVIDES_INVALID_FIELDS` error.
+
+**Examples**
+
+In the following example, the `@provides` directive references a valid field
+(`hobbies`) on the `UserDetails` type.
+
+```graphql example
+type User @key(fields: "id") {
+  id: ID!
+  details: UserDetails @provides(fields: "hobbies")
+}
+
+type UserDetails {
+  hobbies: [String]
+}
+```
+
+In the following counter-example, the `@provides` directive specifies a field
+named `unknownField` which is not defined on `UserDetails`. This raises a
+`PROVIDES_INVALID_FIELDS` error.
+
+```graphql counter-example
+type User @key(fields: "id") {
+  id: ID!
+  details: UserDetails @provides(fields: "unknownField")
+}
+
+type UserDetails {
+  hobbies: [String]
+}
+```
+
 ## Validate Satisfiability
