@@ -917,6 +917,91 @@ type Subscription {
 }
 ```
 
+### Key Fields Select Invalid Type
+
+**Error Code**
+
+`KEY_FIELDS_SELECT_INVALID_TYPE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the set of all source schemas.
+  - Let {types} be the set of all object or interface types that are annotated
+    with the `@key` directive in {schema}.
+  - For each {type} in {types}:
+    - Let {keyDirectives} be the set of all `@key` directives on {type}.
+    - For each {keyDirective} in {keyDirectives}
+      - Let {keyFields} be the set of all fields (including nested) referenced
+        by the `fields` argument of {keyDirective}.
+      - For each {field} in {keyFields}:
+        - Let {fieldType} be the type of {field}.
+        - {fieldType} must not be a `List`, `Interface`, or `Union` type.
+
+**Explanatory Text**
+
+The `@key` directive is used to define the set of fields that uniquely identify
+an entity. These fields must reference scalars or object types to ensure a valid
+and consistent representation of the entity across schemas. Fields of types
+`List`, `Interface`, or `Union` cannot be part of a `@key` because they do not
+have a well-defined unique value.
+
+**Examples**
+
+In this valid example, the `Product` type has a valid `@key` directive
+referencing the scalar field `sku`.
+
+```graphql example
+type Product @key(fields: "sku") {
+  sku: String!
+  name: String
+}
+```
+
+In the following counter-example, the `Product` type has an invalid `@key`
+directive referencing a field (`featuredItem`) whose type is an interface,
+violating the rule.
+
+```graphql counter-example
+type Product @key(fields: "featuredItem { id }") {
+  featuredItem: Node!
+  sku: String!
+}
+
+interface Node {
+  id: ID!
+}
+```
+
+In this counter example, the `@key` directive references a field (`tags`) of
+type `List`, which is also not allowed.
+
+```graphql counter-example
+type Product @key(fields: "tags") {
+  tags: [String!]!
+  sku: String!
+}
+```
+
+In this counter example, the `@key` directive references a field
+(`relatedItems`) of type `Union`, which violates the rule.
+
+```graphql counter-example
+type Product @key(fields: "relatedItems") {
+  relatedItems: Related!
+  sku: String!
+}
+
+union Related = Product | Service
+
+type Service {
+  id: ID!
+}
+```
+
 ### Merge
 
 ### Post Merge Validation
