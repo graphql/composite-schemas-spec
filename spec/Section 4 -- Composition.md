@@ -1262,6 +1262,81 @@ type Product @key(fields: "id") {
 }
 ```
 
+### Provides Directive in Fields Argument
+
+**Error Code**
+
+`PROVIDES_DIRECTIVE_IN_FIELDS_ARG`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the set of all source schemas.
+  - Let {fieldsWithProvides} be the set of all fields annotated with the
+    `@provides` directive in {schema}.
+  - For each {field} in {fieldsWithProvides}:
+    - Let {fields} be the selected fields of the `fields` argument of the
+      `@provides` directive on {field}.
+    - For each {selection} in {fields}:
+      - {HasProvidesDirective(selection)} must be false
+
+HasProvidesDirective(selection):
+
+- If {selection} has a directive application:
+  - return true
+- If {selection} has a selection set:
+  - Let {subSelections} be the selections in {selection}
+  - For each {subSelection} in {subSelections}:
+    - If {HasProvidesDirective(subSelection)} is true
+      - return true
+
+**Explanatory Text**
+
+The `@provides` directive is used to specify the set of fields on an object type
+that a resolver provides for the parent type. The `fields` argument must consist
+of a valid GraphQL selection set without any directive applications, as
+directives within the `fields` argument are not supported.
+
+**Examples**
+
+In this example, the `fields` argument of the `@provides` directive does not
+have any directive applications, satisfying the rule.
+
+```graphql example
+type User @key(fields: "id name") {
+  id: ID!
+  name: String
+  profile: Profile @provides(fields: "name")
+}
+
+type Profile {
+  id: ID!
+  name: String
+}
+```
+
+In this counter-example, the `fields` argument of the `@provides` directive has
+a directive application `@lowercase`, which is not allowed.
+
+```graphql counter-example
+directive @lowercase on FIELD_DEFINITION
+
+type User @key(fields: "id name") {
+  id: ID!
+  name: String
+  profile: Profile @provides(fields: "name @lowercase")
+}
+
+type Profile {
+  id: ID!
+  name: String
+}
+```
+
+
 ### Merge
 
 ### Post Merge Validation
