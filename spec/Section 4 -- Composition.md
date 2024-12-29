@@ -1071,6 +1071,69 @@ type FullName {
 }
 ```
 
+### Key Fields Has Arguments
+
+**Error Code**
+
+`KEY_FIELDS_HAS_ARGS`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the set of all source schemas.
+  - Let {types} be the set of all object types that are annotated with the
+    `@key` directive in {schema}.
+  - For each {type} in {types}:
+    - Let {keyFields} be the set of fields referenced by the `fields` argument
+      of the `@key` directive on {type}.
+    - For each {field} in {keyFields}:
+      - HasKeyFieldsArguments(field) must be true.
+
+HasKeyFieldsArguments(field):
+
+- If {field} has arguments:
+  - return false
+- If {field} has a selection set:
+  - Let {subFields} be the set of all fields in the selection set of {field}.
+  - For each {subField} in {subFields}:
+    - HasKeyFieldsArguments(subField) must be true.
+- return true
+
+**Explanatory Text**
+
+The `@key` directive is used to define the set of fields that uniquely identify
+an entity. These fields must not include any field that is defined with
+arguments, as arguments introduce variability that prevents consistent and valid
+entity resolution across schemas. Fields included in the `fields` argument of
+the `@key` directive must be static and consistently resolvable.
+
+**Examples**
+
+In this example, the `User` type has a valid `@key` directive that references
+the argument-free fields `id` and `name`.
+
+```graphql example
+type User @key(fields: "id name") {
+  id: ID!
+  name: String
+  tags: [String]
+}
+```
+
+In this counter-example, the `@key` directive references a field (`tags`) that
+is defined with arguments (`limit`), which is not allowed.
+
+```graphql counter-example
+type User @key(fields: "id tags") {
+  id: ID!
+  tags(limit: Int = 10): [String]
+}
+```
+
+
 ### Merge
 
 ### Post Merge Validation
