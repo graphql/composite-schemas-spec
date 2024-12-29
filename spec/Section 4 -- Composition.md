@@ -2134,6 +2134,68 @@ type Bill {
 }
 ```
 
+### Override on Interface
+
+**Error Code**  
+`OVERRIDE_ON_INTERFACE`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas to be composed.
+- For each {schema} in {schemas}:
+  - Let {types} be the set of all interface types in {schema}.
+  - For each {type} in {types}:
+    - Let {fields} be the set of fields on {type}.
+    - For each {field} in {fields}:
+      - {field} must **not** be annotated with `@override`
+
+**Explanatory Text**
+
+The `@override` directive designates that ownership of a field is transferred
+from one source schema to another. In the context of interface types, fields are
+abstract—objects that implement the interface are responsible for providing the
+actual fields. Consequently, it is invalid to attach `@override` directly to an
+interface field. Doing so leads to an `OVERRIDE_ON_INTERFACE` error because
+there is no concrete field implementation on the interface itself that can be
+overridden.
+
+**Examples**
+
+In this valid example, `@override` is used on a field of an object type,
+ensuring that the field definition is concrete and can be reassigned to another
+schema.
+
+Since `@override` is **not** used on any interface fields, no error is produced.
+
+```graphql example
+# Source Schema A
+type Order {
+  id: ID!
+  amount: Int
+}
+
+# Source Schema B
+type Order {
+  id: ID!
+  amount: Int @override(from: "SchemaA")
+}
+```
+
+In the following counter-example, `Bill.amount` is declared on an **interface**
+type and annotated with `@override`. This violates the rule because the
+interface field itself is not eligible for ownership transfer. The composition
+fails with an `OVERRIDE_ON_INTERFACE` error.
+
+```graphql counter-example
+# Source Schema A
+interface Bill {
+  id: ID!
+  amount: Int @override(from: "SchemaB")
+}
+```
 
 ### Merge
 
