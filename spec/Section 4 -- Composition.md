@@ -1002,6 +1002,75 @@ type Service {
 }
 ```
 
+### Key Directive in Fields Argument
+
+**Error Code**
+
+`KEY_DIRECTIVE_IN_FIELDS_ARG`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the set of all source schemas.
+  - Let {types} be the set of all object and interface types in {schema}.
+  - For each {type} in {types}:
+    - Let {keyDirectives} be the set of all `@key` directives on {type}.
+    - For each {keyDirective} in {keyDirectives}:
+      - Let {fields} be the string value of the `fields` argument of
+        {keyDirective}.
+      - {fields} must not contain a directive application.
+
+**Explanatory Text**
+
+The `@key` directive specifies the set of fields used to uniquely identify an
+entity. The `fields` argument must consist of a valid GraphQL selection set that
+does not include any directive applications. Directives in the `fields` argument
+are not supported.
+
+**Examples**
+
+In this example, the `fields` argument of the `@key` directive does not include
+any directive applications, satisfying the rule.
+
+```graphql example
+type User @key(fields: "id name") {
+  id: ID!
+  name: String
+}
+```
+
+In this counter-example, the `fields` argument of the `@key` directive includes
+a directive application `@lowercase`, which is not allowed.
+
+```graphql counter-example
+directive @lowercase on FIELD_DEFINITION
+
+type User @key(fields: "id name @lowercase") {
+  id: ID!
+  name: String
+}
+```
+
+In this example, the `fields` argument includes a directive application
+`@lowercase` nested inside the selection set, which is also invalid.
+
+```graphql counter-example
+directive @lowercase on FIELD_DEFINITION
+
+type User @key(fields: "id name { firstName @lowercase }") {
+  id: ID!
+  name: FullName
+}
+
+type FullName {
+  firstName: String
+  lastName: String
+}
+```
+
 ### Merge
 
 ### Post Merge Validation
