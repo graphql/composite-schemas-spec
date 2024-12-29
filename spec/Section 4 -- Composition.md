@@ -1336,6 +1336,82 @@ type Profile {
 }
 ```
 
+### Provides Fields Has Arguments
+
+**Error Code**
+
+`PROVIDES_FIELDS_HAS_ARGS`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the set of all source schemas.
+  - Let {fieldsWithProvides} be the set of all fields annotated with the
+    `@provides` directive in {schema}.
+  - For each {field} in {fieldsWithProvides}:
+    - Let {selections} be the field selections of the `fields` argument of the
+      `@provides` directive on {field}.
+    - Let {type} be the return type of {field}
+    - For each {selection} in {selections}:
+      - {ProvidesHasArguments(selection, type)} must be false
+
+ProvidesHasArguments(selection, type):
+
+- Let {field} be the field of {type} selected by {selection}
+- If {field} has arguments:
+  - return true
+- If {selection} has a selection set:
+  - Let {subSelections} be the selections in {selection}
+  - Let {subType} be the return type of {field}
+  - For each {subSelection} in {subSelections}:
+    - If {ProvidesHasArguments(subField, subSelection)} is true
+      - return true
+
+**Explanatory Text**
+
+The `@provides` directive specifies fields that a resolver provides for the
+parent type. The `fields` argument must reference fields that do not have
+arguments, as fields with arguments introduce variability that is incompatible
+with the consistent behavior expected of `@provides`.
+
+**Examples**
+
+```graphql example
+type User @key(fields: "id") {
+  id: ID!
+  tags: [String]
+}
+
+type Article @key(fields: "id") {
+  id: ID!
+  author: User! @provides(fields: "tags")
+}
+```
+
+This violates the rule because the `tags` field referenced in the `fields`
+argument of the `@provides` directive is defined with arguments
+(`limit: UserType = ADMIN`).
+
+```graphql counter-example
+type User @key(fields: "id") {
+  id: ID!
+  tags(limit: UserType = ADMIN): [String]
+}
+
+enum UserType {
+  REGULAR
+  ADMIN
+}
+
+type Article @key(fields: "id") {
+  id: ID!
+  author: User! @provides(fields: "tags")
+}
+```
+
 
 ### Merge
 
