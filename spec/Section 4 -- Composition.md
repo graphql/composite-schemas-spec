@@ -1618,6 +1618,72 @@ type Profile {
 }
 ```
 
+### Require Invalid Fields Type
+
+**Error Code**
+
+`REQUIRE_INVALID_FIELDS_TYPE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas.
+- For each {schema} in {schemas}:
+  - Let {compositeTypes} be the set of all composite types in {schema}.
+  - For each {composite} in {compositeTypes}:
+    - Let {fields} be the set of fields on {composite}.
+    - Let {arguments} be the set of all arguments on {fields}.
+    - For each {argument} in {arguments}:
+      - If {argument} is **not** annotated with `@require`:
+        - Continue
+      - Let {fieldsArg} be the value of the `fields` argument of the `@require`
+        directive on {argument}.
+      - If {fieldsArg} is **not** a string:
+        - Produce a `REQUIRE_INVALID_FIELDS_TYPE` error.
+
+**Explanatory Text**
+
+When using the `@require` directive, the `fields` argument must always be a
+string that defines a (potentially nested) selection set of fields from the same
+type. If the `fields` argument is provided as a type other than a string (such
+as an integer, boolean, or enum), the directive usage is invalid and will cause
+schema composition to fail.
+
+**Examples**
+
+In the following example, the `@require` directive’s `fields` argument is a
+valid string and satisfies the rule.
+
+```graphql example
+type User @key(fields: "id") {
+  id: ID!
+  profile(name: String! @require(fields: "name")): Profile
+}
+
+type Profile {
+  id: ID!
+  name: String
+}
+```
+
+Since `fields` is set to `123` (an integer) instead of a string, this violates
+the rule and triggers a `REQUIRE_INVALID_FIELDS_TYPE` error.
+
+```graphql counter-example
+type User @key(fields: "id") {
+  id: ID!
+  profile(name: String! @require(fields: 123)): Profile
+}
+
+type Profile {
+  id: ID!
+  name: String
+}
+```
+
 ### Merge
 
 ### Post Merge Validation
