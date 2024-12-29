@@ -1684,6 +1684,71 @@ type Profile {
 }
 ```
 
+### Require Invalid Syntax
+
+**Error Code**
+
+`REQUIRE_INVALID_SYNTAX`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas.
+- For each {schema} in {schemas}
+  - Let {compositeTypes} be the set of all composite types in {schema}.
+  - For each {composite} in {compositeTypes}:
+    - Let {fields} be the set of fields on {composite}.
+    - Let {arguments} be the set of all arguments on {fields}.
+    - For each {argument} in {arguments}:
+      - If {argument} is **not** annotated with `@require`:
+        - Continue
+      - Let {fieldsArg} be the string value of the `fields` argument of the
+        `@require` directive on {argument}.
+      - {fieldsArg} must be be parsable as a valid selection map
+
+**Explanatory Text**
+
+The `@require` directive’s `fields` argument must be syntactically valid
+GraphQL. If the selection map string is malformed (e.g., missing closing braces,
+unbalanced quotes, invalid tokens), then the schema cannot be composed
+correctly. In such cases, the error `REQUIRE_INVALID_SYNTAX` is raised.
+
+**Examples**
+
+In the following example, the `@require` directive’s `fields` argument is a
+valid selection map and satisfies the rule.
+
+```graphql example
+type User @key(fields: "id") {
+  id: ID!
+  profile(name: String! @require(fields: "name")): Profile
+}
+
+type Profile {
+  id: ID!
+  name: String
+}
+```
+
+In the following counter-example, the `@require` directive’s `fields` argument
+has invalid syntax because it is missing a closing brace.
+
+This violates the rule and triggers a `REQUIRE_INVALID_FIELDS` error.
+
+```graphql counter-example
+type Book {
+  id: ID!
+  title(lang: String! @require(fields: "author { name ")): String
+}
+
+type Author {
+  name: String
+}
+```
+
 ### Merge
 
 ### Post Merge Validation
