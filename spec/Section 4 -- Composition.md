@@ -2197,6 +2197,148 @@ interface Bill {
 }
 ```
 
+### Override Source Has Override
+
+**Error Code**  
+`OVERRIDE_SOURCE_HAS_OVERRIDE`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas to be composed.
+- Let {groupedTypes} be a map grouping all object types from {schemas} by their
+  type name.
+- For each {typeGroup} in {groupedTypes}:
+  - Let {types} be the set of object types in {typeGroup}.
+  - Let {groupedFields} be a map grouping every field across all {types} by
+    their field name.
+  - For each {fieldGroup} in {groupedFields}:
+    - Let {fields} be the set of field definitions in {fieldGroup}.
+    - Let {overrides} be the list of `@override` directives present among those
+      {fields}.
+    - If {overrides} has fewer than 2 elements:
+      - Continue
+    - Let {firstOverride} be the first directive in {overrides}.
+    - Let {from} be the value of the `from` argument on {firstOverride}.
+    - Let {sourceSchema} be the schema definining {firstOverride}.
+    - Let {visited} be an empty set.
+    - Add {sourceSchema} to {visited}.
+    - While {from} is not null:
+      - {from} must **not** be in {visited}.
+      - Add {from} to {visited}.
+      - Let {sourceField} be the field in {fields} that belongs to the schema
+        named {from}.
+      - If {sourceField} does not exist:
+        - Break
+      - If {sourceField} is **not** annotated with `@override`:
+        - Break
+      - Let {from} be the value of the `from` argument on that `@override`
+        directive.
+    - The size of {visited} must be equal to the size of {overrides}.
+
+**Explanatory Text**
+
+A field marked with `@override` signifies that its ownership is being taken over
+by another schema. If multiple schemas try to override the same field, or if the
+ownership chain loops back on itself, the composed schema has more than one
+`@override` for a single field. This creates ambiguity about which schema
+ultimately owns that field.
+
+Hence, **only one** `@override` may ever apply to a particular field across all
+source schemas. Attempting multiple overrides, or forming any cycle of overrides
+for the same field, triggers the `OVERRIDE_SOURCE_HAS_OVERRIDE` error.
+
+**Examples**
+
+In this scenario, `Bill.amount` is originally owned by **Schema A** but is
+overridden in **Schema B**. No other schema further attempts to override the
+same field, so the composition is valid.
+
+```graphql example
+# Source Schema A
+type Bill {
+  id: ID!
+  amount: Int
+}
+
+# Source Schema B
+type Bill {
+  id: ID!
+  amount: Int @override(from: "SchemaA")
+}
+```
+
+Here, **Schema A** overrides `Bill.amount` from **Schema B**, while **Schema B**
+also overrides the same field from **Schema A**. This circular override makes it
+impossible to discern a single “owner” of the field `Bill.amount`, raising an
+`OVERRIDE_SOURCE_HAS_OVERRIDE` error.
+
+```graphql counter-example
+# Source Schema A (named "SchemaA")
+type Bill {
+  id: ID!
+  amount: Int @override(from: "SchemaB")
+}
+
+# Source Schema B (named "SchemaB")
+type Bill {
+  id: ID!
+  amount: Int @override(from: "SchemaA")
+}
+```
+
+In this case, the same field `Bill.amount` is overridden successively by A, then
+B, then C. Tracing these overrides forms a cycle (A → B → C → A). This again
+produces an `OVERRIDE_SOURCE_HAS_OVERRIDE` error.
+
+```graphql counter-example
+# Source Schema A (named "A")
+type Bill {
+  id: ID!
+  amount: Int @override(from: "B")
+}
+
+# Source Schema B (named "B")
+type Bill {
+  id: ID!
+  amount: Int @override(from: "C")
+}
+
+# Source Schema C (named "C")
+type Bill {
+  id: ID!
+  amount: Int @override(from: "A")
+}
+```
+
+In the following counter-example, the field `Bill.amount` is overridden by
+multiple schemas. The overrides do not form a cycle, hence there are multiple
+overrides for the same field, triggering an `OVERRIDE_SOURCE_HAS_OVERRIDE`
+error.
+
+```graphql counter-example
+# Source Schema A
+type Bill {
+  id: ID!
+  amount: Int @override(from: "SchemaC")
+}
+
+# Source Schema B
+type Bill {
+  id: ID!
+  amount: Int @override(from: "SchemaC")
+}
+
+# Source Schema C
+type Bill {
+  id: ID!
+  amount: Int
+}
+```
+
+
 ### Merge
 
 ### Post Merge Validation
