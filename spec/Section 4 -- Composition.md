@@ -2440,6 +2440,61 @@ type Book {
 }
 ```
 
+### Key Invalid Fields Type
+
+**Error Code**  
+`KEY_INVALID_FIELDS_TYPE`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas to be composed.
+- For each {schema} in {schemas}:
+  - Let {types} be the set of all composite types in {schema}.
+  - For each {type} in {types}:
+    - If {type} is annotated with `@key`:
+      - Let {fieldsArg} be the value of the `fields` argument in the `@key`
+        directive.
+      - {fieldsArg} must be a string.
+
+**Explanatory Text**
+
+The `@key` directive designates the fields used to identify a particular object
+uniquely. The `fields` argument accepts a **string** that represents a selection
+set (for example, `"id"`, or `"id otherField"`). If the `fields` argument is
+provided as any non-string type (e.g., `Boolean`, `Int`, `Array`), the schema
+fails to compose correctly because it cannot parse a valid field selection.
+
+**Examples**
+
+In this example, the `@key` directive’s `fields` argument is the string
+`"id uuid"`, identifying two fields that form the object key. This usage is
+valid.
+
+```graphql example
+type User @key(fields: "id uuid") {
+  id: ID!
+  uuid: ID!
+  name: String
+}
+
+type Query {
+  users: [User]
+}
+```
+
+Here, the `fields` argument is provided as a boolean (`true`) instead of a
+string. This violates the directive requirement and triggers a
+`KEY_INVALID_FIELDS_TYPE` error.
+
+```graphql counter-example
+type User @key(fields: true) {
+  id: ID
+}
+```
+
 
 ### Merge
 
