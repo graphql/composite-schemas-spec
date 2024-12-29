@@ -1133,6 +1133,66 @@ type User @key(fields: "id tags") {
 }
 ```
 
+### Key Invalid Syntax
+
+**Error Code**  
+`KEY_INVALID_SYNTAX`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas.
+  - Let {types} be the set of all object or interface types in each {schema}.
+  - For each {type} in {types}:
+    - Let {keyDirectives} be the set of all `@key` directives on {type}.
+    - For each {keyDirective} in {keyDirectives}:
+      - Let {fieldsArg} be the string value of the `fields` argument of
+        {keyDirective}.
+      - Attempt to parse {fieldsArg} as a valid GraphQL selection set.
+      - Parsing must **not** fail (e.g., missing braces, invalid tokens,
+        unbalanced curly braces, or other syntax errors).
+
+**Explanatory Text**
+
+Each `@key` directive must specify the fields that uniquely identify an entity
+using a valid GraphQL selection set in its `fields` argument. If the `fields`
+argument string is syntactically incorrect—missing closing braces, containing
+invalid tokens, or otherwise malformed - it cannot be composed into a valid
+schema and triggers the `KEY_INVALID_SYNTAX` error.
+
+**Examples**
+
+In this valid scenario, the `fields` argument is a correctly formed selection
+set: `"sku featuredItem { id }"` is properly balanced and contains no syntax
+errors.
+
+```graphql example
+type Product @key(fields: "sku featuredItem { id }") {
+  sku: String!
+  featuredItem: Node!
+}
+
+interface Node {
+  id: ID!
+}
+```
+
+Here, the selection set `"featuredItem { id"` is missing the closing brace `}`.
+It is thus invalid syntax, causing a `KEY_INVALID_SYNTAX` error.
+
+```graphql counter-example
+type Product @key(fields: "featuredItem { id") {
+  featuredItem: Node!
+  sku: String!
+}
+
+interface Node {
+  id: ID!
+}
+```
+
 
 ### Merge
 
