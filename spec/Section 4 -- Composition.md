@@ -2563,6 +2563,69 @@ type ProductDetails {
 }
 ```
 
+### Provides on Non-Composite Field
+
+**Error Code**  
+`PROVIDES_ON_NON_COMPOSITE_FIELD`
+
+**Severity**  
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas to be composed.
+- For each {schema} in {schemas}:
+  - Let {types} be the set of all object and interface types in {schema}.
+  - For each {type} in {types}:
+    - Let {fields} be the set of fields on {type}.
+    - For each {field} in {fields}:
+      - If {field} is annotated with `@provides`:
+        - Let {fieldType} be the base return type of {field} (i.e., unwrapped of
+          any `[ ]` or `!`).
+        - {fieldType} must be a interface or object type.
+
+**Explanatory Text**
+
+The `@provides` directive allows a field to “provide” additional nested fields
+on the composite type it returns. If a field’s base type is not an object or
+interface type (e.g., `String`, `Int`, `Boolean`, `Enum`, `Union`, or an `Input`
+type), it cannot hold nested fields for `@provides` to select. Consequently,
+attaching `@provides` to such a field is invalid and raises a
+`PROVIDES_ON_NON_OBJECT_FIELD` error.
+
+**Examples**
+
+Here, `profile` has an **object** base type `Profile`. The `@provides` directive
+can validly specify sub-fields like `settings { theme }`.
+
+```graphql example
+type Profile {
+  email: String
+  settings: Settings
+}
+
+type Settings {
+  notificationsEnabled: Boolean
+  theme: String
+}
+
+type User {
+  id: ID!
+  profile: Profile @provides(fields: "settings { theme }")
+}
+```
+
+In this counter-example, `email` has a scalar base type (`String`). Because
+scalars do not expose sub-fields, attaching `@provides` to `email` triggers a
+`PROVIDES_ON_NON_OBJECT_FIELD` error.
+
+```graphql counter-example
+type User {
+  id: ID!
+  email: String @provides(fields: "length")
+}
+```
+
 
 ### Merge
 
