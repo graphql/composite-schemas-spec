@@ -47,7 +47,7 @@ composition and distributed execution.
 
 - **Schema Composition**: Schema composition describes the process of merging
   multiple _source schema_ into a single GraphQL schema, the _composite schema_.
-  During this process, an intermediary schema, the _composite execution schema_,
+  During this process, an intermediary schema, the _execution schema_,
   is generated. This composite execution schema is annotated with directives to
   describe execution, and may have additional internal fields or arguments that
   won't be exposed in the client-facing composite schema.
