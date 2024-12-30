@@ -1255,7 +1255,7 @@ IsValidKeyField(selection, type):
 **Explanatory Text**
 
 Even if the selection set for `@key(fields: "…")` is syntactically valid, field
-reference within that selection set must also refer to **actual** fields on the
+references within that selection set must also refer to **actual** fields on the
 annotated type. This includes nested selections, which must appear on the
 corresponding return type. If any referenced field is missing or incorrectly
 named, composition fails with a `KEY_INVALID_FIELDS` error because the entity
