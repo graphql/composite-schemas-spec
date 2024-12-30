@@ -743,7 +743,7 @@ type Product {
 }
 ```
 
-### Root Mutation Used
+#### Root Mutation Used
 
 **Error Code**
 
@@ -809,7 +809,7 @@ type Mutation {
 }
 ```
 
-### Root Query Used
+#### Root Query Used
 
 **Error Code**
 
@@ -874,7 +874,7 @@ type Query {
 }
 ```
 
-### Root Subscription Used
+#### Root Subscription Used
 
 **Error Code**
 
@@ -941,7 +941,7 @@ type Subscription {
 }
 ```
 
-### Key Fields Select Invalid Type
+#### Key Fields Select Invalid Type
 
 **Error Code**
 
@@ -1026,7 +1026,7 @@ type Service {
 }
 ```
 
-### Key Directive in Fields Argument
+#### Key Directive in Fields Argument
 
 **Error Code**
 
@@ -1095,7 +1095,7 @@ type FullName {
 }
 ```
 
-### Key Fields Has Arguments
+#### Key Fields Has Arguments
 
 **Error Code**
 
@@ -1157,7 +1157,7 @@ type User @key(fields: "id tags") {
 }
 ```
 
-### Key Invalid Syntax
+#### Key Invalid Syntax
 
 **Error Code**  
 `KEY_INVALID_SYNTAX`
@@ -1217,7 +1217,7 @@ interface Node {
 }
 ```
 
-### Key Invalid Fields
+#### Key Invalid Fields
 
 **Error Code**
 
@@ -1286,7 +1286,7 @@ type Product @key(fields: "id") {
 }
 ```
 
-### Provides Directive in Fields Argument
+#### Provides Directive in Fields Argument
 
 **Error Code**
 
@@ -1360,7 +1360,7 @@ type Profile {
 }
 ```
 
-### Provides Fields Has Arguments
+#### Provides Fields Has Arguments
 
 **Error Code**
 
@@ -1436,7 +1436,7 @@ type Article @key(fields: "id") {
 }
 ```
 
-### Provides Fields Missing External
+#### Provides Fields Missing External
 
 **Error Code**
 
@@ -1509,7 +1509,7 @@ type Order {
 }
 ```
 
-### Query Root Type Inaccessible
+#### Query Root Type Inaccessible
 
 **Error Code**
 
@@ -1573,7 +1573,7 @@ type Book {
 }
 ```
 
-### Require Directive in Fields Argument
+#### Require Directive in Fields Argument
 
 **Error Code**
 
@@ -1642,7 +1642,7 @@ type Profile {
 }
 ```
 
-### Require Invalid Fields Type
+#### Require Invalid Fields Type
 
 **Error Code**
 
@@ -1708,7 +1708,7 @@ type Profile {
 }
 ```
 
-### Require Invalid Syntax
+#### Require Invalid Syntax
 
 **Error Code**
 
@@ -1773,7 +1773,7 @@ type Author {
 }
 ```
 
-### Type Definition Invalid
+#### Type Definition Invalid
 
 **Error Code**
 
@@ -1819,7 +1819,7 @@ input FieldSelectionMap {
 }
 ```
 
-### Type Kind Mismatch
+#### Type Kind Mismatch
 
 **Error Code**  
 `TYPE_KIND_MISMATCH`
@@ -1896,7 +1896,7 @@ extend input User {
 }
 ```
 
-### Provides Invalid Syntax
+#### Provides Invalid Syntax
 
 **Error Code**  
 `PROVIDES_INVALID_SYNTAX`
@@ -1949,7 +1949,7 @@ type User @key(fields: "id") {
 }
 ```
 
-### Invalid GraphQL
+#### Invalid GraphQL
 
 **Error Code**  
 `INVALID_GRAPHQL`
@@ -2028,7 +2028,7 @@ type Product {
 }
 ```
 
-### Override Collision with Another Directive
+#### Override Collision with Another Directive
 
 **Error Code**  
 `OVERRIDE_COLLISION_WITH_ANOTHER_DIRECTIVE`
@@ -2098,7 +2098,7 @@ type Payment {
 }
 ```
 
-### Override from Self Error
+#### Override from Self Error
 
 **Error Code**  
 `OVERRIDE_FROM_SELF_ERROR`
@@ -2158,7 +2158,7 @@ type Bill {
 }
 ```
 
-### Override on Interface
+#### Override on Interface
 
 **Error Code**  
 `OVERRIDE_ON_INTERFACE`
@@ -2221,7 +2221,7 @@ interface Bill {
 }
 ```
 
-### Override Source Has Override
+#### Override Source Has Override
 
 **Error Code**  
 `OVERRIDE_SOURCE_HAS_OVERRIDE`
@@ -2362,7 +2362,7 @@ type Bill {
 }
 ```
 
-### External Collision with Another Directive
+#### External Collision with Another Directive
 
 **Error Code**  
 `EXTERNAL_COLLISION_WITH_ANOTHER_DIRECTIVE`
@@ -2463,7 +2463,7 @@ type Book {
 }
 ```
 
-### Key Invalid Fields Type
+#### Key Invalid Fields Type
 
 **Error Code**  
 `KEY_INVALID_FIELDS_TYPE`
@@ -2518,7 +2518,7 @@ type User @key(fields: true) {
 }
 ```
 
-### Provides Invalid Fields Type
+#### Provides Invalid Fields Type
 
 **Error Code**  
 `PROVIDES_INVALID_FIELDS_TYPE`
@@ -2586,7 +2586,7 @@ type ProductDetails {
 }
 ```
 
-### Provides on Non-Composite Field
+#### Provides on Non-Composite Field
 
 **Error Code**  
 `PROVIDES_ON_NON_COMPOSITE_FIELD`
@@ -2649,7 +2649,7 @@ type User {
 }
 ```
 
-### External on Interface
+#### External on Interface
 
 **Error Code**  
 `EXTERNAL_ON_INTERFACE`
@@ -2808,7 +2808,7 @@ type ObjectType1 {
 }
 ```
 
-### No Queries
+#### No Queries
 
 **Error Code**
 
@@ -2931,7 +2931,7 @@ type AdminStats {
 }
 ```
 
-### Implemented by Inaccessible
+#### Implemented by Inaccessible
 
 **Error Code**
 
@@ -3020,7 +3020,7 @@ type User implements Node {
 }
 ```
 
-### Interface Field No Implementation
+#### Interface Field No Implementation
 
 **Error Code**
 
@@ -3129,7 +3129,7 @@ type GuestUser implements User {
 }
 ```
 
-### Invalid Field Sharing
+#### Invalid Field Sharing
 
 **Error Code**
 
@@ -3279,7 +3279,7 @@ type Subscription {
 }
 ```
 
-### Invalid Shareable Usage
+#### Invalid Shareable Usage
 
 **Error Code**
 
@@ -3336,7 +3336,7 @@ interface InventoryItem {
 }
 ```
 
-### Only Inaccessible Children
+#### Only Inaccessible Children
 
 **Error Code**  
 `ONLY_INACCESSIBLE_CHILDREN`
@@ -3487,7 +3487,7 @@ enum DeliveryStatus {
 }
 ```
 
-### Require Invalid Fields
+#### Require Invalid Fields
 
 **Error Code**
 
@@ -3578,7 +3578,7 @@ type Book {
 }
 ```
 
-### Provides Invalid Fields
+#### Provides Invalid Fields
 
 **Error Code**  
 `PROVIDES_INVALID_FIELDS`
