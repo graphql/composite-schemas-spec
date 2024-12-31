@@ -44,7 +44,7 @@ InputFieldsHaveConsistentDefaults(inputFields):
 
 Input fields in different source schemas that have the same name are required to have
 consistent default values. This ensures that there is no ambiguity or
-inconsistency when merging schemas from different source schemas.
+inconsistency when merging input fields from different source schemas.
 
 A mismatch in default values for input fields with the same name across
 different source schemas will result in a schema composition error.
