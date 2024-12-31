@@ -240,7 +240,7 @@ type Query {
 
 The above example declares the key field `sku` to be inaccessible from
 the composite schema. However, type system members marked as inaccessible can
-still be used within the _execution schema_ to fulfill requirements or
+still be used within the _execution schema_ to fulfil requirements or
 lookups.
 
 In contrast to the `@internal` directive the `@inaccessible` directive hides a
