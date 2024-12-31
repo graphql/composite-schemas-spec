@@ -2740,12 +2740,11 @@ is not found, following the standard GraphQL practices for representing missing
 data.
 
 In a distributed system, it is likely that some entities will not be found on
-other subgraphs, even when those subgraphs contribute fields to the type.
-Ensuring that `@lookup` fields have nullable return types also avoids GraphQL
-errors on subgraphs and prevents result erasure through non-null propagation. By
-allowing null to be returned when an entity is not found, the system can
-gracefully handle missing data without causing exceptions or unexpected
-behavior.
+other schemas, even when those schemas contribute fields to the type. Ensuring
+that `@lookup` fields have nullable return types also avoids GraphQL errors on
+schemas and prevents result erasure through non-null propagation. By allowing
+null to be returned when an entity is not found, the system can gracefully
+handle missing data without causing exceptions or unexpected behavior.
 
 Ensuring that `@lookup` fields have nullable return types allows gateways to
 distinguish between cases where an entity is not found (receiving null) and
@@ -2951,9 +2950,9 @@ InputFieldsAreMergeable(fields):
 - Given each pair of members {fieldA} and {fieldB} in {fields}:
   - Let {typeA} be the type of {fieldA}.
   - Let {typeB} be the type of {fieldB}.
-  - {InputTypesAreMerable(typeA, typeB)} must be true.
+  - {InputTypesAreMergeable(typeA, typeB)} must be true.
 
-InputTypesAreMerable(typeA, typeB):
+InputTypesAreMergeable(typeA, typeB):
 
 - If {typeA} is a non nullable type:
   - Set {typeA} to the inner type of {typeA}.
@@ -2964,7 +2963,7 @@ InputTypesAreMerable(typeA, typeB):
     - Return false.
   - Let {innerTypeA} be the inner type of {typeA}.
   - Let {innerTypeB} be the inner type of {typeB}.
-  - Return {InputTypesAreMerable(innerTypeA, innerTypeB)}.
+  - Return {InputTypesAreMergeable(innerTypeA, innerTypeB)}.
 - If {typeA} is equal to {typeB}
   - return true
 - Otherwise return false.
@@ -3104,6 +3103,81 @@ enum Genre {
   FANTASY
 }
 ```
+
+#### Input With Missing Required Fields
+
+**Error Code:**
+
+`REQUIRED_INPUT_FIELD_MISSING_IN_SOME_SUBGRAPH`
+
+**Severity:**
+
+ERROR
+
+**Formal Specification:**
+
+- Let {typeNames} be the set of all input object types names from all source
+  schemas that are not declared as `@inaccessible`.
+- For each {typeName} in {typeNames}:
+  - Let {types} be the list of all input object types from different source
+    schemas with the name {typeName}.
+  - {AreTypesConsistent(types)} must be true.
+
+AreTypesConsistent(inputs):
+
+- Let {requiredFields} be the intersection of all field names across all input
+  objects in {inputs} that are not marked as `@inaccessible` in any schema and
+  have a non-nullable type in at least one schema.
+- For each {input} in {inputs}:
+  - For each {requiredField} in {requiredFields}:
+    - If {requiredField} is not in {input}:
+      - Return false
+
+**Explanatory Text:**
+
+Input types are merged by intersection, meaning that the merged input type will
+have all fields that are present in all input types with the same name. This
+rule ensures that input object types with the same name across different schemas
+share a consistent set of required fields.
+
+**Examples**
+
+If all schemas define `BookFilter` with the required field `title`, the rule is
+satisfied:
+
+```graphql
+# Schema A
+input BookFilter {
+  title: String!
+  author: String
+}
+
+# Schema B
+input BookFilter {
+  title: String!
+  yearPublished: Int
+}
+```
+
+If `title` is required in one subgraph but missing in another, this violates the
+rule:
+
+```graphql
+# Schema A
+input BookFilter {
+  title: String!
+  author: String
+}
+
+# Schema B
+input BookFilter {
+  author: String
+  yearPublished: Int
+}
+```
+
+In this invalid case, `title` is mandatory in Schema A but not defined in
+`Schema B`, causing inconsistency in required fields across schemas.
 
 ### Merge
 
