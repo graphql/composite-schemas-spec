@@ -2785,6 +2785,73 @@ type User {
 Here, `userById` returns a non-nullable `User!`, which does not align with the
 recommendation that a `@lookup` field should have a nullable return type.
 
+#### `@lookup` must not return a list
+
+**Error Code**
+
+`LOOKUP_MUST_NOT_RETURN_LIST`
+
+**Severity** ERROR
+
+**Formal Specification**
+
+- Let {fields} be the set of all field definitions annotated with `@lookup` in
+  the schema.
+- For each {field} in {fields}:
+  - Let {type} be the return type of {field}.
+  - {IsListType(type)} must be false.
+
+IsListType(type):
+
+- If {type} is a Non-Null type:
+  - Let {innerType} be the inner type of {type}.
+  - Return {IsSingleObjectType(innerType)}.
+- Else if {type} is a List type:
+  - Return true.
+- Else:
+  - Return false.
+
+**Explanatory Text**
+
+Fields annotated with the `@lookup` directive are intended to retrieve a single
+entity based on provided arguments. To avoid ambiguity in entity resolution,
+such fields must return a single object and not a list. This validation rule
+enforces that any field annotated with `@lookup` must have a return type that is
+**NOT** a list.
+
+**Examples**
+
+For example, the following usage is valid:
+
+```graphql example
+extend type Query {
+  userById(id: ID!): User @lookup
+}
+
+type User {
+  id: ID!
+  name: String
+}
+```
+
+In this example, `userById` returns a `User` object, satisfying the requirement.
+
+This counter-example demonstrates an invalid usage:
+
+```graphql counter-example
+extend type Query {
+  usersByIds(ids: [ID!]!): [User!] @lookup
+}
+
+type User {
+  id: ID!
+  name: String
+}
+```
+
+Here, `usersByIds` returns a list of `User` objects, which violates the
+requirement that a `@lookup` field must return a single object.
+
 ### Merge
 
 During this stage, all definitions from each source schema are combined into a
