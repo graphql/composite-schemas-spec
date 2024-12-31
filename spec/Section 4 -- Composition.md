@@ -3473,7 +3473,7 @@ _Determining the Field Type_
 The return type of the composed field is determined by invoking
 {LeastRestrictiveType(typeA, typeB)}. This helper function computes a type that
 is compatible with all the provided field types, ensuring that the composed
-schema does not break schmemas expecting any of those types. For example,
+schema does not break schemas expecting any of those types. For example,
 {LeastRestrictiveType(typeA, typeB)} might unify `String!` and `String` into
 `String`.
 
