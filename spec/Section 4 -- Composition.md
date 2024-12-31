@@ -18,7 +18,7 @@ run in sequence to produce the composite execution schema.
 
 **Error Code**
 
-`Input_Field_Default_Mismatch`
+`INPUT_FIELD_DEFAULT_MISMATCH`
 
 **Formal Specification**
 
