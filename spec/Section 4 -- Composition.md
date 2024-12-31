@@ -3024,6 +3024,87 @@ input AuthorInput {
 }
 ```
 
+#### Enum Type Values Must Be The Same Across Source Schemas
+
+**Error Code**
+
+`ENUM_VALUES_MUST_BE_THE_SAME_ACROSS_SCHEMAS`
+
+**Formal Specification**
+
+- Let {enumNames} be the set of all enum type names across all source schemas.
+- For each {enumName} in {enumNames}:
+  - Let {enums} be the list of all enum types from different source schemas with
+    the name {enumName}.
+  - {EnumsAreMergeable(enums)} must be true.
+
+EnumsAreMergeable(enums):
+
+- If {enums} has fewer than 2 elements:
+  - Return true.
+- Let {inaccessibleValues} be the set of values that are declared as
+  `@inaccessible` in {enums}.
+- Let {requiredValues} be the set of values in {enums} that are not in
+  {inaccessibleValues}.
+- For each {enum} in {enums}
+  - Let {enumValues} be the set of all values of {enum} that are not in
+    {inaccessibleValues}.
+  - {requiredValues} must be equal to {enumValues}
+
+**Explanatory Text**
+
+This rule ensures that enum types with the same name across different source
+schemas in a composite schema have identical sets of values. Enums must be
+consistent across source schemas to avoid conflicts and ambiguities in the
+composite schema.
+
+When an enum is defined with differing values, it can lead to confusion and
+errors in query execution. For instance, a value valid in one schema might be
+passed to another where it's unrecognized, leading to unexpected behavior or
+failures. This rule prevents such inconsistencies by enforcing that all
+instances of the same named enum across schemas have an exact match in their
+values.
+
+In this example, both source schemas define `Genre` with the same value
+`FANTASY`, satisfying the rule:
+
+```graphql example
+enum Genre {
+  FANTASY
+}
+
+enum Genre {
+  FANTASY
+}
+```
+
+Here, the two definitions of `Genre` have different values (`FANTASY` and
+`SCIENCE_FICTION`) violating the rule:
+
+```graphql counter-example
+enum Genre {
+  FANTASY
+}
+
+enum Genre {
+  SCIENCE_FICTION
+}
+```
+
+Here, the two definitions of `Genre` have shared values and additional values
+declared as `@inaccessible`, satisfying the rule:
+
+```graphql example
+enum Genre {
+  FANTASY
+  SCIENCE_FICTION @inaccessible
+}
+
+enum Genre {
+  FANTASY
+}
+```
+
 ### Merge
 
 During this stage, all definitions from each source schema are combined into a
