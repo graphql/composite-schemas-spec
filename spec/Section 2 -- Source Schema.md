@@ -243,7 +243,7 @@ the composite schema. However, type system members marked as inaccessible can
 still be used within the _execution schema_ to fulfil requirements or
 lookups.
 
-In contrast to the `@internal` directive the `@inaccessible` directive hides a
+In contrast to the `@internal` directive the `@inaccessible` hides a
 type member from the composite schema even if other source schemas on the same type
 system member have no `@inaccessible` directive.
 
