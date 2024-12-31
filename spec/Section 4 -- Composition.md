@@ -2932,6 +2932,98 @@ input BookFilter {
 }
 ```
 
+#### Input Field Types mergeable
+
+**Error Code**
+
+`INPUT_FIELD_TYPES_NOT_MERGEABLE`
+
+**Formal Specification**
+
+- Let {fieldsByName} be a map of field lists where the key is the name of a
+  field and the value is a list of fields from mergeable input types from
+  different source schemas with the same name.
+- For each {fields} in {fieldsByName}:
+  - {InputFieldsAreMergeable(fields)} must be true.
+
+InputFieldsAreMergeable(fields):
+
+- Given each pair of members {fieldA} and {fieldB} in {fields}:
+  - Let {typeA} be the type of {fieldA}.
+  - Let {typeB} be the type of {fieldB}.
+  - {InputTypesAreMerable(typeA, typeB)} must be true.
+
+InputTypesAreMerable(typeA, typeB):
+
+- If {typeA} is a non nullable type:
+  - Set {typeA} to the inner type of {typeA}.
+- If {typeB} is a non nullable type:
+  - Set {typeB} to the inner type of {typeB}.
+- If {typeA} is a list type:
+  - If {typeB} is not list type.
+    - Return false.
+  - Let {innerTypeA} be the inner type of {typeA}.
+  - Let {innerTypeB} be the inner type of {typeB}.
+  - Return {InputTypesAreMerable(innerTypeA, innerTypeB)}.
+- If {typeA} is equal to {typeB}
+  - return true
+- Otherwise return false.
+
+**Explanatory Text**
+
+The input fields of input objects with the same name must be mergeable. This
+rule ensures that input objects with the same name in different source schemas
+have fields that can be merged consistently without conflicts.
+
+Input fields are considered mergeable when they share the same name and have
+compatible types. The compatibility of types is determined by their structure
+(e.g., lists), excluding nullability. Mergeable input fields with different
+nullability are considered mergeable, and the resulting merged field will be the
+most permissive of the two.
+
+In this example, the field `name` in `AuthorInput` has compatible types across
+source schemas, making them mergeable:
+
+```graphql example
+input AuthorInput {
+  name: String!
+}
+
+input AuthorInput {
+  name: String
+}
+```
+
+The following example shows that fields are mergeable if they have different
+nullability but the named type is the same and the list structure is the same.
+
+```graphql example
+input AuthorInput {
+  tags: [String!]
+}
+
+input AuthorInput {
+  tags: [String]!
+}
+
+input AuthorInput {
+  tags: [String]
+}
+```
+
+In this example, the field `birthdate` on `AuthorInput` is not mergeable as the
+field has different named types (`String` and `DateTime`) across source schemas:
+
+```graphql counter-example
+input AuthorInput {
+  birthdate: String!
+}
+
+input AuthorInput {
+  birthdate: DateTime!
+}
+```
+
 ### Merge
 
 During this stage, all definitions from each source schema are combined into a
