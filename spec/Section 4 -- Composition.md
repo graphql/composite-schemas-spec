@@ -58,7 +58,7 @@ type User {
 
 In this example, `userById` returns a nullable `User` type, aligning with the recommendation.
 
-This counter-example demonstrates a invalid usage:
+This counter-example demonstrates an invalid usage:
 
 ```graphql counter-example
 extend type Query {
