@@ -221,7 +221,7 @@ The `@inaccessible` directive is used to prevent specific objects or fields from
 being accessible through the composite schema, even if they are accessible in
 the underlying source schemas.
 
-This directive is particularly useful for restricting access to fields or
+This directive is useful for restricting access to fields or
 objects that are either irrelevant to the client-facing API or sensitive in
 nature, such as internal identifiers or fields intended only for backend use.
 
