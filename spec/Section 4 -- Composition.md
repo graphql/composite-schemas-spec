@@ -2852,6 +2852,86 @@ type User {
 Here, `usersByIds` returns a list of `User` objects, which violates the
 requirement that a `@lookup` field must return a single object.
 
+#### Input Field Default Mismatch
+
+**Error Code**
+
+`INPUT_FIELD_DEFAULT_MISMATCH`
+
+**Formal Specification**
+
+- Let {inputFieldsByName} be a map where the key is the name of an input field
+  and the value is a list of input fields from different source schemas from the
+  same type with the same name.
+- For each {inputFields} in {inputFieldsByName}:
+  - Let {defaultValues} be a set containing the default values of each input
+    field in {inputFields}.
+  - If the size of {defaultValues} is greater than 1:
+    - {InputFieldsHaveConsistentDefaults(inputFields)} must be false.
+
+InputFieldsHaveConsistentDefaults(inputFields):
+
+- Given each pair of input fields {inputFieldA} and {inputFieldB} in
+  {inputFields}:
+  - If the default value of {inputFieldA} is not equal to the default value of
+    {inputFieldB}:
+    - return false
+- return true
+
+**Explanatory Text**
+
+Input fields in different source schemas that have the same name are required to
+have consistent default values. This ensures that there is no ambiguity or
+inconsistency when merging input fields from different source schemas.
+
+A mismatch in default values for input fields with the same name across
+different source schemas will result in a schema composition error.
+
+**Examples**
+
+In the the following example both source schemas have an input field `field1`
+with the same default value. This is valid:
+
+```graphql example
+# Schema A
+
+input BookFilter {
+  genre: Genre = FANTASY
+}
+
+enum Genre {
+  FANTASY
+  SCIENCE_FICTION
+}
+
+# Schema B
+input BookFilter {
+  genre: Genre = FANTASY
+}
+
+enum Genre {
+  FANTASY
+  SCIENCE_FICTION
+}
+```
+
+In the following example both source schemas define an input field
+`minPageCount` with different default values. This is invalid:
+
+```graphql counter-example
+# Schema A
+
+input BookFilter {
+  minPageCount: Int = 10
+}
+
+# Schema B
+
+input BookFilter {
+  minPageCount: Int = 20
+}
+```
+
 ### Merge
 
 During this stage, all definitions from each source schema are combined into a
