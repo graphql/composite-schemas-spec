@@ -5215,6 +5215,91 @@ type UserDetails {
 }
 ```
 
+#### Empty Merged Input Object Type
+
+**Error Code**
+
+`EMPTY_MERGED_INPUT_OBJECT_TYPE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {inputTypes} be the set of all input object types in the composite schema.
+- For each {inputType} in {inputTypes}:
+  - Let {fields} be a set of all fields in {inputType}.
+  - {fields} must not be empty.
+
+**Explanatory Text**
+
+For input object types defined across multiple source schemas, the merged input
+object type is the intersection of all fields defined in these source schemas.
+Any field marked with the `@inaccessible` directive in any source schema is
+hidden and not included in the merged input object type. An input object type
+with no fields, after considering `@inaccessible` annotations, is considered
+empty and invalid.
+
+**Examples**
+
+In the following example, the merged input object type `BookFilter` is valid.
+
+```graphql
+input BookFilter {
+  name: String
+}
+
+input BookFilter {
+  name: String
+}
+```
+
+If the `@inaccessible` directive is applied to an input object type itself, the
+entire merged input object type is excluded from the composite execution schema,
+and it is not required to contain any fields.
+
+```graphql
+input BookFilter @inaccessible {
+  name: String
+  minPageCount: Int
+}
+
+input BookFilter {
+  name: Boolean
+}
+```
+
+This counter-example demonstrates an invalid merged input object type. In this
+case, `BookFilter` is defined in two source schemas, but all fields are marked
+as `@inaccessible` in at least one of the source schemas, resulting in an empty
+merged input object type:
+
+```graphql counter-example
+input BookFilter {
+  name: String @inaccessible
+  paperback: Boolean
+}
+
+input BookFilter {
+  name: String
+  paperback: Boolean @inaccessible
+}
+```
+
+Here is another counter-example where the merged input object type is empty
+because no fields intersect between the two source schemas:
+
+```graphql counter-example
+input BookFilter {
+  paperback: Boolean
+}
+
+input BookFilter {
+  name: String
+}
+```
+
 ## Validate Satisfiability
 
 The final step confirms that the composite schema supports executable queries
