@@ -54,21 +54,21 @@ the same default value. This is valid:
 
 ```graphql example
 input Filter {
-  field1: Enum1 = Value1
+  field1: Enum1 = VALUE1
 }
 
 enum Enum1 {
-  Value1
-  Value2
+  VALUE1
+  VALUE2
 }
 
 input Filter {
-  field1: Enum1 = Value1
+  field1: Enum1 = VALUE1
 }
 
 enum Enum1 {
-  Value1
-  Value2
+  VALUE1
+  VALUE2
 }
 ```
 
