@@ -1182,7 +1182,7 @@ ERROR
 
 Each `@key` directive must specify the fields that uniquely identify an entity
 using a valid GraphQL selection set in its `fields` argument. If the `fields`
-argument string is syntactically incorrect—missing closing braces, containing
+argument string is syntactically incorrect-missing closing braces, containing
 invalid tokens, or otherwise malformed - it cannot be composed into a valid
 schema and triggers the `KEY_INVALID_SYNTAX` error.
 
@@ -1555,7 +1555,7 @@ type Book {
 ```
 
 Since the schema marks the query root type as `@inaccessible`, the rule is
-violated. `QUERY_ROOT_TYPE_INACCESSIBLE` is raised because a schema’s root query
+violated. `QUERY_ROOT_TYPE_INACCESSIBLE` is raised because a schema's root query
 type cannot be hidden from consumers.
 
 ```graphql counter-example
@@ -1610,7 +1610,7 @@ supported and triggers the `REQUIRE_DIRECTIVE_IN_FIELDS_ARG` error.
 
 **Examples**
 
-In this valid usage, the `@require` directive’s `fields` argument references
+In this valid usage, the `@require` directive's `fields` argument references
 `name` without any directive applications, avoiding the error.
 
 ```graphql example
@@ -1678,7 +1678,7 @@ schema composition to fail.
 
 **Examples**
 
-In the following example, the `@require` directive’s `fields` argument is a
+In the following example, the `@require` directive's `fields` argument is a
 valid string and satisfies the rule.
 
 ```graphql example
@@ -1735,14 +1735,14 @@ ERROR
 
 **Explanatory Text**
 
-The `@require` directive’s `fields` argument must be syntactically valid
+The `@require` directive's `fields` argument must be syntactically valid
 GraphQL. If the selection map string is malformed (e.g., missing closing braces,
 unbalanced quotes, invalid tokens), then the schema cannot be composed
 correctly. In such cases, the error `REQUIRE_INVALID_SYNTAX` is raised.
 
 **Examples**
 
-In the following example, the `@require` directive’s `fields` argument is a
+In the following example, the `@require` directive's `fields` argument is a
 valid selection map and satisfies the rule.
 
 ```graphql example
@@ -1757,7 +1757,7 @@ type Profile {
 }
 ```
 
-In the following counter-example, the `@require` directive’s `fields` argument
+In the following counter-example, the `@require` directive's `fields` argument
 has invalid syntax because it is missing a closing brace.
 
 This violates the rule and triggers a `REQUIRE_INVALID_FIELDS` error.
@@ -1795,7 +1795,7 @@ ERROR
 **Explanatory Text**
 
 Certain types are reserved in composite schema specification for specific
-purposes and must adhere to the specification’s definitions. For example,
+purposes and must adhere to the specification's definitions. For example,
 `FieldSelectionMap` is a built-in scalar that represents a selection of fields
 as a string. Redefining these built-in types with a different kind (e.g., an
 input object, enum, union, or object type) is disallowed and makes the
@@ -1917,14 +1917,14 @@ ERROR
 
 **Explanatory Text**
 
-The `@provides` directive’s `fields` argument must be a syntactically valid
+The `@provides` directive's `fields` argument must be a syntactically valid
 selection set string, as if you were selecting fields in a GraphQL query. If the
 selection set is malformed (e.g., missing braces, unbalanced quotes, or invalid
 tokens), the schema composition fails with a `PROVIDES_INVALID_SYNTAX` error.
 
 **Examples**
 
-Here, the `@provides` directive’s `fields` argument is a valid selection set:
+Here, the `@provides` directive's `fields` argument is a valid selection set:
 
 ```graphql example
 type User @key(fields: "id") {
@@ -2180,7 +2180,7 @@ ERROR
 
 The `@override` directive designates that ownership of a field is transferred
 from one source schema to another. In the context of interface types, fields are
-abstract—objects that implement the interface are responsible for providing the
+abstract-objects that implement the interface are responsible for providing the
 actual fields. Consequently, it is invalid to attach `@override` directly to an
 interface field. Doing so leads to an `OVERRIDE_ON_INTERFACE` error because
 there is no concrete field implementation on the interface itself that can be
@@ -2398,7 +2398,7 @@ local ownership or resolution responsibility, such as:
   Since `@external` fields are not locally resolved, there is no need for
   `@require`.
 
-- **`@override`**: Transfers ownership of the field’s definition from one schema
+- **`@override`**: Transfers ownership of the field's definition from one schema
   to another, which is incompatible with an already-external field definition.
   Yet this is covered by the `OVERRIDE_COLLISION_WITH_ANOTHER_DIRECTIVE` rule.
 
@@ -2492,7 +2492,7 @@ fails to compose correctly because it cannot parse a valid field selection.
 
 **Examples**
 
-In this example, the `@key` directive’s `fields` argument is the string
+In this example, the `@key` directive's `fields` argument is the string
 `"id uuid"`, identifying two fields that form the object key. This usage is
 valid.
 
@@ -2610,7 +2610,7 @@ ERROR
 **Explanatory Text**
 
 The `@provides` directive allows a field to “provide” additional nested fields
-on the composite type it returns. If a field’s base type is not an object or
+on the composite type it returns. If a field's base type is not an object or
 interface type (e.g., `String`, `Int`, `Boolean`, `Enum`, `Union`, or an `Input`
 type), it cannot hold nested fields for `@provides` to select. Consequently,
 attaching `@provides` to such a field is invalid and raises a
@@ -2718,6 +2718,1258 @@ During this stage, all definitions from each source schema are combined into a
 single schema. This section defines the rules for merging schema definitions.
 The goal is to create a composite schema that includes all type system members
 from each source schema that are publicly accessible.
+
+MergeSchemas(schemas):
+
+- Let {mergedSchema} be an empty schema.
+- Let {memberNames} be the set of all object, interface, union, enum and input
+  type names in {schemas}.
+- For each {memberName} in {memberNames}:
+  - Let {types} be the set of all types named {memberName} across all source
+    schemas.
+  - Let {mergedType} be the result of {MergeTypes(types)}.
+  - If {mergedType} is not {null}:
+    - Add {mergedType} to {mergedSchema}.
+- Return {mergedSchema}.
+
+MergeTypes(types):
+
+- Let {firstType} be the first type in {types}.
+- Let {kind} be the kind of {firstType}.
+- Assert: All types in {types} have the same kind.
+- If {kind} is `SCALAR`:
+  - Return the result of {MergeScalarTypes(types)}.
+- If {kind} is `INTERFACE`:
+  - Return the result of {MergeInterfaceTypes(types)}.
+- If {kind} is `ENUM`:
+  - Return the result of {MergeEnumTypes(types)}.
+- If {kind} is `UNION`:
+  - Return the result of {MergeUnionTypes(types)}.
+- If {kind} is `INPUT_OBJECT`:
+  - Return the result of {MergeInputTypes(types)}.
+- If {kind} is `OBJECT`:
+  - Return the result of {MergeObjectTypes(types)}.
+
+#### Merge Scalar Types
+
+**Formal Specification**
+
+MergeScalarTypes(scalars):
+
+- If any {scalar} in {scalars} is marked with `@inaccessible`
+  - Return {null}
+- Let {firstScalar} be the first scalar in {scalars}.
+- Let {description} be the description of {firstScalar}.
+- For each {scalar} in {scalars}:
+  - If {description} is {null}:
+    - Set {description} to the description of {scalar}.
+- Return a new scalar type with the name of {firstScalar} and description of
+  {description}.
+
+**Explanatory Text**
+
+{MergeScalarTypes(scalars)} merges multiple scalar definitions that share the
+same name into a single scalar type. It filters out scalars marked with
+`@inaccessible` and unifies descriptions so that the final type retains the
+first available non-`null` description.
+
+_Inaccessible Scalars_
+
+If any scalar is labeled with `@inaccessible`, the merge immediately returns
+`null`. A scalar that cannot be exposed to consumers renders the entire type
+unusable.
+
+_Combining Descriptions_
+
+The final description is determined by the first non-`null` description found in
+the list of scalars. If no descriptions are found, the final description is
+`null`.
+
+**Examples**
+
+Here, two `Date` scalar types from different schemas are merged into a single
+composed `Date` scalar type.
+
+```graphql example
+# Schema A
+
+scalar Date
+
+# Schema B
+
+"A scalar representing a calendar date."
+scalar Date
+
+# Composed Result
+
+"A scalar representing a calendar date."
+scalar Date
+```
+
+#### Merge Interface Types
+
+**Formal Specification**
+
+MergeInterfaceTypes(types):
+
+- If any {type} in {types} is marked with `@inaccessible`
+  - Return {null}
+- Let {firstType} be the first type in {types}.
+- Let {typeName} be the name of {firstType}.
+- Let {description} be the description of {firstType}.
+- Let {fields} be an empty set.
+- For each {type} in {types}:
+  - If {description} is {null}:
+    - Set {description} to the description of {type}.
+- Let {fieldNames} be the set of all field names in {types}.
+- For each {fieldName} in {fieldNames}:
+  - Let {field} be the set of fields with the name {fieldName} in {types}.
+  - Let {mergedField} be the result of {MergeFieldDefinitions(fields)}.
+  - If {mergedField} is not {null}:
+    - Add {mergedField} to {fields}.
+- Return a new interface type with the name of {typeName}, description of
+  {description}, and fields of {fields}.
+
+**Explanatory Text**
+
+{MergeInterfaceTypes(types)} unifies multiple interface definitions (all sharing
+the _same name_) into a single composed interface type. If any one of these
+interfaces is marked `@inaccessible`, the merge immediately returns `null`,
+preventing inclusion of that interface in the final schema.
+
+_Inaccessible Interfaces_
+
+A type marked `@inaccessible` disqualifies the entire merge, ensuring no
+references to inaccessible types appear in the final schema.
+
+_Combining Descriptions_
+
+Among the valid interfaces, the description is taken from the first non-`null`
+description encountered. If all interfaces lack a description, the resulting
+interface has none.
+
+_Merging Fields_
+
+Each interface contributes its fields. Those fields that share the same name
+across multiple interfaces are reconciled via {MergeFieldDefinitions(fields)}.
+This ensures any differences in type, nullability, or other constraints are
+resolved before appearing in the final interface.
+
+By applying these steps, {MergeInterfaceTypes(types)} produces a coherent
+interface type definition that reflects the fields from all compatible sources
+while adhering to accessibility constraints.
+
+**Examples**
+
+Here, two `Product` interface types from different schemas are merged into a
+single composed `Product` interface type.
+
+```graphql example
+# Schema A
+
+interface Product {
+  id: ID!
+  name: String
+}
+
+# Schema B
+
+interface Product {
+  id: ID!
+  createdAt: String
+}
+
+# Composed Result
+
+interface Entity {
+  id: ID!
+  name: String
+  createdAt: String
+}
+```
+
+In this example, the `Product` interface type from two schemas is merged. The
+`id` field is shared across both schemas, while `name` and `createdAt` fields
+are contributed by the individual source schemas. The resulting composed type
+includes all fields.
+
+The following example shows how the description is retained when merging
+interface types:
+
+```graphql example
+# Schema A
+
+"""
+First description
+"""
+interface Product {
+  id: ID!
+}
+
+# Schema B
+
+"""
+Second description
+"""
+interface Product {
+  id: ID!
+}
+
+# Composed Result
+
+"""
+First description
+"""
+interface Product {
+  id: ID!
+}
+```
+
+#### Merge Enum Types
+
+**Formal Specification**
+
+MergeEnumTypes(enums):
+
+- If any {enum} in {enums} is marked with `@inaccessible`
+  - Return {null}
+- Let {firstEnum} be the first enum in {enums}.
+- If {enums} contains only one enum
+  - Return a new enum type with the name of {firstEnum}, description of
+    {firstEnum}, and enum values of {firstEnum} excluding any marked with
+    `@inaccessible`.
+- Let {typeName} be the name of {firstEnum}.
+- Let {description} be the description of {firstEnum}.
+- Let {enumValues} be the set of all enum values in {enums}.
+- For each {enum} in {enums}:
+  - If {description} is {null}:
+    - Set {description} to the description of {enum}.
+  - For each {enumValue} in the enum values of {enum}:
+    - If {enumValue} is marked with `@inaccessible`
+      - Remove {enumValue} from {enumValues}.
+- Return a new enum type with the name of {typeName}, description of
+  {description}, and enum values of {enumValues}.
+
+**Explanatory Text**
+
+{MergeEnumTypes(enums)} consolidates multiple enum definitions (all sharing the
+_same name_) into one final enum type, while filtering out any parts marked with
+`@inaccessible`. If an entire enum is inaccessible, the merge returns `null`.
+
+_Inaccessible Enums_
+
+If any enum in the input set is marked `@inaccessible`, the entire merge
+operation is invalid. The algorithm immediately returns `null`, since that type
+cannot appear in the composed schema.
+
+_Single vs. Multiple Enum Definitions_
+
+When only one enum definition is present (after removing any inaccessible ones),
+it is used as is, except that any values marked with `@inaccessible` are
+excluded.
+
+However, if an enum appears in multiple schemas, the enums must match exactly in
+their values and structure unless some values are excluded using the
+`@inaccessible` directive. This behavior is enforced by prior validation but is
+important to note as it determines how mismatched enums are handled.
+
+_Combining Descriptions_
+
+The first non-`null` description encountered among the enums is used for the
+final definition. If no definitions supply a description, the merged enum will
+have none.
+
+**Examples**
+
+Here, two `Status` enums from different schemas are merged into a single
+composed `Status` enum. The enums are identical, so the composed enum exactly
+matches the source enums.
+
+```graphql example
+# Schema A
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+# Schema B
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+# Composed Result
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+```
+
+If the enums differ in their values, the source schemas **must** define their
+unique values as `@inaccessible` to exclude them from the composed enum.
+
+```graphql example
+# Schema A
+
+enum Status {
+  ACTIVE @inaccessible
+  INACTIVE
+}
+
+# Schema B
+
+enum Status {
+  PENDING @inaccessible
+  INACTIVE
+}
+
+# Composed Result
+
+enum Status {
+  INACTIVE
+}
+```
+
+#### Merge Union Types
+
+**Formal Specification**
+
+MergeUnionTypes(unions):
+
+- If any {union} in {unions} is marked with `@inaccessible`
+  - Return {null}
+- Let {firstUnion} be the first union in {unions}.
+- Let {name} be the name of {firstUnion}.
+- Let {description} be the description of {firstUnion}.
+- Let {possibleTypes} be an empty set.
+- For each {union} in {unions}:
+  - If {description} is {null}:
+    - Set {description} to the description of {union}.
+  - For each {possibleType} in the possible types of {union}:
+    - If {possibleType} is not marked with `@inaccessible` or `@internal`:
+      - Add {possibleType} to {possibleTypes}.
+- If {possibleTypes} is empty:
+  - Return {null}
+- Return a new union with the name of {name}, description of {description}, and
+  possible types of {possibleTypes}.
+
+**Explanatory Text**
+
+{MergeUnionTypes(unions)} aggregates multiple union type definitions that share
+the _same name_ into one unified union type. This process skips any union marked
+with `@inaccessible` and excludes possible types marked with `@inaccessible` or
+`@internal`.
+
+_Inaccessible Unions_
+
+If any union in the input list is marked `@inaccessible`, the merged result must
+be `null` and cannot appear in the final schema.
+
+_Combining Descriptions_
+
+The first non-empty description that is found is used as the description for the
+merged union. If no descriptions are found, the merged union will have no
+description.
+
+_Combining Possible Types_
+
+Each union's possible types are considered in turn. Only those that are _not_
+marked `@internal` or `@inaccessible` are included in the final composed union.
+This preserves the valid types from all sources while systematically filtering
+out anything inaccessible or intended for internal use only.
+
+In case there are no possible types left after filtering, the merged union is
+considered `@inaccessible` and cannot appear in the final schema.
+
+**Examples**
+
+Here, two `SearchResult` union types from different schemas are merged into a
+single composed `SearchResult` type.
+
+```graphql example
+# Schema A
+
+union SearchResult = Product | Order
+
+# Schema B
+
+union SearchResult = User | Order
+
+# Composed Result
+
+union SearchResult = Product | Order | User
+```
+
+In this example, the `SearchResult` union type from two schemas is merged. The
+`Order` type is shared across both schemas, while `Product` and `User` types are
+contributed by the individual source schemas. The resulting composed type
+includes all valid possible types.
+
+Another example shows how `@inaccessible` on a possible affects the merge:
+
+```graphql example
+# Schema A
+
+union SearchResult = Product | Order
+
+type Product @inaccessible {
+  id: ID!
+}
+
+# Schema B
+
+union SearchResult = User | Order
+
+# Composed Result
+
+union SearchResult = Order | User
+```
+
+In this case, the `Product` type is marked with `@inaccessible` in the first
+schema. As a result, the `Product` type is excluded from the composed
+`SearchResult`
+
+#### Merge Input Types
+
+**Formal Specification**
+
+MergeInputTypes(types):
+
+- If any {type} in {types} is marked with `@inaccessible`
+  - Return {null}
+- Let {firstType} be the first type in {types}.
+- Let {typeName} be the name of {firstType}.
+- Let {description} be the description of {firstType}.
+- Let {fields} be an empty set.
+- For each {type} in {types}:
+  - If {description} is {null}:
+    - Set {description} to the description of {type}.
+- Let {fieldNames} be the set of all field names in {types}.
+- For each {fieldName} in {fieldNames}:
+  - Let {field} be the set of fields with the name {fieldName} in {types}.
+  - Let {mergedField} be the result of {MergeInputField(fields)}.
+  - If {mergedField} is not {null}:
+    - Add {mergedField} to {fields}.
+
+**Explanatory Text**
+
+The {MergeInputTypes(types)} algorithm produces a single input type definition
+by unifying multiple input types that share the _same name_. Each of these input
+types may come from different sources, yet must align into one coherent
+definition. Any type marked `@inaccessible` disqualifies the entire merge result
+from inclusion in the composed schema.
+
+_Inaccessible Types_
+
+If an input type is annotated with `@inaccessible`, the algorithm immediately
+returns `null`. Including an inaccessible type would mean exposing a field
+that's not allowed in the composed schema.
+
+_Combining Descriptions_
+
+The first non-`null` description encountered is used for the final input type.
+If no such description exists among the source types, the resulting input type
+definition has no description.
+
+_Merging Fields_
+
+After filtering out inaccessible types, the algorithm merges each input field
+name found across the remaining types. For each field, {MergeInputField(fields)}
+is called to reconcile differences in type, nullability, default values, etc..
+If a merged field ends up being `null` - for instance, because one of its
+underlying definitions was inaccessible - that field is not included in the
+final definition. The end result is a single input type that correctly unifies
+every compatible field from the various sources.
+
+**Examples**
+
+Here, two `OrderInput` input types from different schemas are merged into a
+single composed `OrderInput` type.
+
+```graphql example
+# Schema A
+
+input OrderInput {
+  id: ID!
+  description: String
+}
+
+# Schema B
+
+input OrderInput {
+  id: ID!
+  total: Float
+}
+
+# Composed Result
+
+input OrderInput {
+  id: ID!
+  description: String
+  total: Float
+}
+```
+
+In this example, the `OrderInput` type from two schemas is merged. The `id`
+field is shared across both schemas, while `description` and `total` fields are
+contributed by the individual source schemas. The resulting composed type
+includes all fields.
+
+Another example demonstrates preserving descriptions during merging:
+
+```graphql example
+# Schema A
+
+"""
+First Description
+"""
+input OrderInput {
+  id: ID!
+}
+
+# Schema B
+
+"""
+Second Description
+"""
+input OrderInput {
+  id: ID!
+}
+
+# Composed Result
+
+"""
+First Description
+"""
+input OrderInput {
+  id: ID!
+}
+```
+
+In this case, the description from the first schema is retained, while the
+fields are merged from both schemas to create the final `OrderInput` type.
+
+#### Merge Object Types
+
+**Formal Specification**
+
+MergeObjectTypes(types):
+
+- If any {type} in {types} is marked with `@inaccessible`
+  - Return {null}
+- Remove all types marked with `@internal` from {types}.
+- Let {firstType} be the first type in {types}.
+- Let {typeName} be the name of {firstType}.
+- Let {description} be the description of {firstType}.
+- Let {fields} be an empty set.
+- For each {type} in {types}:
+  - If {description} is {null}:
+    - Set {description} to the description of {type}.
+- Let {fieldNames} be the set of all field names in {types}.
+- For each {fieldName} in {fieldNames}:
+  - Let {field} be the set of fields with the name {fieldName} in {types}.
+  - Let {mergedField} be the result of {MergeOutputField(fields)}.
+  - If {mergedField} is not {null}:
+    - Add {mergedField} to {fields}.
+- Return a new object type with the name of {typeName}, description of
+  {description}, fields of {fields}.
+
+**Explanatory Text**
+
+The {MergeObjectTypes(types)} algorithm combines multiple object type
+definitions (all sharing the _same name_) into a single composed type. It
+processes each candidate type, discarding any that are inaccessible or internal,
+and then unifies their descriptions and fields.
+
+_Inaccessible Types_
+
+If an object type is marked with `@inaccessible`, the entire merged result must
+be `null`; we cannot include that type in the composed schema. Inaccessible
+types are disqualified at the outset.
+
+_Internal Types_
+
+Any type marked with `@internal` is removed from consideration before merging
+begins. None of its fields or descriptions will factor into the final composed
+type.
+
+_Combining Descriptions_
+
+The first non-`null` description encountered is used for the final object type's
+description. If no non-`null` description is found, the resulting object type
+simply has no description.
+
+_Merging Fields_
+
+All remaining object types contribute their fields. The algorithm gathers every
+field name across these types, then calls {MergeOutputField(fields)} for each
+name to reconcile any differences. If {MergeOutputField(fields)} returns {null}
+(for instance, because a field is marked `@inaccessible`), that field is
+excluded from the final object type. The result is a unified set of fields that
+reflects each source definition while maintaining compatibility across them.
+
+**Examples**
+
+Here, two `Product` object types from different schemas are merged into a single
+composed `Product` type.
+
+```graphql example
+# Schema A
+
+type Product @key(fields: "id") {
+  id: ID!
+  name: String
+}
+
+# Schema B
+
+type Product @key(fields: "id") {
+  id: ID!
+  price: Int
+}
+
+# Composed Result
+
+type Product {
+  id: ID!
+  name: String
+  price: Int
+}
+```
+
+In this example, the `Product` type from two schemas is merged. The `id` field
+is shared across both schemas, while `name` and `price` fields are contributed
+by the individual source schemas. The resulting composed type includes all
+fields.
+
+Another example demonstrates preserving descriptions during merging:
+
+```graphql example
+# Schema A
+
+"""
+First Description
+"""
+type Order @key(fields: "id") {
+  id: ID!
+}
+
+# Schema B
+
+"""
+Second Description
+"""
+type Order @key(fields: "id") {
+  id: ID!
+  total: Float
+}
+
+# Composed Result
+
+"""
+First Description
+"""
+type Order {
+  id: ID!
+  total: Float
+}
+```
+
+In this case, the description from the first schema is retained, while the
+fields are merged from both schemas to create the final `Order` type.
+
+In the following example, one of the `Product` types is marked with `@internal`.
+All its fields are excluded from the composed type.
+
+```graphql example
+# Schema A
+
+type Product @key(fields: "id") {
+  id: ID!
+  name: String
+}
+
+# Schema B
+
+type Product @key(fields: "id") @internal {
+  id: ID!
+  price: Int
+}
+
+# Composed Result
+
+type Product {
+  id: ID!
+  name: String
+}
+```
+
+#### Merge Output Field
+
+**Formal Specification**
+
+MergeOutputField(fields):
+
+- If any {field} in {fields} is marked with `@inaccessible`
+  - Return {null}
+- Filter out all fields marked with `@internal` from {fields}.
+- If {fields} is empty:
+  - Return {null}
+- Let {firstField} be the first field in {fields}.
+- Let {fieldName} be the name of {firstField}.
+- Let {fieldType} be the type of {firstField}.
+- Let {description} be the description of {firstField}.
+- For each {field} in {fields}:
+  - Set {fieldType} to be the result of {LeastRestrictiveType(fieldType, type)}.
+  - If {description} is {null}:
+    - Let {description} be the description of {field}.
+- Let {arguments} be an empty set.
+- Let {argumentNames} be the set of all argument names in {fields}.
+- For each {argumentName} in {argumentNames}:
+  - Let {arguments} be the set of arguments with the name {argumentName} in
+    {fields}.
+  - Let {mergedArgument} be the result of {MergeArgumentDefinitions(arguments)}.
+  - If {mergedArguments} is not {null}:
+    - Add {mergedArgument} to {arguments}.
+- Return a new field with the name of {fieldName}, type of {fieldType},
+  arguments of {arguments}, and description of {description}.
+
+**Explanatory Text**
+
+The {MergeOutputField(fields)} algorithm is used when multiple fields across
+different object or interface types share the same field name and must be merged
+into a single composed field. This algorithm ensures that the final composed
+schema has one definitive definition for that field, resolving differences in
+type, description, and arguments.
+
+_Inaccessible Fields_
+
+If any of the fields is marked with `@inaccessible`, the entire merged field is
+discarded by returning `null`. A field that cannot be exposed in a composed
+schema prevents the field from being composed at all.
+
+_Internal Fields_
+
+Any field marked with `@internal` is removed from consideration before merging
+begins. This ensures that internal fields do not appear in the final composed
+schema and also do not affect the merging process. Internal fields are intended
+for internal use only and are not part of the composed schema and can collide in
+their definitions.
+
+In the case where all fields are marked with `@internal`, the field will not
+appear in the composed schema.
+
+_Combining Descriptions_
+
+The first field that defines a description is used as the description for the
+merged field. If no description is found, the merged field will have no
+description.
+
+_Determining the Field Type_
+
+The return type of the composed field is determined by invoking
+{LeastRestrictiveType(typeA, typeB)}. This helper function computes a type that
+is compatible with all the provided field types, ensuring that the composed
+schema does not break schemas expecting any of those types. For example,
+{LeastRestrictiveType(typeA, typeB)} might unify `String!` and `String` into
+`String`.
+
+_Merging Arguments_
+
+Each field can declare arguments. The algorithm collects all all argument names
+across these fields and merges them using {MergeArgumentDefinitions(arguments)},
+ensuring argument definitions remain compatible. If any of the arguments for a
+particular name is `@inaccessible`, then that argument is removed from the final
+set of arguments. Otherwise, any differences in argument type, default value, or
+description are resolved via the merging rules in
+{MergeArgumentDefinitions(arguments)}.
+
+This algorithm preserves as much information as possible from the source fields
+while ensuring they remain mutually compatible. It also systematically excludes
+fields or arguments deemed inaccessible.
+
+**Example**
+
+Imagine two schemas with a `discountPercentage` field on a `Product` type that
+slightly differ in return type:
+
+```graphql example
+# Schema A
+
+type Product {
+  """
+  Computes a discount as a percentage of the product's list price.
+  """
+  discountPercentage(percent: Int = 10): Int!
+}
+
+# Schema B
+
+type Product {
+  discountPercentage(percent: Int): Int
+}
+
+# Composed Result
+
+type Product {
+  """
+  Computes a discount as a percentage of the product's list price.
+  """
+  discountPercentage(percent: Int): Int
+}
+```
+
+#### Merge Input Field
+
+**Formal Specification**
+
+MergeInputField(fields):
+
+- If any {field} in {fields} is marked with `@inaccessible`
+  - Return null
+- Let {firstField} be the first field in {fields}.
+- Let {fieldName} be the name of {firstField}.
+- Let {fieldType} be the type of {firstField}.
+- Let {description} be the description of {firstField}.
+- Let {defaultValue} be the default value of {firstField} or undefined if none
+  exists.
+- For each {field} in {fields}:
+  - Set {fieldType} to be the result of {MostRestrictiveType(fieldType, type)}.
+  - If {defaultValue} is undefined:
+    - Set {defaultValue} to the default value of {field} or undefined if none
+      exists.
+  - If {description} is null:
+    - Let {description} be the description of {field}.
+- Return a new input field with the name of {fieldName}, type of {fieldType},
+  and description of {description} and default value of {defaultValue}.
+
+**Explanatory Text**
+
+The {MergeInputField(fields)} algorithm merges multiple input field definitions,
+all sharing the same field name, into a single composed input field. This
+ensures the final input type in a composed schema maintains a consistent type,
+description, and default value for that field. Below is a breakdown of how
+{MergeInputField(fields)} operates:
+
+_Inaccessible Fields_
+
+If any of the fields is marked with `@inaccessible`, we cannot include the field
+in the composed schema, and the merge algorithm returns `null`.
+
+_Combining Descriptions_
+
+The name of the merged field is taken from the first field in the list. The
+description is set to the first non-`null` description encountered among the
+fields. If no description is found, the merged field will have no description.
+
+_Combining Field Types_
+
+The merged field type is computed by calling {MostRestrictiveType(typeA, typeB)}
+. Unlike output fields, where {LeastRestrictiveType(typeA, typeB)} is used,
+input fields often follow stricter constraints. If one subgraph defines a field
+as non-nullable and another as nullable, the merged field type must be
+non-nullable to satisfy both schemas. {MostRestrictiveType(typeA, typeB)}
+ensures a final input type that is compatible with all definitions of that
+field.
+
+_Inheriting Default Values_
+
+If multiple fields define default values, whichever appears first in the list
+effectively _wins_. If there are non compatible default values, the pre merge
+validation has already asserted that the default values are compatible.
+
+**Examples**
+
+Suppose we have two input type definitions for the same `OrderFilter` input
+field, defined in separate schemas:
+
+```graphql example
+# Schema A
+
+input OrderFilter {
+  """
+  Filter by the minimum order total
+  """
+  minTotal: Int = 0
+}
+
+# Schema B
+
+input OrderFilter {
+  minTotal: Int!
+}
+
+# Composed Result
+
+input OrderFilter {
+  """
+  Filter by the minimum order total
+  """
+  minTotal: Int = 0
+}
+```
+
+In the final schema, `minTotal` is defined using the most restrictive type
+(`Int!`), has a default value of `0`, and includes the description from the
+original field in `Schema A`.
+
+#### Merge Argument Definitions
+
+**Formal Specification**
+
+MergeArgumentDefinitions(arguments):
+
+- If any argument in {arguments} is marked with `@inaccessible`
+  - Return null
+- Let {mergedArgument} be the first argument in {arguments} that is not marked
+  with `@require`
+- If {mergedArgument} is null
+  - Return null
+- For each {argument} in {arguments}:
+  - If {argument} is marked with `@require`
+    - Continue
+  - Set {mergedArgument} to the result of {MergeArgument(mergedArgument,
+    argument)}
+- Return {mergedArgument}
+
+**Explanatory Text**
+
+{MergeArgumentDefinitions(arguments)} merges multiple arguments that share the
+same name across different field definitions into a single composed argument
+definition.
+
+_Inaccessible Arguments_
+
+If any argument in the set is marked with `@inaccessible`, the entire argument
+definition is discarded by returning `null`. An inaccessible argument should not
+appear in the final composed schema.
+
+_Handling `@require`_
+
+The `@require` directive is used to indicate that the argument is required for
+the field to be resolved, yet it specifies it as a dependency that is resolved
+at runtime. Therefore, this argument should not affect the merge process. If
+there are only `@require` arguments in the set, the merge algorithm returns
+`null`.
+
+_Merging Arguments_
+
+All arguments that are not marked with `@require` are merged using the
+`MergeArgument` algorithm. This algorithm ensures that the final composed
+argument is compatible with all definitions of that argument, resolving
+differences in type, default value, and description.
+
+By selectively including or excluding certain arguments (via `@inaccessible` or
+`@require`), and merging differences where possible, this algorithm ensures that
+the resulting composed argument is both valid and compatible with the source
+definitions.
+
+**Example**
+
+Consider two field definitions that share the same `filter` argument, but with
+slightly different types and descriptions:
+
+```graphql example
+# Schema A
+
+type Query {
+  searchProducts(
+    """
+    Filter to apply to the search
+    """
+    filter: ProductFilter!
+  ): [Product]
+}
+
+# Schema B
+
+type Query {
+  searchProducts(
+    """
+    Search filter to apply
+    """
+    filter: ProductFilter
+  ): [Product]
+}
+
+# Composed Result
+
+type Query {
+  searchProducts(
+    """
+    Filter to apply to the search
+    """
+    filter: ProductFilter!
+  ): [Product]
+}
+```
+
+In the merged schema, the `filter` argument is defined with the most restrictive
+type (`ProductFilter!`), includes the description from the original field in
+`Schema A`, and is marked as required.
+
+#### Merge Argument
+
+**Formal Specification**
+
+MergeArgument(argumentA, argumentB):
+
+- Let {typeA} be the type of {argumentA}.
+- Let {typeB} be the type of {argumentB}.
+- Let {type} be {MostRestrictiveType(typeA, typeB)}.
+- Let {description} be the description of {argumentA} or undefined if none
+  exists.
+- If {description} is undefined:
+  - Let {description} be the description of {argumentB}.
+- Let {defaultValue} be the default value of {argumentA} or undefined if none
+  exists.
+- If {defaultValue} is undefined:
+  - Set {defaultValue} to the default value of {argumentB} or undefined if none
+    exists.
+- Return a new argument with the name of {argumentA}, type of {type}, and
+  description of {description}.
+
+**Explanatory Text**
+
+{MergeArgument(argumentA, argumentB)} takes two arguments with the same name but
+possibly differing in type, description, or default value, and returns a single,
+unified argument definition.
+
+_Unifying the Type_
+
+The algorithm uses {MostRestrictiveType(typeA, typeB)} to determine the final
+argument type. For input positions (like arguments), the most restrictive type
+is needed to ensure that the merged argument type accepts all values the sources
+demand. For instance, if one argument type is `String!` and the other is
+`String`, the merged type must be `String!` so that it remains valid from both
+perspectives.
+
+_Choosing the Description_
+
+The description of the first argument is used if it is defined, otherwise the
+description of the second argument is used.
+
+_Inheriting the Default Value_
+
+The algorithm takes the first defined default value it encounters. Pre-merge
+validation has already asserted that any differing defaults are compatible.
+
+**Examples**
+
+Suppose we have two variants of the same argument, `limit`, from different
+services:
+
+**Service A**
+
+```graphql example
+# Schema A
+
+limit: Int = 10
+
+# Schema B
+
+"""
+Number of items to fetch
+"""
+limit: Int!
+
+# Composed Result
+
+"""
+Number of items to fetch
+"""
+limit: Int! = 10
+```
+
+#### Least Restrictive Type
+
+**Formal Specification**
+
+LeastRestrictiveType(typeA, typeB):
+
+- Let {isNullable} be true.
+- If {typeA} and {typeB} are non nullable types:
+  - Set {isNullable} to false.
+- If {typeA} is a non nullable type:
+  - Set {typeA} to the inner type of {typeA}.
+- If {typeB} is a non nullable type:
+  - Set {typeB} to the inner type of {typeB}.
+- If {typeA} is a list type:
+  - Assert: {typeB} is a list type.
+  - Let {innerTypeA} be the inner type of {typeA}.
+  - Let {innerTypeB} be the inner type of {typeB}.
+  - Let {innerType} be {LeastRestrictiveType(innerTypeA, innerTypeB)}.
+  - If {isNullable} is true:
+    - Return {innerType} as a nullable list type.
+  - Otherwise:
+    - Return {innerType} as a non nullable list type.
+- Otherwise:
+  - Assert: {typeA} is equal to {typeB}
+  - If {isNullable} is true:
+    - Return {typeA} as a nullable type.
+  - Otherwise:
+    - Return {typeA} as a non nullable type.
+
+**Explanatory Text**
+
+{LeastRestrictiveType(typeA, typeB)} identifies a single type that safely
+handles all possible _runtime values_ produced by the sources defining `typeA`
+and `typeB`. If one source can return `null` while another cannot, the merged
+type becomes nullable to avoid runtime exceptions - because a strictly non-null
+signature would be violated whenever `null` appears. Similarly, if both sources
+enforce non-null, the result remains non-null.
+
+_Nullability_
+
+When merging types of differing nullability (e.g., one `String!` vs. another
+`String`), the presence of a nullable type in one source effectively dictates
+that the final type must accept `null`. If either source can produce `null`, a
+strictly non-null field would break the contract if `null` were ever returned.
+
+_Lists_
+
+If both sources provide a list type, then the function unifies those list types
+by merging their inner types (e.g., the element type of the list). Whether the
+list itself is nullable depends on whether both sources treat the list as
+non-null. In other words, if any source can return `null` for the list, the
+final list type must also be nullable.
+
+_Scalar Types_
+
+When neither source specifies a list type, the algorithm confirms that both
+sources refer to the _same_ underlying named type (e.g., `String` vs. `String`).
+If they differ (e.g., `String` vs. `Int`), the schemas are fundamentally
+incompatible for merging, yet the pre merge validation should have already
+caught this issue.
+
+**Examples**
+
+In the following scenario, one source might return `null`, so the resulting
+merged type must allow `null`.
+
+```graphql example
+# Schema A
+typeA: String!
+
+# Schema B
+typeB: String
+
+# Merged Result
+type: String
+```
+
+Here, both sources use lists of `Int`, but they differ in nullability.
+Consequently, the merged list type is `[Int]`, which permits a `null` list or
+`null` elements.
+
+```graphql example
+# Schema A
+typeA: [Int]!
+
+# Schema B
+typeB: [Int!]
+
+# Merged Result
+type: [Int]
+```
+
+#### Most Restrictive Type
+
+**Formal Specification**
+
+MostRestrictiveType(typeA, typeB):
+
+- Let {isNullable} be false.
+- If {typeA} and {typeB} are nullable types:
+  - Set {isNullable} to true.
+- If {typeA} is a non nullable type:
+  - Set {typeA} to the inner type of {typeA}.
+- If {typeB} is a non nullable type:
+  - Set {typeB} to the inner type of {typeB}.
+- If {typeA} is a list type:
+  - Assert: {typeB} is a list type.
+  - Let {innerTypeA} be the inner type of {typeA}.
+  - Let {innerTypeB} be the inner type of {typeB}.
+  - Let {innerType} be {MostRestrictiveType(innerTypeA, innerTypeB)}.
+  - If {isNullable} is true:
+    - Return {innerType} as a nullable list type.
+  - Otherwise:
+    - Return {innerType} as a non nullable list type.
+- Otherwise
+  - Assert: {typeA} is equal to {typeB}
+  - If {isNullable} is true:
+    - Return {typeA} as a nullable type.
+  - Otherwise:
+    - Return {typeA} as a non nullable type.
+
+**Explanatory Text**
+
+{MostRestrictiveType(typeA, typeB)} determines a single input type that strictly
+honors the constraints of both sources. If either source requires a non-null
+value, the merged type also becomes non-null so that no invalid (e.g., `null`)
+data can be introduced at runtime. Conversely, if both sources allow `null`, the
+merged type remains nullable. The same principle applies to list types, where
+the more restrictive settings (non-null list or non-null elements) is used.
+
+_Nullability_
+
+For input fields, if either source are non null, it's unsafe to allow `null` in
+the merged schema. Consequently, when one type is non-nullable (`String!`) and
+the other is nullable (`String`), the resulting type is non-nullable
+(`String!`). Only if _both_ types are explicitly nullable does the merged type
+remain nullable (e.g., `String`).
+
+_Lists_
+
+When merging list types, both sources must be lists. Inside the list, the same
+merging logic applies: if either source disallows `null` elements (e.g.,
+`[Int!]` vs. `[Int]`), the final merged list also disallows `null` elements to
+avoid unexpected runtime failures. If both lists can have `null` elements, then
+the merged list similarly allows `null`.
+
+_Scalar Types_
+
+Like other merging steps, if the underlying base types (e.g., `String` vs.
+`Int`) differ, the types cannot be reconciled. A merged schema cannot
+reinterpret `String` as `Int`, so the process fails if there's a fundamental
+mismatch. This should already be caught by the pre merge validation.
+
+**Examples**
+
+Here, because one source disallows `null`, the final merged type must also
+disallow `null` to avoid a situation where a `null` could be passed where it
+isn't allowed:
+
+```graphql example
+# Schema A
+typeA: String!
+
+# Schema B
+typeB: String
+
+# Merged Result
+type: String!
+```
+
+In the following example, since one definition mandates non-null items
+(`[Int!]`), it is _more restrictive_ and prevents `null` elements in the list.
+Additionally, the other source mandates a non-null list (`[Int]!`). The merged
+result, `[Int!]!`, preserves these constraints to ensure the field does not
+accept or produce values that violate either source.
+
+```graphql example
+# Schema A
+typeA: [Int!]
+
+# Schema B
+typeB: [Int]!
+
+# Merged Result
+type: [Int!]!
+```
 
 ### Post Merge Validation
 
@@ -3537,7 +4789,7 @@ requiring unknown fields break the valid usage of `@require`, leading to a
 
 **Examples**
 
-In the following example, the `@require` directive’s `fields` argument is a
+In the following example, the `@require` directive's `fields` argument is a
 valid selection set and satisfies the rule.
 
 ```graphql example
@@ -3616,8 +4868,8 @@ ValidateSelectionSet(selectionSet, parentType):
 
 Even if the `@provides(fields: "…")` argument is well-formed syntactically, the
 selected fields must actually exist on the return type of the field. Invalid
-field references— e.g., selecting non-existent fields, referencing fields on the
-wrong type, or incorrectly omitting required nested selections—lead to a
+field references- e.g., selecting non-existent fields, referencing fields on the
+wrong type, or incorrectly omitting required nested selections-lead to a
 `PROVIDES_INVALID_FIELDS` error.
 
 **Examples**
