@@ -3179,6 +3179,126 @@ input BookFilter {
 In this invalid case, `title` is mandatory in Schema A but not defined in
 `Schema B`, causing inconsistency in required fields across schemas.
 
+#### Output Field Argument Types Mergeable
+
+**Error Code**
+
+`OUTPUT_FIELD_ARGUMENT_TYPES_NOT_MERGEABLE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {typeNames} be the set of all output type names from all source schemas.
+- For each {typeName} in {typeNames}
+  - Let {types} be the set of all types with the {typeName} from all source
+    schemas.
+  - Let {fieldNames} be the set of all field names from all {types}.
+  - For each {fieldName} in {fieldNames}
+    - Let {fields} be the set of all fields with the {fieldName} from all
+      {types}.
+    - For each {field} in {fields}
+      - Let {argumentNames} be the set of all argument names from all {fields}.
+      - For each {argumentName} in {argumentNames}
+        - Let {arguments} be the set of all arguments with the {argumentName}
+          from all {fields}.
+        - For each pair of {argumentA} and {argumentB} in {arguments}
+          - {ArgumentsAreMergeable(argumentA, argumentB)} must be true.
+
+ArgumentsAreMergeable(argumentA, argumentB):
+
+- Let {typeA} be the type of {argumentA}
+- Let {typeB} be the type of {argumentB}
+- {InputTypesAreMergeable(typeA, typeB)} must be true.
+
+**Explanatory Text**
+
+When multiple schemas define the same field name on the same output type (e.g.,
+`User.field`), these fields can be merged if their arguments are compatible.
+Compatibility extends not only to the output field types themselves, but to each
+argument's input type as well. The schemas must agree on each argument's name
+and have compatible types, so that the composed schema can unify the definitions
+into a single consistent field specification.
+
+_Nullability_
+
+Different nullability requirements on arguments are still considered mergeable.
+For example, if one schema accepts `String!` and the other accepts `String`,
+these schemas can merge; the resulting argument type typically adopts the least
+restrictive (nullable) version.
+
+_Lists_ Lists of different nullability (e.g., `[String!]` vs. `[String]!` vs.
+`[String]`) remain mergeable as long as they otherwise refer to the same inner
+type. Essentially, the same principle of “least restrictive” nullability merges
+them successfully.
+
+_Incompatible Types_
+
+If argument types differ on the named type itself - for example, one uses
+`String` while the other uses `DateTime` - this causes an
+`OUTPUT_FIELD_ARGUMENT_TYPES_NOT_MERGEABLE` error. Similarly, if one schema has
+`[String]` but another has `[DateTime]`, they are incompatible.
+
+```graphql example
+type User {
+  field(argument: String): String
+}
+
+type User {
+  field(argument: String): String
+}
+```
+
+Arguments that differ on nullability of an argument type are mergeable.
+
+```graphql example
+type User {
+  field(argument: String!): String
+}
+
+type User {
+  field(argument: String): String
+}
+```
+
+```graphql example
+type User {
+  field(argument: [String!]): String
+}
+
+type User {
+  field(argument: [String]!): String
+}
+
+type User {
+  field(argument: [String]): String
+}
+```
+
+Arguments are not mergeable if the named types are different in kind or name.
+
+```graphql counter-example
+type User {
+  field(argument: String!): String
+}
+
+type User {
+  field(argument: DateTime): String
+}
+```
+
+```graphql counter-example
+type User {
+  field(argument: [String]): String
+}
+
+type User {
+  field(argument: [DateTime]): String
+}
+```
+
 ### Merge
 
 During this stage, all definitions from each source schema are combined into a
