@@ -37,7 +37,7 @@ ERROR
 
 - Let `{requiredFields}` be the intersection of all required field names across all input objects in `{inputs}`.
 - For each `{input}` in `{inputs}`:
-  - Let `{inputFields}` be the set of all field names in of required fields in `{input}`.
+  - Let `{inputFields}` be the set of all field names of required fields in `{input}`.
   - `{inputFields}` must equal `{requiredFields}`.
 
 **Explanatory Text**
