@@ -5578,6 +5578,184 @@ input BookFilter {
 }
 ```
 
+#### Non-Null Input Fields cannot be inaccessible
+
+**Error Code**
+
+`NON_NULL_INPUT_FIELD_IS_INACCESSIBLE`
+
+**Formal Specification**
+
+- Let {fields} be the set of all fields across all input types in all source
+  schemas.
+- For each {field} in {fields}:
+  - If {field} is a non-null input field:
+    - Let {coordinate} be the coordinate of {field}.
+    - {coordinate} must be in the composite schema.
+
+**Explanatory Text**
+
+When an input field is declared as non-null in any source schema, it imposes a
+hard requirement: queries or mutations that reference this field _must_ provide
+a value for it. If the field is then marked as `@inaccessible` or removed during
+schema composition, the final schema would still implicitly demand a value for a
+field that no longer exists in the composed schema, making it impossible to
+fulfill the requirement.
+
+As a result:
+
+- **Nullable** (optional) fields can be hidden or removed without invalidating
+  the composed schema, because the user is never _required_ to supply a value
+  for them.
+- **Non-null** (required) fields, however, must remain exposed in the composed
+  schema so that users can provide values for those fields. Hiding a required
+  input field breaks the schema contract and leads to an invalid composition.
+
+**Examples**
+
+The following is valid because the `age` field, although `@inaccessible` in one
+source schema, is nullable and can be safely omitted in the final schema without
+breaking any mandatory input requirement.
+
+```graphql example
+# Schema A
+input BookFilter {
+  author: String!
+  age: Int @inaccessible
+}
+
+# Schema B
+input BookFilter {
+  author: String!
+  age: Int
+}
+
+# Composite Schema
+input BookFilter {
+  author: String!
+}
+```
+
+Another valid case is when a nullable input field is removed during merging:
+
+```graphql example
+# Schema A
+input BookFilter {
+  author: String!
+  age: Int
+}
+
+# Schema B
+input BookFilter {
+  author: String!
+}
+
+# Composite Schema
+input BookFilter {
+  author: String!
+}
+```
+
+An invalid case is when a non-null input field is inaccessible:
+
+```graphql counter-example
+# Schema A
+input BookFilter {
+  author: String!
+  age: Int!
+}
+
+# Schema B
+input BookFilter {
+  author: String!
+  age: Int @inaccessible
+}
+
+# Composite Schema
+input BookFilter {
+  author: String!
+}
+```
+
+Another invalid case is when a non-null input field is removed during merging:
+
+```graphql counter-example
+# Schema A
+input BookFilter {
+  author: String!
+  age: Int!
+}
+
+# Schema B
+input BookFilter {
+  author: String!
+}
+
+# Composite Schema
+input BookFilter {
+  author: String!
+}
+```
+
+#### Input Fields cannot reference inaccessible type
+
+**Error Code**
+
+INPUT_FIELD_REFERENCES_INACCESSIBLE_TYPE
+
+**Formal Specification**
+
+- Let {fields} be the set of all fields of the input types
+- For each {field} in {fields}:
+  - If {field} is not declared as `@inaccessible`
+    - Let {namedType} be the named type that {field} references
+    - {namedType} must not be declared as `@inaccessible`
+
+**Explanatory Text**
+
+In a composed schema, a field within an input type must only reference types
+that are exposed. This requirement guarantees that public types do not reference
+inaccessible structures which are intended for internal use.
+
+A valid case where a public input field references another public input type:
+
+```graphql example
+input Input1 {
+  field1: String!
+  field2: Input2
+}
+
+input Input2 {
+  field3: String
+}
+```
+
+Another valid case is where the field is not exposed in the composed schema:
+
+```graphql example
+input Input1 {
+  field1: String!
+  field2: Input2 @inaccessible
+}
+
+input Input2 @inaccessible {
+  field3: String
+}
+```
+
+An invalid case is when an input field references an inaccessible type:
+
+```graphql counter-example
+input Input1 {
+  field1: String!
+  field2: Input2!
+}
+
+input Input2 @inaccessible {
+  field3: String
+}
+```
+
 ## Validate Satisfiability
 
 The final step confirms that the composite schema supports executable queries
