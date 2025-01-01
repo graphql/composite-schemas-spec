@@ -341,7 +341,7 @@ ERROR
       - For each {argumentName} in {argumentNames}
         - Let {arguments} be the set of all arguments with the name
           {argumentName} from all fields in {fields}.
-        - Let {defaultValues} be the all default values found in {arguments}.
+        - Let {defaultValues} be all the default values found in {arguments}.
         - Let {externalArguments} be the set of all arguments with the name
           {argumentName} from all fields in {externalFields}.
         - For each {externalArgument} in {externalArguments}
