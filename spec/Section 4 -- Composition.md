@@ -3196,8 +3196,8 @@ ERROR
 - For each {typeName} in {typeNames}
   - Let {types} be the set of all types with the {typeName} from all source
     schemas that are not declared as `@internal`.
-  - Let {fieldNames} be the set of all field names from all {types} that are
-    not declared as `@inaccessible` in any schema.
+  - Let {fieldNames} be the set of all field names from all {types} that are not
+    declared as `@inaccessible` in any schema.
   - For each {fieldName} in {fieldNames}
     - Let {fields} be the set of all fields with the {fieldName} from all
       {types} that are not declared as `@internal`.
