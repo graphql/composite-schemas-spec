@@ -3230,12 +3230,12 @@ All schemas agree on having a required argument `author` for the `books` field:
 ```graphql example
 # Schema A
 type Query {
-  books(author: String!): [Book]
+  books(author: String!): [Book] @shareable
 }
 
 # Schema B
 type Query {
-  books(author: String!): [Book]
+  books(author: String!): [Book] @shareable
 }
 ```
 
@@ -3269,18 +3269,18 @@ schema but not in the other. This will result in a
 ```graphql counter-example
 # Schema A
 type Query {
-  books(author: String!): [Book]
+  books(author: String!): [Book] @shareable 
 }
 
 # Schema B
 type Query {
-  books: [Book]
+  books: [Book] @shareable
 }
 ```
 
 In the following counter-example, the `author` argument on the `books` field in
 Schema A specifies a dependency on the `author` field in Schema C. The `author`
-argument on the `books` field in Schema B is **NOT** optional. This will result
+argument on the `books` field in Schema B is **not** optional. This will result
 in a `REQUIRED_ARGUMENT_MISSING_IN_SOME_SCHEMA` error.
 
 ```graphql counter-example
