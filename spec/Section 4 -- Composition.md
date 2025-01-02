@@ -2866,16 +2866,17 @@ requirement that a `@lookup` field must return a single object.
   - Let {defaultValues} be a set containing the default values of each input
     field in {inputFields}.
   - If the size of {defaultValues} is greater than 1:
-    - {InputFieldsHaveConsistentDefaults(inputFields)} must be false.
+    - {InputFieldsHaveConsistentDefaults(inputFields)} must be {true}.
 
 InputFieldsHaveConsistentDefaults(inputFields):
 
 - Given each pair of input fields {inputFieldA} and {inputFieldB} in
   {inputFields}:
-  - If the default value of {inputFieldA} is not equal to the default value of
-    {inputFieldB}:
-    - return false
-- return true
+  - If {inputFieldA} has a default value and {inputFieldB} has a default value:
+    - If the default value of {inputFieldA} is not equal to the default value of
+      {inputFieldB}:
+    - return {false}
+- return {true}
 
 **Explanatory Text**
 
@@ -2914,7 +2915,7 @@ enum Genre {
 }
 ```
 
-In the following example both source schemas define an input field
+In the following counter-example both source schemas define an input field
 `minPageCount` with different default values. This is invalid:
 
 ```graphql counter-example
