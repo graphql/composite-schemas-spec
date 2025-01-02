@@ -3186,6 +3186,7 @@ In this invalid case, `title` is mandatory in Schema A but not defined in
 `REQUIRED_ARGUMENT_MISSING_IN_SOME_SCHEMA`
 
 **Severity:**  
+
 ERROR
 
 **Formal Specification:**
