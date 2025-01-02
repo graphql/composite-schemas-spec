@@ -3262,7 +3262,7 @@ type Collection {
 }
 ```
 
-In the following counter example, the `author` argument is required in one
+In the following counter-example, the `author` argument is required in one
 schema but not in the other. This will result in a
 `REQUIRED_ARGUMENT_MISSING_IN_SOME_SCHEMA` error.
 
