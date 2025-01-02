@@ -2889,7 +2889,7 @@ different source schemas will result in a schema composition error.
 
 **Examples**
 
-In the the following example both source schemas have an input field `field1`
+In the the following example both source schemas have an input field `genre`
 with the same default value. This is valid:
 
 ```graphql example
@@ -2897,6 +2897,32 @@ with the same default value. This is valid:
 
 input BookFilter {
   genre: Genre = FANTASY
+}
+
+enum Genre {
+  FANTASY
+  SCIENCE_FICTION
+}
+
+# Schema B
+input BookFilter {
+  genre: Genre = FANTASY
+}
+
+enum Genre {
+  FANTASY
+  SCIENCE_FICTION
+}
+```
+
+If only one of the source schemas defines a default value for a given input field, 
+the composition is still valid:
+
+```graphql example
+# Schema A
+
+input BookFilter {
+  genre: Genre 
 }
 
 enum Genre {
