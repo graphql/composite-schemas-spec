@@ -2875,7 +2875,7 @@ InputFieldsHaveConsistentDefaults(inputFields):
   - If {inputFieldA} has a default value and {inputFieldB} has a default value:
     - If the default value of {inputFieldA} is not equal to the default value of
       {inputFieldB}:
-    - return {false}
+      - return {false}
 - return {true}
 
 **Explanatory Text**
