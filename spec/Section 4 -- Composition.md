@@ -2915,14 +2915,14 @@ enum Genre {
 }
 ```
 
-If only one of the source schemas defines a default value for a given input field, 
-the composition is still valid:
+If only one of the source schemas defines a default value for a given input
+field, the composition is still valid:
 
 ```graphql example
 # Schema A
 
 input BookFilter {
-  genre: Genre 
+  genre: Genre
 }
 
 enum Genre {
