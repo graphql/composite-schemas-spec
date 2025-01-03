@@ -385,10 +385,14 @@ mediaById<Book>.isbn
 
 SelectedValue ::
 
-- Path
-- SelectedObjectValue
+- SelectedValue | SelectedValueEntry
+- `|`? SelectedValueEntry
+
+SelectedValueEntry ::
+- Path [lookahead != `.`]
 - Path . SelectedObjectValue
-- SelectedValue | SelectedValue
+- Path SelectedListValue
+- SelectedObjectValue
 
 A {SelectedValue} is defined as either a {Path} or a {SelectedObjectValue}
 
@@ -471,6 +475,7 @@ type Product {
 SelectedListValue ::
 
 - [ SelectedValue ]
+- [ SelectedListValue ]
 
 A {SelectedListValue} is an ordered list of {SelectedValue} wrapped in square
 brackets `[]`. It is used to express semantic equivalence between an argument
