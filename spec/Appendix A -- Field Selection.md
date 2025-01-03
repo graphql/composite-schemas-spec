@@ -429,6 +429,7 @@ SelectedObjectValue ::
 SelectedObjectField ::
 
 - Name: SelectedValue
+- Name
 
 {SelectedObjectValue} are unordered lists of keyed input values wrapped in
 curly-braces `{}`. It has to be used when the expected input type is an object
