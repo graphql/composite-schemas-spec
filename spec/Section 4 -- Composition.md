@@ -2950,23 +2950,7 @@ InputFieldsAreMergeable(fields):
 - Given each pair of members {fieldA} and {fieldB} in {fields}:
   - Let {typeA} be the type of {fieldA}.
   - Let {typeB} be the type of {fieldB}.
-  - {InputTypesAreMergeable(typeA, typeB)} must be true.
-
-InputTypesAreMergeable(typeA, typeB):
-
-- If {typeA} is a non nullable type:
-  - Set {typeA} to the inner type of {typeA}.
-- If {typeB} is a non nullable type:
-  - Set {typeB} to the inner type of {typeB}.
-- If {typeA} is a list type:
-  - If {typeB} is not list type.
-    - Return false.
-  - Let {innerTypeA} be the inner type of {typeA}.
-  - Let {innerTypeB} be the inner type of {typeB}.
-  - Return {InputTypesAreMergeable(innerTypeA, innerTypeB)}.
-- If {typeA} is equal to {typeB}
-  - return true
-- Otherwise return false.
+  - {SameTypeShape(typeA, typeB)} must be true.
 
 **Explanatory Text**
 
