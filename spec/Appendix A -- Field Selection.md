@@ -389,6 +389,7 @@ SelectedValue ::
 - `|`? SelectedValueEntry
 
 SelectedValueEntry ::
+
 - Path [lookahead != `.`]
 - Path . SelectedObjectValue
 - Path SelectedListValue
