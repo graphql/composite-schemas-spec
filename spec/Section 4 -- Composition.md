@@ -1159,10 +1159,12 @@ type User @key(fields: "id tags") {
 
 #### Key Invalid Syntax
 
-**Error Code**  
+**Error Code**
+
 `KEY_INVALID_SYNTAX`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -1602,11 +1604,11 @@ ERROR
 **Explanatory Text**
 
 The `@require` directive is used to specify fields on the same type that an
-argument depends on in order to resolve the annotated field.  
-When using `@require(fields: "…")`, the `fields` argument must be a valid
-selection set string **without** any additional directive applications.  
-Applying a directive (e.g., `@lowercase`) inside this selection set is not
-supported and triggers the `REQUIRE_DIRECTIVE_IN_FIELDS_ARG` error.
+argument depends on in order to resolve the annotated field. When using
+`@require(fields: "…")`, the `fields` argument must be a valid selection set
+string **without** any additional directive applications. Applying a directive
+(e.g., `@lowercase`) inside this selection set is not supported and triggers the
+`REQUIRE_DIRECTIVE_IN_FIELDS_ARG` error.
 
 **Examples**
 
@@ -1821,10 +1823,12 @@ input FieldSelectionMap {
 
 #### Type Kind Mismatch
 
-**Error Code**  
+**Error Code**
+
 `TYPE_KIND_MISMATCH`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -1898,10 +1902,12 @@ extend input User {
 
 #### Provides Invalid Syntax
 
-**Error Code**  
+**Error Code**
+
 `PROVIDES_INVALID_SYNTAX`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -1951,10 +1957,12 @@ type User @key(fields: "id") {
 
 #### Invalid GraphQL
 
-**Error Code**  
+**Error Code**
+
 `INVALID_GRAPHQL`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -2030,10 +2038,12 @@ type Product {
 
 #### Override Collision with Another Directive
 
-**Error Code**  
+**Error Code**
+
 `OVERRIDE_COLLISION_WITH_ANOTHER_DIRECTIVE`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -2100,10 +2110,12 @@ type Payment {
 
 #### Override from Self Error
 
-**Error Code**  
+**Error Code**
+
 `OVERRIDE_FROM_SELF_ERROR`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -2160,10 +2172,12 @@ type Bill {
 
 #### Override on Interface
 
-**Error Code**  
+**Error Code**
+
 `OVERRIDE_ON_INTERFACE`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -2223,10 +2237,12 @@ interface Bill {
 
 #### Override Source Has Override
 
-**Error Code**  
+**Error Code**
+
 `OVERRIDE_SOURCE_HAS_OVERRIDE`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -2364,10 +2380,12 @@ type Bill {
 
 #### External Collision with Another Directive
 
-**Error Code**  
+**Error Code**
+
 `EXTERNAL_COLLISION_WITH_ANOTHER_DIRECTIVE`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -2465,10 +2483,12 @@ type Book {
 
 #### Key Invalid Fields Type
 
-**Error Code**  
+**Error Code**
+
 `KEY_INVALID_FIELDS_TYPE`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -2520,10 +2540,12 @@ type User @key(fields: true) {
 
 #### Provides Invalid Fields Type
 
-**Error Code**  
+**Error Code**
+
 `PROVIDES_INVALID_FIELDS_TYPE`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -2588,10 +2610,12 @@ type ProductDetails {
 
 #### Provides on Non-Composite Field
 
-**Error Code**  
+**Error Code**
+
 `PROVIDES_ON_NON_COMPOSITE_FIELD`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -2651,10 +2675,12 @@ type User {
 
 #### External on Interface
 
-**Error Code**  
+**Error Code**
+
 `EXTERNAL_ON_INTERFACE`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -5164,10 +5190,12 @@ interface InventoryItem {
 
 #### Only Inaccessible Children
 
-**Error Code**  
+**Error Code**
+
 `ONLY_INACCESSIBLE_CHILDREN`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -5406,10 +5434,12 @@ type Book {
 
 #### Provides Invalid Fields
 
-**Error Code**  
+**Error Code**
+
 `PROVIDES_INVALID_FIELDS`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
