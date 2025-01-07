@@ -3033,11 +3033,11 @@ input AuthorInput {
 }
 ```
 
-#### Enum Type Values Must Be The Same Across Source Schemas
+#### Enum Values Mismatch
 
 **Error Code**
 
-`ENUM_VALUES_MUST_BE_THE_SAME_ACROSS_SCHEMAS`
+`ENUM_VALUES_MISMATCH`
 
 **Formal Specification**
 
