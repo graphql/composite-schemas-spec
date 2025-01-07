@@ -98,7 +98,7 @@ This is an example of a non-normative note.</div>
 <li><a href="#sec-Provides-Invalid-Syntax"><span class="spec-secid">3.2.1.27</span>Provides Invalid Syntax</a></li>
 <li><a href="#sec-Invalid-GraphQL"><span class="spec-secid">3.2.1.28</span>Invalid GraphQL</a></li>
 <li><a href="#sec-Override-Collision-with-Another-Directive"><span class="spec-secid">3.2.1.29</span>Override Collision with Another Directive</a></li>
-<li><a href="#sec-Override-from-Self-Error"><span class="spec-secid">3.2.1.30</span>Override from Self Error</a></li>
+<li><a href="#sec-Override-from-Self"><span class="spec-secid">3.2.1.30</span>Override from Self</a></li>
 <li><a href="#sec-Override-on-Interface"><span class="spec-secid">3.2.1.31</span>Override on Interface</a></li>
 <li><a href="#sec-Override-Source-Has-Override"><span class="spec-secid">3.2.1.32</span>Override Source Has Override</a></li>
 <li><a href="#sec-External-Collision-with-Another-Directive"><span class="spec-secid">3.2.1.33</span>External Collision with Another Directive</a></li>
@@ -2726,18 +2726,18 @@ Key fields are always considered sharable.</div>
 </code></pre>
 </section>
 </section>
-<section id="sec-Override-from-Self-Error" secid="3.2.1.30">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L2111"><span class="spec-secid" title="link to this section"><a href="#sec-Override-from-Self-Error">3.2.1.30</a></span>Override from Self Error</h4>
-<section id="sec-Override-from-Self-Error.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L2113"><a href="#sec-Override-from-Self-Error.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L2115"><code>OVERRIDE_FROM_SELF_ERROR</code></p>
+<section id="sec-Override-from-Self" secid="3.2.1.30">
+<h4 data-source="spec/Section%204%20--%20Composition.md#L2111"><span class="spec-secid" title="link to this section"><a href="#sec-Override-from-Self">3.2.1.30</a></span>Override from Self</h4>
+<section id="sec-Override-from-Self.Error-Code" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L2113"><a href="#sec-Override-from-Self.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L2115"><code>OVERRIDE_FROM_SELF</code></p>
 </section>
-<section id="sec-Override-from-Self-Error.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L2117"><a href="#sec-Override-from-Self-Error.Severity" title="link to this subsection">Severity</a></h6>
+<section id="sec-Override-from-Self.Severity" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L2117"><a href="#sec-Override-from-Self.Severity" title="link to this subsection">Severity</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L2119">ERROR</p>
 </section>
-<section id="sec-Override-from-Self-Error.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L2121"><a href="#sec-Override-from-Self-Error.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<section id="sec-Override-from-Self.Formal-Specification" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L2121"><a href="#sec-Override-from-Self.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li data-source="spec/Section%204%20--%20Composition.md#L2123">Let <var data-name="schemas">schemas</var> be the set of all source schemas to be composed.</li>
 <li data-source="spec/Section%204%20--%20Composition.md#L2124-L2132">For each <var data-name="schema">schema</var> in <var data-name="schemas">schemas</var>:<ul>
@@ -2758,12 +2758,12 @@ Key fields are always considered sharable.</div>
 </li>
 </ul>
 </section>
-<section id="sec-Override-from-Self-Error.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L2134"><a href="#sec-Override-from-Self-Error.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L2136-L2140">When using <code>@override</code>, the <code>from</code> argument indicates the name of the source schema that originally owns the field. Overriding from the <strong>same</strong> schema creates a contradiction, as it implies both local and transferred ownership of the field within one schema. If the <code>from</code> value matches the local schema name, it triggers an <code>OVERRIDE_FROM_SELF_ERROR</code>.</p>
+<section id="sec-Override-from-Self.Explanatory-Text" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L2134"><a href="#sec-Override-from-Self.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L2136-L2140">When using <code>@override</code>, the <code>from</code> argument indicates the name of the source schema that originally owns the field. Overriding from the <strong>same</strong> schema creates a contradiction, as it implies both local and transferred ownership of the field within one schema. If the <code>from</code> value matches the local schema name, it triggers an <code>OVERRIDE_FROM_SELF</code> error.</p>
 </section>
-<section id="sec-Override-from-Self-Error.Examples" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L2142"><a href="#sec-Override-from-Self-Error.Examples" title="link to this subsection">Examples</a></h6>
+<section id="sec-Override-from-Self.Examples" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L2142"><a href="#sec-Override-from-Self.Examples" title="link to this subsection">Examples</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L2144-L2145">In the following example, <strong>Schema B</strong> overrides the field <code>amount</code> from <strong>Schema A</strong>. The two schema names are different, so no error is raised.</p>
 <pre id="example-1c62b" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L2147-L2159"><a href="#example-1c62b">Example № 99</a><code><span class="token comment"># Source Schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Bill</span> <span class="token punctuation">{</span>
@@ -2777,7 +2777,7 @@ Key fields are always considered sharable.</div>
   <span class="token attr-name">amount</span><span class="token punctuation">:</span> <span class="token scalar">Int</span> <span class="token directive function">@override</span><span class="token punctuation">(</span><span class="token attr-name">from</span><span class="token punctuation">:</span> <span class="token string">"SchemaA"</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L2161-L2163">In the following counter-example, the local schema is also <code>"SchemaA"</code>, and the <code>from</code> argument is <code>"SchemaA"</code>. Overriding a field from the same schema is not allowed, causing an <code>OVERRIDE_FROM_SELF_ERROR</code>.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L2161-L2163">In the following counter-example, the local schema is also <code>"SchemaA"</code>, and the <code>from</code> argument is <code>"SchemaA"</code>. Overriding a field from the same schema is not allowed, causing an <code>OVERRIDE_FROM_SELF</code> error.</p>
 <pre id="example-fa30e" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L2165-L2171"><a href="#example-fa30e">Counter Example № 100</a><code><span class="token comment"># Source Schema A (named "SchemaA")</span>
 <span class="token keyword">type</span> <span class="token class-name">Bill</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
@@ -6792,7 +6792,7 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <li id="_sidebar_3.2.1.27"><a href="#sec-Provides-Invalid-Syntax"><span class="spec-secid">3.2.1.27</span>Provides Invalid Syntax</a></li>
 <li id="_sidebar_3.2.1.28"><a href="#sec-Invalid-GraphQL"><span class="spec-secid">3.2.1.28</span>Invalid GraphQL</a></li>
 <li id="_sidebar_3.2.1.29"><a href="#sec-Override-Collision-with-Another-Directive"><span class="spec-secid">3.2.1.29</span>Override Collision with Another Directive</a></li>
-<li id="_sidebar_3.2.1.30"><a href="#sec-Override-from-Self-Error"><span class="spec-secid">3.2.1.30</span>Override from Self Error</a></li>
+<li id="_sidebar_3.2.1.30"><a href="#sec-Override-from-Self"><span class="spec-secid">3.2.1.30</span>Override from Self</a></li>
 <li id="_sidebar_3.2.1.31"><a href="#sec-Override-on-Interface"><span class="spec-secid">3.2.1.31</span>Override on Interface</a></li>
 <li id="_sidebar_3.2.1.32"><a href="#sec-Override-Source-Has-Override"><span class="spec-secid">3.2.1.32</span>Override Source Has Override</a></li>
 <li id="_sidebar_3.2.1.33"><a href="#sec-External-Collision-with-Another-Directive"><span class="spec-secid">3.2.1.33</span>External Collision with Another Directive</a></li>
