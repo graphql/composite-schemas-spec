@@ -110,7 +110,7 @@ This is an example of a non-normative note.</div>
 <li><a href="#sec--lookup-must-not-return-a-list"><span class="spec-secid">3.2.1.39</span>`@lookup` must not return a list</a></li>
 <li><a href="#sec-Input-Field-Default-Mismatch"><span class="spec-secid">3.2.1.40</span>Input Field Default Mismatch</a></li>
 <li><a href="#sec-Input-Field-Types-mergeable"><span class="spec-secid">3.2.1.41</span>Input Field Types mergeable</a></li>
-<li><a href="#sec-Enum-Type-Values-Must-Be-The-Same-Across-Source-Schemas"><span class="spec-secid">3.2.1.42</span>Enum Type Values Must Be The Same Across Source Schemas</a></li>
+<li><a href="#sec-Enum-Values-Mismatch"><span class="spec-secid">3.2.1.42</span>Enum Values Mismatch</a></li>
 <li><a href="#sec-Input-With-Missing-Required-Fields"><span class="spec-secid">3.2.1.43</span>Input With Missing Required Fields</a></li>
 <li><a href="#sec-Output-Field-Argument-Types-Mergeable"><span class="spec-secid">3.2.1.44</span>Output Field Argument Types Mergeable</a></li>
 </ol>
@@ -3554,14 +3554,14 @@ Key fields are always considered sharable.</div>
 </code></pre>
 </section>
 </section>
-<section id="sec-Enum-Type-Values-Must-Be-The-Same-Across-Source-Schemas" secid="3.2.1.42">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L3036"><span class="spec-secid" title="link to this section"><a href="#sec-Enum-Type-Values-Must-Be-The-Same-Across-Source-Schemas">3.2.1.42</a></span>Enum Type Values Must Be The Same Across Source Schemas</h4>
-<section id="sec-Enum-Type-Values-Must-Be-The-Same-Across-Source-Schemas.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L3038"><a href="#sec-Enum-Type-Values-Must-Be-The-Same-Across-Source-Schemas.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L3040"><code>ENUM_VALUES_MUST_BE_THE_SAME_ACROSS_SCHEMAS</code></p>
+<section id="sec-Enum-Values-Mismatch" secid="3.2.1.42">
+<h4 data-source="spec/Section%204%20--%20Composition.md#L3036"><span class="spec-secid" title="link to this section"><a href="#sec-Enum-Values-Mismatch">3.2.1.42</a></span>Enum Values Mismatch</h4>
+<section id="sec-Enum-Values-Mismatch.Error-Code" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L3038"><a href="#sec-Enum-Values-Mismatch.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L3040"><code>ENUM_VALUES_MISMATCH</code></p>
 </section>
-<section id="sec-Enum-Type-Values-Must-Be-The-Same-Across-Source-Schemas.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L3042"><a href="#sec-Enum-Type-Values-Must-Be-The-Same-Across-Source-Schemas.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<section id="sec-Enum-Values-Mismatch.Formal-Specification" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L3042"><a href="#sec-Enum-Values-Mismatch.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li data-source="spec/Section%204%20--%20Composition.md#L3044">Let <var data-name="enumNames">enumNames</var> be the set of all enum type names across all source schemas.</li>
 <li data-source="spec/Section%204%20--%20Composition.md#L3045-L3048">For each <var data-name="enumName">enumName</var> in <var data-name="enumNames">enumNames</var>:<ul>
@@ -3586,8 +3586,8 @@ Key fields are always considered sharable.</div>
 </ol>
 </div>
 </section>
-<section id="sec-Enum-Type-Values-Must-Be-The-Same-Across-Source-Schemas.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L3063"><a href="#sec-Enum-Type-Values-Must-Be-The-Same-Across-Source-Schemas.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<section id="sec-Enum-Values-Mismatch.Explanatory-Text" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L3063"><a href="#sec-Enum-Values-Mismatch.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L3065-L3068">This rule ensures that enum types with the same name across different source schemas in a composite schema have identical sets of values. Enums must be consistent across source schemas to avoid conflicts and ambiguities in the composite schema.</p>
 <p data-source="spec/Section%204%20--%20Composition.md#L3070-L3075">When an enum is defined with differing values, it can lead to confusion and errors in query execution. For instance, a value valid in one schema might be passed to another where it&rsquo;s unrecognized, leading to unexpected behavior or failures. This rule prevents such inconsistencies by enforcing that all instances of the same named enum across schemas have an exact match in their values.</p>
 <p data-source="spec/Section%204%20--%20Composition.md#L3077-L3078">In this example, both source schemas define <code>Genre</code> with the same value <code>FANTASY</code>, satisfying the rule:</p>
@@ -6804,7 +6804,7 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <li id="_sidebar_3.2.1.39"><a href="#sec--lookup-must-not-return-a-list"><span class="spec-secid">3.2.1.39</span>`@lookup` must not return a list</a></li>
 <li id="_sidebar_3.2.1.40"><a href="#sec-Input-Field-Default-Mismatch"><span class="spec-secid">3.2.1.40</span>Input Field Default Mismatch</a></li>
 <li id="_sidebar_3.2.1.41"><a href="#sec-Input-Field-Types-mergeable"><span class="spec-secid">3.2.1.41</span>Input Field Types mergeable</a></li>
-<li id="_sidebar_3.2.1.42"><a href="#sec-Enum-Type-Values-Must-Be-The-Same-Across-Source-Schemas"><span class="spec-secid">3.2.1.42</span>Enum Type Values Must Be The Same Across Source Schemas</a></li>
+<li id="_sidebar_3.2.1.42"><a href="#sec-Enum-Values-Mismatch"><span class="spec-secid">3.2.1.42</span>Enum Values Mismatch</a></li>
 <li id="_sidebar_3.2.1.43"><a href="#sec-Input-With-Missing-Required-Fields"><span class="spec-secid">3.2.1.43</span>Input With Missing Required Fields</a></li>
 <li id="_sidebar_3.2.1.44"><a href="#sec-Output-Field-Argument-Types-Mergeable"><span class="spec-secid">3.2.1.44</span>Output Field Argument Types Mergeable</a></li>
 </ol>
