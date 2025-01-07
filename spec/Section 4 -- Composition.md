@@ -2108,11 +2108,11 @@ type Payment {
 }
 ```
 
-#### Override from Self Error
+#### Override from Self
 
 **Error Code**
 
-`OVERRIDE_FROM_SELF_ERROR`
+`OVERRIDE_FROM_SELF`
 
 **Severity**
 
@@ -2137,7 +2137,7 @@ When using `@override`, the `from` argument indicates the name of the source
 schema that originally owns the field. Overriding from the **same** schema
 creates a contradiction, as it implies both local and transferred ownership of
 the field within one schema. If the `from` value matches the local schema name,
-it triggers an `OVERRIDE_FROM_SELF_ERROR`.
+it triggers an `OVERRIDE_FROM_SELF` error.
 
 **Examples**
 
@@ -2160,7 +2160,7 @@ type Bill {
 
 In the following counter-example, the local schema is also `"SchemaA"`, and the
 `from` argument is `"SchemaA"`. Overriding a field from the same schema is not
-allowed, causing an `OVERRIDE_FROM_SELF_ERROR`.
+allowed, causing an `OVERRIDE_FROM_SELF` error.
 
 ```graphql counter-example
 # Source Schema A (named "SchemaA")
