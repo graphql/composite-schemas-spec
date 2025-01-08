@@ -1,5 +1,7 @@
 # GraphQL Composite Schemas Spec
 
+TEST
+
 **Introduction**
 
 The GraphQL Composite Schemas Spec introduces a comprehensive specification for
