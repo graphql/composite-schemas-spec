@@ -1159,10 +1159,12 @@ type User @key(fields: "id tags") {
 
 #### Key Invalid Syntax
 
-**Error Code**  
+**Error Code**
+
 `KEY_INVALID_SYNTAX`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -1602,11 +1604,11 @@ ERROR
 **Explanatory Text**
 
 The `@require` directive is used to specify fields on the same type that an
-argument depends on in order to resolve the annotated field.  
-When using `@require(fields: "…")`, the `fields` argument must be a valid
-selection set string **without** any additional directive applications.  
-Applying a directive (e.g., `@lowercase`) inside this selection set is not
-supported and triggers the `REQUIRE_DIRECTIVE_IN_FIELDS_ARG` error.
+argument depends on in order to resolve the annotated field. When using
+`@require(fields: "…")`, the `fields` argument must be a valid selection set
+string **without** any additional directive applications. Applying a directive
+(e.g., `@lowercase`) inside this selection set is not supported and triggers the
+`REQUIRE_DIRECTIVE_IN_FIELDS_ARG` error.
 
 **Examples**
 
@@ -1821,10 +1823,12 @@ input FieldSelectionMap {
 
 #### Type Kind Mismatch
 
-**Error Code**  
+**Error Code**
+
 `TYPE_KIND_MISMATCH`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -1898,10 +1902,12 @@ extend input User {
 
 #### Provides Invalid Syntax
 
-**Error Code**  
+**Error Code**
+
 `PROVIDES_INVALID_SYNTAX`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -1951,10 +1957,12 @@ type User @key(fields: "id") {
 
 #### Invalid GraphQL
 
-**Error Code**  
+**Error Code**
+
 `INVALID_GRAPHQL`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -2030,10 +2038,12 @@ type Product {
 
 #### Override Collision with Another Directive
 
-**Error Code**  
+**Error Code**
+
 `OVERRIDE_COLLISION_WITH_ANOTHER_DIRECTIVE`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -2098,12 +2108,14 @@ type Payment {
 }
 ```
 
-#### Override from Self Error
+#### Override from Self
 
-**Error Code**  
-`OVERRIDE_FROM_SELF_ERROR`
+**Error Code**
 
-**Severity**  
+`OVERRIDE_FROM_SELF`
+
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -2125,7 +2137,7 @@ When using `@override`, the `from` argument indicates the name of the source
 schema that originally owns the field. Overriding from the **same** schema
 creates a contradiction, as it implies both local and transferred ownership of
 the field within one schema. If the `from` value matches the local schema name,
-it triggers an `OVERRIDE_FROM_SELF_ERROR`.
+it triggers an `OVERRIDE_FROM_SELF` error.
 
 **Examples**
 
@@ -2148,7 +2160,7 @@ type Bill {
 
 In the following counter-example, the local schema is also `"SchemaA"`, and the
 `from` argument is `"SchemaA"`. Overriding a field from the same schema is not
-allowed, causing an `OVERRIDE_FROM_SELF_ERROR`.
+allowed, causing an `OVERRIDE_FROM_SELF` error.
 
 ```graphql counter-example
 # Source Schema A (named "SchemaA")
@@ -2160,10 +2172,12 @@ type Bill {
 
 #### Override on Interface
 
-**Error Code**  
+**Error Code**
+
 `OVERRIDE_ON_INTERFACE`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -2223,10 +2237,12 @@ interface Bill {
 
 #### Override Source Has Override
 
-**Error Code**  
+**Error Code**
+
 `OVERRIDE_SOURCE_HAS_OVERRIDE`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -2364,10 +2380,12 @@ type Bill {
 
 #### External Collision with Another Directive
 
-**Error Code**  
+**Error Code**
+
 `EXTERNAL_COLLISION_WITH_ANOTHER_DIRECTIVE`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -2465,10 +2483,12 @@ type Book {
 
 #### Key Invalid Fields Type
 
-**Error Code**  
+**Error Code**
+
 `KEY_INVALID_FIELDS_TYPE`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -2520,10 +2540,12 @@ type User @key(fields: true) {
 
 #### Provides Invalid Fields Type
 
-**Error Code**  
+**Error Code**
+
 `PROVIDES_INVALID_FIELDS_TYPE`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -2588,10 +2610,12 @@ type ProductDetails {
 
 #### Provides on Non-Composite Field
 
-**Error Code**  
+**Error Code**
+
 `PROVIDES_ON_NON_COMPOSITE_FIELD`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -2651,10 +2675,12 @@ type User {
 
 #### External on Interface
 
-**Error Code**  
+**Error Code**
+
 `EXTERNAL_ON_INTERFACE`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -2740,12 +2766,11 @@ is not found, following the standard GraphQL practices for representing missing
 data.
 
 In a distributed system, it is likely that some entities will not be found on
-other subgraphs, even when those subgraphs contribute fields to the type.
-Ensuring that `@lookup` fields have nullable return types also avoids GraphQL
-errors on subgraphs and prevents result erasure through non-null propagation. By
-allowing null to be returned when an entity is not found, the system can
-gracefully handle missing data without causing exceptions or unexpected
-behavior.
+other schemas, even when those schemas contribute fields to the type. Ensuring
+that `@lookup` fields have nullable return types also avoids GraphQL errors on
+schemas and prevents result erasure through non-null propagation. By allowing
+null to be returned when an entity is not found, the system can gracefully
+handle missing data without causing exceptions or unexpected behavior.
 
 Ensuring that `@lookup` fields have nullable return types allows gateways to
 distinguish between cases where an entity is not found (receiving null) and
@@ -2951,23 +2976,7 @@ InputFieldsAreMergeable(fields):
 - Given each pair of members {fieldA} and {fieldB} in {fields}:
   - Let {typeA} be the type of {fieldA}.
   - Let {typeB} be the type of {fieldB}.
-  - {InputTypesAreMerable(typeA, typeB)} must be true.
-
-InputTypesAreMerable(typeA, typeB):
-
-- If {typeA} is a non nullable type:
-  - Set {typeA} to the inner type of {typeA}.
-- If {typeB} is a non nullable type:
-  - Set {typeB} to the inner type of {typeB}.
-- If {typeA} is a list type:
-  - If {typeB} is not list type.
-    - Return false.
-  - Let {innerTypeA} be the inner type of {typeA}.
-  - Let {innerTypeB} be the inner type of {typeB}.
-  - Return {InputTypesAreMerable(innerTypeA, innerTypeB)}.
-- If {typeA} is equal to {typeB}
-  - return true
-- Otherwise return false.
+  - {SameTypeShape(typeA, typeB)} must be true.
 
 **Explanatory Text**
 
@@ -3024,11 +3033,11 @@ input AuthorInput {
 }
 ```
 
-#### Enum Type Values Must Be The Same Across Source Schemas
+#### Enum Values Mismatch
 
 **Error Code**
 
-`ENUM_VALUES_MUST_BE_THE_SAME_ACROSS_SCHEMAS`
+`ENUM_VALUES_MISMATCH`
 
 **Formal Specification**
 
@@ -3102,6 +3111,201 @@ enum Genre {
 
 enum Genre {
   FANTASY
+}
+```
+
+#### Input With Missing Required Fields
+
+**Error Code:**
+
+`INPUT_WITH_MISSING_REQUIRED_FIELDS`
+
+**Severity:**
+
+ERROR
+
+**Formal Specification:**
+
+- Let {typeNames} be the set of all input object types names from all source
+  schemas that are not declared as `@inaccessible`.
+- For each {typeName} in {typeNames}:
+  - Let {types} be the list of all input object types from different source
+    schemas with the name {typeName}.
+  - {AreTypesConsistent(types)} must be true.
+
+AreTypesConsistent(inputs):
+
+- Let {requiredFields} be the intersection of all field names across all input
+  objects in {inputs} that are not marked as `@inaccessible` in any schema and
+  have a non-nullable type in at least one schema.
+- For each {input} in {inputs}:
+  - For each {requiredField} in {requiredFields}:
+    - If {requiredField} is not in {input}:
+      - Return false
+
+**Explanatory Text:**
+
+Input types are merged by intersection, meaning that the merged input type will
+have all fields that are present in all input types with the same name. This
+rule ensures that input object types with the same name across different schemas
+share a consistent set of required fields.
+
+**Examples**
+
+If all schemas define `BookFilter` with the required field `title`, the rule is
+satisfied:
+
+```graphql
+# Schema A
+input BookFilter {
+  title: String!
+  author: String
+}
+
+# Schema B
+input BookFilter {
+  title: String!
+  yearPublished: Int
+}
+```
+
+If `title` is required in one subgraph but missing in another, this violates the
+rule:
+
+```graphql
+# Schema A
+input BookFilter {
+  title: String!
+  author: String
+}
+
+# Schema B
+input BookFilter {
+  author: String
+  yearPublished: Int
+}
+```
+
+In this invalid case, `title` is mandatory in Schema A but not defined in
+`Schema B`, causing inconsistency in required fields across schemas.
+
+#### Output Field Argument Types Mergeable
+
+**Error Code**
+
+`OUTPUT_FIELD_ARGUMENT_TYPES_NOT_MERGEABLE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {typeNames} be the set of all output type names from all source schemas.
+- For each {typeName} in {typeNames}
+  - Let {types} be the set of all types with the {typeName} from all source
+    schemas.
+  - Let {fieldNames} be the set of all field names from all {types}.
+  - For each {fieldName} in {fieldNames}
+    - Let {fields} be the set of all fields with the {fieldName} from all
+      {types}.
+    - For each {field} in {fields}
+      - Let {argumentNames} be the set of all argument names from all {fields}.
+      - For each {argumentName} in {argumentNames}
+        - Let {arguments} be the set of all arguments with the {argumentName}
+          from all {fields}.
+        - For each pair of {argumentA} and {argumentB} in {arguments}
+          - {ArgumentsAreMergeable(argumentA, argumentB)} must be true.
+
+ArgumentsAreMergeable(argumentA, argumentB):
+
+- Let {typeA} be the type of {argumentA}
+- Let {typeB} be the type of {argumentB}
+- {InputTypesAreMergeable(typeA, typeB)} must be true.
+
+**Explanatory Text**
+
+When multiple schemas define the same field name on the same output type (e.g.,
+`User.field`), these fields can be merged if their arguments are compatible.
+Compatibility extends not only to the output field types themselves, but to each
+argument's input type as well. The schemas must agree on each argument's name
+and have compatible types, so that the composed schema can unify the definitions
+into a single consistent field specification.
+
+_Nullability_
+
+Different nullability requirements on arguments are still considered mergeable.
+For example, if one schema accepts `String!` and the other accepts `String`,
+these schemas can merge; the resulting argument type typically adopts the least
+restrictive (nullable) version.
+
+_Lists_ Lists of different nullability (e.g., `[String!]` vs. `[String]!` vs.
+`[String]`) remain mergeable as long as they otherwise refer to the same inner
+type. Essentially, the same principle of “least restrictive” nullability merges
+them successfully.
+
+_Incompatible Types_
+
+If argument types differ on the named type itself - for example, one uses
+`String` while the other uses `DateTime` - this causes an
+`OUTPUT_FIELD_ARGUMENT_TYPES_NOT_MERGEABLE` error. Similarly, if one schema has
+`[String]` but another has `[DateTime]`, they are incompatible.
+
+```graphql example
+type User {
+  field(argument: String): String
+}
+
+type User {
+  field(argument: String): String
+}
+```
+
+Arguments that differ on nullability of an argument type are mergeable.
+
+```graphql example
+type User {
+  field(argument: String!): String
+}
+
+type User {
+  field(argument: String): String
+}
+```
+
+```graphql example
+type User {
+  field(argument: [String!]): String
+}
+
+type User {
+  field(argument: [String]!): String
+}
+
+type User {
+  field(argument: [String]): String
+}
+```
+
+Arguments are not mergeable if the named types are different in kind or name.
+
+```graphql counter-example
+type User {
+  field(argument: String!): String
+}
+
+type User {
+  field(argument: DateTime): String
+}
+```
+
+```graphql counter-example
+type User {
+  field(argument: [String]): String
+}
+
+type User {
+  field(argument: [DateTime]): String
 }
 ```
 
@@ -4986,10 +5190,12 @@ interface InventoryItem {
 
 #### Only Inaccessible Children
 
-**Error Code**  
+**Error Code**
+
 `ONLY_INACCESSIBLE_CHILDREN`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -5228,10 +5434,12 @@ type Book {
 
 #### Provides Invalid Fields
 
-**Error Code**  
+**Error Code**
+
 `PROVIDES_INVALID_FIELDS`
 
-**Severity**  
+**Severity**
+
 ERROR
 
 **Formal Specification**
@@ -5381,6 +5589,184 @@ input BookFilter {
 
 input BookFilter {
   name: String
+}
+```
+
+#### Non-Null Input Fields cannot be inaccessible
+
+**Error Code**
+
+`NON_NULL_INPUT_FIELD_IS_INACCESSIBLE`
+
+**Formal Specification**
+
+- Let {fields} be the set of all fields across all input types in all source
+  schemas.
+- For each {field} in {fields}:
+  - If {field} is a non-null input field:
+    - Let {coordinate} be the coordinate of {field}.
+    - {coordinate} must be in the composite schema.
+
+**Explanatory Text**
+
+When an input field is declared as non-null in any source schema, it imposes a
+hard requirement: queries or mutations that reference this field _must_ provide
+a value for it. If the field is then marked as `@inaccessible` or removed during
+schema composition, the final schema would still implicitly demand a value for a
+field that no longer exists in the composed schema, making it impossible to
+fulfill the requirement.
+
+As a result:
+
+- **Nullable** (optional) fields can be hidden or removed without invalidating
+  the composed schema, because the user is never _required_ to supply a value
+  for them.
+- **Non-null** (required) fields, however, must remain exposed in the composed
+  schema so that users can provide values for those fields. Hiding a required
+  input field breaks the schema contract and leads to an invalid composition.
+
+**Examples**
+
+The following is valid because the `age` field, although `@inaccessible` in one
+source schema, is nullable and can be safely omitted in the final schema without
+breaking any mandatory input requirement.
+
+```graphql example
+# Schema A
+input BookFilter {
+  author: String!
+  age: Int @inaccessible
+}
+
+# Schema B
+input BookFilter {
+  author: String!
+  age: Int
+}
+
+# Composite Schema
+input BookFilter {
+  author: String!
+}
+```
+
+Another valid case is when a nullable input field is removed during merging:
+
+```graphql example
+# Schema A
+input BookFilter {
+  author: String!
+  age: Int
+}
+
+# Schema B
+input BookFilter {
+  author: String!
+}
+
+# Composite Schema
+input BookFilter {
+  author: String!
+}
+```
+
+An invalid case is when a non-null input field is inaccessible:
+
+```graphql counter-example
+# Schema A
+input BookFilter {
+  author: String!
+  age: Int!
+}
+
+# Schema B
+input BookFilter {
+  author: String!
+  age: Int @inaccessible
+}
+
+# Composite Schema
+input BookFilter {
+  author: String!
+}
+```
+
+Another invalid case is when a non-null input field is removed during merging:
+
+```graphql counter-example
+# Schema A
+input BookFilter {
+  author: String!
+  age: Int!
+}
+
+# Schema B
+input BookFilter {
+  author: String!
+}
+
+# Composite Schema
+input BookFilter {
+  author: String!
+}
+```
+
+#### Input Fields cannot reference inaccessible type
+
+**Error Code**
+
+INPUT_FIELD_REFERENCES_INACCESSIBLE_TYPE
+
+**Formal Specification**
+
+- Let {fields} be the set of all fields of the input types
+- For each {field} in {fields}:
+  - If {field} is not declared as `@inaccessible`
+    - Let {namedType} be the named type that {field} references
+    - {namedType} must not be declared as `@inaccessible`
+
+**Explanatory Text**
+
+In a composed schema, a field within an input type must only reference types
+that are exposed. This requirement guarantees that public types do not reference
+inaccessible structures which are intended for internal use.
+
+A valid case where a public input field references another public input type:
+
+```graphql example
+input Input1 {
+  field1: String!
+  field2: Input2
+}
+
+input Input2 {
+  field3: String
+}
+```
+
+Another valid case is where the field is not exposed in the composed schema:
+
+```graphql example
+input Input1 {
+  field1: String!
+  field2: Input2 @inaccessible
+}
+
+input Input2 @inaccessible {
+  field3: String
+}
+```
+
+An invalid case is when an input field references an inaccessible type:
+
+```graphql counter-example
+input Input1 {
+  field1: String!
+  field2: Input2!
+}
+
+input Input2 @inaccessible {
+  field3: String
 }
 ```
 
