@@ -2830,7 +2830,7 @@ IsListType(type):
 
 - If {type} is a Non-Null type:
   - Let {innerType} be the inner type of {type}.
-  - Return {IsSingleObjectType(innerType)}.
+  - Return {IsListType(innerType)}.
 - Else if {type} is a List type:
   - Return true.
 - Else:
