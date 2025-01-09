@@ -3189,11 +3189,11 @@ input BookFilter {
 In this invalid case, `title` is mandatory in Schema A but not defined in
 `Schema B`, causing inconsistency in required fields across schemas.
 
-#### Output Field Argument Types Mergeable
+#### Field Argument Types Mergeable
 
 **Error Code**
 
-`OUTPUT_FIELD_ARGUMENT_TYPES_NOT_MERGEABLE`
+`FIELD_ARGUMENT_TYPES_NOT_MERGEABLE`
 
 **Severity**
 
@@ -3247,8 +3247,8 @@ them successfully.
 _Incompatible Types_
 
 If argument types differ on the named type itself - for example, one uses
-`String` while the other uses `DateTime` - this causes an
-`OUTPUT_FIELD_ARGUMENT_TYPES_NOT_MERGEABLE` error. Similarly, if one schema has
+`String` while the other uses `DateTime` - this causes a
+`FIELD_ARGUMENT_TYPES_NOT_MERGEABLE` error. Similarly, if one schema has
 `[String]` but another has `[DateTime]`, they are incompatible.
 
 ```graphql example
