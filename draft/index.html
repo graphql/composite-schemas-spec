@@ -2215,7 +2215,7 @@ Key fields are always considered sharable.</div>
 </section>
 <section id="sec-Provides-Fields-Missing-External.Explanatory-Text" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L1466"><a href="#sec-Provides-Fields-Missing-External.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L1468-L1472">The <code>@provides</code> directive indicates that an object type field will supply additional fields belonging to the return type in this execution specific path. Any field listed in the <code>@provides(fields: ...)</code> argument must therefore be <em>external</em> in the local schema, meaning that the local schema itself does <strong>not</strong> provide it.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L1468-L1472">The <code>@provides</code> directive indicates that an object type field will supply additional fields belonging to the return type in this execution-specific path. Any field listed in the <code>@provides(fields: ...)</code> argument must therefore be <em>external</em> in the local schema, meaning that the local schema itself does <strong>not</strong> provide it.</p>
 <p data-source="spec/Section%204%20--%20Composition.md#L1474-L1476">This rule disallows selecting non-external fields in a <code>@provides</code> selection set. If a field is already provided by the same schema in all execution paths, there is no need to <code>@provide</code>.</p>
 </section>
 <section id="sec-Provides-Fields-Missing-External.Examples" class="subsec">
@@ -2876,7 +2876,7 @@ Key fields are always considered sharable.</div>
 </section>
 <section id="sec-Override-on-Interface.Explanatory-Text" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L2193"><a href="#sec-Override-on-Interface.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L2195-L2201">The <code>@override</code> directive designates that ownership of a field is transferred from one source schema to another. In the context of interface types, fields are abstract-objects that implement the interface are responsible for providing the actual fields. Consequently, it is invalid to attach <code>@override</code> directly to an interface field. Doing so leads to an <code>OVERRIDE_ON_INTERFACE</code> error because there is no concrete field implementation on the interface itself that can be overridden.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L2195-L2201">The <code>@override</code> directive designates that ownership of a field is transferred from one source schema to another. In the context of interface types, fields are abstract&mdash;objects that implement the interface are responsible for providing the actual fields. Consequently, it is invalid to attach <code>@override</code> directly to an interface field. Doing so leads to an <code>OVERRIDE_ON_INTERFACE</code> error because there is no concrete field implementation on the interface itself that can be overridden.</p>
 </section>
 <section id="sec-Override-on-Interface.Examples" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L2203"><a href="#sec-Override-on-Interface.Examples" title="link to this subsection">Examples</a></h6>
@@ -3659,7 +3659,7 @@ Key fields are always considered sharable.</div>
   <span class="token constant">FANTASY</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L3090-L3091">Here, the two definitions of <code>Genre</code> have different values (<code>FANTASY</code> and <code>SCIENCE_FICTION</code>) violating the rule:</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L3090-L3091">Here, the two definitions of <code>Genre</code> have different values (<code>FANTASY</code> and <code>SCIENCE_FICTION</code>), violating the rule:</p>
 <pre id="example-9aad8" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L3093-L3101"><a href="#example-9aad8">Counter Example № 131</a><code><span class="token keyword">enum</span> <span class="token class-name">Genre</span> <span class="token punctuation">{</span>
   <span class="token constant">FANTASY</span>
 <span class="token punctuation">}</span>
@@ -3735,7 +3735,7 @@ Key fields are always considered sharable.</div>
   <span class="token attr-name">yearPublished</span><span class="token punctuation">:</span> <span class="token scalar">Int</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L3172-L3173">If <code>title</code> is required in one subgraph but missing in another, this violates the rule:</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L3172-L3173">If <code>title</code> is required in one source schema but missing in another, this violates the rule:</p>
 <pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L3175-L3187"><code><span class="token comment"># Schema A</span>
 <span class="token keyword">input</span> <span class="token object">BookFilter</span> <span class="token punctuation">{</span>
   <span class="token attr-name">title</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
@@ -3748,7 +3748,7 @@ Key fields are always considered sharable.</div>
   <span class="token attr-name">yearPublished</span><span class="token punctuation">:</span> <span class="token scalar">Int</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L3189-L3190">In this invalid case, <code>title</code> is mandatory in Schema A but not defined in <code>Schema B</code>, causing inconsistency in required fields across schemas.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L3189-L3190">In this invalid case, <code>title</code> is mandatory in Schema A but not defined in Schema B, causing inconsistency in required fields across schemas.</p>
 </section>
 </section>
 <section id="sec-Field-Argument-Types-Mergeable" secid="3.2.1.44">
@@ -4587,7 +4587,7 @@ First Description
 <p data-source="spec/Section%204%20--%20Composition.md#L4159"><em>Combining Descriptions</em></p>
 <p data-source="spec/Section%204%20--%20Composition.md#L4161-L4163">The name of the merged field is taken from the first field in the list. The description is set to the first non-<code>null</code> description encountered among the fields. If no description is found, the merged field will have no description.</p>
 <p data-source="spec/Section%204%20--%20Composition.md#L4165"><em>Combining Field Types</em></p>
-<p data-source="spec/Section%204%20--%20Composition.md#L4167-L4173">The merged field type is computed by calling <span class="spec-call"><a href="#MostRestrictiveType()" data-name="MostRestrictiveType">MostRestrictiveType</a>(<var data-name="typeA">typeA</var>, <var data-name="typeB">typeB</var>)</span> . Unlike output fields, where <span class="spec-call"><a href="#LeastRestrictiveType()" data-name="LeastRestrictiveType">LeastRestrictiveType</a>(<var data-name="typeA">typeA</var>, <var data-name="typeB">typeB</var>)</span> is used, input fields often follow stricter constraints. If one subgraph defines a field as non-nullable and another as nullable, the merged field type must be non-nullable to satisfy both schemas. <span class="spec-call"><a href="#MostRestrictiveType()" data-name="MostRestrictiveType">MostRestrictiveType</a>(<var data-name="typeA">typeA</var>, <var data-name="typeB">typeB</var>)</span> ensures a final input type that is compatible with all definitions of that field.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L4167-L4173">The merged field type is computed by calling <span class="spec-call"><a href="#MostRestrictiveType()" data-name="MostRestrictiveType">MostRestrictiveType</a>(<var data-name="typeA">typeA</var>, <var data-name="typeB">typeB</var>)</span> . Unlike output fields, where <span class="spec-call"><a href="#LeastRestrictiveType()" data-name="LeastRestrictiveType">LeastRestrictiveType</a>(<var data-name="typeA">typeA</var>, <var data-name="typeB">typeB</var>)</span> is used, input fields often follow stricter constraints. If one source schema defines a field as non-nullable and another as nullable, the merged field type must be non-nullable to satisfy both schemas. <span class="spec-call"><a href="#MostRestrictiveType()" data-name="MostRestrictiveType">MostRestrictiveType</a>(<var data-name="typeA">typeA</var>, <var data-name="typeB">typeB</var>)</span> ensures a final input type that is compatible with all definitions of that field.</p>
 <p data-source="spec/Section%204%20--%20Composition.md#L4175"><em>Inheriting Default Values</em></p>
 <p data-source="spec/Section%204%20--%20Composition.md#L4177-L4179">If multiple fields define default values, whichever appears first in the list effectively <em>wins</em>. If there are non compatible default values, the pre merge validation has already asserted that the default values are compatible.</p>
 </section>
