@@ -188,28 +188,102 @@ type ProductPrice @key(fields: "regionName product { id }") {
 ### @internal
 
 ```graphql
-directive @internal on FIELD_DEFINITION
+directive @internal on OBJECT | FIELD_DEFINITION
 ```
 
-The `@internal` directive is used to mark lookup fields as internal. Internal
-lookup fields are not used as entry points in the composite schema and can only
-be used by the _distributed GraphQL executor_ to resolve additional data for an
-entity.
+The `@internal` directive is used to mark types and fields as internal within a
+source schema. Internal types and fields do not appear in the final
+client-facing composite schema and are internal to the source schema they reside
+in.
 
 ```graphql example
+# Source Schema
 type Query {
-  # lookup field and possible entry point
-  reviewById(id: ID!): Review @lookup
+  productById(id: ID!): Product
+  productBySku(sku: ID!): Product @internal
+}
 
-  # internal lookup field
-  productById(id: ID!): Product @lookup @internal
+# Composite Schema
+type Product {
+  productById(id: ID!): Product
 }
 ```
 
-The `@internal` directive provides control over which source schemas are used to
-resolve entities and which source schemas merely contribute data to entities.
-Further, using `@internal` allows hiding "technical" lookup fields that are not
-meant for the client-facing composite schema.
+Internal types and field do not participate in the normal schema-merging
+process.
+
+```graphql example
+# Source Schema A
+type Query {
+  # this field follows the standard field merging rules
+  productById(id: ID!): Product
+
+  # this field is internal and does not follow any field merging rules.
+  productBySku(sku: ID!): Product @internal
+}
+
+# Source Schema B
+type Query {
+  productById(id: ID!): Product
+  productBySku(sku: ID!, name: String!): Product @internal
+}
+
+# Composite Schema
+type Product {
+  productById(id: ID!): Product
+}
+```
+
+Internal fields may be used by the distributed GraphQL executor as lookup fields
+for entity resolution or to supply additional data.
+
+```graphql example
+# Source Schema A
+type Query {
+  productById(id: ID!): Product @lookup
+  lookups: InternalLookups! @internal
+}
+
+# all lookups within this internal type are hidden from the public API
+# but can be used for entity resolution.
+type InternalLookups @internal {
+  productBySku(sku: ID!): Product @lookup
+}
+
+# Composite Schema
+type Product {
+  productById(id: ID!): Product
+}
+```
+
+In contrast to `@inaccessible` the effect of `@internal` is local to it's source
+schema.
+
+```graphql example
+# Source Schema A
+type Query {
+  # this field follows the standard field merging rules
+  productById(id: ID!): Product
+
+  # this field is internal and does not follow any field merging rules.
+  productBySku(sku: ID!): Product @internal
+}
+
+# Source Schema B
+type Query {
+  # this field follows the standard field merging rules
+  productById(id: ID!): Product
+
+  # this field follows the standard field merging rules
+  productBySku(sku: Int!): Product
+}
+
+# Composite Schema
+type Product {
+  productById(id: ID!): Product
+  productBySku(sku: Int!): Product
+}
+```
 
 ### @inaccessible
 
