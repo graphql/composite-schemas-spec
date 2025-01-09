@@ -112,7 +112,7 @@ This is an example of a non-normative note.</div>
 <li><a href="#sec-Input-Field-Types-mergeable"><span class="spec-secid">3.2.1.41</span>Input Field Types mergeable</a></li>
 <li><a href="#sec-Enum-Values-Mismatch"><span class="spec-secid">3.2.1.42</span>Enum Values Mismatch</a></li>
 <li><a href="#sec-Input-With-Missing-Required-Fields"><span class="spec-secid">3.2.1.43</span>Input With Missing Required Fields</a></li>
-<li><a href="#sec-Output-Field-Argument-Types-Mergeable"><span class="spec-secid">3.2.1.44</span>Output Field Argument Types Mergeable</a></li>
+<li><a href="#sec-Field-Argument-Types-Mergeable"><span class="spec-secid">3.2.1.44</span>Field Argument Types Mergeable</a></li>
 </ol>
 </li>
 <li><a href="#sec-Merge"><span class="spec-secid">3.2.2</span>Merge</a><ol>
@@ -3691,18 +3691,18 @@ Key fields are always considered sharable.</div>
 <p data-source="spec/Section%204%20--%20Composition.md#L3189-L3190">In this invalid case, <code>title</code> is mandatory in Schema A but not defined in <code>Schema B</code>, causing inconsistency in required fields across schemas.</p>
 </section>
 </section>
-<section id="sec-Output-Field-Argument-Types-Mergeable" secid="3.2.1.44">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L3192"><span class="spec-secid" title="link to this section"><a href="#sec-Output-Field-Argument-Types-Mergeable">3.2.1.44</a></span>Output Field Argument Types Mergeable</h4>
-<section id="sec-Output-Field-Argument-Types-Mergeable.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L3194"><a href="#sec-Output-Field-Argument-Types-Mergeable.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L3196"><code>OUTPUT_FIELD_ARGUMENT_TYPES_NOT_MERGEABLE</code></p>
+<section id="sec-Field-Argument-Types-Mergeable" secid="3.2.1.44">
+<h4 data-source="spec/Section%204%20--%20Composition.md#L3192"><span class="spec-secid" title="link to this section"><a href="#sec-Field-Argument-Types-Mergeable">3.2.1.44</a></span>Field Argument Types Mergeable</h4>
+<section id="sec-Field-Argument-Types-Mergeable.Error-Code" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L3194"><a href="#sec-Field-Argument-Types-Mergeable.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L3196"><code>FIELD_ARGUMENT_TYPES_NOT_MERGEABLE</code></p>
 </section>
-<section id="sec-Output-Field-Argument-Types-Mergeable.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L3198"><a href="#sec-Output-Field-Argument-Types-Mergeable.Severity" title="link to this subsection">Severity</a></h6>
+<section id="sec-Field-Argument-Types-Mergeable.Severity" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L3198"><a href="#sec-Field-Argument-Types-Mergeable.Severity" title="link to this subsection">Severity</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L3200">ERROR</p>
 </section>
-<section id="sec-Output-Field-Argument-Types-Mergeable.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L3202"><a href="#sec-Output-Field-Argument-Types-Mergeable.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<section id="sec-Field-Argument-Types-Mergeable.Formal-Specification" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L3202"><a href="#sec-Field-Argument-Types-Mergeable.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li data-source="spec/Section%204%20--%20Composition.md#L3204">Let <var data-name="typeNames">typeNames</var> be the set of all output type names from all source schemas.</li>
 <li data-source="spec/Section%204%20--%20Composition.md#L3205-L3218">For each <var data-name="typeName">typeName</var> in <var data-name="typeNames">typeNames</var><ul>
@@ -3735,14 +3735,14 @@ Key fields are always considered sharable.</div>
 </ol>
 </div>
 </section>
-<section id="sec-Output-Field-Argument-Types-Mergeable.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L3226"><a href="#sec-Output-Field-Argument-Types-Mergeable.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<section id="sec-Field-Argument-Types-Mergeable.Explanatory-Text" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L3226"><a href="#sec-Field-Argument-Types-Mergeable.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L3228-L3233">When multiple schemas define the same field name on the same output type (e.g., <code>User.field</code>), these fields can be merged if their arguments are compatible. Compatibility extends not only to the output field types themselves, but to each argument&rsquo;s input type as well. The schemas must agree on each argument&rsquo;s name and have compatible types, so that the composed schema can unify the definitions into a single consistent field specification.</p>
 <p data-source="spec/Section%204%20--%20Composition.md#L3235"><em>Nullability</em></p>
 <p data-source="spec/Section%204%20--%20Composition.md#L3237-L3240">Different nullability requirements on arguments are still considered mergeable. For example, if one schema accepts <code>String!</code> and the other accepts <code>String</code>, these schemas can merge; the resulting argument type typically adopts the least restrictive (nullable) version.</p>
 <p data-source="spec/Section%204%20--%20Composition.md#L3242-L3245"><em>Lists</em> Lists of different nullability (e.g., <code>[String!]</code> vs. <code>[String]!</code> vs. <code>[String]</code>) remain mergeable as long as they otherwise refer to the same inner type. Essentially, the same principle of &ldquo;least restrictive&rdquo; nullability merges them successfully.</p>
 <p data-source="spec/Section%204%20--%20Composition.md#L3247"><em>Incompatible Types</em></p>
-<p data-source="spec/Section%204%20--%20Composition.md#L3249-L3252">If argument types differ on the named type itself &ndash; for example, one uses <code>String</code> while the other uses <code>DateTime</code> - this causes an <code>OUTPUT_FIELD_ARGUMENT_TYPES_NOT_MERGEABLE</code> error. Similarly, if one schema has <code>[String]</code> but another has <code>[DateTime]</code>, they are incompatible.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L3249-L3252">If argument types differ on the named type itself &ndash; for example, one uses <code>String</code> while the other uses <code>DateTime</code> - this causes a <code>FIELD_ARGUMENT_TYPES_NOT_MERGEABLE</code> error. Similarly, if one schema has <code>[String]</code> but another has <code>[DateTime]</code>, they are incompatible.</p>
 <pre id="example-b9e7f" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L3254-L3262"><a href="#example-b9e7f">Example № 130</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
   <span class="token attr-name">field</span><span class="token punctuation">(</span><span class="token attr-name">argument</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
@@ -6806,7 +6806,7 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <li id="_sidebar_3.2.1.41"><a href="#sec-Input-Field-Types-mergeable"><span class="spec-secid">3.2.1.41</span>Input Field Types mergeable</a></li>
 <li id="_sidebar_3.2.1.42"><a href="#sec-Enum-Values-Mismatch"><span class="spec-secid">3.2.1.42</span>Enum Values Mismatch</a></li>
 <li id="_sidebar_3.2.1.43"><a href="#sec-Input-With-Missing-Required-Fields"><span class="spec-secid">3.2.1.43</span>Input With Missing Required Fields</a></li>
-<li id="_sidebar_3.2.1.44"><a href="#sec-Output-Field-Argument-Types-Mergeable"><span class="spec-secid">3.2.1.44</span>Output Field Argument Types Mergeable</a></li>
+<li id="_sidebar_3.2.1.44"><a href="#sec-Field-Argument-Types-Mergeable"><span class="spec-secid">3.2.1.44</span>Field Argument Types Mergeable</a></li>
 </ol>
 </li>
 <li id="_sidebar_3.2.2"><a href="#sec-Merge"><span class="spec-secid">3.2.2</span>Merge</a>
