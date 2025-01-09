@@ -191,22 +191,16 @@ type ProductPrice @key(fields: "regionName product { id }") {
 directive @internal on OBJECT | FIELD_DEFINITION
 ```
 
-The `@internal` directive provides control over which source schemas are used to
-resolve entities and which source schemas merely contribute data to entities.
-Further, using `@internal` allows hiding "technical" lookup fields and types
-that are not meant for the client-facing composite schema.
-
-The @internal directive can be applied to object types or individual output
-fields within a source schema.
-
-Fields or types annotated with `@internal` do not appear in the final composite
-schema and are internal to the source schema they reside in.
+The `@internal` directive is used to mark types and fields as internal within a
+source schema. Internal types and fields do not appear in the final
+client-facing composite schema and are internal to the source schema they reside
+in.
 
 ```graphql example
 # Source Schema
 type Query {
   productById(id: ID!): Product
-  productBySku(sku: ID!): Product
+  productBySku(sku: ID!): Product @internal
 }
 
 # Composite Schema
@@ -215,7 +209,8 @@ type Product {
 }
 ```
 
-Internal types and field do not participate in the normal type-merging process.
+Internal types and field do not participate in the normal schema-merging
+process.
 
 ```graphql example
 # Source Schema A
@@ -258,6 +253,35 @@ type InternalLookups @internal {
 # Composite Schema
 type Product {
   productById(id: ID!): Product
+}
+```
+
+In contrast to `@inaccessible` the effect of `@internal` is local to it's source
+schema.
+
+```graphql example
+# Source Schema A
+type Query {
+  # this field follows the standard field merging rules
+  productById(id: ID!): Product
+
+  # this field is internal and does not follow any field merging rules.
+  productBySku(sku: ID!): Product @internal
+}
+
+# Source Schema B
+type Query {
+  # this field follows the standard field merging rules
+  productById(id: ID!): Product
+
+  # this field follows the standard field merging rules
+  productBySku(sku: Int!): Product
+}
+
+# Composite Schema
+type Product {
+  productById(id: ID!): Product
+  productBySku(sku: Int!): Product
 }
 ```
 
