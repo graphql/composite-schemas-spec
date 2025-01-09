@@ -2,12 +2,11 @@
 
 A _source schema_ is a GraphQL schema that is part of a larger _composite
 schema_. Source schemas use directives to express intent and requirements for
-the composition process. In the following chapters, we will describe the
-directives that are used to annotate a source schema.
+the composition process as well as to describe runtime behavior. 
+The following chapters describe the directives that
+are used to annotate a source schema.
 
-## Directives
-
-### @lookup
+## @lookup
 
 ```graphql
 directive @lookup on FIELD_DEFINITION
@@ -185,7 +184,7 @@ type ProductPrice @key(fields: "regionName product { id }") {
 }
 ```
 
-### @internal
+## @internal
 
 ```graphql
 directive @internal on OBJECT | FIELD_DEFINITION
@@ -285,7 +284,7 @@ type Product {
 }
 ```
 
-### @inaccessible
+## @inaccessible
 
 ```graphql
 directive @inaccessible on OBJECT | FIELD_DEFINITION
@@ -342,7 +341,7 @@ type Product {
 }
 ```
 
-### @is
+## @is
 
 ```graphql
 directive @is(field: FieldSelectionMap!) on ARGUMENT_DEFINITION
@@ -408,7 +407,7 @@ input PersonByInput @oneOf {
 
 - `field`: Represents a selection path map syntax.
 
-### @require
+## @require
 
 ```graphql
 directive @require(field: FieldSelectionMap!) on ARGUMENT_DEFINITION
@@ -482,7 +481,7 @@ input ProductDimensionInput {
 
 - `field`: Represents a selection path map syntax.
 
-### @key
+## @key
 
 ```graphql
 directive @key(fields: SelectionSet!) repeatable on OBJECT | INTERFACE
@@ -537,7 +536,7 @@ implementations of that interface.
 
 - `fields`: Represents a selection set syntax.
 
-### @shareable
+## @shareable
 
 ```graphql
 directive @shareable repeatable on OBJECT | FIELD_DEFINITION
@@ -557,7 +556,7 @@ sees fit.
 
 Note: Key fields are always considered sharable.
 
-### @provides
+## @provides
 
 ```graphql
 directive @provides(fields: SelectionSet!) on FIELD_DEFINITION
@@ -681,7 +680,7 @@ type Query {
 - `fields`: Represents a selection set syntax describing the subfields of the
   returned type that can be provided by the current source schema.
 
-### @external
+## @external
 
 ```graphql
 directive @external on FIELD_DEFINITION
@@ -733,7 +732,7 @@ it only for entity identification (via `@key`) or for providing a field through
 `@provides`. If no such usage exists, the presence of an `@external` field
 produces a composition error.
 
-### @override
+## @override
 
 ```graphql
 directive @override(from: String!) on FIELD_DEFINITION
