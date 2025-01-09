@@ -2,9 +2,8 @@
 
 A _source schema_ is a GraphQL schema that is part of a larger _composite
 schema_. Source schemas use directives to express intent and requirements for
-the composition process as well as to describe runtime behavior. 
-The following chapters describe the directives that
-are used to annotate a source schema.
+the composition process as well as to describe runtime behavior. The following
+chapters describe the directives that are used to annotate a source schema.
 
 ## @lookup
 
