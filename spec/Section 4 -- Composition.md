@@ -1466,7 +1466,7 @@ ERROR
 **Explanatory Text**
 
 The `@provides` directive indicates that an object type field will supply
-additional fields belonging to the return type in this execution specific path.
+additional fields belonging to the return type in this execution-specific path.
 Any field listed in the `@provides(fields: ...)` argument must therefore be
 _external_ in the local schema, meaning that the local schema itself does
 **not** provide it.
@@ -2194,7 +2194,7 @@ ERROR
 
 The `@override` directive designates that ownership of a field is transferred
 from one source schema to another. In the context of interface types, fields are
-abstract-objects that implement the interface are responsible for providing the
+abstract—objects that implement the interface are responsible for providing the
 actual fields. Consequently, it is invalid to attach `@override` directly to an
 interface field. Doing so leads to an `OVERRIDE_ON_INTERFACE` error because
 there is no concrete field implementation on the interface itself that can be
@@ -3088,7 +3088,7 @@ enum Genre {
 ```
 
 Here, the two definitions of `Genre` have different values (`FANTASY` and
-`SCIENCE_FICTION`) violating the rule:
+`SCIENCE_FICTION`), violating the rule:
 
 ```graphql counter-example
 enum Genre {
@@ -3169,8 +3169,8 @@ input BookFilter {
 }
 ```
 
-If `title` is required in one subgraph but missing in another, this violates the
-rule:
+If `title` is required in one source schema but missing in another, this
+violates the rule:
 
 ```graphql
 # Schema A
@@ -3186,8 +3186,8 @@ input BookFilter {
 }
 ```
 
-In this invalid case, `title` is mandatory in Schema A but not defined in
-`Schema B`, causing inconsistency in required fields across schemas.
+In this invalid case, `title` is mandatory in Schema A but not defined in Schema
+B, causing inconsistency in required fields across schemas.
 
 #### Field Argument Types Mergeable
 
@@ -4166,8 +4166,8 @@ _Combining Field Types_
 
 The merged field type is computed by calling {MostRestrictiveType(typeA, typeB)}
 . Unlike output fields, where {LeastRestrictiveType(typeA, typeB)} is used,
-input fields often follow stricter constraints. If one subgraph defines a field
-as non-nullable and another as nullable, the merged field type must be
+input fields often follow stricter constraints. If one source schema defines a
+field as non-nullable and another as nullable, the merged field type must be
 non-nullable to satisfy both schemas. {MostRestrictiveType(typeA, typeB)}
 ensures a final input type that is compatible with all definitions of that
 field.
