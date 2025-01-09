@@ -2738,11 +2738,11 @@ interface Node {
 }
 ```
 
-#### `@lookup` Should Have Nullable Return Type
+#### Lookup Returns Non-Nullable Type
 
 **Error Code**
 
-`LOOKUP_SHOULD_HAVE_NULLABLE_RETURN_TYPE`
+`LOOKUP_RETURNS_NON_NULLABLE_TYPE`
 
 **Severity**
 
@@ -2810,11 +2810,11 @@ type User {
 Here, `userById` returns a non-nullable `User!`, which does not align with the
 recommendation that a `@lookup` field should have a nullable return type.
 
-#### `@lookup` must not return a list
+#### Lookup Returns List
 
 **Error Code**
 
-`LOOKUP_MUST_NOT_RETURN_LIST`
+`LOOKUP_RETURNS_LIST`
 
 **Severity** ERROR
 
