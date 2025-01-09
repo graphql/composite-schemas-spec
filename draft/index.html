@@ -103,8 +103,8 @@ This is an example of a non-normative note.</div>
 <li><a href="#sec-Provides-Invalid-Fields-Type"><span class="spec-secid">3.2.1.35</span>Provides Invalid Fields Type</a></li>
 <li><a href="#sec-Provides-on-Non-Composite-Field"><span class="spec-secid">3.2.1.36</span>Provides on Non-Composite Field</a></li>
 <li><a href="#sec-External-on-Interface"><span class="spec-secid">3.2.1.37</span>External on Interface</a></li>
-<li><a href="#sec--lookup-Should-Have-Nullable-Return-Type"><span class="spec-secid">3.2.1.38</span>`@lookup` Should Have Nullable Return Type</a></li>
-<li><a href="#sec--lookup-must-not-return-a-list"><span class="spec-secid">3.2.1.39</span>`@lookup` must not return a list</a></li>
+<li><a href="#sec-Lookup-Returns-Non-Nullable-Type"><span class="spec-secid">3.2.1.38</span>Lookup Returns Non-Nullable Type</a></li>
+<li><a href="#sec-Lookup-Returns-List"><span class="spec-secid">3.2.1.39</span>Lookup Returns List</a></li>
 <li><a href="#sec-Input-Field-Default-Mismatch"><span class="spec-secid">3.2.1.40</span>Input Field Default Mismatch</a></li>
 <li><a href="#sec-Input-Field-Types-mergeable"><span class="spec-secid">3.2.1.41</span>Input Field Types mergeable</a></li>
 <li><a href="#sec-Enum-Values-Mismatch"><span class="spec-secid">3.2.1.42</span>Enum Values Mismatch</a></li>
@@ -3406,18 +3406,18 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
 </code></pre>
 </section>
 </section>
-<section id="sec--lookup-Should-Have-Nullable-Return-Type" secid="3.2.1.38">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L2741"><span class="spec-secid" title="link to this section"><a href="#sec--lookup-Should-Have-Nullable-Return-Type">3.2.1.38</a></span>`@lookup` Should Have Nullable Return Type</h4>
-<section id="sec--lookup-Should-Have-Nullable-Return-Type.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L2743"><a href="#sec--lookup-Should-Have-Nullable-Return-Type.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L2745"><code>LOOKUP_SHOULD_HAVE_NULLABLE_RETURN_TYPE</code></p>
+<section id="sec-Lookup-Returns-Non-Nullable-Type" secid="3.2.1.38">
+<h4 data-source="spec/Section%204%20--%20Composition.md#L2741"><span class="spec-secid" title="link to this section"><a href="#sec-Lookup-Returns-Non-Nullable-Type">3.2.1.38</a></span>Lookup Returns Non-Nullable Type</h4>
+<section id="sec-Lookup-Returns-Non-Nullable-Type.Error-Code" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L2743"><a href="#sec-Lookup-Returns-Non-Nullable-Type.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L2745"><code>LOOKUP_RETURNS_NON_NULLABLE_TYPE</code></p>
 </section>
-<section id="sec--lookup-Should-Have-Nullable-Return-Type.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L2747"><a href="#sec--lookup-Should-Have-Nullable-Return-Type.Severity" title="link to this subsection">Severity</a></h6>
+<section id="sec-Lookup-Returns-Non-Nullable-Type.Severity" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L2747"><a href="#sec-Lookup-Returns-Non-Nullable-Type.Severity" title="link to this subsection">Severity</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L2749">WARNING</p>
 </section>
-<section id="sec--lookup-Should-Have-Nullable-Return-Type.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L2751"><a href="#sec--lookup-Should-Have-Nullable-Return-Type.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<section id="sec-Lookup-Returns-Non-Nullable-Type.Formal-Specification" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L2751"><a href="#sec-Lookup-Returns-Non-Nullable-Type.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li data-source="spec/Section%204%20--%20Composition.md#L2753-L2754">Let <var data-name="fields">fields</var> be the set of all field definitions annotated with <code>@lookup</code> in the schema.</li>
 <li data-source="spec/Section%204%20--%20Composition.md#L2755-L2757">For each <var data-name="field">field</var> in <var data-name="fields">fields</var>:<ul>
@@ -3427,8 +3427,8 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
 </li>
 </ul>
 </section>
-<section id="sec--lookup-Should-Have-Nullable-Return-Type.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L2759"><a href="#sec--lookup-Should-Have-Nullable-Return-Type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<section id="sec-Lookup-Returns-Non-Nullable-Type.Explanatory-Text" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L2759"><a href="#sec-Lookup-Returns-Non-Nullable-Type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L2761-L2766">Fields annotated with the <code>@lookup</code> directive are intended to retrieve a single entity based on provided arguments. To properly handle cases where the requested entity does not exist, such fields should have a nullable return type. This allows the field to return <code>null</code> when an entity matching the provided criteria is not found, following the standard GraphQL practices for representing missing data.</p>
 <p data-source="spec/Section%204%20--%20Composition.md#L2768-L2773">In a distributed system, it is likely that some entities will not be found on other schemas, even when those schemas contribute fields to the type. Ensuring that <code>@lookup</code> fields have nullable return types also avoids GraphQL errors on schemas and prevents result erasure through non-null propagation. By allowing null to be returned when an entity is not found, the system can gracefully handle missing data without causing exceptions or unexpected behavior.</p>
 <p data-source="spec/Section%204%20--%20Composition.md#L2775-L2777">Ensuring that <code>@lookup</code> fields have nullable return types allows gateways to distinguish between cases where an entity is not found (receiving null) and other error conditions that may have to be propagated to the client.</p>
@@ -3444,8 +3444,8 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
 </code></pre>
 <p data-source="spec/Section%204%20--%20Composition.md#L2792-L2793">In this example, <code>userById</code> returns a nullable <code>User</code> type, aligning with the recommendation.</p>
 </section>
-<section id="sec--lookup-Should-Have-Nullable-Return-Type.Examples" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L2795"><a href="#sec--lookup-Should-Have-Nullable-Return-Type.Examples" title="link to this subsection">Examples</a></h6>
+<section id="sec-Lookup-Returns-Non-Nullable-Type.Examples" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L2795"><a href="#sec-Lookup-Returns-Non-Nullable-Type.Examples" title="link to this subsection">Examples</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L2797">This counter-example demonstrates an invalid usage:</p>
 <pre id="example-3719a" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L2799-L2808"><a href="#example-3719a">Counter Example № 126</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">userById</span><span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">User</span><span class="token operator">!</span> <span class="token directive function">@lookup</span>
@@ -3459,15 +3459,15 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
 <p data-source="spec/Section%204%20--%20Composition.md#L2810-L2811">Here, <code>userById</code> returns a non-nullable <code>User!</code>, which does not align with the recommendation that a <code>@lookup</code> field should have a nullable return type.</p>
 </section>
 </section>
-<section id="sec--lookup-must-not-return-a-list" secid="3.2.1.39">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L2813"><span class="spec-secid" title="link to this section"><a href="#sec--lookup-must-not-return-a-list">3.2.1.39</a></span>`@lookup` must not return a list</h4>
-<section id="sec--lookup-must-not-return-a-list.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L2815"><a href="#sec--lookup-must-not-return-a-list.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L2817"><code>LOOKUP_MUST_NOT_RETURN_LIST</code></p>
+<section id="sec-Lookup-Returns-List" secid="3.2.1.39">
+<h4 data-source="spec/Section%204%20--%20Composition.md#L2813"><span class="spec-secid" title="link to this section"><a href="#sec-Lookup-Returns-List">3.2.1.39</a></span>Lookup Returns List</h4>
+<section id="sec-Lookup-Returns-List.Error-Code" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L2815"><a href="#sec-Lookup-Returns-List.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L2817"><code>LOOKUP_RETURNS_LIST</code></p>
 <p data-source="spec/Section%204%20--%20Composition.md#L2819"><strong>Severity</strong> ERROR</p>
 </section>
-<section id="sec--lookup-must-not-return-a-list.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L2821"><a href="#sec--lookup-must-not-return-a-list.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<section id="sec-Lookup-Returns-List.Formal-Specification" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L2821"><a href="#sec-Lookup-Returns-List.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li data-source="spec/Section%204%20--%20Composition.md#L2823-L2824">Let <var data-name="fields">fields</var> be the set of all field definitions annotated with <code>@lookup</code> in the schema.</li>
 <li data-source="spec/Section%204%20--%20Composition.md#L2825-L2827">For each <var data-name="field">field</var> in <var data-name="fields">fields</var>:<ul>
@@ -3494,12 +3494,12 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
 </ol>
 </div>
 </section>
-<section id="sec--lookup-must-not-return-a-list.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L2839"><a href="#sec--lookup-must-not-return-a-list.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<section id="sec-Lookup-Returns-List.Explanatory-Text" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L2839"><a href="#sec-Lookup-Returns-List.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L2841-L2845">Fields annotated with the <code>@lookup</code> directive are intended to retrieve a single entity based on provided arguments. To avoid ambiguity in entity resolution, such fields must return a single object and not a list. This validation rule enforces that any field annotated with <code>@lookup</code> must have a return type that is <strong>NOT</strong> a list.</p>
 </section>
-<section id="sec--lookup-must-not-return-a-list.Examples" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L2847"><a href="#sec--lookup-must-not-return-a-list.Examples" title="link to this subsection">Examples</a></h6>
+<section id="sec-Lookup-Returns-List.Examples" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L2847"><a href="#sec-Lookup-Returns-List.Examples" title="link to this subsection">Examples</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L2849">For example, the following usage is valid:</p>
 <pre id="example-de10a" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L2851-L2860"><a href="#example-de10a">Example № 127</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">userById</span><span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">User</span> <span class="token directive function">@lookup</span>
@@ -6904,8 +6904,8 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <li id="_sidebar_3.2.1.35"><a href="#sec-Provides-Invalid-Fields-Type"><span class="spec-secid">3.2.1.35</span>Provides Invalid Fields Type</a></li>
 <li id="_sidebar_3.2.1.36"><a href="#sec-Provides-on-Non-Composite-Field"><span class="spec-secid">3.2.1.36</span>Provides on Non-Composite Field</a></li>
 <li id="_sidebar_3.2.1.37"><a href="#sec-External-on-Interface"><span class="spec-secid">3.2.1.37</span>External on Interface</a></li>
-<li id="_sidebar_3.2.1.38"><a href="#sec--lookup-Should-Have-Nullable-Return-Type"><span class="spec-secid">3.2.1.38</span>`@lookup` Should Have Nullable Return Type</a></li>
-<li id="_sidebar_3.2.1.39"><a href="#sec--lookup-must-not-return-a-list"><span class="spec-secid">3.2.1.39</span>`@lookup` must not return a list</a></li>
+<li id="_sidebar_3.2.1.38"><a href="#sec-Lookup-Returns-Non-Nullable-Type"><span class="spec-secid">3.2.1.38</span>Lookup Returns Non-Nullable Type</a></li>
+<li id="_sidebar_3.2.1.39"><a href="#sec-Lookup-Returns-List"><span class="spec-secid">3.2.1.39</span>Lookup Returns List</a></li>
 <li id="_sidebar_3.2.1.40"><a href="#sec-Input-Field-Default-Mismatch"><span class="spec-secid">3.2.1.40</span>Input Field Default Mismatch</a></li>
 <li id="_sidebar_3.2.1.41"><a href="#sec-Input-Field-Types-mergeable"><span class="spec-secid">3.2.1.41</span>Input Field Types mergeable</a></li>
 <li id="_sidebar_3.2.1.42"><a href="#sec-Enum-Values-Mismatch"><span class="spec-secid">3.2.1.42</span>Enum Values Mismatch</a></li>
