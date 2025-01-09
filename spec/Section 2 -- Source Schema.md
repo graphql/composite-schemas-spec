@@ -543,17 +543,79 @@ directive @shareable repeatable on OBJECT | FIELD_DEFINITION
 
 By default, only a single source schema is allowed to contribute a particular
 field to an object type. This prevents source schemas from inadvertently
-defining similarly named fields that are semantically not the same.
+defining similarly named fields that are not semantically equivalent.
 
-Fields have to be explicitly marked as `@shareable` to allow multiple source
-schemas to define it, and this ensures that the step of allowing a field to be
-served from multiple source schemas is an explicit, coordinated decision.
+```graphql counter-example
+# Schema A
+type Product {
+  name: String!
+  description: String!
+}
 
-If multiple source schemas define the same field, these are assumed to be
-semantically equivalent, and the executor is free to choose between them as it
-sees fit.
+# Schema B
+type Product {
+  name: String!
+  variation: ProductVariation!
+}
+```
 
-Note: Key fields are always considered sharable.
+Fields must be explicitly marked as `@shareable` to allow multiple source
+schemas to define them, ensuring that the decision to serve a field from more
+than one source schema is intentional and coordinated.
+
+```graphql example
+# Schema A
+type Product {
+  name: String! @shareable
+  description: String!
+}
+
+# Schema B
+type Product {
+  name: String! @shareable
+  variation: ProductVariation!
+}
+```
+
+If multiple source schemas define the same sharable field, they are assumed to
+be semantically equivalent, and the executor is free to choose between them as
+it sees fit.
+
+The `@shareable` directive can also be applied at the object-type level, having
+the same effect as if `@shareable` were applied to each field of the type.
+
+```graphql example
+# Schema A
+type Product @shareable {
+  name: String!
+  description: String!
+}
+
+# Schema B
+type Product {
+  name: String! @shareable
+  variation: ProductVariation!
+}
+```
+
+Key fields of an object-type are considered shareable by default and do not need
+to be explicitly marked with `@shareable`.
+
+```graphql example
+# Schema A
+type Product @key(fields: "id") {
+  id: ID!
+  name: String! @shareable
+  description: String!
+}
+
+# Schema B
+type Product @key(fields: "id") {
+  id: ID!
+  name: String! @shareable
+  variation: ProductVariation!
+}
+```
 
 ## @provides
 
