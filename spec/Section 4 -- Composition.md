@@ -2816,7 +2816,9 @@ recommendation that a `@lookup` field should have a nullable return type.
 
 `LOOKUP_RETURNS_LIST`
 
-**Severity** ERROR
+**Severity**
+
+ERROR
 
 **Formal Specification**
 
@@ -4583,11 +4585,13 @@ a whole.
 
 `EMPTY_MERGED_OBJECT_TYPE`
 
-**Severity** ERROR
+**Severity**
+
+ERROR
 
 **Formal Specification**
 
-- Let {types} be the set of all input object types in the composite schema.
+- Let {types} be the set of all object types in the composite schema.
 - For each {type} in {types}:
   - Let {fields} be a set of all fields in {type}.
   - {fields} must not be empty.
@@ -5056,7 +5060,7 @@ therefore the field can be define in multiple schemas without being marked as
 # Schema A
 type User @key(fields: "id") {
   id: ID!
-  fullName: String @override(from": "B")
+  fullName: String @override(from: "B")
 }
 
 # Schema B
