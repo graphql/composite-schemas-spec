@@ -286,14 +286,14 @@ type Product {
 ## @inaccessible
 
 ```graphql
-directive @inaccessible on OBJECT | FIELD_DEFINITION
+directive @inaccessible on FIELD_DEFINITION | OBJECT | INTERFACE | UNION | ARGUMENT_DEFINITION | SCALAR | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 ```
 
-The `@inaccessible` directive is used to prevent specific objects or fields from
-being accessible through the client-facing _composite schema_, even if they are
-accessible in the underlying source schemas.
+The `@inaccessible` directive is used to prevent specific type system members
+from being accessible through the client-facing _composite schema_, even if they
+are accessible in the underlying source schemas.
 
-This directive is useful for restricting access to fields or objects that are
+This directive is useful for restricting access to type system members that are
 either irrelevant to the client-facing composite schema or sensitive in nature,
 such as internal identifiers or fields intended only for backend use.
 
@@ -314,9 +314,9 @@ type Query {
 }
 ```
 
-In contrast to the `@internal` directive `@inaccessible` hides an object type or
-output field from the composite schema even if other source schemas on the same
-type system member have no `@inaccessible` directive.
+In contrast to the `@internal` directive `@inaccessible` hides an type system
+members from the composite schema even if other source schemas on the same type
+system member have no `@inaccessible` directive.
 
 ```graphql example
 # Source Schema A
