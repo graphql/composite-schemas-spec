@@ -2,7 +2,7 @@
 >
 > This spec is in the proposal stage of active development, and can change
 > before reaching `Draft` stage. For more information, please see the
-> [Roadmap](ROADMAP.md) or [how to get involved](INTERESTED_DEVELOPERS.md).
+> [Roadmap](ROADMAP.md).
 
 ---
 
