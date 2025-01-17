@@ -3416,18 +3416,18 @@ MergeInterfaceTypes(types):
 - Let {firstType} be the first type in {types}.
 - Let {typeName} be the name of {firstType}.
 - Let {description} be the description of {firstType}.
-- Let {fields} be an empty set.
+- Let {mergedFields} be an empty set.
 - For each {type} in {types}:
   - If {description} is {null}:
     - Set {description} to the description of {type}.
 - Let {fieldNames} be the set of all field names in {types}.
 - For each {fieldName} in {fieldNames}:
-  - Let {field} be the set of fields with the name {fieldName} in {types}.
-  - Let {mergedField} be the result of {MergeFieldDefinitions(fields)}.
+  - Let {fields} be the set of fields with the name {fieldName} in {types}.
+  - Let {mergedField} be the result of {MergeOutputFields(fields)}.
   - If {mergedField} is not {null}:
-    - Add {mergedField} to {fields}.
+    - Add {mergedField} to {mergedFields}.
 - Return a new interface type with the name of {typeName}, description of
-  {description}, and fields of {fields}.
+  {description}, and fields of {mergedFields}.
 
 **Explanatory Text**
 
@@ -3450,9 +3450,9 @@ interface has none.
 _Merging Fields_
 
 Each interface contributes its fields. Those fields that share the same name
-across multiple interfaces are reconciled via {MergeFieldDefinitions(fields)}.
-This ensures any differences in type, nullability, or other constraints are
-resolved before appearing in the final interface.
+across multiple interfaces are reconciled via {MergeOutputFields(fields)}. This
+ensures any differences in type, nullability, or other constraints are resolved
+before appearing in the final interface.
 
 By applying these steps, {MergeInterfaceTypes(types)} produces a coherent
 interface type definition that reflects the fields from all compatible sources
@@ -3480,7 +3480,7 @@ interface Product {
 
 # Composed Result
 
-interface Entity {
+interface Product {
   id: ID!
   name: String
   createdAt: String
@@ -3742,16 +3742,18 @@ MergeInputTypes(types):
 - Let {firstType} be the first type in {types}.
 - Let {typeName} be the name of {firstType}.
 - Let {description} be the description of {firstType}.
-- Let {fields} be an empty set.
+- Let {mergedFields} be an empty set.
 - For each {type} in {types}:
   - If {description} is {null}:
     - Set {description} to the description of {type}.
 - Let {fieldNames} be the set of all field names in {types}.
 - For each {fieldName} in {fieldNames}:
-  - Let {field} be the set of fields with the name {fieldName} in {types}.
-  - Let {mergedField} be the result of {MergeInputField(fields)}.
+  - Let {fields} be the set of fields with the name {fieldName} in {types}.
+  - Let {mergedField} be the result of {MergeInputFields(fields)}.
   - If {mergedField} is not {null}:
-    - Add {mergedField} to {fields}.
+    - Add {mergedField} to {mergedFields}.
+- Return a new input object type with the name of {typeName}, description of
+  {description}, fields of {mergedFields}.
 
 **Explanatory Text**
 
@@ -3776,12 +3778,12 @@ definition has no description.
 _Merging Fields_
 
 After filtering out inaccessible types, the algorithm merges each input field
-name found across the remaining types. For each field, {MergeInputField(fields)}
-is called to reconcile differences in type, nullability, default values, etc..
-If a merged field ends up being `null` - for instance, because one of its
-underlying definitions was inaccessible - that field is not included in the
-final definition. The end result is a single input type that correctly unifies
-every compatible field from the various sources.
+name found across the remaining types. For each field,
+{MergeInputFields(fields)} is called to reconcile differences in type,
+nullability, default values, etc.. If a merged field ends up being `null` - for
+instance, because one of its underlying definitions was inaccessible - that
+field is not included in the final definition. The end result is a single input
+type that correctly unifies every compatible field from the various sources.
 
 **Examples**
 
@@ -3860,21 +3862,23 @@ MergeObjectTypes(types):
 - If any {type} in {types} is marked with `@inaccessible`
   - Return {null}
 - Remove all types marked with `@internal` from {types}.
+- If {types} is empty:
+  - Return {null}
 - Let {firstType} be the first type in {types}.
 - Let {typeName} be the name of {firstType}.
 - Let {description} be the description of {firstType}.
-- Let {fields} be an empty set.
+- Let {mergedFields} be an empty set.
 - For each {type} in {types}:
   - If {description} is {null}:
     - Set {description} to the description of {type}.
 - Let {fieldNames} be the set of all field names in {types}.
 - For each {fieldName} in {fieldNames}:
-  - Let {field} be the set of fields with the name {fieldName} in {types}.
-  - Let {mergedField} be the result of {MergeOutputField(fields)}.
+  - Let {fields} be the set of fields with the name {fieldName} in {types}.
+  - Let {mergedField} be the result of {MergeOutputFields(fields)}.
   - If {mergedField} is not {null}:
-    - Add {mergedField} to {fields}.
+    - Add {mergedField} to {mergedFields}.
 - Return a new object type with the name of {typeName}, description of
-  {description}, fields of {fields}.
+  {description}, fields of {mergedFields}.
 
 **Explanatory Text**
 
@@ -3904,8 +3908,8 @@ simply has no description.
 _Merging Fields_
 
 All remaining object types contribute their fields. The algorithm gathers every
-field name across these types, then calls {MergeOutputField(fields)} for each
-name to reconcile any differences. If {MergeOutputField(fields)} returns {null}
+field name across these types, then calls {MergeOutputFields(fields)} for each
+name to reconcile any differences. If {MergeOutputFields(fields)} returns {null}
 (for instance, because a field is marked `@inaccessible`), that field is
 excluded from the final object type. The result is a unified set of fields that
 reflects each source definition while maintaining compatibility across them.
@@ -4006,11 +4010,11 @@ type Product {
 }
 ```
 
-#### Merge Output Field
+#### Merge Output Fields
 
 **Formal Specification**
 
-MergeOutputField(fields):
+MergeOutputFields(fields):
 
 - If any {field} in {fields} is marked with `@inaccessible`
   - Return {null}
@@ -4022,23 +4026,24 @@ MergeOutputField(fields):
 - Let {fieldType} be the type of {firstField}.
 - Let {description} be the description of {firstField}.
 - For each {field} in {fields}:
+  - Let {type} be the type of {field}.
   - Set {fieldType} to be the result of {LeastRestrictiveType(fieldType, type)}.
   - If {description} is {null}:
     - Let {description} be the description of {field}.
-- Let {arguments} be an empty set.
+- Let {mergedArguments} be an empty set.
 - Let {argumentNames} be the set of all argument names in {fields}.
 - For each {argumentName} in {argumentNames}:
   - Let {arguments} be the set of arguments with the name {argumentName} in
     {fields}.
   - Let {mergedArgument} be the result of {MergeArgumentDefinitions(arguments)}.
-  - If {mergedArguments} is not {null}:
-    - Add {mergedArgument} to {arguments}.
+  - If {mergedArgument} is not {null}:
+    - Add {mergedArgument} to {mergedArguments}.
 - Return a new field with the name of {fieldName}, type of {fieldType},
-  arguments of {arguments}, and description of {description}.
+  arguments of {mergedArguments}, and description of {description}.
 
 **Explanatory Text**
 
-The {MergeOutputField(fields)} algorithm is used when multiple fields across
+The {MergeOutputFields(fields)} algorithm is used when multiple fields across
 different object or interface types share the same field name and must be merged
 into a single composed field. This algorithm ensures that the final composed
 schema has one definitive definition for that field, resolving differences in
@@ -4121,11 +4126,11 @@ type Product {
 }
 ```
 
-#### Merge Input Field
+#### Merge Input Fields
 
 **Formal Specification**
 
-MergeInputField(fields):
+MergeInputFields(fields):
 
 - If any {field} in {fields} is marked with `@inaccessible`
   - Return null
@@ -4136,22 +4141,23 @@ MergeInputField(fields):
 - Let {defaultValue} be the default value of {firstField} or undefined if none
   exists.
 - For each {field} in {fields}:
+  - Let {type} be the type of {field}.
   - Set {fieldType} to be the result of {MostRestrictiveType(fieldType, type)}.
+  - If {description} is null:
+    - Let {description} be the description of {field}.
   - If {defaultValue} is undefined:
     - Set {defaultValue} to the default value of {field} or undefined if none
       exists.
-  - If {description} is null:
-    - Let {description} be the description of {field}.
 - Return a new input field with the name of {fieldName}, type of {fieldType},
   and description of {description} and default value of {defaultValue}.
 
 **Explanatory Text**
 
-The {MergeInputField(fields)} algorithm merges multiple input field definitions,
-all sharing the same field name, into a single composed input field. This
-ensures the final input type in a composed schema maintains a consistent type,
-description, and default value for that field. Below is a breakdown of how
-{MergeInputField(fields)} operates:
+The {MergeInputFields(fields)} algorithm merges multiple input field
+definitions, all sharing the same field name, into a single composed input
+field. This ensures the final input type in a composed schema maintains a
+consistent type, description, and default value for that field. Below is a
+breakdown of how {MergeInputFields(fields)} operates:
 
 _Inaccessible Fields_
 
@@ -4207,7 +4213,7 @@ input OrderFilter {
   """
   Filter by the minimum order total
   """
-  minTotal: Int = 0
+  minTotal: Int! = 0
 }
 ```
 
@@ -4230,7 +4236,7 @@ MergeArgumentDefinitions(arguments):
 - For each {argument} in {arguments}:
   - If {argument} is marked with `@require`
     - Continue
-  - Set {mergedArgument} to the result of {MergeArgument(mergedArgument,
+  - Set {mergedArgument} to the result of {MergeArguments(mergedArgument,
     argument)}
 - Return {mergedArgument}
 
@@ -4310,11 +4316,11 @@ In the merged schema, the `filter` argument is defined with the most restrictive
 type (`ProductFilter!`), includes the description from the original field in
 `Schema A`, and is marked as required.
 
-#### Merge Argument
+#### Merge Arguments
 
 **Formal Specification**
 
-MergeArgument(argumentA, argumentB):
+MergeArguments(argumentA, argumentB):
 
 - Let {typeA} be the type of {argumentA}.
 - Let {typeB} be the type of {argumentB}.
@@ -4328,14 +4334,14 @@ MergeArgument(argumentA, argumentB):
 - If {defaultValue} is undefined:
   - Set {defaultValue} to the default value of {argumentB} or undefined if none
     exists.
-- Return a new argument with the name of {argumentA}, type of {type}, and
-  description of {description}.
+- Return a new argument with the name of {argumentA}, type of {type},
+  description of {description}, and default value of {defaultValue}.
 
 **Explanatory Text**
 
-{MergeArgument(argumentA, argumentB)} takes two arguments with the same name but
-possibly differing in type, description, or default value, and returns a single,
-unified argument definition.
+{MergeArguments(argumentA, argumentB)} takes two arguments with the same name
+but possibly differing in type, description, or default value, and returns a
+single, unified argument definition.
 
 _Unifying the Type_
 
