@@ -385,10 +385,15 @@ mediaById<Book>.isbn
 
 SelectedValue ::
 
-- Path
-- SelectedObjectValue
+- SelectedValue | SelectedValueEntry
+- `|`? SelectedValueEntry
+
+SelectedValueEntry ::
+
+- Path [lookahead != `.`]
 - Path . SelectedObjectValue
-- SelectedValue | SelectedValue
+- Path SelectedListValue
+- SelectedObjectValue
 
 A {SelectedValue} is defined as either a {Path} or a {SelectedObjectValue}
 
@@ -425,6 +430,7 @@ SelectedObjectValue ::
 SelectedObjectField ::
 
 - Name: SelectedValue
+- Name
 
 {SelectedObjectValue} are unordered lists of keyed input values wrapped in
 curly-braces `{}`. It has to be used when the expected input type is an object
@@ -471,6 +477,7 @@ type Product {
 SelectedListValue ::
 
 - [ SelectedValue ]
+- [ SelectedListValue ]
 
 A {SelectedListValue} is an ordered list of {SelectedValue} wrapped in square
 brackets `[]`. It is used to express semantic equivalence between an argument
