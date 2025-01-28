@@ -654,7 +654,7 @@ type context.
 
 **Explanatory Text**
 
-The {Path} literal is used to reference a specific output field from a input
+The {Path} literal is used to reference a specific output field from an input
 field. Each segment in the {Path} must correspond to a field that is valid
 within the current type scope.
 

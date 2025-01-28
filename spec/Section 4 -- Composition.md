@@ -2629,7 +2629,7 @@ ERROR
       - If {field} is annotated with `@provides`:
         - Let {fieldType} be the base return type of {field} (i.e., unwrapped of
           any `[ ]` or `!`).
-        - {fieldType} must be a interface or object type.
+        - {fieldType} must be an interface or object type.
 
 **Explanatory Text**
 
@@ -4694,7 +4694,7 @@ field on the root `Query` type.
 
 In GraphQL, the `Query` type is essential as it defines the entry points for
 read operations. If none of the composed schemas expose any query fields, the
-composed schema would lack a root query, making it a invalid GraphQL schema.
+composed schema would lack a root query, making it an invalid GraphQL schema.
 
 **Examples**
 
@@ -5053,7 +5053,7 @@ type User @key(fields: "id") {
 ```
 
 In the following example, `User.fullName` is overridden in one schema and
-therefore the field can be define in multiple schemas without being marked as
+therefore the field can be defined in multiple schemas without being marked as
 `@shareable`.
 
 ```graphql example
@@ -5071,7 +5071,7 @@ type User @key(fields: "id") {
 ```
 
 In the following example, `User.fullName` is marked as `@external` in one schema
-and therefore the field can be define in the other schema without being marked
+and therefore the field can be defined in the other schema without being marked
 as `@shareable`.
 
 ```graphql example
@@ -5719,7 +5719,7 @@ input BookFilter {
 
 **Error Code**
 
-INPUT_FIELD_REFERENCES_INACCESSIBLE_TYPE
+`INPUT_FIELD_REFERENCES_INACCESSIBLE_TYPE`
 
 **Formal Specification**
 
