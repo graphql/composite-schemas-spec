@@ -314,7 +314,7 @@ type Query {
 }
 ```
 
-In contrast to the `@internal` directive `@inaccessible` hides an type system
+In contrast to the `@internal` directive, `@inaccessible` hides type system
 members from the composite schema even if other source schemas on the same type
 system member have no `@inaccessible` directive.
 
