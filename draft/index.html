@@ -438,7 +438,7 @@ Although the GraphQL Composite Schemas specification does not describe how to co
   <span class="token attr-name">productBySku</span><span class="token punctuation">(</span><span class="token attr-name">sku</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Product</span> <span class="token directive function">@inaccessible</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Source%20Schema.md#L317-L319">In contrast to the <code>@internal</code> directive <code>@inaccessible</code> hides an type system members from the composite schema even if other source schemas on the same type system member have no <code>@inaccessible</code> directive.</p>
+<p data-source="spec/Section%202%20--%20Source%20Schema.md#L317-L319">In contrast to the <code>@internal</code> directive, <code>@inaccessible</code> hides type system members from the composite schema even if other source schemas on the same type system member have no <code>@inaccessible</code> directive.</p>
 <pre id="example-536ec" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Source%20Schema.md#L321-L341"><a href="#example-536ec">Example № 16</a><code><span class="token comment"># Source Schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"sku"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
@@ -3306,7 +3306,7 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
 <li data-source="spec/Section%204%20--%20Composition.md#L2628-L2632">For each <var data-name="field">field</var> in <var data-name="fields">fields</var>:<ul>
 <li data-source="spec/Section%204%20--%20Composition.md#L2629-L2632">If <var data-name="field">field</var> is annotated with <code>@provides</code>:<ul>
 <li data-source="spec/Section%204%20--%20Composition.md#L2630-L2631">Let <var data-name="fieldType">fieldType</var> be the base return type of <var data-name="field">field</var> (i.e., unwrapped of any <code>[ ]</code> or <code>!</code>).</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L2632"><var data-name="fieldType">fieldType</var> must be a interface or object type.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L2632"><var data-name="fieldType">fieldType</var> must be an interface or object type.</li>
 </ul>
 </li>
 </ul>
@@ -5082,7 +5082,7 @@ Number of items to fetch
 <section id="sec-No-Queries.Explanatory-Text" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L4690"><a href="#sec-No-Queries.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L4692-L4693">This rule ensures that the composed schema includes at least one accessible field on the root <code>Query</code> type.</p>
-<p data-source="spec/Section%204%20--%20Composition.md#L4695-L4697">In GraphQL, the <code>Query</code> type is essential as it defines the entry points for read operations. If none of the composed schemas expose any query fields, the composed schema would lack a root query, making it a invalid GraphQL schema.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L4695-L4697">In GraphQL, the <code>Query</code> type is essential as it defines the entry points for read operations. If none of the composed schemas expose any query fields, the composed schema would lack a root query, making it an invalid GraphQL schema.</p>
 </section>
 <section id="sec-No-Queries.Examples" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L4699"><a href="#sec-No-Queries.Examples" title="link to this subsection">Examples</a></h6>
@@ -5397,7 +5397,7 @@ Number of items to fetch
   <span class="token attr-name">email</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5055-L5057">In the following example, <code>User.fullName</code> is overridden in one schema and therefore the field can be define in multiple schemas without being marked as <code>@shareable</code>.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L5055-L5057">In the following example, <code>User.fullName</code> is overridden in one schema and therefore the field can be defined in multiple schemas without being marked as <code>@shareable</code>.</p>
 <pre id="example-a076a" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5059-L5071"><a href="#example-a076a">Example № 167</a><code><span class="token comment"># Schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
@@ -5410,7 +5410,7 @@ Number of items to fetch
   <span class="token attr-name">fullName</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5073-L5075">In the following example, <code>User.fullName</code> is marked as <code>@external</code> in one schema and therefore the field can be define in the other schema without being marked as <code>@shareable</code>.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L5073-L5075">In the following example, <code>User.fullName</code> is marked as <code>@external</code> in one schema and therefore the field can be defined in the other schema without being marked as <code>@shareable</code>.</p>
 <pre id="example-794db" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5077-L5089"><a href="#example-794db">Example № 168</a><code><span class="token comment"># Schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
@@ -6022,7 +6022,7 @@ Number of items to fetch
 <h4 data-source="spec/Section%204%20--%20Composition.md#L5718"><span class="spec-secid" title="link to this section"><a href="#sec-Input-Fields-cannot-reference-inaccessible-type">3.2.3.12</a></span>Input Fields cannot reference inaccessible type</h4>
 <section id="sec-Input-Fields-cannot-reference-inaccessible-type.Error-Code" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L5720"><a href="#sec-Input-Fields-cannot-reference-inaccessible-type.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5722">INPUT<em>FIELD</em>REFERENCES<em>INACCESSIBLE</em>TYPE</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L5722"><code>INPUT_FIELD_REFERENCES_INACCESSIBLE_TYPE</code></p>
 </section>
 <section id="sec-Input-Fields-cannot-reference-inaccessible-type.Formal-Specification" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L5724"><a href="#sec-Input-Fields-cannot-reference-inaccessible-type.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
@@ -6533,7 +6533,7 @@ Number of items to fetch
 </section>
 <section id="sec-Path-Field-Selections.Explanatory-Text" class="subsec">
 <h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L655"><a href="#sec-Path-Field-Selections.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L657-L659">The <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> literal is used to reference a specific output field from a input field. Each segment in the <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> must correspond to a field that is valid within the current type scope.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L657-L659">The <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> literal is used to reference a specific output field from an input field. Each segment in the <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> must correspond to a field that is valid within the current type scope.</p>
 <p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L661">For example, the following <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> is valid in the context of <code>Book</code>:</p>
 <pre id="example-db002" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L663-L665"><a href="#example-db002">Example № 222</a><code><span class="token property">title</span>
 </code></pre>
