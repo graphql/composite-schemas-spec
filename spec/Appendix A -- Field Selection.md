@@ -385,17 +385,30 @@ mediaById<Book>.isbn
 
 SelectedValue ::
 
-- Path
-- SelectedObjectValue
+- SelectedValue | SelectedValueEntry
+- `|`? SelectedValueEntry
+
+SelectedValueEntry ::
+
+- Path [lookahead != `.`]
 - Path . SelectedObjectValue
-- SelectedValue | SelectedValue
+- Path SelectedListValue
+- SelectedObjectValue
 
-A {SelectedValue} is defined as either a {Path} or a {SelectedObjectValue}
+A {SelectedValue} consists of one or more {SelectedValueEntry} components, which
+may be joined by a pipe (`|`) operator to indicate alternative selections based
+on type.
 
-A {Path} is designed to point to only a single value, although it may reference
-multiple fields depending on the return type. To allow selection from different
-paths based on type, a {Path} can include multiple paths separated by a pipe
-(`|`).
+Each {SelectedValueEntry} may take one of the following forms:
+
+- A {Path} (when not immediately followed by a dot) that is designed to point to
+  a single value, although it may reference multiple fields depending on its
+  return type.
+- A {Path} immediately followed by a dot and a {SelectedObjectValue} to denote a
+  nested object selection.
+- A {Path} immediately followed by a {SelectedListValue} to denote selection
+  from a list.
+- A standalone {SelectedObjectValue}
 
 In the following example, the value could be `title` when referring to a `Book`
 and `movieTitle` when referring to a `Movie`.
@@ -425,6 +438,7 @@ SelectedObjectValue ::
 SelectedObjectField ::
 
 - Name: SelectedValue
+- Name
 
 {SelectedObjectValue} are unordered lists of keyed input values wrapped in
 curly-braces `{}`. It has to be used when the expected input type is an object
@@ -471,6 +485,7 @@ type Product {
 SelectedListValue ::
 
 - [ SelectedValue ]
+- [ SelectedListValue ]
 
 A {SelectedListValue} is an ordered list of {SelectedValue} wrapped in square
 brackets `[]`. It is used to express semantic equivalence between an argument
@@ -654,7 +669,7 @@ type context.
 
 **Explanatory Text**
 
-The {Path} literal is used to reference a specific output field from a input
+The {Path} literal is used to reference a specific output field from an input
 field. Each segment in the {Path} must correspond to a field that is valid
 within the current type scope.
 

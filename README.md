@@ -2,19 +2,15 @@
 >
 > This spec is in the proposal stage of active development, and can change
 > before reaching `Draft` stage. For more information, please see the
-> [Roadmap](ROADMAP.md) or [how to get involved](INTERESTED_DEVELOPERS.md).
+> [Roadmap](ROADMAP.md).
 
 ---
 
 # GraphQL Composite Schema Spec
 
-**Spec Location**
-
-The GraphQL Composite Schemas specification is edited in the
-[spec-md markdown file](./spec/Spec.md).
-
-In the future, we plan that you would be able to view the generated form of the
-specification as well.
+The GraphQL Composite Schema specification is edited in the markdown files found
+in [`/spec`](./spec) the latest release of which is published at
+https://graphql.github.io/composite-schemas-spec/.
 
 ### Contributing to this repo
 
