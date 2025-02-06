@@ -15,8 +15,9 @@ The `@lookup` directive is used within a _source schema_ to specify output
 fields that can be used by the _distributed GraphQL executor_ to resolve an
 entity by a stable key.
 
-The stable key is defined by the arguments of the field. Each lookup argument must
-match a field on the return type of the lookup field or specify a default value.
+The stable key is defined by the arguments of the field. Each lookup argument
+must match a field on the return type of the lookup field or specify a default
+value.
 
 Source schemas can provide multiple lookup fields for the same entity that
 resolve the entity by different keys.
@@ -89,50 +90,6 @@ type Electronics {
 
 # Clothing does not have a field that corresponds
 # with the lookup field's argument signature.
-type Clothing {
-  id: ID!
-  name: String
-  size: String
-  price: Float
-}
-```
-
-TODO: Do we need this example?
-
-```graphql example
-type Query {
-  product(
-    by: ProductByInput
-      @is(
-        field: "{ electronics: <Electronics>.{ id categoryId } } | { clothing: <Clothing>.{ id } }"
-      )
-  ): Product @lookup
-}
-
-input ProductByInput @oneOf {
-  electronics: ElectronicsKeyInput
-  clothing: ClothingKeyInput
-}
-
-input ElectronicsKeyInput {
-  id: ID!
-  categoryId: Int
-}
-
-input ClothingKeyInput {
-  id: ID!
-}
-
-union Product = Electronics | Clothing
-
-type Electronics {
-  id: ID!
-  categoryId: Int
-  name: String
-  brand: String
-  price: Float
-}
-
 type Clothing {
   id: ID!
   name: String
@@ -509,10 +466,9 @@ input ProductDimensionInput {
 directive @key(fields: SelectionSet!) repeatable on OBJECT | INTERFACE
 ```
 
-The @key directive is used to designate an entity's unique key, which identifies
-how to uniquely reference an instance of an entity across different source
-schemas. It allows a source schema to indicate which fields form a unique
-identifier, or **key**, for an entity.
+The `@key` directive is used to designate an entity's unique key, which
+identifies how to uniquely reference an instance of an entity across different
+source schemas.
 
 ```graphql example
 type Product @key(fields: "id") {
@@ -523,9 +479,9 @@ type Product @key(fields: "id") {
 }
 ```
 
-Each occurrence of the @key directive on an object or interface type specifies
-one distinct unique key for that entity, which enables a gateway to perform
-lookups and resolve instances of the entity based on that key.
+Each occurrence of the `@key` directive on an object or interface type specifies
+one distinct unique key for that entity. Keys allow the distributed GraphQL
+executor to distinguish between different entities of the same type.
 
 ```graphql example
 type Product @key(fields: "id") @key(fields: "key") {
@@ -553,6 +509,42 @@ The directive is applicable to both OBJECT and INTERFACE types. This allows
 entities that implement an interface to inherit the key(s) defined at the
 interface level, ensuring consistent identification across different
 implementations of that interface.
+
+By applying the `@key` directive all referenced fields become sharable even if
+the fields are not explicitly marked with `@shareable`.
+
+```graphql example
+# source schema A
+type Product @key(fields: "id") {
+  id: ID!
+  price: Float!
+}
+
+# source schema B
+type Product @key(fields: "id") {
+  id: ID!
+  name: String!
+}
+```
+
+Fields must be explicitly marked as a key or annotated with the `@shareable`
+directive to allow multiple source schemas to define them, ensuring that the
+decision to serve a field from more than one source schema is intentional and
+coordinated.
+
+```graphql counter-example
+# source schema A
+type Product @key(fields: "id") {
+  id: ID!
+  price: Float!
+}
+
+# source schema B
+type Product {
+  id: ID!
+  name: String!
+}
+```
 
 **Arguments:**
 
