@@ -4352,6 +4352,7 @@ MergeInputFields(fields):
 - Let {defaultValue} be the default value of {firstField} or undefined if none
   exists.
 - For each {field} in {fields}:
+  - Assert: {field} is **not** marked with `@inaccessible`
   - Let {type} be the type of {field}.
   - Set {fieldType} to be the result of {MostRestrictiveType(fieldType, type)}.
   - If {description} is null:
@@ -4372,8 +4373,9 @@ breakdown of how {MergeInputFields(fields)} operates:
 
 _Inaccessible Fields_
 
-If any of the fields is marked with `@inaccessible`, we cannot include the field
-in the composed schema, and the merge algorithm returns `null`.
+Before calling {MergeInputField(fields)}, all fields marked with `@inaccessible`
+must be filtered out. If any such field appears in the input, it is a
+precondition violation of this algorithm.
 
 _Combining Descriptions_
 
@@ -4445,8 +4447,8 @@ MergeArgumentDefinitions(arguments):
 - If {mergedArgument} is null
   - Return null
 - For each {argument} in {arguments}:
-  - If {argument} is marked with `@require`
-    - Continue
+  - Assert: {argument} is **not** marked with `@inaccessible`
+  - Assert: {argument} is **not** marked with `@require`
   - Set {mergedArgument} to the result of {MergeArguments(mergedArgument,
     argument)}
 - Return {mergedArgument}
@@ -4459,26 +4461,27 @@ definition.
 
 _Inaccessible Arguments_
 
-If any argument in the set is marked with `@inaccessible`, the entire argument
-definition is discarded by returning `null`. An inaccessible argument should not
-appear in the final composed schema.
+Inaccessible arguments (`@inaccessible`) should be handled and filtered out
+**before** calling {MergeArgumentDefinitions(arguments)}. By the time this
+algorithm is invoked, any arguments marked `@inaccessible` must already be
+removed. If such an argument somehow appears here, it is a precondition
+violation of this algorithm.
 
 _Handling `@require`_
 
-The `@require` directive is used to indicate that the argument is required for
-the field to be resolved, yet it specifies it as a dependency that is resolved
-at runtime. Therefore, this argument should not affect the merge process. If
-there are only `@require` arguments in the set, the merge algorithm returns
-`null`.
+The `@require` directive is likewise handled **before** this algorithm.
+Arguments marked with `@require` do not participate in the merge process and
+must be filtered out of the input. If any `@require` arguments are included in
+this function, it is also a precondition violation.
 
 _Merging Arguments_
 
-All arguments that are not marked with `@require` are merged using the
-`MergeArgument` algorithm. This algorithm ensures that the final composed
-argument is compatible with all definitions of that argument, resolving
-differences in type, default value, and description.
+All remaining arguments (those not marked `@inaccessible` or `@require`) are
+merged via {MergeArgument(mergedArgument, argument)}. This algorithm ensures
+that the final composed argument is compatible with all definitions of that
+argument, resolving differences in type, default value, and description.
 
-By selectively including or excluding certain arguments (via `@inaccessible` or
+By selectively merging differences where possible, this algorithm ensures that
 `@require`), and merging differences where possible, this algorithm ensures that
 the resulting composed argument is both valid and compatible with the source
 definitions.
