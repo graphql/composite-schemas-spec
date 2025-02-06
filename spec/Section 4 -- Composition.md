@@ -2476,11 +2476,11 @@ type User {
 
 #### Field With Missing Required Arguments
 
-**Error Code:**  
+**Error Code:**
 
 `FIELD_WITH_MISSING_REQUIRED_ARGUMENT`
 
-**Severity:**  
+**Severity:**
 
 ERROR
 
@@ -2508,9 +2508,9 @@ ERROR
 
 When merging a field definition across multiple schemas, any argument that is
 non-null (i.e., “required”) in one schema must appear in all schemas that define
-that field. In other words, arguments are effectively merged by intersection:
-if an argument is considered required in any schema, then that same argument
-must exist in every schema that contributes to the composite definition. If a
+that field. In other words, arguments are effectively merged by intersection: if
+an argument is considered required in any schema, then that same argument must
+exist in every schema that contributes to the composite definition. If a
 required argument is missing in one schema, there is no consistent way to define
 that field across schemas.
 
@@ -2564,7 +2564,7 @@ schema but not in the other. This will result in a
 ```graphql counter-example
 # Schema A
 type Query {
-  books(author: String!): [Book] @shareable 
+  books(author: String!): [Book] @shareable
 }
 
 # Schema B
