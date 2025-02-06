@@ -16,8 +16,7 @@ fields that can be used by the _distributed GraphQL executor_ to resolve an
 entity by a stable key.
 
 The stable key is defined by the arguments of the field. Each lookup argument
-must match a field on the return type of the lookup field or specify a default
-value.
+must match a field on the return type of the lookup field.
 
 Source schemas can provide multiple lookup fields for the same entity that
 resolve the entity by different keys.
@@ -30,9 +29,7 @@ fields are able to resolve the `Product` entity but do so with different keys.
 type Query {
   version: Int # NOT a lookup field.
   productById(id: ID!): Product @lookup
-
-  # The ignoreCasing argument is not part of the stable key, and not part of the Product type.
-  productByName(name: String!, ignoreCasing: Boolean! = false): Product @lookup
+  productByName(name: String!): Product @lookup
 }
 
 type Product {
