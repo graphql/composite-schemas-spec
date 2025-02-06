@@ -2474,6 +2474,127 @@ type User {
 }
 ```
 
+#### Field With Missing Required Arguments
+
+**Error Code:**
+
+`FIELD_WITH_MISSING_REQUIRED_ARGUMENT`
+
+**Severity:**
+
+ERROR
+
+**Formal Specification:**
+
+- Let {typeNames} be the set of all object and interface types name from all
+  source schemas that are not declared as `@internal`
+- For each {typeName} in {typeNames}:
+  - Let {typeDefinitions} be the list of all type definitions from different
+    source schemas with the name {typeName}.
+  - Let {fieldNames} be the set of all field names from all {typeDefinitions}
+    that are not declared as `@internal`.
+  - For each {fieldName} in {fieldNames}:
+    - Let {fieldDefinitions} be the list of all field definitions from
+      {typeDefinitions} with the name {fieldName}.
+    - Let {requiredArgumentNames} be the set of all argument names from
+      {fieldDefinitions} that have a non-nullable type in at least one
+      definition that does not specify `@require`
+    - For each {fieldDefinition} in {fieldDefinitions}:
+      - For each {requiredArgumentName} in {requiredArgumentNames}:
+        - {fieldDefinition} must have an argument with the name
+          {requiredArgumentName} that does not specify `@require`
+
+**Explanatory Text:**
+
+When merging a field definition across multiple schemas, any argument that is
+non-null (i.e., “required”) in one schema must appear in all schemas that define
+that field. In other words, arguments are effectively merged by intersection: if
+an argument is considered required in any schema, then that same argument must
+exist in every schema that contributes to the composite definition. If a
+required argument is missing in one schema, there is no consistent way to define
+that field across schemas.
+
+If an argument is marked with `@require`, it is treated as non-required.
+Consequently, this argument must either be nullable in all other schemas or must
+also be marked with `@require` in all other schemas.
+
+**Examples**
+
+All schemas agree on having a required argument `author` for the `books` field:
+
+```graphql example
+# Schema A
+type Query {
+  books(author: String!): [Book] @shareable
+}
+
+# Schema B
+type Query {
+  books(author: String!): [Book] @shareable
+}
+```
+
+In the following example, the `author` argument on the `books` field in Schema A
+specifies a dependency on the `author` field in Schema C. The `author` argument
+on the `books` field in Schema B is optional. As a result, the composition
+succeeds; however, the `author` argument will not be included in the composite
+schema.
+
+```graphql example
+# Schema A
+type Collection {
+  books(author: String! @require(field: "author")): [Book] @shareable
+}
+
+# Schema B
+type Collection {
+  books(author: String): [Book] @shareable
+}
+
+# Schema C
+type Collection {
+  author: String!
+}
+```
+
+In the following counter-example, the `author` argument is required in one
+schema but not in the other. This will result in a
+`FIELD_WITH_MISSING_REQUIRED_ARGUMENT` error.
+
+```graphql counter-example
+# Schema A
+type Query {
+  books(author: String!): [Book] @shareable
+}
+
+# Schema B
+type Query {
+  books: [Book] @shareable
+}
+```
+
+In the following counter-example, the `author` argument on the `books` field in
+Schema A specifies a dependency on the `author` field in Schema C. The `author`
+argument on the `books` field in Schema B is **not** optional. This will result
+in a `FIELD_WITH_MISSING_REQUIRED_ARGUMENT` error.
+
+```graphql counter-example
+# Schema A
+type Collection {
+  books(author: String! @require(field: "author")): [Book] @shareable
+}
+
+# Schema B
+type Collection {
+  books(author: String!): [Book] @shareable
+}
+
+# Schema C
+type Collection {
+  author: String!
+}
+```
+
 ### Validate Input Types
 
 #### Input Field Default Mismatch
