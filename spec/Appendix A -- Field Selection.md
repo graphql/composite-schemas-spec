@@ -408,7 +408,7 @@ Each {SelectedValueEntry} may take one of the following forms:
   nested object selection.
 - A {Path} immediately followed by a {SelectedListValue} to denote selection
   from a list.
-- A standalone {SelectedObjectValue} 
+- A standalone {SelectedObjectValue}
 
 In the following example, the value could be `title` when referring to a `Book`
 and `movieTitle` when referring to a `Movie`.
