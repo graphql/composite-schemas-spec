@@ -15,8 +15,8 @@ The `@lookup` directive is used within a _source schema_ to specify output
 fields that can be used by the _distributed GraphQL executor_ to resolve an
 entity by a stable key.
 
-The stable key is defined by the arguments of the field. Each argument must
-match a field on the return type of the lookup field.
+The stable key is defined by the arguments of the field. Each lookup argument must
+match a field on the return type of the lookup field or specify a default value.
 
 Source schemas can provide multiple lookup fields for the same entity that
 resolve the entity by different keys.
@@ -29,32 +29,21 @@ fields are able to resolve the `Product` entity but do so with different keys.
 type Query {
   version: Int # NOT a lookup field.
   productById(id: ID!): Product @lookup
-  productByName(name: String!): Product @lookup
+
+  # The ignoreCasing argument is not part of the stable key, and not part of the Product type.
+  productByName(name: String!, ignoreCasing: Boolean! = false): Product @lookup
 }
 
-type Product @key(fields: "id") @key(fields: "name") {
+type Product {
   id: ID!
   name: String!
 }
 ```
 
-The arguments of a lookup field must correspond to fields specified as an entity
-key with the `@key` directive on the entity type.
-
-```graphql example
-type Query {
-  node(id: ID!): Node @lookup
-}
-
-interface Node @key(fields: "id") {
-  id: ID!
-}
-```
-
 Lookup fields may return object, interface, or union types. In case a lookup
 field returns an abstract type (interface type or union type), all possible
-object types are considered entities and must have keys that correspond with the
-field's argument signature.
+object types are considered entities and each object type must have fields that
+correspond with all arguments of the lookup field.
 
 ```graphql example
 type Query {
@@ -63,7 +52,7 @@ type Query {
 
 union Product = Electronics | Clothing
 
-type Electronics @key(fields: "id categoryId") {
+type Electronics {
   id: ID!
   categoryId: Int
   name: String
@@ -71,7 +60,7 @@ type Electronics @key(fields: "id categoryId") {
   price: Float
 }
 
-type Clothing @key(fields: "id categoryId") {
+type Clothing {
   id: ID!
   categoryId: Int
   name: String
@@ -81,7 +70,7 @@ type Clothing @key(fields: "id categoryId") {
 ```
 
 The following example shows an invalid lookup field as the `Clothing` type does
-not declare a key that corresponds with the lookup field's argument signature.
+not declare a field that corresponds with the lookup's argument signature.
 
 ```graphql counter-example
 type Query {
@@ -90,7 +79,7 @@ type Query {
 
 union Product = Electronics | Clothing
 
-type Electronics @key(fields: "id categoryId") {
+type Electronics {
   id: ID!
   categoryId: Int
   name: String
@@ -98,23 +87,57 @@ type Electronics @key(fields: "id categoryId") {
   price: Float
 }
 
-# Clothing does not have a key that corresponds
+# Clothing does not have a field that corresponds
 # with the lookup field's argument signature.
-type Clothing @key(fields: "id") {
+type Clothing {
   id: ID!
-  categoryId: Int
   name: String
   size: String
   price: Float
 }
 ```
 
-If the lookup returns an interface, the interface must also be annotated with a
-`@key` directive and declare its keys.
+TODO: Do we need this example?
 
 ```graphql example
-interface Node @key(fields: "id") {
+type Query {
+  product(
+    by: ProductByInput
+      @is(
+        field: "{ electronics: <Electronics>.{ id categoryId } } | { clothing: <Clothing>.{ id } }"
+      )
+  ): Product @lookup
+}
+
+input ProductByInput @oneOf {
+  electronics: ElectronicsKeyInput
+  clothing: ClothingKeyInput
+}
+
+input ElectronicsKeyInput {
   id: ID!
+  categoryId: Int
+}
+
+input ClothingKeyInput {
+  id: ID!
+}
+
+union Product = Electronics | Clothing
+
+type Electronics {
+  id: ID!
+  categoryId: Int
+  name: String
+  brand: String
+  price: Float
+}
+
+type Clothing {
+  id: ID!
+  name: String
+  size: String
+  price: Float
 }
 ```
 
@@ -131,7 +154,7 @@ type Lookups {
   productById(id: ID!): Product @lookup
 }
 
-type Product @key(fields: "id") {
+type Product {
   id: ID!
 }
 ```
@@ -147,12 +170,12 @@ type Query {
   productById(id: ID!): Product @lookup
 }
 
-type Product @key(fields: "id") {
+type Product {
   id: ID!
   price(regionName: String!): ProductPrice @lookup
 }
 
-type ProductPrice @key(fields: "regionName product { id }") {
+type ProductPrice {
   regionName: String!
   product: Product
   value: Float!
@@ -167,7 +190,7 @@ type Query {
   productById(id: ID!): Product @lookup
 }
 
-type Product @key(fields: "id") {
+type Product {
   id: ID!
   details: ProductDetails
 }
@@ -176,7 +199,7 @@ type ProductDetails {
   price(regionName: String!): ProductPrice @lookup
 }
 
-type ProductPrice @key(fields: "regionName product { id }") {
+type ProductPrice {
   regionName: String!
   product: Product
   value: Float!
