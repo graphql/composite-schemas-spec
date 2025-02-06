@@ -4853,7 +4853,6 @@ enum DeliveryStatus {
 }
 ```
 
-
 ### Validate Composite Types
 
 #### Empty Merged Object Type
@@ -5403,6 +5402,7 @@ input Input2 @inaccessible {
   field3: String
 }
 ```
+
 ### Validate Provides Directives
 
 #### Provides Invalid Fields
