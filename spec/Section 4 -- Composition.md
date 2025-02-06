@@ -3638,8 +3638,6 @@ MergeUnionTypes(unions):
   - For each {possibleType} in the possible types of {union}:
     - If {possibleType} is not marked with `@inaccessible` or `@internal`:
       - Add {possibleType} to {possibleTypes}.
-- If {possibleTypes} is empty:
-  - Return {null}
 - Return a new union with the name of {name}, description of {description}, and
   possible types of {possibleTypes}.
 
