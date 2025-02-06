@@ -2,12 +2,10 @@
 
 A _source schema_ is a GraphQL schema that is part of a larger _composite
 schema_. Source schemas use directives to express intent and requirements for
-the composition process. In the following chapters, we will describe the
-directives that are used to annotate a source schema.
+the composition process as well as to describe runtime behavior. The following
+chapters describe the directives that are used to annotate a source schema.
 
-## Directives
-
-### @lookup
+## @lookup
 
 ```graphql
 directive @lookup on FIELD_DEFINITION
@@ -185,43 +183,117 @@ type ProductPrice @key(fields: "regionName product { id }") {
 }
 ```
 
-### @internal
+## @internal
 
 ```graphql
-directive @internal on FIELD_DEFINITION
+directive @internal on OBJECT | FIELD_DEFINITION
 ```
 
-The `@internal` directive is used to mark lookup fields as internal. Internal
-lookup fields are not used as entry points in the composite schema and can only
-be used by the _distributed GraphQL executor_ to resolve additional data for an
-entity.
+The `@internal` directive is used to mark types and fields as internal within a
+source schema. Internal types and fields do not appear in the final
+client-facing composite schema and are internal to the source schema they reside
+in.
 
 ```graphql example
+# Source Schema
 type Query {
-  # lookup field and possible entry point
-  reviewById(id: ID!): Review @lookup
+  productById(id: ID!): Product
+  productBySku(sku: ID!): Product @internal
+}
 
-  # internal lookup field
-  productById(id: ID!): Product @lookup @internal
+# Composite Schema
+type Product {
+  productById(id: ID!): Product
 }
 ```
 
-The `@internal` directive provides control over which source schemas are used to
-resolve entities and which source schemas merely contribute data to entities.
-Further, using `@internal` allows hiding "technical" lookup fields that are not
-meant for the client-facing composite schema.
+Internal types and field do not participate in the normal schema-merging
+process.
 
-### @inaccessible
+```graphql example
+# Source Schema A
+type Query {
+  # this field follows the standard field merging rules
+  productById(id: ID!): Product
 
-```graphql
-directive @inaccessible on OBJECT | FIELD_DEFINITION
+  # this field is internal and does not follow any field merging rules.
+  productBySku(sku: ID!): Product @internal
+}
+
+# Source Schema B
+type Query {
+  productById(id: ID!): Product
+  productBySku(sku: ID!, name: String!): Product @internal
+}
+
+# Composite Schema
+type Product {
+  productById(id: ID!): Product
+}
 ```
 
-The `@inaccessible` directive is used to prevent specific objects or fields from
-being accessible through the client-facing _composite schema_, even if they are
-accessible in the underlying source schemas.
+Internal fields may be used by the distributed GraphQL executor as lookup fields
+for entity resolution or to supply additional data.
 
-This directive is useful for restricting access to fields or objects that are
+```graphql example
+# Source Schema A
+type Query {
+  productById(id: ID!): Product @lookup
+  lookups: InternalLookups! @internal
+}
+
+# all lookups within this internal type are hidden from the public API
+# but can be used for entity resolution.
+type InternalLookups @internal {
+  productBySku(sku: ID!): Product @lookup
+}
+
+# Composite Schema
+type Product {
+  productById(id: ID!): Product
+}
+```
+
+In contrast to `@inaccessible` the effect of `@internal` is local to it's source
+schema.
+
+```graphql example
+# Source Schema A
+type Query {
+  # this field follows the standard field merging rules
+  productById(id: ID!): Product
+
+  # this field is internal and does not follow any field merging rules.
+  productBySku(sku: ID!): Product @internal
+}
+
+# Source Schema B
+type Query {
+  # this field follows the standard field merging rules
+  productById(id: ID!): Product
+
+  # this field follows the standard field merging rules
+  productBySku(sku: Int!): Product
+}
+
+# Composite Schema
+type Product {
+  productById(id: ID!): Product
+  productBySku(sku: Int!): Product
+}
+```
+
+## @inaccessible
+
+```graphql
+directive @inaccessible on FIELD_DEFINITION | OBJECT | INTERFACE | UNION | ARGUMENT_DEFINITION | SCALAR | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+```
+
+The `@inaccessible` directive is used to prevent specific type system members
+from being accessible through the client-facing _composite schema_, even if they
+are accessible in the underlying source schemas.
+
+This directive is useful for restricting access to type system members that are
 either irrelevant to the client-facing composite schema or sensitive in nature,
 such as internal identifiers or fields intended only for backend use.
 
@@ -242,9 +314,9 @@ type Query {
 }
 ```
 
-In contrast to the `@internal` directive `@inaccessible` hides an object type or
-output field from the composite schema even if other source schemas on the same
-type system member have no `@inaccessible` directive.
+In contrast to the `@internal` directive, `@inaccessible` hides type system
+members from the composite schema even if other source schemas on the same type
+system member have no `@inaccessible` directive.
 
 ```graphql example
 # Source Schema A
@@ -268,7 +340,7 @@ type Product {
 }
 ```
 
-### @is
+## @is
 
 ```graphql
 directive @is(field: FieldSelectionMap!) on ARGUMENT_DEFINITION
@@ -334,7 +406,7 @@ input PersonByInput @oneOf {
 
 - `field`: Represents a selection path map syntax.
 
-### @require
+## @require
 
 ```graphql
 directive @require(field: FieldSelectionMap!) on ARGUMENT_DEFINITION
@@ -408,7 +480,7 @@ input ProductDimensionInput {
 
 - `field`: Represents a selection path map syntax.
 
-### @key
+## @key
 
 ```graphql
 directive @key(fields: SelectionSet!) repeatable on OBJECT | INTERFACE
@@ -463,7 +535,7 @@ implementations of that interface.
 
 - `fields`: Represents a selection set syntax.
 
-### @shareable
+## @shareable
 
 ```graphql
 directive @shareable repeatable on OBJECT | FIELD_DEFINITION
@@ -471,19 +543,81 @@ directive @shareable repeatable on OBJECT | FIELD_DEFINITION
 
 By default, only a single source schema is allowed to contribute a particular
 field to an object type. This prevents source schemas from inadvertently
-defining similarly named fields that are semantically not the same.
+defining similarly named fields that are not semantically equivalent.
 
-Fields have to be explicitly marked as `@shareable` to allow multiple source
-schemas to define it, and this ensures that the step of allowing a field to be
-served from multiple source schemas is an explicit, coordinated decision.
+```graphql counter-example
+# Schema A
+type Product {
+  name: String!
+  description: String!
+}
 
-If multiple source schemas define the same field, these are assumed to be
-semantically equivalent, and the executor is free to choose between them as it
-sees fit.
+# Schema B
+type Product {
+  name: String!
+  variation: ProductVariation!
+}
+```
 
-Note: Key fields are always considered sharable.
+Fields must be explicitly marked as `@shareable` to allow multiple source
+schemas to define them, ensuring that the decision to serve a field from more
+than one source schema is intentional and coordinated.
 
-### @provides
+```graphql example
+# Schema A
+type Product {
+  name: String! @shareable
+  description: String!
+}
+
+# Schema B
+type Product {
+  name: String! @shareable
+  variation: ProductVariation!
+}
+```
+
+If multiple source schemas define the same sharable field, they are assumed to
+be semantically equivalent, and the executor is free to choose between them as
+it sees fit.
+
+The `@shareable` directive can also be applied at the object-type level, having
+the same effect as if `@shareable` were applied to each field of the type.
+
+```graphql example
+# Schema A
+type Product @shareable {
+  name: String!
+  description: String!
+}
+
+# Schema B
+type Product {
+  name: String! @shareable
+  variation: ProductVariation!
+}
+```
+
+Key fields of an object-type are considered shareable by default and do not need
+to be explicitly marked with `@shareable`.
+
+```graphql example
+# Schema A
+type Product @key(fields: "id") {
+  id: ID!
+  name: String! @shareable
+  description: String!
+}
+
+# Schema B
+type Product @key(fields: "id") {
+  id: ID!
+  name: String! @shareable
+  variation: ProductVariation!
+}
+```
+
+## @provides
 
 ```graphql
 directive @provides(fields: SelectionSet!) on FIELD_DEFINITION
@@ -607,7 +741,7 @@ type Query {
 - `fields`: Represents a selection set syntax describing the subfields of the
   returned type that can be provided by the current source schema.
 
-### @external
+## @external
 
 ```graphql
 directive @external on FIELD_DEFINITION
@@ -659,7 +793,7 @@ it only for entity identification (via `@key`) or for providing a field through
 `@provides`. If no such usage exists, the presence of an `@external` field
 produces a composition error.
 
-### @override
+## @override
 
 ```graphql
 directive @override(from: String!) on FIELD_DEFINITION
