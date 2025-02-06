@@ -2474,7 +2474,7 @@ type User {
 }
 ```
 
-#### Required Argument Missing
+#### Field With Missing Required Arguments
 
 **Error Code:**  
 
