@@ -2885,12 +2885,12 @@ ERROR
       - For each {argumentName} in {argumentNames}
         - Let {arguments} be the set of all arguments with the name
           {argumentName} from all fields in {fields}.
-        - Let {defaultValue} be the first default value found in {arguments}.
+        - Let {defaultValues} be all default values found in {arguments}.
         - Let {externalArguments} be the set of all arguments with the name
           {argumentName} from all fields in {externalFields}.
         - For each {externalArgument} in {externalArguments}
-          - The default value of {externalArgument} must be equal to
-            {defaultValue}.
+          - The default value of {externalArgument} must be equal to all
+            {defaultValues}.
 
 **Explanatory Text**
 
