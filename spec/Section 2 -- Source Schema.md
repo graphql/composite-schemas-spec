@@ -147,7 +147,7 @@ type Query {
   productV2(id: ID!): Product @lookup
 }
 
-type Product @key(fields: "id") @key(fields: "sku") {
+type Product @key(fields: "id") {
   id: ID!
   sku: String!
 }
