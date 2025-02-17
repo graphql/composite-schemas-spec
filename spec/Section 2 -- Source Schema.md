@@ -136,10 +136,10 @@ type Product @key(fields: "id") {
 }
 ```
 
-For a given source schema, there must be only one lookup field that can resolve a given
-entity by a specific key. If multiple lookup fields are defined that resolve the
-same entity by the same key, the composition process must throw a composition
-error.
+For a given source schema, there must be only one lookup field that can resolve
+a given entity by a specific key. If multiple lookup fields are defined that
+resolve the same entity by the same key, the composition process must throw a
+composition error.
 
 ```graphql counter-example
 type Query {
