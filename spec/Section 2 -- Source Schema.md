@@ -15,8 +15,8 @@ The `@lookup` directive is used within a _source schema_ to specify output
 fields that can be used by the _distributed GraphQL executor_ to resolve an
 entity by a stable key.
 
-The stable key is defined by the arguments of the field. Each argument must
-match a field on the return type of the lookup field.
+The stable key is defined by the arguments of the field. Each lookup argument
+must match a field on the return type of the lookup field.
 
 Source schemas can provide multiple lookup fields for the same entity that
 resolve the entity by different keys.
@@ -32,29 +32,16 @@ type Query {
   productByName(name: String!): Product @lookup
 }
 
-type Product @key(fields: "id") @key(fields: "name") {
+type Product {
   id: ID!
   name: String!
 }
 ```
 
-The arguments of a lookup field must correspond to fields specified as an entity
-key with the `@key` directive on the entity type.
-
-```graphql example
-type Query {
-  node(id: ID!): Node @lookup
-}
-
-interface Node @key(fields: "id") {
-  id: ID!
-}
-```
-
 Lookup fields may return object, interface, or union types. In case a lookup
 field returns an abstract type (interface type or union type), all possible
-object types are considered entities and must have keys that correspond with the
-field's argument signature.
+object types are considered entities and each object type must have fields that
+correspond with all arguments of the lookup field.
 
 ```graphql example
 type Query {
@@ -63,7 +50,7 @@ type Query {
 
 union Product = Electronics | Clothing
 
-type Electronics @key(fields: "id categoryId") {
+type Electronics {
   id: ID!
   categoryId: Int
   name: String
@@ -71,7 +58,7 @@ type Electronics @key(fields: "id categoryId") {
   price: Float
 }
 
-type Clothing @key(fields: "id categoryId") {
+type Clothing {
   id: ID!
   categoryId: Int
   name: String
@@ -81,7 +68,7 @@ type Clothing @key(fields: "id categoryId") {
 ```
 
 The following example shows an invalid lookup field as the `Clothing` type does
-not declare a key that corresponds with the lookup field's argument signature.
+not declare a field that corresponds with the lookup's argument signature.
 
 ```graphql counter-example
 type Query {
@@ -90,7 +77,7 @@ type Query {
 
 union Product = Electronics | Clothing
 
-type Electronics @key(fields: "id categoryId") {
+type Electronics {
   id: ID!
   categoryId: Int
   name: String
@@ -98,23 +85,13 @@ type Electronics @key(fields: "id categoryId") {
   price: Float
 }
 
-# Clothing does not have a key that corresponds
+# Clothing does not have a field that corresponds
 # with the lookup field's argument signature.
-type Clothing @key(fields: "id") {
+type Clothing {
   id: ID!
-  categoryId: Int
   name: String
   size: String
   price: Float
-}
-```
-
-If the lookup returns an interface, the interface must also be annotated with a
-`@key` directive and declare its keys.
-
-```graphql example
-interface Node @key(fields: "id") {
-  id: ID!
 }
 ```
 
@@ -131,7 +108,7 @@ type Lookups {
   productById(id: ID!): Product @lookup
 }
 
-type Product @key(fields: "id") {
+type Product {
   id: ID!
 }
 ```
@@ -147,12 +124,12 @@ type Query {
   productById(id: ID!): Product @lookup
 }
 
-type Product @key(fields: "id") {
+type Product {
   id: ID!
   price(regionName: String!): ProductPrice @lookup
 }
 
-type ProductPrice @key(fields: "regionName product { id }") {
+type ProductPrice {
   regionName: String!
   product: Product
   value: Float!
@@ -167,7 +144,7 @@ type Query {
   productById(id: ID!): Product @lookup
 }
 
-type Product @key(fields: "id") {
+type Product {
   id: ID!
   details: ProductDetails
 }
@@ -176,7 +153,7 @@ type ProductDetails {
   price(regionName: String!): ProductPrice @lookup
 }
 
-type ProductPrice @key(fields: "regionName product { id }") {
+type ProductPrice {
   regionName: String!
   product: Product
   value: Float!
@@ -486,10 +463,9 @@ input ProductDimensionInput {
 directive @key(fields: SelectionSet!) repeatable on OBJECT | INTERFACE
 ```
 
-The @key directive is used to designate an entity's unique key, which identifies
-how to uniquely reference an instance of an entity across different source
-schemas. It allows a source schema to indicate which fields form a unique
-identifier, or **key**, for an entity.
+The `@key` directive is used to designate an entity's unique key, which
+identifies how to uniquely reference an instance of an entity across different
+source schemas.
 
 ```graphql example
 type Product @key(fields: "id") {
@@ -500,9 +476,9 @@ type Product @key(fields: "id") {
 }
 ```
 
-Each occurrence of the @key directive on an object or interface type specifies
-one distinct unique key for that entity, which enables a gateway to perform
-lookups and resolve instances of the entity based on that key.
+Each occurrence of the `@key` directive on an object or interface type specifies
+one distinct unique key for that entity. Keys allow the distributed GraphQL
+executor to distinguish between different entities of the same type.
 
 ```graphql example
 type Product @key(fields: "id") @key(fields: "sku") {
@@ -530,6 +506,42 @@ The directive is applicable to both OBJECT and INTERFACE types. This allows
 entities that implement an interface to inherit the key(s) defined at the
 interface level, ensuring consistent identification across different
 implementations of that interface.
+
+By applying the `@key` directive all referenced fields become sharable even if
+the fields are not explicitly marked with `@shareable`.
+
+```graphql example
+# source schema A
+type Product @key(fields: "id") {
+  id: ID!
+  price: Float!
+}
+
+# source schema B
+type Product @key(fields: "id") {
+  id: ID!
+  name: String!
+}
+```
+
+Fields must be explicitly marked as a key or annotated with the `@shareable`
+directive to allow multiple source schemas to define them, ensuring that the
+decision to serve a field from more than one source schema is intentional and
+coordinated.
+
+```graphql counter-example
+# source schema A
+type Product @key(fields: "id") {
+  id: ID!
+  price: Float!
+}
+
+# source schema B
+type Product {
+  id: ID!
+  name: String!
+}
+```
 
 **Arguments:**
 
