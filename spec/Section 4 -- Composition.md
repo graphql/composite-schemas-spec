@@ -247,7 +247,7 @@ In this example, no `@inaccessible` annotation is applied to the query root, so
 the rule is satisfied.
 
 ```graphql example
-extend schema {
+schema {
   query: Query
 }
 
@@ -266,7 +266,7 @@ violated. `QUERY_ROOT_TYPE_INACCESSIBLE` is raised because a schema's root query
 type cannot be hidden from consumers.
 
 ```graphql counter-example
-extend schema {
+schema {
   query: Query
 }
 
@@ -1139,7 +1139,7 @@ other error conditions that may have to be propagated to the client.
 For example, the following usage is recommended:
 
 ```graphql example
-extend type Query {
+type Query {
   userById(id: ID!): User @lookup
 }
 
@@ -1157,7 +1157,7 @@ recommendation.
 This counter-example demonstrates an invalid usage:
 
 ```graphql counter-example
-extend type Query {
+type Query {
   userById(id: ID!): User! @lookup
 }
 
@@ -1212,7 +1212,7 @@ enforces that any field annotated with `@lookup` must have a return type that is
 For example, the following usage is valid:
 
 ```graphql example
-extend type Query {
+type Query {
   userById(id: ID!): User @lookup
 }
 
@@ -1227,7 +1227,7 @@ In this example, `userById` returns a `User` object, satisfying the requirement.
 This counter-example demonstrates an invalid usage:
 
 ```graphql counter-example
-extend type Query {
+type Query {
   usersByIds(ids: [ID!]!): [User!] @lookup
 }
 
@@ -1998,10 +1998,8 @@ ERROR
 - For each type name {typeName} defined in at least one of these schemas:
   - Let {types} be the set of all types named {typeName} across all source
     schemas.
-  - Let {typeKinds} be the set of
-    [type kinds](https://spec.graphql.org/October2021/#sec-Type-Kinds) in
-    {types}
-  - {typeKinds} must contain exactly one element.
+  - All {types} must be of the same kind (Object, Interface, Union, Enum,
+    InputObject, Scalar).
 
 **Explanatory Text**
 
@@ -2041,6 +2039,7 @@ type User {
 
 In the following counter-example, `User` is defined as an object type in one of
 the schemas and as an interface in another. This violates the rule and results
+in a `TYPE_KIND_MISMATCH` error.
 
 ```graphql
 # Schema A: `User` is an object type
@@ -2050,14 +2049,9 @@ type User {
 }
 
 # Schema B: `User` is an interface
-extend interface User {
+interface User {
   id: ID!
   friends: [User!]!
-}
-
-# Schema C: `User` is an input object
-extend input User {
-  id: ID!
 }
 ```
 
@@ -3676,16 +3670,26 @@ MergeEnumTypes(enums):
     {firstEnum}, and enum values of {firstEnum} excluding any marked with
     `@inaccessible`.
 - Let {typeName} be the name of {firstEnum}.
-- Let {description} be the description of {firstEnum}.
-- Let {enumValues} be the set of all enum values in {enums}.
-- For each {enum} in {enums}:
-  - If {description} is {null}:
-    - Set {description} to the description of {enum}.
-  - For each {enumValue} in the enum values of {enum}:
-    - If {enumValue} is marked with `@inaccessible`
-      - Remove {enumValue} from {enumValues}.
+- Let {description} be the first non empty description of any {enum} in {enums}.
+- Let {mergedValues} be an empty set.
+- Let {valueNames} be the set of all enum value names in {enums}.
+- For each {valueName} in {valueNames}:
+  - Let {values} be the set of enum values with the name {valueName} in {enums}.
+  - Let {mergedValue} be the result of {MergeEnumValues(values)}.
+  - If {mergedValue} is not {null}:
+    - Add {mergedValue} to {mergedValues}.
 - Return a new enum type with the name of {typeName}, description of
-  {description}, and enum values of {enumValues}.
+  {description}, and enum values of {mergedValue}.
+
+MergeEnumValues(enumValues):
+
+- If any {enumValue} in {enumValues} is marked with `@inaccessible`
+  - Return {null}
+- Let {name} be the name of the first {enumValue} in {enumValues}.
+- Let {description} be the first non empty description of any {enumValue} in
+  {enumValues}.
+- Return a new enum value with the name of {name} and description of
+  {description}.
 
 **Explanatory Text**
 
@@ -4817,14 +4821,7 @@ ERROR
 
 - Let {fields} be the set of all fields in the `Query` type of the merged
   schema.
-- {HasPublicField(fields)} must be true.
-
-HasPublicField(fields):
-
-- For each {field} in {fields}:
-  - If {IsExposed(field)} is true
-    - return true
-- return false
+- {fields} must not be empty.
 
 **Explanatory Text**
 
@@ -4926,159 +4923,6 @@ type AdminStats {
 }
 ```
 
-#### Only Inaccessible Children
-
-**Error Code**
-
-`ONLY_INACCESSIBLE_CHILDREN`
-
-**Severity**
-
-ERROR
-
-**Formal Specification**
-
-- Let {schema} be the composed schema.
-- Let {types} be the set of all types in {schema}.
-- For each {type} in {types}:
-  - If {IsExposed(type)} is false:
-    - continue
-  - If {type} is the query, mutation, or subscription root type:
-    - continue
-  - If {type} is an object type:
-    - {HasObjectTypeAccessibleChildren(type)} must be true
-  - If {type} is an enum type:
-    - {HasEnumAccessibleChildren(type)} must be true
-  - If {type} is an input object type:
-    - {HasInputObjectAccessibleChildren(type)} must be true
-  - If {type} is an interface type:
-    - {HasInterfaceAccessibleChildren(type)} must be true
-  - If {type} is a union type:
-    - {HasUnionAccessibleChildren(type)} must be true
-
-HasObjectTypeAccessibleChildren(type):
-
-- Let {fields} be the set of all fields in {type}.
-- For each {field} in {fields}:
-  - If {field} is **not** marked with `@inaccessible` and **not** `@internal`:
-    - return true
-- return false
-
-HasEnumAccessibleChildren(type):
-
-- Let {values} be the set of all values in {type}.
-- For each {value} in {values}:
-  - If {value} is **not** marked with `@inaccessible`:
-    - return true
-- return false
-
-HasInputObjectAccessibleChildren(type):
-
-- Let {fields} be the set of all fields in {type}.
-- For each {field} in {fields}:
-  - If {value} is **not** marked with `@inaccessible`:
-    - return true
-- return false
-
-HasInterfaceAccessibleChildren(type):
-
-- Let {fields} be the set of all fields in {type}.
-- For each {field} in {fields}:
-  - If {field} is **not** marked with `@inaccessible`:
-    - return true
-- return false
-
-HasUnionAccessibleChildren(type):
-
-- Let {members} be the set of all member types in {type}.
-- For each {member} in {members}:
-  - Let {type} be the type of {member}.
-  - If {type} is **not** marked with `@inaccessible`:
-    - return true
-- return false
-
-**Explanatory Text**
-
-A type that is **not** annotated with `@inaccessible` is expected to appear in
-the composed schema. If, however, all of its child elements (fields in an object
-or interface, values in an enum, fields in an input object or all types of a
-union) are individually marked `@inaccessible` (or `@internal`), then there are
-no accessible sub-parts of that type for consumers to query or reference.
-
-Allowing such a type to remain in the composed schema despite having no publicly
-visible fields or values leads to an invalid schema. This rule enforces that a
-type visible in the composed schema must have at least one accessible child.
-Otherwise, it triggers an `ONLY_INACCESSIBLE_CHILDREN` error, prompting the user
-to either make the entire type `@inaccessible` or expose at least one child
-element.
-
-Additionally, the rule applies to all types except the query, mutation, and
-subscription root types.
-
-**Examples**
-
-In the following example, the `Profile` type is included in the composed schema,
-and `Profile.email` is **not** marked with `@inaccessible`. This satisfies the
-rule, as there is at least one accessible child element.
-
-```graphql
-type User {
-  id: ID!
-  profile: Profile
-}
-
-type Profile {
-  name: String @inaccessible
-  email: String
-}
-```
-
-In the following example, all fields of the `Profile` type are marked with
-`@inaccessible`. But since `Profile` itself is marked with `@inaccessible`, it
-is not required to have any accessible children.
-
-```graphql
-type User {
-  id: ID!
-  profile: Profile @inaccessible
-}
-
-type Profile @inaccessible {
-  name: String @inaccessible
-  email: String @inaccessible
-}
-```
-
-The `Profile` type is included in the composed schema (no `@inaccessible` on the
-type), but **all** of its fields are marked `@inaccessible`, triggering an
-`ONLY_INACCESSIBLE_CHILDREN` error.
-
-```graphql counter-example
-type User {
-  id: ID!
-  profile: Profile
-}
-
-type Profile {
-  name: String @inaccessible
-  email: String @inaccessible
-}
-```
-
-In this example, the `DeliveryStatus` enum is not annotated with
-`@inaccessible`, yet all of its values are.
-
-Since there are no publicly visible values, an `ONLY_INACCESSIBLE_CHILDREN`
-error is produced.
-
-```graphql counter-example
-enum DeliveryStatus {
-  PENDING @inaccessible
-  SHIPPED @inaccessible
-  DELIVERED @inaccessible
-}
-```
-
 ### Validate Composite Types
 
 #### Empty Merged Object Type
@@ -5166,6 +5010,89 @@ type Author {
 }
 ```
 
+#### Empty Merged Interface Type
+
+**Error Code**
+
+`EMPTY_MERGED_INTERFACE_TYPE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {types} be the set of all interface types in the composite schema.
+- For each {type} in {types}:
+  - Let {fields} be a set of all fields in {type}.
+  - {fields} must not be empty.
+
+**Explanatory Text**
+
+For interface types defined across multiple source schemas, the merged interface
+type is the superset of all fields defined in these source schemas. However, any
+field marked with `@inaccessible` in any source schema is hidden and not
+included in the merged interface type. An interface type with no fields, after
+considering `@inaccessible` annotations, is considered empty and invalid.
+
+**Examples**
+
+In the following example, the merged object type `Author` is valid. It includes
+all fields from both source schemas, with `age` being hidden due to the
+`@inaccessible` directive in one of the source schemas:
+
+```graphql
+# Schema A
+interface Product {
+  name: String
+  price: Int @inaccessible
+}
+
+# Schema B
+interface Product {
+  name: Int
+  inStock: Boolean
+}
+```
+
+If the `@inaccessible` directive is applied to an interface type itself, the
+entire merged interface type is excluded from the composite execution schema,
+and it is not required to contain any fields.
+
+```graphql
+# Schema A
+
+interface Product @inaccessible {
+  name: String
+  price: Int
+}
+
+# Schema B
+interface Product {
+  name: Int
+  inStock: Boolean
+}
+```
+
+This counter-example demonstrates an invalid merged interface type. In this
+case, `Product` is defined in two source schemas, but all fields are marked as
+`@inaccessible` in at least one of the source schemas, resulting in an empty
+merged interface type:
+
+```graphql counter-example
+# Schema A
+interface Product {
+  name: String
+  price: Int @inaccessible
+}
+
+# Schema B
+interface Product {
+  name: String @inaccessible
+  price: Int
+}
+```
+
 #### Implemented by Inaccessible
 
 **Error Code**
@@ -5179,28 +5106,26 @@ ERROR
 **Formal Specification**
 
 - Let {schema} be the merged composite execution schema.
-- Let {types} be the set of all object types in {schema}.
+- Let {types} be the set of all object and interface types in {schema}.
 - For each {type} in {types}:
-  - If {type} is not marked with `@inaccessible`:
-    - Let {implementedInterfaces} be the set of all interfaces implemented by
-      {type}.
-    - For each {field} in {type}'s fields:
-      - If {field} is marked with `@inaccessible`:
-        - For each {implementedInterface} in {implementedInterfaces}:
-          - Let {interfaceField} be the field on {implementedInterface} that has
-            the same name as {field}
-          - If {interfaceField} exists:
-            - {IsExposed(interfaceField)} must be false
+  - Let {implementedInterfaces} be the set of all interfaces implemented by
+    {type}.
+  - For each {implementedInterface} in {implementedInterfaces}:
+    - Let {interfaceFields} be the set of all fields defined on
+      {implementedInterface} that are visible in the merged schema.
+    - For each {interfaceField} in {interfaceFields}:
+      - Let {fieldName} be the name of {interfaceField}.
+      - {type} must have a field with the name {fieldName}
 
 **Explanatory Text**
 
-This rule ensures that inaccessible fields (`@inaccessible`) on an object type
-are not exposed through an interface. An object type that implements an
-interface must provide public access to each field defined by the interface. If
-a field on an object type is marked as `@inaccessible` but implements an
-interface field that is visible in the composed schema, this creates a
-contradiction: the interface contract requires that field to be accessible, yet
-the object type implementation hides it.
+This rule ensures that inaccessible fields (`@inaccessible`) on an object or
+interface type are not exposed through an interface. A composite type that
+implements an interface must provide public access to each field defined by the
+interface. If a field on an object type is marked as `@inaccessible` but
+implements an interface field that is visible in the composed schema, this
+creates a contradiction: the interface contract requires that field to be
+accessible, yet the object type implementation hides it.
 
 This rule prevents inconsistencies in the composed schema, ensuring that every
 interface field visible in the composed schema is also publicly visible on all
@@ -5626,6 +5551,165 @@ input Input1 {
 
 input Input2 @inaccessible {
   field3: String
+}
+```
+
+### Validate Enums
+
+#### Empty Merged Enum Type
+
+**Error Code**
+
+`EMPTY_MERGED_ENUM_TYPE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {enumTypes} be the set of all enum types in the composite schema.
+- For each {enumType} in {enumTypes}:
+  - Let {values} be a set of all values in {enumType}.
+  - {values} must not be empty.
+
+**Explanatory Text** Enum values have to be an exact match across all source
+schemas. If an enum value only exists in one source schema, it has to be marked
+as `@inaccessible`. Enum members that are marked as `@inaccessible` are not
+included in the merged enum type. An enum type with no values is considered
+empty and invalid.
+
+**Examples**
+
+In the following example, the merged enum type `DeliveryStatus` is valid. It
+includes all values from both source schemas, with `PENDING` being hidden due to
+the `@inaccessible` directive in one of the source schemas:
+
+```graphql
+# Schema A
+enum DeliveryStatus {
+  PENDING @inaccessible
+  SHIPPED
+  DELIVERED
+}
+
+# Schema B
+enum DeliveryStatus {
+  SHIPPED
+  DELIVERED
+}
+```
+
+If the `@inaccessible` directive is applied to an enum type itself, the entire
+merged enum type is excluded from the composite execution schema, and it is not
+required to contain any values.
+
+```graphql
+# Schema A
+enum DeliveryStatus @inaccessible {
+  SHIPPED
+  DELIVERED
+}
+
+# Schema B
+enum DeliveryStatus {
+  SHIPPED
+  DELIVERED
+}
+```
+
+This counter-example demonstrates an invalid merged enum type. In this case,
+`DeliveryStatus` is defined in two source schemas, but all values are marked as
+`@inaccessible` in at least one of the source schemas, resulting in an empty
+merged enum type:
+
+```graphql counter-example
+# Schema A
+enum DeliveryStatus {
+  PENDING @inaccessible
+  DELIVERED
+}
+
+# Schema B
+enum DeliveryStatus {
+  PENDING
+  DELIVERED @inaccessible
+}
+```
+
+### Validate Union Types
+
+#### Empty Merged Union Type
+
+**Error Code**
+
+`EMPTY_MERGED_UNION_TYPE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {unionTypes} be the set of all union types in the composite schema.
+- For each {unionType} in {unionTypes}:
+  - Let {members} be a set of all member types in {unionType}.
+  - {members} must not be empty.
+
+**Explanatory Text** For union types defined across multiple source schemas, the
+merged union type is the union of all member types defined in these source
+schemas. However, any member type marked with `@inaccessible` in any source
+schema is hidden and not included in the merged union type. A union type with no
+members, after considering `@inaccessible` annotations, is considered empty and
+invalid.
+
+**Examples** In the following example, the merged union type `SearchResult` is
+valid. It includes all member types from both source schemas, with `User` being
+hidden due to the `@inaccessible` directive in one of the source schemas:
+
+```graphql
+# Schema A
+union SearchResult = User | Product
+
+type User @inaccessible {
+  id: ID!
+}
+
+# Schema B
+union SearchResult = Product | Order
+
+# Composite Schema
+union SearchResult = Product | Order
+```
+
+If the `@inaccessible` directive is applied to a union type itself, the entire
+merged union type is excluded from the composite execution schema, and it is not
+required to contain any members.
+
+```graphql
+# Schema A
+union SearchResult @inaccessible = User | Product
+
+# Schema B
+union SearchResult = Product | Order
+```
+
+This counter-example demonstrates an invalid merged union type. In this case,
+`SearchResult` is defined in two source schemas, but all member types are marked
+as `@inaccessible` in at least one of the source schemas, resulting in an empty
+merged union type:
+
+```graphql counter-example
+# Schema A
+union SearchResult = User | Product
+type User @inaccessible {
+  id: ID!
+}
+
+# Schema B
+union SearchResult = User | Product
+type Product @inaccessible {
+  id: ID!
 }
 ```
 
