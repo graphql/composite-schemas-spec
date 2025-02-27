@@ -2366,14 +2366,16 @@ ERROR
 
 **Formal Specification**
 
-- Let {typeNames} be the set of all output type names from all source schemas.
+- Let {typeNames} be the set of all output type names from all source schemas
+  that are not declared as `@inaccessible` in any schema.
 - For each {typeName} in {typeNames}
   - Let {types} be the set of all types with the {typeName} from all source
-    schemas.
-  - Let {fieldNames} be the set of all field names from all {types}.
+    schemas that are not declared as `@internal`.
+  - Let {fieldNames} be the set of all field names from all {types} that are not
+    declared as `@inaccessible` in any schema.
   - For each {fieldName} in {fieldNames}
     - Let {fields} be the set of all fields with the {fieldName} from all
-      {types}.
+      {types} that are not declared as `@internal`.
     - For each {field} in {fields}
       - Let {argumentNames} be the set of all argument names from all {fields}.
       - For each {argumentName} in {argumentNames}
@@ -2386,7 +2388,7 @@ ArgumentsAreMergeable(argumentA, argumentB):
 
 - Let {typeA} be the type of {argumentA}
 - Let {typeB} be the type of {argumentB}
-- {InputTypesAreMergeable(typeA, typeB)} must be true.
+- {SameTypeShape(typeA, typeB)} must be true.
 
 **Explanatory Text**
 
@@ -3882,12 +3884,19 @@ MergeInputTypes(types):
     - Set {description} to the description of {type}.
 - Let {fieldNames} be the set of all field names in {types}.
 - For each {fieldName} in {fieldNames}:
-  - Let {fields} be the set of fields with the name {fieldName} in {types}.
-  - Let {mergedField} be the result of {MergeInputFields(fields)}.
+  - Let {fieldDefinitions} be the set of fields with the name {fieldName} in
+    {types}.
+  - If length of {fieldDefinitions} is not equal to the length of {types}:
+    - Continue
+  - If any field in {fieldDefinitions} is marked with `@inaccessible`
+    - Continue
+  - Let {mergedField} be the result of {MergeInputField(fieldDefinitions)}.
   - If {mergedField} is not {null}:
-    - Add {mergedField} to {mergedFields}.
-- Return a new input object type with the name of {typeName}, description of
-  {description}, fields of {mergedFields}.
+    - Add {mergedField} to {fields}.
+- If {fields} is empty:
+  - Return {null}
+- Return a new input type with the name of {typeName}, description of
+  {description}, and fields of {fields}.
 
 **Explanatory Text**
 
@@ -3919,10 +3928,18 @@ instance, because one of its underlying definitions was inaccessible - that
 field is not included in the final definition. The end result is a single input
 type that correctly unifies every compatible field from the various sources.
 
+After filtering out inaccessible types, the algorithm takes the **intersection**
+of the field names across the remaining types - only those fields that appear in
+**every** source definition are eligible. For each eligible field, it invokes
+{MergeInputField(fieldsForName)} to reconcile differences in type, nullability,
+default values, etc. The end result is a single input type that correctly
+unifies every compatible field that appears in all source types.
+
 **Examples**
 
 Here, two `OrderInput` input types from different schemas are merged into a
-single composed `OrderInput` type.
+single composed `OrderInput` type. Notice that only the fields present in _both_
+schemas are included.
 
 ```graphql example
 # Schema A
@@ -3943,15 +3960,11 @@ input OrderInput {
 
 input OrderInput {
   id: ID!
-  description: String
-  total: Float
 }
 ```
 
-In this example, the `OrderInput` type from two schemas is merged. The `id`
-field is shared across both schemas, while `description` and `total` fields are
-contributed by the individual source schemas. The resulting composed type
-includes all fields.
+Although `description` appears in Schema A and `total` appears in Schema B,
+neither field is defined in _both_ schemas; therefore, only `id` remains.
 
 Another example demonstrates preserving descriptions during merging:
 
@@ -4168,7 +4181,13 @@ MergeOutputFields(fields):
 - Let {argumentNames} be the set of all argument names in {fields}.
 - For each {argumentName} in {argumentNames}:
   - Let {arguments} be the set of arguments with the name {argumentName} in
-    {fields}.
+    {fields}
+  - If length of {arguments} is not equal to the length of {fields}:
+    - Continue.
+  - If any argument in {arguments} is marked with `@inaccessible`:
+    - Continue.
+  - If any argument in {arguments} is marked with `@require`:
+    - Continue.
   - Let {mergedArgument} be the result of {MergeArgumentDefinitions(arguments)}.
   - If {mergedArgument} is not {null}:
     - Add {mergedArgument} to {mergedArguments}.
@@ -4217,17 +4236,14 @@ schema does not break schemas expecting any of those types. For example,
 
 _Merging Arguments_
 
-Each field can declare arguments. The algorithm collects all all argument names
-across these fields and merges them using {MergeArgumentDefinitions(arguments)},
-ensuring argument definitions remain compatible. If any of the arguments for a
-particular name is `@inaccessible`, then that argument is removed from the final
-set of arguments. Otherwise, any differences in argument type, default value, or
-description are resolved via the merging rules in
-{MergeArgumentDefinitions(arguments)}.
-
-This algorithm preserves as much information as possible from the source fields
-while ensuring they remain mutually compatible. It also systematically excludes
-fields or arguments deemed inaccessible.
+Each field can declare arguments. The algorithm collects all argument names
+across these fields and merges them using {MergeArgumentDefinitions(arguments)}.
+Before merging, any arguments marked with `@inaccessible` or `@require` are
+excluded. If this exclusion causes the number of arguments available for a given
+name to differ from the total number of fields - or if at least one schema omits
+the argument - the argument is skipped entirely. Otherwise, any differences in
+argument type, default value, or description are resolved via the merging rules
+in {MergeArgumentDefinitions(arguments)}.
 
 **Example**
 
@@ -4260,6 +4276,67 @@ type Product {
 }
 ```
 
+If the argument is missing in one of the schemas, the composed field will not
+include that argument:
+
+```graphql example
+# Schema A
+type Product {
+  discountPercentage(percent: Int): Int
+}
+
+# Schema B
+type Product {
+  discountPercentage: Int
+}
+
+# Composed Result
+type Product {
+  discountPercentage: Int
+}
+```
+
+In case one argument is marked with `@inaccessible`, the composed field will not
+include that argument:
+
+```graphql example
+# Schema A
+type Product {
+  discountPercentage(percent: Int): Int
+}
+
+# Schema B
+type Product {
+  discountPercentage(percent: Int @inaccessible): Int
+}
+
+# Composed Result
+type Product {
+  discountPercentage: Int
+}
+```
+
+In case a schema defines a requirement through the `@require` directive, the
+composed field will not include that argument
+
+```graphql example
+# Schema A
+type Product {
+  discountPercentage(percent: Int): Int
+  discount: Int
+}
+
+# Schema B
+type Product {
+  discountPercentage(percent: Int @require(field: "discount")): Int
+}
+
+# Composed Result
+type Product {
+  discountPercentage: Int
+}
+```
+
 #### Merge Input Fields
 
 **Formal Specification**
@@ -4275,6 +4352,7 @@ MergeInputFields(fields):
 - Let {defaultValue} be the default value of {firstField} or undefined if none
   exists.
 - For each {field} in {fields}:
+  - Assert: {field} is **not** marked with `@inaccessible`
   - Let {type} be the type of {field}.
   - Set {fieldType} to be the result of {MostRestrictiveType(fieldType, type)}.
   - If {description} is null:
@@ -4295,8 +4373,9 @@ breakdown of how {MergeInputFields(fields)} operates:
 
 _Inaccessible Fields_
 
-If any of the fields is marked with `@inaccessible`, we cannot include the field
-in the composed schema, and the merge algorithm returns `null`.
+Before calling {MergeInputField(fields)}, all fields marked with `@inaccessible`
+must be filtered out. If any such field appears in the input, it is a
+precondition violation of this algorithm.
 
 _Combining Descriptions_
 
@@ -4368,8 +4447,8 @@ MergeArgumentDefinitions(arguments):
 - If {mergedArgument} is null
   - Return null
 - For each {argument} in {arguments}:
-  - If {argument} is marked with `@require`
-    - Continue
+  - Assert: {argument} is **not** marked with `@inaccessible`
+  - Assert: {argument} is **not** marked with `@require`
   - Set {mergedArgument} to the result of {MergeArguments(mergedArgument,
     argument)}
 - Return {mergedArgument}
@@ -4382,26 +4461,27 @@ definition.
 
 _Inaccessible Arguments_
 
-If any argument in the set is marked with `@inaccessible`, the entire argument
-definition is discarded by returning `null`. An inaccessible argument should not
-appear in the final composed schema.
+Inaccessible arguments (`@inaccessible`) should be handled and filtered out
+**before** calling {MergeArgumentDefinitions(arguments)}. By the time this
+algorithm is invoked, any arguments marked `@inaccessible` must already be
+removed. If such an argument somehow appears here, it is a precondition
+violation of this algorithm.
 
 _Handling `@require`_
 
-The `@require` directive is used to indicate that the argument is required for
-the field to be resolved, yet it specifies it as a dependency that is resolved
-at runtime. Therefore, this argument should not affect the merge process. If
-there are only `@require` arguments in the set, the merge algorithm returns
-`null`.
+The `@require` directive is likewise handled **before** this algorithm.
+Arguments marked with `@require` do not participate in the merge process and
+must be filtered out of the input. If any `@require` arguments are included in
+this function, it is also a precondition violation.
 
 _Merging Arguments_
 
-All arguments that are not marked with `@require` are merged using the
-`MergeArgument` algorithm. This algorithm ensures that the final composed
-argument is compatible with all definitions of that argument, resolving
-differences in type, default value, and description.
+All remaining arguments (those not marked `@inaccessible` or `@require`) are
+merged via {MergeArgument(mergedArgument, argument)}. This algorithm ensures
+that the final composed argument is compatible with all definitions of that
+argument, resolving differences in type, default value, and description.
 
-By selectively including or excluding certain arguments (via `@inaccessible` or
+By selectively merging differences where possible, this algorithm ensures that
 `@require`), and merging differences where possible, this algorithm ensures that
 the resulting composed argument is both valid and compatible with the source
 definitions.
