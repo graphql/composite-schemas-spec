@@ -2388,7 +2388,7 @@ ArgumentsAreMergeable(argumentA, argumentB):
 
 - Let {typeA} be the type of {argumentA}
 - Let {typeB} be the type of {argumentB}
-- {InputTypesAreMergeable(typeA, typeB)} must be true.
+- {SameTypeShape(typeA, typeB)} must be true.
 
 **Explanatory Text**
 
