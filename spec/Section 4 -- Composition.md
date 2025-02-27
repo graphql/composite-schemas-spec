@@ -628,7 +628,7 @@ type Book {
 # Source Schema B
 type Book {
   id: ID!
-  title(subtitle: String @require(fields: "subtitle")) @external
+  title(subtitle: String @require(field: "subtitle")) @external
 }
 ```
 
@@ -1795,26 +1795,26 @@ ERROR
   - For each {argument} in {arguments}:
     - If {argument} is **not** annotated with `@require`:
       - Continue
-    - Let {fieldsArg} be the string value of the `fields` argument of the
+    - Let {fieldArg} be the string value of the `field` argument of the
       `@require` directive on {argument}.
-    - {fieldsArg} must be be parsable as a valid selection map
+    - {fieldArg} must be be parsable as a valid selection map
 
 **Explanatory Text**
 
-The `@require` directive's `fields` argument must be syntactically valid
-GraphQL. If the selection map string is malformed (e.g., missing closing braces,
+The `@require` directive's `field` argument must be syntactically valid GraphQL.
+If the selection map string is malformed (e.g., missing closing braces,
 unbalanced quotes, invalid tokens), then the schema cannot be composed
 correctly. In such cases, the error `REQUIRE_INVALID_SYNTAX` is raised.
 
 **Examples**
 
-In the following example, the `@require` directive's `fields` argument is a
-valid selection map and satisfies the rule.
+In the following example, the `@require` directive's `field` argument is a valid
+selection map and satisfies the rule.
 
 ```graphql example
 type User @key(fields: "id") {
   id: ID!
-  profile(name: String! @require(fields: "name")): Profile
+  profile(name: String! @require(field: "name")): Profile
 }
 
 type Profile {
@@ -1823,15 +1823,15 @@ type Profile {
 }
 ```
 
-In the following counter-example, the `@require` directive's `fields` argument
+In the following counter-example, the `@require` directive's `field` argument
 has invalid syntax because it is missing a closing brace.
 
-This violates the rule and triggers a `REQUIRE_INVALID_FIELDS` error.
+This violates the rule and triggers a `REQUIRE_INVALID_SYNTAX` error.
 
 ```graphql counter-example
 type Book {
   id: ID!
-  title(lang: String! @require(fields: "author { name ")): String
+  title(lang: String! @require(field: "author { name ")): String
 }
 
 type Author {
@@ -1839,11 +1839,11 @@ type Author {
 }
 ```
 
-#### Require Directive in Fields Argument
+#### Require Directive in Field Argument
 
 **Error Code**
 
-`REQUIRE_DIRECTIVE_IN_FIELDS_ARG`
+`REQUIRE_DIRECTIVE_IN_FIELD_ARG`
 
 **Severity**
 
@@ -1859,29 +1859,29 @@ ERROR
   - For each {argument} in {arguments}:
     - If {argument} is **not** marked with `@require`:
       - Continue
-    - Let {fieldsArg} be the value of the `fields` argument of the `@require`
+    - Let {fieldArg} be the value of the `field` argument of the `@require`
       directive on {argument}.
-    - If {fieldsArg} contains a directive application:
-      - Produce a `REQUIRE_DIRECTIVE_IN_FIELDS_ARG` error.
+    - If {fieldArg} contains a directive application:
+      - Produce a `REQUIRE_DIRECTIVE_IN_FIELD_ARG` error.
 
 **Explanatory Text**
 
 The `@require` directive is used to specify fields on the same type that an
 argument depends on in order to resolve the annotated field. When using
-`@require(fields: "…")`, the `fields` argument must be a valid selection set
+`@require(field: "…")`, the `field` argument must be a valid selection set
 string **without** any additional directive applications. Applying a directive
 (e.g., `@lowercase`) inside this selection set is not supported and triggers the
-`REQUIRE_DIRECTIVE_IN_FIELDS_ARG` error.
+`REQUIRE_DIRECTIVE_IN_FIELD_ARG` error.
 
 **Examples**
 
-In this valid usage, the `@require` directive's `fields` argument references
+In this valid usage, the `@require` directive's `field` argument references
 `name` without any directive applications, avoiding the error.
 
 ```graphql example
 type User @key(fields: "id name") {
   id: ID!
-  profile(name: String! @require(fields: "name")): Profile
+  profile(name: String! @require(field: "name")): Profile
 }
 
 type Profile {
@@ -1892,13 +1892,13 @@ type Profile {
 
 Because the `@require` selection (`name @lowercase`) includes a directive
 application (`@lowercase`), this violates the rule and triggers a
-`REQUIRE_DIRECTIVE_IN_FIELDS_ARG` error.
+`REQUIRE_DIRECTIVE_IN_FIELD_ARG` error.
 
 ```graphql counter-example
 type User @key(fields: "id name") {
   id: ID!
   name: String
-  profile(name: String! @require(fields: "name @lowercase")): Profile
+  profile(name: String! @require(field: "name @lowercase")): Profile
 }
 
 type Profile {
@@ -1911,7 +1911,7 @@ type Profile {
 
 **Error Code**
 
-`REQUIRE_INVALID_FIELDS_TYPE`
+`REQUIRE_INVALID_FIELD_TYPE`
 
 **Severity**
 
@@ -1927,28 +1927,28 @@ ERROR
   - For each {argument} in {arguments}:
     - If {argument} is **not** annotated with `@require`:
       - Continue
-    - Let {fieldsArg} be the value of the `fields` argument of the `@require`
+    - Let {fieldArg} be the value of the `field` argument of the `@require`
       directive on {argument}.
-    - If {fieldsArg} is **not** a string:
-      - Produce a `REQUIRE_INVALID_FIELDS_TYPE` error.
+    - If {fieldArg} is **not** a string:
+      - Produce a `REQUIRE_INVALID_FIELD_TYPE` error.
 
 **Explanatory Text**
 
-When using the `@require` directive, the `fields` argument must always be a
+When using the `@require` directive, the `field` argument must always be a
 string that defines a (potentially nested) selection set of fields from the same
-type. If the `fields` argument is provided as a type other than a string (such
-as an integer, boolean, or enum), the directive usage is invalid and will cause
+type. If the `field` argument is provided as a type other than a string (such as
+an integer, boolean, or enum), the directive usage is invalid and will cause
 schema composition to fail.
 
 **Examples**
 
-In the following example, the `@require` directive's `fields` argument is a
-valid string and satisfies the rule.
+In the following example, the `@require` directive's `field` argument is a valid
+string and satisfies the rule.
 
 ```graphql example
 type User @key(fields: "id") {
   id: ID!
-  profile(name: String! @require(fields: "name")): Profile
+  profile(name: String! @require(field: "name")): Profile
 }
 
 type Profile {
@@ -1957,13 +1957,13 @@ type Profile {
 }
 ```
 
-Since `fields` is set to `123` (an integer) instead of a string, this violates
-the rule and triggers a `REQUIRE_INVALID_FIELDS_TYPE` error.
+Since `field` is set to `123` (an integer) instead of a string, this violates
+the rule and triggers a `REQUIRE_INVALID_FIELD_TYPE` error.
 
 ```graphql counter-example
 type User @key(fields: "id") {
   id: ID!
-  profile(name: String! @require(fields: 123)): Profile
+  profile(name: String! @require(field: 123)): Profile
 }
 
 type Profile {
@@ -2887,12 +2887,12 @@ ERROR
       - For each {argumentName} in {argumentNames}
         - Let {arguments} be the set of all arguments with the name
           {argumentName} from all fields in {fields}.
-        - Let {defaultValue} be the first default value found in {arguments}.
+        - Let {defaultValues} be all default values found in {arguments}.
         - Let {externalArguments} be the set of all arguments with the name
           {argumentName} from all fields in {externalFields}.
         - For each {externalArgument} in {externalArguments}
-          - The default value of {externalArgument} must be equal to
-            {defaultValue}.
+          - The default value of {externalArgument} must be equal to all
+            {defaultValues}.
 
 **Explanatory Text**
 
@@ -4852,11 +4852,11 @@ type Product {
 ```
 
 ```graphql
+# Schema B
 type Query {
   review(id: ID!): Review
 }
 
-# Schema B
 type Review {
   id: ID!
   content: String
@@ -5728,10 +5728,10 @@ ERROR
   - For each {argument} in {arguments}:
     - If {argument} is **not** annotated with `@require`:
       - Continue
-    - Let {fieldsArg} be the string value of the `fields` argument of the
+    - Let {fieldArg} be the string value of the `field` argument of the
       `@require` directive on {argument}.
-    - Let {parsedFieldsArg} be the parsed selection map from {fieldsArg}.
-    - {ValidateSelectionMap(parsedFieldsArg, parentType)} must be true.
+    - Let {parsedFieldArg} be the parsed selection map from {fieldArg}.
+    - {ValidateSelectionMap(parsedFieldArg, parentType)} must be true.
 
 ValidateSelectionMap(selectionMap, parentType):
 
@@ -5750,22 +5750,22 @@ ValidateSelectionMap(selectionMap, parentType):
 
 **Explanatory Text**
 
-Even if the selection map for `@require(fields: "…")` is syntactically valid,
-its contents must also be valid within the composed schema. Fields must exist on
-the parent type for them to be referenced by `@require`. In addition, fields
+Even if the selection map for `@require(field: "…")` is syntactically valid, its
+contents must also be valid within the composed schema. Fields must exist on the
+parent type for them to be referenced by `@require`. In addition, fields
 requiring unknown fields break the valid usage of `@require`, leading to a
 `REQUIRE_INVALID_FIELDS` error.
 
 **Examples**
 
-In the following example, the `@require` directive's `fields` argument is a
-valid selection set and satisfies the rule.
+In the following example, the `@require` directive's `field` argument is a valid
+selection set and satisfies the rule.
 
 ```graphql example
 type User @key(fields: "id") {
   id: ID!
   name: String!
-  profile(name: String! @require(fields: "name")): Profile
+  profile(name: String! @require(field: "name")): Profile
 }
 
 type Profile {
@@ -5780,7 +5780,7 @@ selection set and triggers a `REQUIRE_INVALID_FIELDS` error.
 ```graphql counter-example
 type Book {
   id: ID!
-  title(lang: String! @require(fields: "author { }")): String
+  title(lang: String! @require(field: "author { }")): String
 }
 
 type Author {
@@ -5788,14 +5788,14 @@ type Author {
 }
 ```
 
-In this counter-example, the `@require` directive references a field (`unknown`)
-that does not exist on the parent type (`Book`), causing a
+In this counter-example, the `@require` directive references a field
+(`unknownField`) that does not exist on the parent type (`Book`), causing a
 `REQUIRE_INVALID_FIELDS` error.
 
 ```graphql counter-example
 type Book {
   id: ID!
-  pages(pageSize: Int @require(fields: "unknownField")): Int
+  pages(pageSize: Int @require(field: "unknownField")): Int
 }
 ```
 

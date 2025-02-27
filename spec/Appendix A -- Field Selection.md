@@ -422,11 +422,11 @@ operator is applied when mapping an abstract output type to a `@oneOf` input
 type.
 
 ```graphql example
-{ movieId: <Movie>.id } | { productId: <Product>.id }
+{ bookId: <Book>.id } | { movieId: <Movie>.id }
 ```
 
 ```graphql example
-{ nested: { movieId: <Movie>.id } | { productId: <Product>.id }}
+{ nested: { bookId: <Book>.id } | { movieId: <Movie>.id } }
 ```
 
 ### SelectedObjectValue
@@ -649,9 +649,13 @@ input FindMediaInput @oneOf {
   movieId: ID
 }
 
-type SearchStoreInput {
+input SearchStoreInput {
   city: String
   hasInStock: FindMediaInput
+}
+
+input Nested {
+  nested: FindMediaInput
 }
 ```
 
@@ -683,9 +687,9 @@ title
 <Book>.title
 ```
 
-Incorrect paths where the field does not exist on the specified type is not
-valid result in validation errors. For instance, if `<Book>.movieId` is
-referenced but `movieId` is not a field of `Book`, will result in an invalid
+Incorrect paths where the field does not exist on the specified type are not
+valid and result in validation errors. For instance, if `<Book>.movieId` is
+referenced but `movieId` is not a field of `Book`, it will result in an invalid
 {Path}.
 
 ```graphql counter-example
@@ -721,26 +725,26 @@ For example, the following {Path} is valid if `title` is a scalar field on the
 `Book` type:
 
 ```graphql example
-book.title
+title
 ```
 
 The following {Path} is invalid because `title` should not have subselections:
 
 ```graphql counter-example
-book.title.something
+title.something
 ```
 
 For non-leaf fields, the {Path} must continue to specify subselections until a
 leaf field is reached:
 
 ```graphql example
-book.author.id
+author.id
 ```
 
 Invalid {Path} where non-leaf fields do not have further selections:
 
 ```graphql counter-example
-book.author
+author
 ```
 
 ### Type Reference Is Possible
@@ -797,7 +801,7 @@ type Store {
 }
 ```
 
-Non-coercible values are invalid. The following examples are invalid:
+Non-coercible values are invalid. The following example is invalid:
 
 ```graphql counter-example
 type Query {
