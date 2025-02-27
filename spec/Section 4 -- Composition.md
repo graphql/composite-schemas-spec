@@ -1998,10 +1998,8 @@ ERROR
 - For each type name {typeName} defined in at least one of these schemas:
   - Let {types} be the set of all types named {typeName} across all source
     schemas.
-  - Let {typeKinds} be the set of
-    [type kinds](https://spec.graphql.org/October2021/#sec-Type-Kinds) in
-    {types}
-  - {typeKinds} must contain exactly one element.
+  - All {types} must be of the same kind (Object, Interface, Union, Enum,
+    InputObject, Scalar).
 
 **Explanatory Text**
 
@@ -2041,6 +2039,7 @@ type User {
 
 In the following counter-example, `User` is defined as an object type in one of
 the schemas and as an interface in another. This violates the rule and results
+in a `TYPE_KIND_MISMATCH` error.
 
 ```graphql
 # Schema A: `User` is an object type
@@ -2053,11 +2052,6 @@ type User {
 extend interface User {
   id: ID!
   friends: [User!]!
-}
-
-# Schema C: `User` is an input object
-extend input User {
-  id: ID!
 }
 ```
 
@@ -5112,28 +5106,26 @@ ERROR
 **Formal Specification**
 
 - Let {schema} be the merged composite execution schema.
-- Let {types} be the set of all object types in {schema}.
+- Let {types} be the set of all object and interface types in {schema}.
 - For each {type} in {types}:
-  - If {type} is not marked with `@inaccessible`:
-    - Let {implementedInterfaces} be the set of all interfaces implemented by
-      {type}.
-    - For each {field} in {type}'s fields:
-      - If {field} is marked with `@inaccessible`:
-        - For each {implementedInterface} in {implementedInterfaces}:
-          - Let {interfaceField} be the field on {implementedInterface} that has
-            the same name as {field}
-          - If {interfaceField} exists:
-            - {IsExposed(interfaceField)} must be false
+  - Let {implementedInterfaces} be the set of all interfaces implemented by
+    {type}.
+  - For each {implementedInterface} in {implementedInterfaces}:
+    - Let {interfaceFields} be the set of all fields defined on
+      {implementedInterface} that are visible in the merged schema.
+    - For each {interfaceField} in {interfaceFields}:
+      - Let {fieldName} be the name of {interfaceField}.
+      - {type} must have a field with the name {fieldName}
 
 **Explanatory Text**
 
-This rule ensures that inaccessible fields (`@inaccessible`) on an object type
-are not exposed through an interface. An object type that implements an
-interface must provide public access to each field defined by the interface. If
-a field on an object type is marked as `@inaccessible` but implements an
-interface field that is visible in the composed schema, this creates a
-contradiction: the interface contract requires that field to be accessible, yet
-the object type implementation hides it.
+This rule ensures that inaccessible fields (`@inaccessible`) on an object or
+interface type are not exposed through an interface. A composite type that
+implements an interface must provide public access to each field defined by the
+interface. If a field on an object type is marked as `@inaccessible` but
+implements an interface field that is visible in the composed schema, this
+creates a contradiction: the interface contract requires that field to be
+accessible, yet the object type implementation hides it.
 
 This rule prevents inconsistencies in the composed schema, ensuring that every
 interface field visible in the composed schema is also publicly visible on all
