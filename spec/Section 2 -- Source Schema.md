@@ -505,7 +505,7 @@ one distinct unique key for that entity, which enables a gateway to perform
 lookups and resolve instances of the entity based on that key.
 
 ```graphql example
-type Product @key(fields: "id") @key(fields: "key") {
+type Product @key(fields: "id") @key(fields: "sku") {
   id: ID!
   sku: String!
   name: String!

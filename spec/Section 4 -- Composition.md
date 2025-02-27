@@ -4772,11 +4772,11 @@ type Product {
 ```
 
 ```graphql
+# Schema B
 type Query {
   review(id: ID!): Review
 }
 
-# Schema B
 type Review {
   id: ID!
   content: String
@@ -5708,8 +5708,8 @@ type Author {
 }
 ```
 
-In this counter-example, the `@require` directive references a field (`unknown`)
-that does not exist on the parent type (`Book`), causing a
+In this counter-example, the `@require` directive references a field
+(`unknownField`) that does not exist on the parent type (`Book`), causing a
 `REQUIRE_INVALID_FIELDS` error.
 
 ```graphql counter-example
