@@ -110,7 +110,7 @@ This is an example of a non-normative note.</div>
 </li>
 <li><a href="#sec-Validate-Source-Schemas.Validate-Require-Directives"><span class="spec-secid">3.1.7</span>Validate Require Directives</a><ol>
 <li><a href="#sec-Require-Invalid-Syntax"><span class="spec-secid">3.1.7.1</span>Require Invalid Syntax</a></li>
-<li><a href="#sec-Require-Directive-in-Fields-Argument"><span class="spec-secid">3.1.7.2</span>Require Directive in Fields Argument</a></li>
+<li><a href="#sec-Require-Directive-in-Field-Argument"><span class="spec-secid">3.1.7.2</span>Require Directive in Field Argument</a></li>
 <li><a href="#sec-Require-Invalid-Fields-Type"><span class="spec-secid">3.1.7.3</span>Require Invalid Fields Type</a></li>
 </ol>
 </li>
@@ -1448,7 +1448,7 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%204%20--%20Composition.md#L616-L618">The following example is invalid, since <code>title</code> is marked with both <code>@external</code> and has an argument that is annotated with <code>@require</code>. This conflict leads to an <code>EXTERNAL_COLLISION_WITH_ANOTHER_DIRECTIVE</code> error.</p>
-<pre id="example-8d6ce" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L620-L633"><a href="#example-8d6ce">Counter Example № 61</a><code><span class="token comment"># Source Schema A</span>
+<pre id="example-a73b2" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L620-L633"><a href="#example-a73b2">Counter Example № 61</a><code><span class="token comment"># Source Schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Book</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token attr-name">title</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
@@ -1458,7 +1458,7 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
 <span class="token comment"># Source Schema B</span>
 <span class="token keyword">type</span> <span class="token class-name">Book</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
-  <span class="token property-query">title</span><span class="token punctuation">(</span><span class="token attr-name">subtitle</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"subtitle"</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token directive function">@external</span>
+  <span class="token property-query">title</span><span class="token punctuation">(</span><span class="token attr-name">subtitle</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"subtitle"</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token directive function">@external</span>
 <span class="token punctuation">}</span>
 </code></pre>
 </section>
@@ -2543,8 +2543,8 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
 <li data-source="spec/Section%204%20--%20Composition.md#L1797">Continue</li>
 </ul>
 </li>
-<li data-source="spec/Section%204%20--%20Composition.md#L1798-L1799">Let <var data-name="fieldsArg">fieldsArg</var> be the string value of the <code>fields</code> argument of the <code>@require</code> directive on <var data-name="argument">argument</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L1800"><var data-name="fieldsArg">fieldsArg</var> must be be parsable as a valid selection map</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L1798-L1799">Let <var data-name="fieldArg">fieldArg</var> be the string value of the <code>field</code> argument of the <code>@require</code> directive on <var data-name="argument">argument</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L1800"><var data-name="fieldArg">fieldArg</var> must be be parsable as a valid selection map</li>
 </ul>
 </li>
 </ul>
@@ -2553,14 +2553,14 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
 </section>
 <section id="sec-Require-Invalid-Syntax.Explanatory-Text" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L1802"><a href="#sec-Require-Invalid-Syntax.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L1804-L1807">The <code>@require</code> directive&rsquo;s <code>fields</code> argument must be syntactically valid GraphQL. If the selection map string is malformed (e.g., missing closing braces, unbalanced quotes, invalid tokens), then the schema cannot be composed correctly. In such cases, the error <code>REQUIRE_INVALID_SYNTAX</code> is raised.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L1804-L1807">The <code>@require</code> directive&rsquo;s <code>field</code> argument must be syntactically valid GraphQL. If the selection map string is malformed (e.g., missing closing braces, unbalanced quotes, invalid tokens), then the schema cannot be composed correctly. In such cases, the error <code>REQUIRE_INVALID_SYNTAX</code> is raised.</p>
 </section>
 <section id="sec-Require-Invalid-Syntax.Examples" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L1809"><a href="#sec-Require-Invalid-Syntax.Examples" title="link to this subsection">Examples</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L1811-L1812">In the following example, the <code>@require</code> directive&rsquo;s <code>fields</code> argument is a valid selection map and satisfies the rule.</p>
-<pre id="example-d693b" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L1814-L1824"><a href="#example-d693b">Example № 99</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L1811-L1812">In the following example, the <code>@require</code> directive&rsquo;s <code>field</code> argument is a valid selection map and satisfies the rule.</p>
+<pre id="example-2e1c6" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L1814-L1824"><a href="#example-2e1c6">Example № 99</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
-  <span class="token property-query">profile</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"name"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Profile</span>
+  <span class="token property-query">profile</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"name"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Profile</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">type</span> <span class="token class-name">Profile</span> <span class="token punctuation">{</span>
@@ -2568,11 +2568,11 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L1826-L1827">In the following counter-example, the <code>@require</code> directive&rsquo;s <code>fields</code> argument has invalid syntax because it is missing a closing brace.</p>
-<p data-source="spec/Section%204%20--%20Composition.md#L1829">This violates the rule and triggers a <code>REQUIRE_INVALID_FIELDS</code> error.</p>
-<pre id="example-ea62c" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L1831-L1840"><a href="#example-ea62c">Counter Example № 100</a><code><span class="token keyword">type</span> <span class="token class-name">Book</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L1826-L1827">In the following counter-example, the <code>@require</code> directive&rsquo;s <code>field</code> argument has invalid syntax because it is missing a closing brace.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L1829">This violates the rule and triggers a <code>REQUIRE_INVALID_SYNTAX</code> error.</p>
+<pre id="example-440d0" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L1831-L1840"><a href="#example-440d0">Counter Example № 100</a><code><span class="token keyword">type</span> <span class="token class-name">Book</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
-  <span class="token property-query">title</span><span class="token punctuation">(</span><span class="token attr-name">lang</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"author { name "</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
+  <span class="token property-query">title</span><span class="token punctuation">(</span><span class="token attr-name">lang</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"author { name "</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">type</span> <span class="token class-name">Author</span> <span class="token punctuation">{</span>
@@ -2581,18 +2581,18 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
 </code></pre>
 </section>
 </section>
-<section id="sec-Require-Directive-in-Fields-Argument" secid="3.1.7.2">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L1842"><span class="spec-secid" title="link to this section"><a href="#sec-Require-Directive-in-Fields-Argument">3.1.7.2</a></span>Require Directive in Fields Argument</h4>
-<section id="sec-Require-Directive-in-Fields-Argument.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L1844"><a href="#sec-Require-Directive-in-Fields-Argument.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L1846"><code>REQUIRE_DIRECTIVE_IN_FIELDS_ARG</code></p>
+<section id="sec-Require-Directive-in-Field-Argument" secid="3.1.7.2">
+<h4 data-source="spec/Section%204%20--%20Composition.md#L1842"><span class="spec-secid" title="link to this section"><a href="#sec-Require-Directive-in-Field-Argument">3.1.7.2</a></span>Require Directive in Field Argument</h4>
+<section id="sec-Require-Directive-in-Field-Argument.Error-Code" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L1844"><a href="#sec-Require-Directive-in-Field-Argument.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L1846"><code>REQUIRE_DIRECTIVE_IN_FIELD_ARG</code></p>
 </section>
-<section id="sec-Require-Directive-in-Fields-Argument.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L1848"><a href="#sec-Require-Directive-in-Fields-Argument.Severity" title="link to this subsection">Severity</a></h6>
+<section id="sec-Require-Directive-in-Field-Argument.Severity" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L1848"><a href="#sec-Require-Directive-in-Field-Argument.Severity" title="link to this subsection">Severity</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L1850">ERROR</p>
 </section>
-<section id="sec-Require-Directive-in-Fields-Argument.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L1852"><a href="#sec-Require-Directive-in-Fields-Argument.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<section id="sec-Require-Directive-in-Field-Argument.Formal-Specification" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L1852"><a href="#sec-Require-Directive-in-Field-Argument.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li data-source="spec/Section%204%20--%20Composition.md#L1854">Let <var data-name="schemas">schemas</var> be the set of all source schemas.</li>
 <li data-source="spec/Section%204%20--%20Composition.md#L1855">Let <var data-name="compositeTypes">compositeTypes</var> be the set of all composite types in <var data-name="schema">schema</var>.</li>
@@ -2604,9 +2604,9 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
 <li data-source="spec/Section%204%20--%20Composition.md#L1861">Continue</li>
 </ul>
 </li>
-<li data-source="spec/Section%204%20--%20Composition.md#L1862-L1863">Let <var data-name="fieldsArg">fieldsArg</var> be the value of the <code>fields</code> argument of the <code>@require</code> directive on <var data-name="argument">argument</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L1864-L1865">If <var data-name="fieldsArg">fieldsArg</var> contains a directive application:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L1865">Produce a <code>REQUIRE_DIRECTIVE_IN_FIELDS_ARG</code> error.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L1862-L1863">Let <var data-name="fieldArg">fieldArg</var> be the value of the <code>field</code> argument of the <code>@require</code> directive on <var data-name="argument">argument</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L1864-L1865">If <var data-name="fieldArg">fieldArg</var> contains a directive application:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L1865">Produce a <code>REQUIRE_DIRECTIVE_IN_FIELD_ARG</code> error.</li>
 </ul>
 </li>
 </ul>
@@ -2615,16 +2615,16 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
 </li>
 </ul>
 </section>
-<section id="sec-Require-Directive-in-Fields-Argument.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L1867"><a href="#sec-Require-Directive-in-Fields-Argument.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L1869-L1874">The <code>@require</code> directive is used to specify fields on the same type that an argument depends on in order to resolve the annotated field. When using <code>@require(fields: "…")</code>, the <code>fields</code> argument must be a valid selection set string <strong>without</strong> any additional directive applications. Applying a directive (e.g., <code>@lowercase</code>) inside this selection set is not supported and triggers the <code>REQUIRE_DIRECTIVE_IN_FIELDS_ARG</code> error.</p>
+<section id="sec-Require-Directive-in-Field-Argument.Explanatory-Text" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L1867"><a href="#sec-Require-Directive-in-Field-Argument.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L1869-L1874">The <code>@require</code> directive is used to specify fields on the same type that an argument depends on in order to resolve the annotated field. When using <code>@require(field: "…")</code>, the <code>field</code> argument must be a valid selection set string <strong>without</strong> any additional directive applications. Applying a directive (e.g., <code>@lowercase</code>) inside this selection set is not supported and triggers the <code>REQUIRE_DIRECTIVE_IN_FIELD_ARG</code> error.</p>
 </section>
-<section id="sec-Require-Directive-in-Fields-Argument.Examples" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L1876"><a href="#sec-Require-Directive-in-Fields-Argument.Examples" title="link to this subsection">Examples</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L1878-L1879">In this valid usage, the <code>@require</code> directive&rsquo;s <code>fields</code> argument references <code>name</code> without any directive applications, avoiding the error.</p>
-<pre id="example-194c1" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L1881-L1891"><a href="#example-194c1">Example № 101</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id name"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<section id="sec-Require-Directive-in-Field-Argument.Examples" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L1876"><a href="#sec-Require-Directive-in-Field-Argument.Examples" title="link to this subsection">Examples</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L1878-L1879">In this valid usage, the <code>@require</code> directive&rsquo;s <code>field</code> argument references <code>name</code> without any directive applications, avoiding the error.</p>
+<pre id="example-0748d" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L1881-L1891"><a href="#example-0748d">Example № 101</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id name"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
-  <span class="token property-query">profile</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"name"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Profile</span>
+  <span class="token property-query">profile</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"name"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Profile</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">type</span> <span class="token class-name">Profile</span> <span class="token punctuation">{</span>
@@ -2632,11 +2632,11 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L1893-L1895">Because the <code>@require</code> selection (<code>name @lowercase</code>) includes a directive application (<code>@lowercase</code>), this violates the rule and triggers a <code>REQUIRE_DIRECTIVE_IN_FIELDS_ARG</code> error.</p>
-<pre id="example-1a598" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L1897-L1908"><a href="#example-1a598">Counter Example № 102</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id name"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L1893-L1895">Because the <code>@require</code> selection (<code>name @lowercase</code>) includes a directive application (<code>@lowercase</code>), this violates the rule and triggers a <code>REQUIRE_DIRECTIVE_IN_FIELD_ARG</code> error.</p>
+<pre id="example-8ce7e" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L1897-L1908"><a href="#example-8ce7e">Counter Example № 102</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id name"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
-  <span class="token property-query">profile</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"name @lowercase"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Profile</span>
+  <span class="token property-query">profile</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"name @lowercase"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Profile</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">type</span> <span class="token class-name">Profile</span> <span class="token punctuation">{</span>
@@ -2650,7 +2650,7 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
 <h4 data-source="spec/Section%204%20--%20Composition.md#L1910"><span class="spec-secid" title="link to this section"><a href="#sec-Require-Invalid-Fields-Type">3.1.7.3</a></span>Require Invalid Fields Type</h4>
 <section id="sec-Require-Invalid-Fields-Type.Error-Code" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L1912"><a href="#sec-Require-Invalid-Fields-Type.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L1914"><code>REQUIRE_INVALID_FIELDS_TYPE</code></p>
+<p data-source="spec/Section%204%20--%20Composition.md#L1914"><code>REQUIRE_INVALID_FIELD_TYPE</code></p>
 </section>
 <section id="sec-Require-Invalid-Fields-Type.Severity" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L1916"><a href="#sec-Require-Invalid-Fields-Type.Severity" title="link to this subsection">Severity</a></h6>
@@ -2669,9 +2669,9 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
 <li data-source="spec/Section%204%20--%20Composition.md#L1929">Continue</li>
 </ul>
 </li>
-<li data-source="spec/Section%204%20--%20Composition.md#L1930-L1931">Let <var data-name="fieldsArg">fieldsArg</var> be the value of the <code>fields</code> argument of the <code>@require</code> directive on <var data-name="argument">argument</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L1932-L1933">If <var data-name="fieldsArg">fieldsArg</var> is <strong>not</strong> a string:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L1933">Produce a <code>REQUIRE_INVALID_FIELDS_TYPE</code> error.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L1930-L1931">Let <var data-name="fieldArg">fieldArg</var> be the value of the <code>field</code> argument of the <code>@require</code> directive on <var data-name="argument">argument</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L1932-L1933">If <var data-name="fieldArg">fieldArg</var> is <strong>not</strong> a string:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L1933">Produce a <code>REQUIRE_INVALID_FIELD_TYPE</code> error.</li>
 </ul>
 </li>
 </ul>
@@ -2682,14 +2682,14 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
 </section>
 <section id="sec-Require-Invalid-Fields-Type.Explanatory-Text" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L1935"><a href="#sec-Require-Invalid-Fields-Type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L1937-L1941">When using the <code>@require</code> directive, the <code>fields</code> argument must always be a string that defines a (potentially nested) selection set of fields from the same type. If the <code>fields</code> argument is provided as a type other than a string (such as an integer, boolean, or enum), the directive usage is invalid and will cause schema composition to fail.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L1937-L1941">When using the <code>@require</code> directive, the <code>field</code> argument must always be a string that defines a (potentially nested) selection set of fields from the same type. If the <code>field</code> argument is provided as a type other than a string (such as an integer, boolean, or enum), the directive usage is invalid and will cause schema composition to fail.</p>
 </section>
 <section id="sec-Require-Invalid-Fields-Type.Examples" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L1943"><a href="#sec-Require-Invalid-Fields-Type.Examples" title="link to this subsection">Examples</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L1945-L1946">In the following example, the <code>@require</code> directive&rsquo;s <code>fields</code> argument is a valid string and satisfies the rule.</p>
-<pre id="example-e0298" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L1948-L1958"><a href="#example-e0298">Example № 103</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L1945-L1946">In the following example, the <code>@require</code> directive&rsquo;s <code>field</code> argument is a valid string and satisfies the rule.</p>
+<pre id="example-bc34d" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L1948-L1958"><a href="#example-bc34d">Example № 103</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
-  <span class="token property-query">profile</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"name"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Profile</span>
+  <span class="token property-query">profile</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"name"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Profile</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">type</span> <span class="token class-name">Profile</span> <span class="token punctuation">{</span>
@@ -2697,10 +2697,10 @@ In this case the <code>@is</code> directive could also be omitted as the argumen
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L1960-L1961">Since <code>fields</code> is set to <code>123</code> (an integer) instead of a string, this violates the rule and triggers a <code>REQUIRE_INVALID_FIELDS_TYPE</code> error.</p>
-<pre id="example-fbd4e" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L1963-L1973"><a href="#example-fbd4e">Counter Example № 104</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L1960-L1961">Since <code>field</code> is set to <code>123</code> (an integer) instead of a string, this violates the rule and triggers a <code>REQUIRE_INVALID_FIELD_TYPE</code> error.</p>
+<pre id="example-4aa97" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L1963-L1973"><a href="#example-4aa97">Counter Example № 104</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
-  <span class="token property-query">profile</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token number">123</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Profile</span>
+  <span class="token property-query">profile</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token number">123</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Profile</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">type</span> <span class="token class-name">Profile</span> <span class="token punctuation">{</span>
@@ -5975,9 +5975,9 @@ Number of items to fetch
 <li data-source="spec/Section%204%20--%20Composition.md#L5650">Continue</li>
 </ul>
 </li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5651-L5652">Let <var data-name="fieldsArg">fieldsArg</var> be the string value of the <code>fields</code> argument of the <code>@require</code> directive on <var data-name="argument">argument</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5653">Let <var data-name="parsedFieldsArg">parsedFieldsArg</var> be the parsed selection map from <var data-name="fieldsArg">fieldsArg</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5654"><span class="spec-call"><a href="#ValidateSelectionMap()" data-name="ValidateSelectionMap">ValidateSelectionMap</a>(<var data-name="parsedFieldsArg">parsedFieldsArg</var>, <var data-name="parentType">parentType</var>)</span> must be true.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5651-L5652">Let <var data-name="fieldArg">fieldArg</var> be the string value of the <code>field</code> argument of the <code>@require</code> directive on <var data-name="argument">argument</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5653">Let <var data-name="parsedFieldArg">parsedFieldArg</var> be the parsed selection map from <var data-name="fieldArg">fieldArg</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5654"><span class="spec-call"><a href="#ValidateSelectionMap()" data-name="ValidateSelectionMap">ValidateSelectionMap</a>(<var data-name="parsedFieldArg">parsedFieldArg</var>, <var data-name="parentType">parentType</var>)</span> must be true.</li>
 </ul>
 </li>
 </ul>
@@ -6012,15 +6012,15 @@ Number of items to fetch
 </section>
 <section id="sec-Require-Invalid-Fields.Explanatory-Text" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L5671"><a href="#sec-Require-Invalid-Fields.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5673-L5677">Even if the selection map for <code>@require(fields: "…")</code> is syntactically valid, its contents must also be valid within the composed schema. Fields must exist on the parent type for them to be referenced by <code>@require</code>. In addition, fields requiring unknown fields break the valid usage of <code>@require</code>, leading to a <code>REQUIRE_INVALID_FIELDS</code> error.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L5673-L5677">Even if the selection map for <code>@require(field: "…")</code> is syntactically valid, its contents must also be valid within the composed schema. Fields must exist on the parent type for them to be referenced by <code>@require</code>. In addition, fields requiring unknown fields break the valid usage of <code>@require</code>, leading to a <code>REQUIRE_INVALID_FIELDS</code> error.</p>
 </section>
 <section id="sec-Require-Invalid-Fields.Examples" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L5679"><a href="#sec-Require-Invalid-Fields.Examples" title="link to this subsection">Examples</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5681-L5682">In the following example, the <code>@require</code> directive&rsquo;s <code>fields</code> argument is a valid selection set and satisfies the rule.</p>
-<pre id="example-6c28c" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5684-L5695"><a href="#example-6c28c">Example № 184</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L5681-L5682">In the following example, the <code>@require</code> directive&rsquo;s <code>field</code> argument is a valid selection set and satisfies the rule.</p>
+<pre id="example-bdd60" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5684-L5695"><a href="#example-bdd60">Example № 184</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
-  <span class="token property-query">profile</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"name"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Profile</span>
+  <span class="token property-query">profile</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"name"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Profile</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">type</span> <span class="token class-name">Profile</span> <span class="token punctuation">{</span>
@@ -6029,9 +6029,9 @@ Number of items to fetch
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%204%20--%20Composition.md#L5697-L5698">In this counter-example, the <code>@require</code> directive does not have a valid selection set and triggers a <code>REQUIRE_INVALID_FIELDS</code> error.</p>
-<pre id="example-32088" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5700-L5709"><a href="#example-32088">Counter Example № 185</a><code><span class="token keyword">type</span> <span class="token class-name">Book</span> <span class="token punctuation">{</span>
+<pre id="example-86ccf" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5700-L5709"><a href="#example-86ccf">Counter Example № 185</a><code><span class="token keyword">type</span> <span class="token class-name">Book</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
-  <span class="token property-query">title</span><span class="token punctuation">(</span><span class="token attr-name">lang</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"author { }"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
+  <span class="token property-query">title</span><span class="token punctuation">(</span><span class="token attr-name">lang</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"author { }"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">type</span> <span class="token class-name">Author</span> <span class="token punctuation">{</span>
@@ -6039,9 +6039,9 @@ Number of items to fetch
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%204%20--%20Composition.md#L5711-L5713">In this counter-example, the <code>@require</code> directive references a field (<code>unknown</code>) that does not exist on the parent type (<code>Book</code>), causing a <code>REQUIRE_INVALID_FIELDS</code> error.</p>
-<pre id="example-9be16" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5715-L5720"><a href="#example-9be16">Counter Example № 186</a><code><span class="token keyword">type</span> <span class="token class-name">Book</span> <span class="token punctuation">{</span>
+<pre id="example-e09bc" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5715-L5720"><a href="#example-e09bc">Counter Example № 186</a><code><span class="token keyword">type</span> <span class="token class-name">Book</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
-  <span class="token property-query">pages</span><span class="token punctuation">(</span><span class="token attr-name">pageSize</span><span class="token punctuation">:</span> <span class="token scalar">Int</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"unknownField"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">Int</span>
+  <span class="token property-query">pages</span><span class="token punctuation">(</span><span class="token attr-name">pageSize</span><span class="token punctuation">:</span> <span class="token scalar">Int</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"unknownField"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">Int</span>
 <span class="token punctuation">}</span>
 </code></pre>
 </section>
@@ -7101,7 +7101,7 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <input hidden class="toggle" type="checkbox" id="_toggle_3.1.7" /><label for="_toggle_3.1.7"></label>
 <ol>
 <li id="_sidebar_3.1.7.1"><a href="#sec-Require-Invalid-Syntax"><span class="spec-secid">3.1.7.1</span>Require Invalid Syntax</a></li>
-<li id="_sidebar_3.1.7.2"><a href="#sec-Require-Directive-in-Fields-Argument"><span class="spec-secid">3.1.7.2</span>Require Directive in Fields Argument</a></li>
+<li id="_sidebar_3.1.7.2"><a href="#sec-Require-Directive-in-Field-Argument"><span class="spec-secid">3.1.7.2</span>Require Directive in Field Argument</a></li>
 <li id="_sidebar_3.1.7.3"><a href="#sec-Require-Invalid-Fields-Type"><span class="spec-secid">3.1.7.3</span>Require Invalid Fields Type</a></li>
 </ol>
 </li>
