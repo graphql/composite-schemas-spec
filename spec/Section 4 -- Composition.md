@@ -247,7 +247,7 @@ In this example, no `@inaccessible` annotation is applied to the query root, so
 the rule is satisfied.
 
 ```graphql example
-extend schema {
+schema {
   query: Query
 }
 
@@ -266,7 +266,7 @@ violated. `QUERY_ROOT_TYPE_INACCESSIBLE` is raised because a schema's root query
 type cannot be hidden from consumers.
 
 ```graphql counter-example
-extend schema {
+schema {
   query: Query
 }
 
@@ -1139,7 +1139,7 @@ other error conditions that may have to be propagated to the client.
 For example, the following usage is recommended:
 
 ```graphql example
-extend type Query {
+type Query {
   userById(id: ID!): User @lookup
 }
 
@@ -1157,7 +1157,7 @@ recommendation.
 This counter-example demonstrates an invalid usage:
 
 ```graphql counter-example
-extend type Query {
+type Query {
   userById(id: ID!): User! @lookup
 }
 
@@ -1212,7 +1212,7 @@ enforces that any field annotated with `@lookup` must have a return type that is
 For example, the following usage is valid:
 
 ```graphql example
-extend type Query {
+type Query {
   userById(id: ID!): User @lookup
 }
 
@@ -1227,7 +1227,7 @@ In this example, `userById` returns a `User` object, satisfying the requirement.
 This counter-example demonstrates an invalid usage:
 
 ```graphql counter-example
-extend type Query {
+type Query {
   usersByIds(ids: [ID!]!): [User!] @lookup
 }
 
@@ -2049,7 +2049,7 @@ type User {
 }
 
 # Schema B: `User` is an interface
-extend interface User {
+interface User {
   id: ID!
   friends: [User!]!
 }
