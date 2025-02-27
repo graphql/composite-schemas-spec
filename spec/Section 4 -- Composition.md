@@ -3676,16 +3676,26 @@ MergeEnumTypes(enums):
     {firstEnum}, and enum values of {firstEnum} excluding any marked with
     `@inaccessible`.
 - Let {typeName} be the name of {firstEnum}.
-- Let {description} be the description of {firstEnum}.
-- Let {enumValues} be the set of all enum values in {enums}.
-- For each {enum} in {enums}:
-  - If {description} is {null}:
-    - Set {description} to the description of {enum}.
-  - For each {enumValue} in the enum values of {enum}:
-    - If {enumValue} is marked with `@inaccessible`
-      - Remove {enumValue} from {enumValues}.
+- Let {description} be the first non empty description of any {enum} in {enums}.
+- Let {mergedValues} be an empty set.
+- Let {valueNames} be the set of all enum value names in {enums}.
+- For each {valueName} in {valueNames}:
+  - Let {values} be the set of enum values with the name {valueName} in {enums}.
+  - Let {mergedValue} be the result of {MergeEnumValues(values)}.
+  - If {mergedValue} is not {null}:
+    - Add {mergedValue} to {mergedValues}.
 - Return a new enum type with the name of {typeName}, description of
-  {description}, and enum values of {enumValues}.
+  {description}, and enum values of {mergedValue}.
+
+MergeEnumValues(enumValues):
+
+- If any {enumValue} in {enumValues} is marked with `@inaccessible`
+  - Return {null}
+- Let {name} be the name of the first {enumValue} in {enumValues}.
+- Let {description} be the first non empty description of any {enumValue} in
+  {enumValues}.
+- Return a new enum value with the name of {name} and description of
+  {description}.
 
 **Explanatory Text**
 
