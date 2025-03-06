@@ -4862,7 +4862,7 @@ ERROR
 
 **Formal Specification**
 
-- Let {types} be the set of all object types in the composite schema.
+- Let {types} be the set of all object types in the composed schema.
 - For each {type} in {types}:
   - Let {fields} be a set of all fields in {type}.
   - {fields} must not be empty.
@@ -4947,7 +4947,7 @@ ERROR
 
 **Formal Specification**
 
-- Let {types} be the set of all interface types in the composite schema.
+- Let {types} be the set of all interface types in the composed schema.
 - For each {type} in {types}:
   - Let {fields} be a set of all fields in {type}.
   - {fields} must not be empty.
@@ -5314,7 +5314,7 @@ input BookFilter {
 - For each {field} in {fields}:
   - If {field} is a non-null input field:
     - Let {coordinate} be the coordinate of {field}.
-    - {coordinate} must be in the composite schema.
+    - {coordinate} must be in the composed schema.
 
 **Explanatory Text**
 
@@ -5428,11 +5428,11 @@ input BookFilter {
 
 **Formal Specification**
 
-- Let {fields} be the set of all fields of the input types
+- Let {fields} be the set of all fields of the input types in the composed
+  schema.
 - For each {field} in {fields}:
-  - If {field} is not declared as `@inaccessible`
-    - Let {namedType} be the named type that {field} references
-    - {namedType} must not be declared as `@inaccessible`
+  - Let {namedType} be the named type that {field} references
+  - {namedType} must be in the composed schema.
 
 **Explanatory Text**
 
