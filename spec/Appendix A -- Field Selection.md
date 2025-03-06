@@ -52,14 +52,14 @@ considered valid. For non-scalar arguments, you must specify each field of the
 input type in {SelectedObjectValue}.
 
 ```graphql example
-extend type Query {
+type Query {
   findUserByName(user: UserInput! @is(field: "{ firstName: firstName }")): User
     @lookup
 }
 ```
 
 ```graphql counter-example
-extend type Query {
+type Query {
   findUserByName(user: UserInput! @is(field: "firstName")): User @lookup
 }
 ```
@@ -846,7 +846,7 @@ In contrast, the following is invalid because it uses a field "address" which is
 not defined on the expected type:
 
 ```graphql counter-example
-extend type Query {
+type Query {
   storeById(id: ID! @is(field: "address")): Store! @lookup
 }
 
@@ -875,7 +875,7 @@ would create ambiguity and potential conflicts.
 For example, the following is invalid:
 
 ```graphql counter-example
-extend type Query {
+type Query {
   storeById(id: ID! @is(field: "id id")): Store! @lookup
 }
 
@@ -919,7 +919,7 @@ input UserInput {
 Then, an invalid selection would be missing the required `id` field:
 
 ```graphql counter-example
-extend type Query {
+type Query {
   userById(user: UserInput! @is(field: "{ name: name }")): User! @lookup
 }
 ```
@@ -928,7 +928,7 @@ If the `UserInput` type requires the `name` field, but the `User` type has an
 optional `name` field, the following selection would be valid.
 
 ```graphql example
-extend type Query {
+type Query {
   findUser(input: UserInput! @is(field: "{ name: name }")): User! @lookup
 }
 
@@ -947,7 +947,7 @@ But if the `UserInput` type requires the `name` field but it's not defined in
 the `User` type, the selection would be invalid.
 
 ```graphql counter-example
-extend type Query {
+type Query {
   findUser(input: UserInput! @is(field: "{ id: id }")): User! @lookup
 }
 
