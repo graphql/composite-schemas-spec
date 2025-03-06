@@ -5841,41 +5841,49 @@ ERROR
 
 **Formal Specification**
 
-- Let {schema} be the merged composite execution schema.
-- Let {compositeTypes} be the set of all composite types in {schema}.
+- Let {schemas} be all source schemas.
+- Let {compositeTypes} be the set of all composite types in {schemas}.
 - For each {composite} in {compositeTypes}:
   - Let {fields} be the set of fields on {composite}.
   - Let {arguments} be the set of all arguments on {fields}.
   - For each {argument} in {arguments}:
     - If {argument} is **not** annotated with `@require`:
       - Continue
+    - Let {schema} be the schema that defines {argument}.
+    - Let {declaringField} be the field that defines {argument}.
+    - Let {declaringType} be the type that defines {declaringField}.
+    - Let {otherSchemas} be the set of all {schemas} excluding {schema}.
     - Let {fieldArg} be the string value of the `field` argument of the
       `@require` directive on {argument}.
     - Let {parsedFieldArg} be the parsed selection map from {fieldArg}.
-    - {ValidateSelectionMap(parsedFieldArg, parentType)} must be true.
+    - {ValidateSelectionMap(parsedFieldArg, declaringType, otherSchemas)} must
+      be true.
 
-ValidateSelectionMap(selectionMap, parentType):
+ValidateSelectionMap(selectionMap, declaringType, schemas):
 
 - For each {selection} in {selectionMap}:
-  - Let {field} be the field selected by {selection} on {parentType}.
-  - If {field} is **not** defined on {parentType}:
+  - Let {possibleTypes} be the set of all possible types for {declaringType} in
+    {schemas}.
+  - Let {field} be the first field selected by {selection} on any
+    {possibleTypes}.
+  - If no {field} is found
     - return false
   - Let {fieldType} be the type of {field}.
   - If {fieldType} is not a scalar type
-    - Let {subSelections} be the selections in {selection}
-    - If {subSelections} is empty
+    - Let {subSelectionSet} be the selection set of {selection}
+    - If {subSelectionSet} is empty
       - return false
-    - If {ValidateSelectionMap(subSelections, fieldType)} is false
+    - If {ValidateSelectionMap(subSelectionSet, fieldType, schemas)} is false
       - return false
 - return true
 
 **Explanatory Text**
 
 Even if the selection map for `@require(field: "…")` is syntactically valid, its
-contents must also be valid within the composed schema. Fields must exist on the
-parent type for them to be referenced by `@require`. In addition, fields
-requiring unknown fields break the valid usage of `@require`, leading to a
-`REQUIRE_INVALID_FIELDS` error.
+contents must also be valid. Required fields must exist on the parent type in a
+**different schema than the one defining the requirement** for them to be
+referenced by `@require`. Additionally, requiring unknown fields invalidates
+`@require`, resulting in a `REQUIRE_INVALID_FIELDS` error.
 
 **Examples**
 
@@ -5883,13 +5891,19 @@ In the following example, the `@require` directive's `field` argument is a valid
 selection set and satisfies the rule.
 
 ```graphql example
+## Schema A
 type User @key(fields: "id") {
   id: ID!
-  name: String!
   profile(name: String! @require(field: "name")): Profile
 }
 
 type Profile {
+  id: ID!
+  name: String
+}
+
+## Schema B
+type User @key(fields: "id") {
   id: ID!
   name: String
 }
@@ -5917,6 +5931,17 @@ In this counter-example, the `@require` directive references a field
 type Book {
   id: ID!
   pages(pageSize: Int @require(field: "unknownField")): Int
+}
+```
+
+In the following counter-example, the `@require` directive references a field from itself
+(`Book.size`) which is not allowed. This results in a `REQUIRE_INVALID_FIELDS` error.
+
+```graphql counter-example
+type Book {
+  id: ID!
+  size: Int
+  pages(pageSize: Int @require(field: "size")): Int
 }
 ```
 
