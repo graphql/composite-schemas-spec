@@ -188,17 +188,31 @@ ERROR
 - Let {types} be the set of built-in types (for example, `FieldSelectionMap`)
   defined by the composition specification from the schema.
 - For each {type} in {types}:
-  - {type} must strictly equal the built-in type defined by the composition
-    specification.
+  - Let {kind} be the kind of {type}.
+  - {kind} must be equal to the kind defined by the composition specification.
+  - If {type} is a directive:
+    - Let {expectedArguments} be the set of arguments defined by the composition
+      specification.
+    - For each {expectedArgument} in {expectedArguments}:
+      - Let {name} be the name of {expectedArgument}.
+      - Let {argument} be the argument with {name} in {type}.
+      - {argument} must be defined.
+      - Let {expectedType} be the type of {expectedArgument}.
+      - Let {type} be the type of {argument}.
+      - {type} must be equal to {expectedType}.
 
 **Explanatory Text**
 
-Certain types are reserved in composite schema specification for specific
-purposes and must adhere to the specification's definitions. For example,
-`FieldSelectionMap` is a built-in scalar that represents a selection of fields
-as a string. Redefining these built-in types with a different kind (e.g., an
-input object, enum, union, or object type) is disallowed and makes the
+Certain types (and directives) are reserved in composite schema specification
+for specific purposes and must adhere to the specification's definitions. For
+example, `FieldSelectionMap` is a built-in scalar that represents a selection of
+fields as a string. Redefining these built-in types with a different kind (e.g.,
+an input object, enum, union, or object type) is disallowed and makes the
 composition invalid.
+
+To ensure schema evolution and interoperability, directives may include
+additional arguments, provided that all required arguments defined by the
+specification are present.
 
 This rule ensures that built-in types maintain their expected shapes and
 semantics so the composed schema can correctly interpret them.
@@ -216,6 +230,24 @@ directive @require(field: FieldSelectionMap!) on ARGUMENT_DEFINITION
 input FieldSelectionMap {
   fields: [String!]!
 }
+```
+
+In the following example, the `@key` directive includes an additional argument,
+`futureArg`, which is not part of the specification. This is valid and allows
+the directive to evolve without breaking existing schemas.
+
+```graphql example
+directive @key(
+  fields: SelectionSet!
+  futureArg: String
+) repeatable on OBJECT | INTERFACE
+```
+
+However, if the `@key` directive is defined without the required `fields`
+argument, as shown below, it results in a `TYPE_DEFINITION_INVALID` error.
+
+```graphql counter-example
+directive @key(futureArg: String) repeatable on OBJECT | INTERFACE
 ```
 
 #### Query Root Type Inaccessible
