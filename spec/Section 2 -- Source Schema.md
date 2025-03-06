@@ -360,7 +360,7 @@ Note: In this case the `@is` directive could also be omitted as the argument and
 field names match.
 
 ```graphql example
-extend type Query {
+type Query {
   personById(id: ID! @is(field: "id")): Person @lookup
 }
 ```
@@ -368,7 +368,7 @@ extend type Query {
 The `@is` directive also allows referring to nested fields relative to `Person`.
 
 ```graphql example
-extend type Query {
+type Query {
   personByAddressId(id: ID! @is(field: "address.id")): Person
 }
 ```
@@ -376,7 +376,7 @@ extend type Query {
 The `@is` directive is not limited to a single argument.
 
 ```graphql example
-extend type Query {
+type Query {
   personByAddressId(
     id: ID! @is(field: "address.id")
     kind: PersonKind @is(field: "kind")
@@ -388,7 +388,7 @@ The `@is` directive can also be used in combination with `@oneOf` to specify
 lookup fields that can resolve entities by different keys.
 
 ```graphql example
-extend type Query {
+type Query {
   person(
     by: PersonByInput
       @is(field: "{ id } | { addressId: address.id } | { name }")
@@ -781,7 +781,7 @@ type Review {
   author: User @provides(fields: "email")
 }
 
-extend type User {
+type User {
   id: ID!
   email: String! @external
 }
@@ -819,7 +819,7 @@ type Product @key(fields: "id") {
 }
 
 # The new "Payments" schema:
-extend type Product @key(fields: "id") {
+type Product @key(fields: "id") {
   id: ID! @external
   price: Float! @override(from: "Catalog")
   tax: Float!
@@ -837,14 +837,14 @@ type Product @key(fields: "id") {
 }
 
 # The new "Payments" schema:
-extend type Product @key(fields: "id") {
+type Product @key(fields: "id") {
   id: ID! @external
   price: Float! @override(from: "Catalog")
   tax: Float!
 }
 
 # The new "Pricing" schema:
-extend type Product @key(fields: "id") {
+type Product @key(fields: "id") {
   id: ID! @external
   price: Float! @override(from: "Payments")
   tax: Float!
@@ -862,7 +862,7 @@ type Product @key(fields: "id") {
 }
 
 # The new "Payments" schema:
-extend type Product @key(fields: "id") {
+type Product @key(fields: "id") {
   id: ID! @external
   price: Float! @override(from: "Catalog")
   tax: Float!
