@@ -5776,14 +5776,15 @@ ERROR
 ValidateSelectionSet(selectionSet, parentType):
 
 - For each {selection} in {selectionSet}:
-  - Let {selectedField} be the field named by {selection} in {parentType}.
+  - Let {selectedField} be the field selected by {selection} in {parentType}.
   - If {selectedField} does not exist on {parentType}:
     - return false
-  - If {selectedField} returns a composite type then {selection}
-    - Let {subSelections} be the selections in {selection}
-    - If {subSelections} is empty
+  - Let {selectedType} be the type of {selectedField}
+  - If {selectedType} is a composite type
+    - Let {subSelectionSet} be the selection set of {selection}
+    - If {subSelectionSet} is empty
       - return false
-    - If {ValidateSelectionSet(subSelections, fieldType)} is false
+    - If {ValidateSelectionSet(subSelectionSet, fieldType)} is false
       - return false
 - return true
 
