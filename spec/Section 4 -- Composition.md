@@ -5856,26 +5856,15 @@ ERROR
     - Let {fieldArg} be the string value of the `field` argument of the
       `@require` directive on {argument}.
     - Let {parsedFieldArg} be the parsed selection map from {fieldArg}.
-    - {ValidateSelectionMap(parsedFieldArg, declaringType, otherSchemas)} must
-      be true.
-
-ValidateSelectionMap(selectionMap, declaringType, schemas):
-
-- For each {selection} in {selectionMap}:
-  - Let {possibleTypes} be the set of all possible types for {declaringType} in
-    {schemas}.
-  - Let {field} be the first field selected by {selection} on any
-    {possibleTypes}.
-  - If no {field} is found
-    - return false
-  - Let {fieldType} be the type of {field}.
-  - If {fieldType} is not a scalar type
-    - Let {subSelectionSet} be the selection set of {selection}
-    - If {subSelectionSet} is empty
-      - return false
-    - If {ValidateSelectionMap(subSelectionSet, fieldType, schemas)} is false
-      - return false
-- return true
+    - The parsed selection map {parsedFieldArg} must satisfy the validation
+      rules defined in Appendix A, Section 6.3, using:
+      - {declaringType} as the initial root type.
+      - The combined schema context formed by the union of {otherSchemas} as the
+        schema context except all fields marked as `@internal`
+      - Validation succeeds if each required field selection path can be
+        resolved across this combined schema context. Individual fields in the
+        selection may exist in different schemas; it is not required that all
+        fields referenced by {parsedFieldArg} reside within a single schema.
 
 **Explanatory Text**
 
@@ -5934,8 +5923,9 @@ type Book {
 }
 ```
 
-In the following counter-example, the `@require` directive references a field from itself
-(`Book.size`) which is not allowed. This results in a `REQUIRE_INVALID_FIELDS` error.
+In the following counter-example, the `@require` directive references a field
+from itself (`Book.size`) which is not allowed. This results in a
+`REQUIRE_INVALID_FIELDS` error.
 
 ```graphql counter-example
 type Book {
