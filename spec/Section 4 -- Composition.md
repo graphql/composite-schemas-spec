@@ -5891,7 +5891,7 @@ type Profile {
   name: String
 }
 
-## Schema B
+# Schema B
 type User @key(fields: "id") {
   id: ID!
   name: String
