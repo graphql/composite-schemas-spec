@@ -5880,7 +5880,7 @@ In the following example, the `@require` directive's `field` argument is a valid
 selection set and satisfies the rule.
 
 ```graphql example
-## Schema A
+# Schema A
 type User @key(fields: "id") {
   id: ID!
   profile(name: String! @require(field: "name")): Profile
