@@ -3536,7 +3536,7 @@ MergeEnumTypes(enums):
   - If {mergedValue} is not {null}:
     - Add {mergedValue} to {mergedValues}.
 - Return a new enum type with the name of {typeName}, description of
-  {description}, and enum values of {mergedValue}.
+  {description}, and enum values of {mergedValues}.
 
 MergeEnumValues(enumValues):
 
