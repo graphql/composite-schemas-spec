@@ -552,13 +552,13 @@ type Query {
 ```
 
 In this example, the `name` field is marked with `@external` but is not used by
-the `@provides` directive, violating the rule:
+a `@provides` directive, violating the rule:
 
 ```graphql counter-example
 # Source schema A
 type Product {
-  title: String @external
-  author: Author
+  id: ID
+  name: String @external
 }
 ```
 
@@ -4894,8 +4894,8 @@ considering `@inaccessible` annotations, is considered empty and invalid.
 
 **Examples**
 
-In the following example, the merged object type `Author` is valid. It includes
-all fields from both source schemas, with `age` being hidden due to the
+In the following example, the merged object type `Product` is valid. It includes
+all fields from both source schemas, with `price` being hidden due to the
 `@inaccessible` directive in one of the source schemas:
 
 ```graphql
@@ -4907,7 +4907,7 @@ interface Product {
 
 # Schema B
 interface Product {
-  name: Int
+  name: String
   inStock: Boolean
 }
 ```
@@ -4918,7 +4918,6 @@ and it is not required to contain any fields.
 
 ```graphql
 # Schema A
-
 interface Product @inaccessible {
   name: String
   price: Int
@@ -4926,7 +4925,7 @@ interface Product @inaccessible {
 
 # Schema B
 interface Product {
-  name: Int
+  name: String
   inStock: Boolean
 }
 ```
@@ -5430,11 +5429,12 @@ ERROR
   - Let {values} be a set of all values in {enumType}.
   - {values} must not be empty.
 
-**Explanatory Text** Enum values have to be an exact match across all source
-schemas. If an enum value only exists in one source schema, it has to be marked
-as `@inaccessible`. Enum members that are marked as `@inaccessible` are not
-included in the merged enum type. An enum type with no values is considered
-empty and invalid.
+**Explanatory Text**
+
+Enum values have to be an exact match across all source schemas. If an enum
+value only exists in one source schema, it has to be marked as `@inaccessible`.
+Enum members that are marked as `@inaccessible` are not included in the merged
+enum type. An enum type with no values is considered empty and invalid.
 
 **Examples**
 
@@ -5624,16 +5624,19 @@ ERROR
   - Let {members} be a set of all member types in {unionType}.
   - {members} must not be empty.
 
-**Explanatory Text** For union types defined across multiple source schemas, the
-merged union type is the union of all member types defined in these source
-schemas. However, any member type marked with `@inaccessible` in any source
-schema is hidden and not included in the merged union type. A union type with no
-members, after considering `@inaccessible` annotations, is considered empty and
-invalid.
+**Explanatory Text**
 
-**Examples** In the following example, the merged union type `SearchResult` is
-valid. It includes all member types from both source schemas, with `User` being
-hidden due to the `@inaccessible` directive in one of the source schemas:
+For union types defined across multiple source schemas, the merged union type is
+the union of all member types defined in these source schemas. However, any
+member type marked with `@inaccessible` in any source schema is hidden and not
+included in the merged union type. A union type with no members, after
+considering `@inaccessible` annotations, is considered empty and invalid.
+
+**Examples**
+
+In the following example, the merged union type `SearchResult` is valid. It
+includes all member types from both source schemas, with `User` being hidden due
+to the `@inaccessible` directive in one of the source schemas:
 
 ```graphql
 # Schema A
@@ -5643,8 +5646,20 @@ type User @inaccessible {
   id: ID!
 }
 
+type Product {
+  id: ID!
+}
+
 # Schema B
 union SearchResult = Product | Order
+
+type Product {
+  id: ID!
+}
+
+type Order {
+  id: ID!
+}
 
 # Composite Schema
 union SearchResult = Product | Order
@@ -5658,8 +5673,24 @@ required to contain any members.
 # Schema A
 union SearchResult @inaccessible = User | Product
 
+type User {
+  id: ID!
+}
+
+type Product {
+  id: ID!
+}
+
 # Schema B
 union SearchResult = Product | Order
+
+type Product {
+  id: ID!
+}
+
+type Order {
+  id: ID!
+}
 ```
 
 This counter-example demonstrates an invalid merged union type. In this case,
@@ -5670,12 +5701,22 @@ merged union type:
 ```graphql counter-example
 # Schema A
 union SearchResult = User | Product
+
 type User @inaccessible {
+  id: ID!
+}
+
+type Product {
   id: ID!
 }
 
 # Schema B
 union SearchResult = User | Product
+
+type User {
+  id: ID!
+}
+
 type Product @inaccessible {
   id: ID!
 }
@@ -5724,8 +5765,8 @@ ValidateSelectionSet(selectionSet, parentType):
 
 Even if the `@provides(fields: "…")` argument is well-formed syntactically, the
 selected fields must actually exist on the return type of the field. Invalid
-field references- e.g., selecting non-existent fields, referencing fields on the
-wrong type, or incorrectly omitting required nested selections-lead to a
+field references—e.g., selecting non-existent fields, referencing fields on the
+wrong type, or incorrectly omitting required nested selections—lead to a
 `PROVIDES_INVALID_FIELDS` error.
 
 **Examples**
