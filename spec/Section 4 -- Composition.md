@@ -5198,7 +5198,7 @@ input BookFilter @inaccessible {
 }
 
 input BookFilter {
-  name: Boolean
+  name: String
 }
 ```
 
