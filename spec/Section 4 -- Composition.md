@@ -5871,20 +5871,6 @@ type User @key(fields: "id") {
 }
 ```
 
-In this counter-example, the `@require` directive does not have a valid
-selection set and triggers a `REQUIRE_INVALID_FIELDS` error.
-
-```graphql counter-example
-type Book {
-  id: ID!
-  title(lang: String! @require(field: "author { }")): String
-}
-
-type Author {
-  name: String
-}
-```
-
 In this counter-example, the `@require` directive references a field
 (`unknownField`) that does not exist on the parent type (`Book`), causing a
 `REQUIRE_INVALID_FIELDS` error.
