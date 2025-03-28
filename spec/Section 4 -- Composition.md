@@ -4338,7 +4338,7 @@ this function, it is also a precondition violation.
 _Merging Arguments_
 
 All remaining arguments (those not marked `@inaccessible` or `@require`) are
-merged via {MergeArgument(mergedArgument, argument)}. This algorithm ensures
+merged via {MergeArguments(mergedArgument, argument)}. This algorithm ensures
 that the final composed argument is compatible with all definitions of that
 argument, resolving differences in type, default value, and description.
 
