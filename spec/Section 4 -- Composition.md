@@ -3751,7 +3751,7 @@ MergeInputTypes(types):
     - Continue
   - If any field in {fieldDefinitions} is marked with `@inaccessible`
     - Continue
-  - Let {mergedField} be the result of {MergeInputField(fieldDefinitions)}.
+  - Let {mergedField} be the result of {MergeInputFields(fieldDefinitions)}.
   - If {mergedField} is not {null}:
     - Add {mergedField} to {fields}.
 - If {fields} is empty:
@@ -3792,7 +3792,7 @@ type that correctly unifies every compatible field from the various sources.
 After filtering out inaccessible types, the algorithm takes the **intersection**
 of the field names across the remaining types - only those fields that appear in
 **every** source definition are eligible. For each eligible field, it invokes
-{MergeInputField(fieldsForName)} to reconcile differences in type, nullability,
+{MergeInputFields(fieldsForName)} to reconcile differences in type, nullability,
 default values, etc. The end result is a single input type that correctly
 unifies every compatible field that appears in all source types.
 
@@ -4234,9 +4234,9 @@ breakdown of how {MergeInputFields(fields)} operates:
 
 _Inaccessible Fields_
 
-Before calling {MergeInputField(fields)}, all fields marked with `@inaccessible`
-must be filtered out. If any such field appears in the input, it is a
-precondition violation of this algorithm.
+Before calling {MergeInputFields(fields)}, all fields marked with
+`@inaccessible` must be filtered out. If any such field appears in the input, it
+is a precondition violation of this algorithm.
 
 _Combining Descriptions_
 
