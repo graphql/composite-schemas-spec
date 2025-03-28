@@ -238,7 +238,7 @@ the directive to evolve without breaking existing schemas.
 
 ```graphql example
 directive @key(
-  fields: SelectionSet!
+  fields: FieldSelectionSet!
   futureArg: String
 ) repeatable on OBJECT | INTERFACE
 ```
@@ -5742,22 +5742,24 @@ ERROR
 - For each {field} in {fieldsWithProvides}:
   - Let {fieldsArg} be the string value of the `fields` argument of the
     `@provides` directive on {field}.
-  - Let {parsedSelectionSet} be the parsed selection set from {fieldsArg}.
+  - Let {parsedFieldSelectionSet} be the parsed field selection set from
+    {fieldsArg}.
   - Let {returnType} be the return type of {field}.
-  - {ValidateSelectionSet(parsedSelectionSet, returnType)} must be true.
+  - {ValidateFieldSelectionSet(parsedFieldSelectionSet, returnType)} must be
+    true.
 
-ValidateSelectionSet(selectionSet, parentType):
+ValidateFieldSelectionSet(fieldSelectionSet, parentType):
 
-- For each {selection} in {selectionSet}:
+- For each {selection} in {fieldSelectionSet}:
   - Let {selectedField} be the field selected by {selection} in {parentType}.
   - If {selectedField} does not exist on {parentType}:
     - return false
   - Let {selectedType} be the type of {selectedField}
   - If {selectedType} is a composite type
-    - Let {subSelectionSet} be the selection set of {selection}
+    - Let {subSelectionSet} be the field selection set of {selection}
     - If {subSelectionSet} is empty
       - return false
-    - If {ValidateSelectionSet(subSelectionSet, fieldType)} is false
+    - If {ValidateFieldSelectionSet(subSelectionSet, fieldType)} is false
       - return false
 - return true
 
