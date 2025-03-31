@@ -2339,7 +2339,7 @@ ERROR
 
 **Formal Specification:**
 
-- Let {typeNames} be the set of all object and interface types name from all
+- Let {typeNames} be the set of all object and interface type names from all
   source schemas that are not declared as `@internal`
 - For each {typeName} in {typeNames}:
   - Let {typeDefinitions} be the list of all type definitions from different
