@@ -1861,12 +1861,13 @@ has invalid syntax because it is missing a closing brace.
 This violates the rule and triggers a `REQUIRE_INVALID_SYNTAX` error.
 
 ```graphql counter-example
-type Book {
+type User @key(fields: "id") {
   id: ID!
-  title(lang: String! @require(field: "author { name ")): String
+  profile(name: String! @require(field: "{ name ")): Profile
 }
 
-type Author {
+type Profile {
+  id: ID!
   name: String
 }
 ```
