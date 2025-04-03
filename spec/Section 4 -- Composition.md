@@ -4982,7 +4982,7 @@ implements an interface must provide public access to each field defined by the
 interface. If a field on an object type is marked as `@inaccessible` but
 implements an interface field that is visible in the composed schema, this
 creates a contradiction: the interface contract requires that field to be
-accessible, yet the object type implementation hides it.
+accessible, yet the implementation hides it.
 
 This rule prevents inconsistencies in the composed schema, ensuring that every
 interface field visible in the composed schema is also publicly visible on all
