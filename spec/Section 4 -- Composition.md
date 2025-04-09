@@ -6183,7 +6183,7 @@ schemas can handle that field at each step.
    same composite type with the same (or larger) option set, we do not expand
    again, ensuring we never loop infinitely.
 
-**ValidateSatifiability(schema):**
+**ValidateSatisfiability(schema):**
 
 - Let {roots} be the set of root operation types in {schema}.
 - For each {root} in {roots}:
@@ -6315,7 +6315,7 @@ query starts from Inventory’s `productById` to Product’s `productByIdSku`.
 {PlanOptions} with `<Query>.productByIdSku<Product>.name` would return an empty
 set.
 
-**Key Missmatch Between Source Schemas:**
+**Key Mismatch Between Source Schemas:**
 
 Imagine a scenario where a type `Product` is defined in two separate source
 schemas - `Products` and `Inventory`. Each schema provides a lookup for
@@ -6450,7 +6450,7 @@ will attempt to retrieve `country` from User’s version of `Address`. But becau
 Orders. Since schema Users never defined `country`, the executor cannot fetch it
 there, producing an unsatisfiable path. The composition process detects that any
 reference to `Address.country` for data originating from the User Schema is not
-fulfillable, thus failing composition.
+satisfiable, thus failing composition.
 
 To resolve this, both schemas would need to align on the `Address` type either
 both define `country` or neither does or turn `Address` into an entity with some
