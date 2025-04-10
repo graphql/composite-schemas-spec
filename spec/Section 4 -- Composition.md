@@ -6340,7 +6340,7 @@ type Product {
 
 # Schema Inventory
 type Query {
-  productBySku(sku: ID!): Product @lookup
+  productBySku(sku: String!): Product @lookup
 }
 
 type Product {
