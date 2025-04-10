@@ -6089,7 +6089,7 @@ to as **satisfiability** - ensures that:
   complete path to fetch that field (for example, due to missing lookups between
   schemas), the composite schema will be deemed unsatisfiable.
 
-For instance, consider a composite `User` type that includes both a `email`
+For instance, consider a composite `User` type that includes both an `email`
 field and a `roles` field. Suppose:
 
 - The `Users` source schema provides the `email` field for `User`.
