@@ -447,7 +447,8 @@ type Product {
   id: ID!
   delivery(
     zip: String!
-    dimension: ProductDimensionInput! @require(field: "{ size: dimension.size, weight: dimension.weight }"))
+    dimension: ProductDimensionInput!
+      @require(field: "{ size: dimension.size, weight: dimension.weight }")
   ): DeliveryEstimates
 }
 ```
@@ -461,7 +462,9 @@ type Product {
   delivery(
     zip: String!
     dimension: ProductDimensionInput!
-      @require(field: "{ productSize: dimension.size, productWeight: dimension.weight }"))
+      @require(
+        field: "{ productSize: dimension.size, productWeight: dimension.weight }"
+      )
   ): DeliveryEstimates
 }
 
