@@ -4595,7 +4595,7 @@ honors the constraints of both sources. If either source requires a non-null
 value, the merged type also becomes non-null so that no invalid (e.g., `null`)
 data can be introduced at runtime. Conversely, if both sources allow `null`, the
 merged type remains nullable. The same principle applies to list types, where
-the more restrictive settings (non-null list or non-null elements) is used.
+the more restrictive settings (non-null list or non-null elements) are used.
 
 _Nullability_
 
