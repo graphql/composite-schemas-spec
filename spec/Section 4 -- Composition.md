@@ -388,7 +388,7 @@ ERROR
 
 **Formal Specification**
 
-- Let {rootQuery} be the root mutation type defined in the schema, if it exists.
+- Let {rootQuery} be the root query type defined in the schema, if it exists.
 - Let {namedQueryType} be the type with the name `Query` in {schema}, if it
   exists.
 - If {rootQuery} is defined:
