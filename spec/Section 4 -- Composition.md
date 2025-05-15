@@ -6200,21 +6200,25 @@ schemas can handle that field at each step.
   - While {queue} is not empty:
     - Dequeue a tuple ({currentType}, {currentPath}, {currentOptions}).
     - If ({currentType}, {currentOptions}) is in {visitedStates}, continue to
-      the next tuple in {queue}.
+      the next tuple in {queue}. #TODO This does not take into consideration the case where we have already visited this type with a subset of currentOptions.
     - Add ({currentType}, {currentOptions}) to {visitedStates}.
     - Let {fields} be the set of fields on {currentType} in {schema}.
     - For each {field} in {fields}:
       - Let {returnType} be the return type of {field}.
-      - For each {possibleType} in {returnType}:
-        - Let {newPath} be {currentPath} extended by {field} with
-          {possibleType}, for example `<currentPath>.<fieldName><possibleType>`.
-        - Let {newOptions} be {PlanOptions(newPath)}
-        - If {newOptions} is empty, the schema is unsatisfiable and composition
-          fails.
-        - If {field} returns a scalar or enum (a leaf type), continue to the
-          next {possibleType}.
-        - Otherwise, enqueue the tuple ({possibleType}, {newPath}, {newOptions})
-          into {queue}.
+      - If {returnType} is a leaf type
+          - Let {newPath} be {currentPath} extended by {field}, for example `<currentPath>.<fieldName>`.
+          - Let {newOptions} be {PlanOptions(newPath)}
+          - If {newOptions} is empty, the schema is unsatisfiable and composition
+            fails.
+      - Otherwise
+        - For each {possibleType} in {returnType}:
+          - Let {newPath} be {currentPath} extended by {field} with
+            {possibleType}, for example `<currentPath>.<fieldName><possibleType>`.
+          - Let {newOptions} be {PlanOptions(newPath)}
+          - If {newOptions} is empty, the schema is unsatisfiable and composition
+            fails.
+          - Otherwise, enqueue the tuple ({possibleType}, {newPath}, {newOptions})
+            into {queue}.
 
 - If the entire process completes for all {roots} without encountering an empty
   {newOptions}, the schema is satisfiable.
@@ -6235,7 +6239,7 @@ type Profile {
 }
 
 type User {
-  id: ID!
+  id: ID! @shareable
   name: String
 }
 
@@ -6250,7 +6254,7 @@ type Order {
 }
 
 type User {
-  id: ID!
+  id: ID! @shareable
   membershipStatus: String
 }
 ```
@@ -6312,7 +6316,7 @@ sources, but there is no consistent lookup path that includes all required
 fields. While, when the query first retrieves a product from schema Product
 (knowing `sku`) it can move to Inventory via `id`, there is no valid path if the
 query starts from Inventory’s `productById` to Product’s `productByIdSku`.
-{PlanOptions} with `<Query>.productByIdSku<Product>.name` would return an empty
+{PlanOptions} with `<Query>.productById<Product>.name` would return an empty
 set.
 
 **Key Mismatch Between Source Schemas:**
@@ -6402,7 +6406,7 @@ type User {
   address: Address
 }
 
-type Address {
+type Address @shareable {
   street: String
   city: String
 }
@@ -6417,7 +6421,7 @@ type Order {
   shippingAddress: Address
 }
 
-type Address {
+type Address @shareable {
   street: String
   city: String
   country: String
@@ -6481,7 +6485,7 @@ type Query {
   categoryById(id: ID!): Category @lookup
 }
 
-type Category {
+type Category @key(fields: "id") {
   id: ID!
   description: String
 }
