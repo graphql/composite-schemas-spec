@@ -40,8 +40,6 @@ Mutation.createUser.query.me
 
 
 PlanOptions(path):
-
-
 - Let {pathElements} be the list of tuples ({type}, {field}) in the provided {path}.
 
 - Let ({initialType}, {initialField}) be the first element in {pathElements}.
@@ -52,6 +50,7 @@ PlanOptions(path):
     - Continue to the next {sourceSchema}.
   - Add {sourceSchema} to {sourceSchemas}.
 
+PlanOptionsInternal(path, sourceSchemas):
 - For each {pathElement} in {pathElements} starting from the second element:
   - Initialize a new empty set {nextSchemas}.
   - Set {currentType} and {currentField} to the respective elements of the current {pathElement}.
@@ -61,17 +60,16 @@ PlanOptions(path):
         - Continue to the next {candidateSchema}.
 
       - If {candidateSchema} not equals {currentSchema}: 
-          - Continue to the next {candidateSchema}.
-      - If {IsReachable(option, candidateSchema, currentType)} returns false:
-          - Continue to the next {candidateSchema}.
+        - If {IsReachable(currentSchema, candidateSchema, currentType)} returns false:
+            - Continue to the next {candidateSchema}.
 
       - If {currentField} on {currentType} in {candidateSchema} defines a requirement:
-        - If {ResolveRequirement(candidateSchema, currentType, currentField)} returns a valid requirement:
-          - If the requirement is not satisfied by {currentSchema}:
+        - If {ResolveRequirement(currentSchema, candidateSchema, currentType, currentField)} returns false:
             - Continue to the next {candidateSchema}.
+
       - Add {candidateSchema} to {nextSchemas}.
 
-  - If {nextSchemas} is empty after:
+  - If {nextSchemas} is empty:
     - Return an empty set.
 
   - Set {sourceSchemas} equal to {nextSchemas} to proceed to the next element in the path.
@@ -82,29 +80,39 @@ IsReachable(sourceSchema, targetSchema, type):
 - If {targetSchema} does not define {type}
   - return false
 - If {sourceSchema} equals {targetSchema}
-  - return true
+  - Assert: TODO This should be a precondition
 - Let {lookups} be the set of all lookup fields in {targetSchema} that return {type}
 - For each {lookup} in {lookups}:
   - Let {keyFields} be the set of fields that form the key for {lookup} in {targetSchema}
-  - If {keyFields} is empty
-    - return false // ??
   - For each {keyField} in {keyFields}:
-    - PlanOptions({keyField}) ?? 
+    - If {ResolveRequirement(sourceSchema, targetSchema, type, keyField)} returns false
+      - // Continue to the next {lookup}
+  - return true
 - return false
 
-ResolveRequirement(schema, type, field):
+ResolveRequirement(currentSchema, candidateSchema, type, field):
 - Let {requirements} be the parsed selection map from requirements on {field}
-- Let {otherSchemas} be the set of all source schemas excluding {schema}
+- Let {otherSchemas} be the set of all source schemas excluding {candidateSchema} and {currentSchema}
 - For each {requiredField} in {requirements}:
   - Let {fieldPath} be the path to {requiredField} starting from {type}
   - Let {canResolve} be false
+  - If {currentSchema} defines {type} and {fieldPath}
+    - If {PlanOptionsInternal(fieldPath, [currentSchema])} returns an non empty set
+      - Set {canResolve} to true
   - For each {otherSchema} in {otherSchemas}:
     - If {otherSchema} defines {type} and {fieldPath}
-      - If {IsReachable(schema, otherSchema, type)} returns true
-        - Set {canResolve} to true
-        - Break
+      - // IsReachable
+        - If {PlanOptionsInternal(fieldPath, [currentSchema])} returns an non empty set
+          - Set {canResolve} to true
+          - Break
   - If {canResolve} is false
     - return false
 - return true
 
+Notes:
+{ user { profile { name id }} }
+user.profile.name
+user.profile.id
+user.profile.id -> UserSerivce
+profile.name -> ProfileService through a Lookup on user
 
