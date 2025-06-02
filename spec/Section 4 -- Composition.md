@@ -238,7 +238,7 @@ the directive to evolve without breaking existing schemas.
 
 ```graphql example
 directive @key(
-  fields: SelectionSet!
+  fields: FieldSelectionSet!
   futureArg: String
 ) repeatable on OBJECT | INTERFACE
 ```
@@ -552,13 +552,13 @@ type Query {
 ```
 
 In this example, the `name` field is marked with `@external` but is not used by
-the `@provides` directive, violating the rule:
+a `@provides` directive, violating the rule:
 
 ```graphql counter-example
 # Source schema A
 type Product {
-  title: String @external
-  author: Author
+  id: ID
+  name: String @external
 }
 ```
 
@@ -1861,12 +1861,13 @@ has invalid syntax because it is missing a closing brace.
 This violates the rule and triggers a `REQUIRE_INVALID_SYNTAX` error.
 
 ```graphql counter-example
-type Book {
+type User @key(fields: "id") {
   id: ID!
-  title(lang: String! @require(field: "author { name ")): String
+  profile(name: String! @require(field: "{ name ")): Profile
 }
 
-type Author {
+type Profile {
+  id: ID!
   name: String
 }
 ```
@@ -2339,7 +2340,7 @@ ERROR
 
 **Formal Specification:**
 
-- Let {typeNames} be the set of all object and interface types name from all
+- Let {typeNames} be the set of all object and interface type names from all
   source schemas that are not declared as `@internal`
 - For each {typeName} in {typeNames}:
   - Let {typeDefinitions} be the list of all type definitions from different
@@ -3536,7 +3537,7 @@ MergeEnumTypes(enums):
   - If {mergedValue} is not {null}:
     - Add {mergedValue} to {mergedValues}.
 - Return a new enum type with the name of {typeName}, description of
-  {description}, and enum values of {mergedValue}.
+  {description}, and enum values of {mergedValues}.
 
 MergeEnumValues(enumValues):
 
@@ -3751,7 +3752,7 @@ MergeInputTypes(types):
     - Continue
   - If any field in {fieldDefinitions} is marked with `@inaccessible`
     - Continue
-  - Let {mergedField} be the result of {MergeInputField(fieldDefinitions)}.
+  - Let {mergedField} be the result of {MergeInputFields(fieldDefinitions)}.
   - If {mergedField} is not {null}:
     - Add {mergedField} to {fields}.
 - If {fields} is empty:
@@ -3792,7 +3793,7 @@ type that correctly unifies every compatible field from the various sources.
 After filtering out inaccessible types, the algorithm takes the **intersection**
 of the field names across the remaining types - only those fields that appear in
 **every** source definition are eligible. For each eligible field, it invokes
-{MergeInputField(fieldsForName)} to reconcile differences in type, nullability,
+{MergeInputFields(fieldsForName)} to reconcile differences in type, nullability,
 default values, etc. The end result is a single input type that correctly
 unifies every compatible field that appears in all source types.
 
@@ -4234,9 +4235,9 @@ breakdown of how {MergeInputFields(fields)} operates:
 
 _Inaccessible Fields_
 
-Before calling {MergeInputField(fields)}, all fields marked with `@inaccessible`
-must be filtered out. If any such field appears in the input, it is a
-precondition violation of this algorithm.
+Before calling {MergeInputFields(fields)}, all fields marked with
+`@inaccessible` must be filtered out. If any such field appears in the input, it
+is a precondition violation of this algorithm.
 
 _Combining Descriptions_
 
@@ -4338,7 +4339,7 @@ this function, it is also a precondition violation.
 _Merging Arguments_
 
 All remaining arguments (those not marked `@inaccessible` or `@require`) are
-merged via {MergeArgument(mergedArgument, argument)}. This algorithm ensures
+merged via {MergeArguments(mergedArgument, argument)}. This algorithm ensures
 that the final composed argument is compatible with all definitions of that
 argument, resolving differences in type, default value, and description.
 
@@ -4594,7 +4595,7 @@ honors the constraints of both sources. If either source requires a non-null
 value, the merged type also becomes non-null so that no invalid (e.g., `null`)
 data can be introduced at runtime. Conversely, if both sources allow `null`, the
 merged type remains nullable. The same principle applies to list types, where
-the more restrictive settings (non-null list or non-null elements) is used.
+the more restrictive settings (non-null list or non-null elements) are used.
 
 _Nullability_
 
@@ -4894,8 +4895,8 @@ considering `@inaccessible` annotations, is considered empty and invalid.
 
 **Examples**
 
-In the following example, the merged object type `Author` is valid. It includes
-all fields from both source schemas, with `age` being hidden due to the
+In the following example, the merged object type `Product` is valid. It includes
+all fields from both source schemas, with `price` being hidden due to the
 `@inaccessible` directive in one of the source schemas:
 
 ```graphql
@@ -4907,7 +4908,7 @@ interface Product {
 
 # Schema B
 interface Product {
-  name: Int
+  name: String
   inStock: Boolean
 }
 ```
@@ -4918,7 +4919,6 @@ and it is not required to contain any fields.
 
 ```graphql
 # Schema A
-
 interface Product @inaccessible {
   name: String
   price: Int
@@ -4926,7 +4926,7 @@ interface Product @inaccessible {
 
 # Schema B
 interface Product {
-  name: Int
+  name: String
   inStock: Boolean
 }
 ```
@@ -4982,7 +4982,7 @@ implements an interface must provide public access to each field defined by the
 interface. If a field on an object type is marked as `@inaccessible` but
 implements an interface field that is visible in the composed schema, this
 creates a contradiction: the interface contract requires that field to be
-accessible, yet the object type implementation hides it.
+accessible, yet the implementation hides it.
 
 This rule prevents inconsistencies in the composed schema, ensuring that every
 interface field visible in the composed schema is also publicly visible on all
@@ -5199,7 +5199,7 @@ input BookFilter @inaccessible {
 }
 
 input BookFilter {
-  name: Boolean
+  name: String
 }
 ```
 
@@ -5430,11 +5430,12 @@ ERROR
   - Let {values} be a set of all values in {enumType}.
   - {values} must not be empty.
 
-**Explanatory Text** Enum values have to be an exact match across all source
-schemas. If an enum value only exists in one source schema, it has to be marked
-as `@inaccessible`. Enum members that are marked as `@inaccessible` are not
-included in the merged enum type. An enum type with no values is considered
-empty and invalid.
+**Explanatory Text**
+
+Enum values have to be an exact match across all source schemas. If an enum
+value only exists in one source schema, it has to be marked as `@inaccessible`.
+Enum members that are marked as `@inaccessible` are not included in the merged
+enum type. An enum type with no values is considered empty and invalid.
 
 **Examples**
 
@@ -5624,16 +5625,19 @@ ERROR
   - Let {members} be a set of all member types in {unionType}.
   - {members} must not be empty.
 
-**Explanatory Text** For union types defined across multiple source schemas, the
-merged union type is the union of all member types defined in these source
-schemas. However, any member type marked with `@inaccessible` in any source
-schema is hidden and not included in the merged union type. A union type with no
-members, after considering `@inaccessible` annotations, is considered empty and
-invalid.
+**Explanatory Text**
 
-**Examples** In the following example, the merged union type `SearchResult` is
-valid. It includes all member types from both source schemas, with `User` being
-hidden due to the `@inaccessible` directive in one of the source schemas:
+For union types defined across multiple source schemas, the merged union type is
+the union of all member types defined in these source schemas. However, any
+member type marked with `@inaccessible` in any source schema is hidden and not
+included in the merged union type. A union type with no members, after
+considering `@inaccessible` annotations, is considered empty and invalid.
+
+**Examples**
+
+In the following example, the merged union type `SearchResult` is valid. It
+includes all member types from both source schemas, with `User` being hidden due
+to the `@inaccessible` directive in one of the source schemas:
 
 ```graphql
 # Schema A
@@ -5643,8 +5647,20 @@ type User @inaccessible {
   id: ID!
 }
 
+type Product {
+  id: ID!
+}
+
 # Schema B
 union SearchResult = Product | Order
+
+type Product {
+  id: ID!
+}
+
+type Order {
+  id: ID!
+}
 
 # Composite Schema
 union SearchResult = Product | Order
@@ -5658,8 +5674,24 @@ required to contain any members.
 # Schema A
 union SearchResult @inaccessible = User | Product
 
+type User {
+  id: ID!
+}
+
+type Product {
+  id: ID!
+}
+
 # Schema B
 union SearchResult = Product | Order
+
+type Product {
+  id: ID!
+}
+
+type Order {
+  id: ID!
+}
 ```
 
 This counter-example demonstrates an invalid merged union type. In this case,
@@ -5670,12 +5702,22 @@ merged union type:
 ```graphql counter-example
 # Schema A
 union SearchResult = User | Product
+
 type User @inaccessible {
+  id: ID!
+}
+
+type Product {
   id: ID!
 }
 
 # Schema B
 union SearchResult = User | Product
+
+type User {
+  id: ID!
+}
+
 type Product @inaccessible {
   id: ID!
 }
@@ -5701,22 +5743,24 @@ ERROR
 - For each {field} in {fieldsWithProvides}:
   - Let {fieldsArg} be the string value of the `fields` argument of the
     `@provides` directive on {field}.
-  - Let {parsedSelectionSet} be the parsed selection set from {fieldsArg}.
+  - Let {parsedFieldSelectionSet} be the parsed field selection set from
+    {fieldsArg}.
   - Let {returnType} be the return type of {field}.
-  - {ValidateSelectionSet(parsedSelectionSet, returnType)} must be true.
+  - {ValidateFieldSelectionSet(parsedFieldSelectionSet, returnType)} must be
+    true.
 
-ValidateSelectionSet(selectionSet, parentType):
+ValidateFieldSelectionSet(fieldSelectionSet, parentType):
 
-- For each {selection} in {selectionSet}:
+- For each {selection} in {fieldSelectionSet}:
   - Let {selectedField} be the field selected by {selection} in {parentType}.
   - If {selectedField} does not exist on {parentType}:
     - return false
   - Let {selectedType} be the type of {selectedField}
   - If {selectedType} is a composite type
-    - Let {subSelectionSet} be the selection set of {selection}
+    - Let {subSelectionSet} be the field selection set of {selection}
     - If {subSelectionSet} is empty
       - return false
-    - If {ValidateSelectionSet(subSelectionSet, fieldType)} is false
+    - If {ValidateFieldSelectionSet(subSelectionSet, fieldType)} is false
       - return false
 - return true
 
@@ -5724,8 +5768,8 @@ ValidateSelectionSet(selectionSet, parentType):
 
 Even if the `@provides(fields: "…")` argument is well-formed syntactically, the
 selected fields must actually exist on the return type of the field. Invalid
-field references- e.g., selecting non-existent fields, referencing fields on the
-wrong type, or incorrectly omitting required nested selections-lead to a
+field references—e.g., selecting non-existent fields, referencing fields on the
+wrong type, or incorrectly omitting required nested selections—lead to a
 `PROVIDES_INVALID_FIELDS` error.
 
 **Examples**
@@ -5826,20 +5870,6 @@ type Profile {
 # Schema B
 type User @key(fields: "id") {
   id: ID!
-  name: String
-}
-```
-
-In this counter-example, the `@require` directive does not have a valid
-selection set and triggers a `REQUIRE_INVALID_FIELDS` error.
-
-```graphql counter-example
-type Book {
-  id: ID!
-  title(lang: String! @require(field: "author { }")): String
-}
-
-type Author {
   name: String
 }
 ```

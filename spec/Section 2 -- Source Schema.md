@@ -447,7 +447,8 @@ type Product {
   id: ID!
   delivery(
     zip: String!
-    dimension: ProductDimensionInput! @require(field: "{ size: dimension.size, weight: dimension.weight }"))
+    dimension: ProductDimensionInput!
+      @require(field: "{ size: dimension.size, weight: dimension.weight }")
   ): DeliveryEstimates
 }
 ```
@@ -461,7 +462,9 @@ type Product {
   delivery(
     zip: String!
     dimension: ProductDimensionInput!
-      @require(field: "{ productSize: dimension.size, productWeight: dimension.weight }"))
+      @require(
+        field: "{ productSize: dimension.size, productWeight: dimension.weight }"
+      )
   ): DeliveryEstimates
 }
 
@@ -483,7 +486,7 @@ input ProductDimensionInput {
 ## @key
 
 ```graphql
-directive @key(fields: SelectionSet!) repeatable on OBJECT | INTERFACE
+directive @key(fields: FieldSelectionSet!) repeatable on OBJECT | INTERFACE
 ```
 
 The @key directive is used to designate an entity's unique key, which identifies
@@ -533,7 +536,7 @@ implementations of that interface.
 
 **Arguments:**
 
-- `fields`: Represents a selection set syntax.
+- `fields`: Represents a field selection set syntax.
 
 ## @shareable
 
@@ -620,7 +623,7 @@ type Product @key(fields: "id") {
 ## @provides
 
 ```graphql
-directive @provides(fields: SelectionSet!) on FIELD_DEFINITION
+directive @provides(fields: FieldSelectionSet!) on FIELD_DEFINITION
 ```
 
 The `@provides` directive indicates that a field can provide certain subfields
@@ -738,8 +741,8 @@ type Query {
 
 **Arguments:**
 
-- `fields`: Represents a selection set syntax describing the subfields of the
-  returned type that can be provided by the current source schema.
+- `fields`: Represents a field selection set syntax describing the subfields of
+  the returned type that can be provided by the current source schema.
 
 ## @external
 
