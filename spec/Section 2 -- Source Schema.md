@@ -136,6 +136,23 @@ type Product @key(fields: "id") {
 }
 ```
 
+For a given source schema, there must be exactly one non-deprecated lookup field
+that can resolve a given entity by a specific key. If multiple non-deprecated
+lookup fields are defined that resolve the same entity by the same key, the
+composition process must throw a composition error.
+
+```graphql counter-example
+type Query {
+  product(id: ID!): Product @lookup
+  productV2(id: ID!): Product @lookup
+}
+
+type Product @key(fields: "id") {
+  id: ID!
+  sku: String!
+}
+```
+
 Lookups can also be nested within other lookups and allow resolving nested
 entities that are part of an aggregate. In the following example the `Product`
 can be resolved by its ID but also the `ProductPrice` can be resolved by passing
