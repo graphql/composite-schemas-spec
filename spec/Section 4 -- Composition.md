@@ -1358,9 +1358,9 @@ ERROR
 
 The `@override` directive designates that ownership of a field is transferred
 from one source schema to another. In the context of interface types, fields are
-abstract—objects that implement the interface are responsible for providing the
-actual fields. Consequently, it is invalid to attach `@override` directly to an
-interface field. Doing so leads to an `OVERRIDE_ON_INTERFACE` error because
+abstract - objects that implement the interface are responsible for providing
+the actual fields. Consequently, it is invalid to attach `@override` directly to
+an interface field. Doing so leads to an `OVERRIDE_ON_INTERFACE` error because
 there is no concrete field implementation on the interface itself that can be
 overridden.
 
@@ -6108,7 +6108,474 @@ interface InventoryItem {
 
 ## Validate Satisfiability
 
-The final step confirms that the composite schema supports executable queries
-without leading to invalid conditions. Each query path defined in the merged
-schema is checked to ensure that every field can be resolved. If any query path
-is unresolvable, the schema is deemed unsatisfiable, and composition fails.
+After composing multiple **source schemas** into a single composite schema, it
+is essential to check whether every field that appears in the composite schema
+can actually be **resolved** by one or more source schemas. This step - referred
+to as **satisfiability** - ensures that:
+
+- Any valid GraphQL operation (query, mutation, subscription) that the composite
+  schema accepts will not fail due to the requested fields being unresolvable.
+- If a field is claimed by multiple source schemas, but none actually provide a
+  complete path to fetch that field (for example, due to missing lookups between
+  schemas), the composite schema will be deemed unsatisfiable.
+
+For instance, consider a composite `User` type that includes both an `email`
+field and a `roles` field. Suppose:
+
+- The `Users` source schema provides the `email` field for `User`.
+- The `AccessManagement` source schema provides the `roles` field for `User`.
+
+If there is no valid **lookup** that bridges `User` in `Users` to `User` in
+`AccessManagement`, then any query path that tries to retrieve `email` and
+`roles` from the same `User` might be unsatisfiable. This process will detect
+that scenario and fail.
+
+**Definition of Paths**
+
+A **path** is a sequence of field selections through the composite schema,
+starting from a root operation type (such as `Query`) and continuing until
+reaching a **leaf field** (either a scalar or enum).
+
+Paths are expressed step-by-step, showing both the selected field and the type
+it returns. For example:
+
+```
+<Query>.a<B>.b<C>.c
+```
+
+This path can be interpreted as:
+
+- From the root type `Query`, select the field `a`, which returns type `B`
+- From type `B`, select the field `b`, which returns type `C`
+- From type `C`, select the leaf field `c` (a scalar or enum)
+
+See Appendix A - Field Selection for more details.
+
+**Tracking Options**
+
+At each step in a path, we compute a set of **source schemas** that can fulfill
+that specific field selection.
+
+If the composite schema includes the field `User.email`, and this field is
+provided by two different source schemas - `Users` and `Profile` - then the
+**option set** for the path `<User>.email` would be:
+
+```
+{Users, Profile}
+```
+
+If, at any point along the path, the option set is **empty**, it means that no
+source schema is able to resolve that field.  
+In such cases, the path is considered **unsatisfiable**.
+
+**Visited States for Loop Detection**
+
+Since composite types can reference themselves or one another cyclically, it's
+essential to detect when a **state** has already been visited to avoid infinite
+recursion.
+
+A **state** is defined as a tuple: ({Type}, {OptionSet})
+
+Where
+
+- {Type} is the a composite schema type (e.g., `User`, `Product`, `Review`)
+- {OptionSet} is the set of source schemas that are currently able to resolve
+  the path up to this point
+
+Once a specific ({Type}, {OptionSet}) combination has been visited, revisiting
+that same state with the **same or more** available source schemas does not
+provide any new value.
+
+In such cases, further exploration of deeper paths can be **safely skipped** to
+prevent cycles and improve efficiency.
+
+**Formal Specification**
+
+The satisfiability check determines whether every path in the composed schema
+can be resolved by at least one source schema. In particular, {PlanOptions}
+needs the exact path (e.g., `<Query>.a<B>.b<C>.c`) to figure out which source
+schemas can handle that field at each step.
+
+1. We begin from each root operation type (e.g., `Query`), constructing an
+   {initialPath} (like `<Query>`) and determining the initial set of source
+   schemas that can handle that root type.
+2. We then explore the fields of that type, building new paths (e.g.,
+   `<Query>.users<User>`, `<Query>.users<User>.roles<Role>`, etc.) at each step.
+   Whenever we select a new field, we invoke {PlanOptions} with the full path to
+   see which source schemas can resolve it.
+3. If the resulting set of source schemas (the {OptionSet}) is ever empty, no
+   source schema can resolve that field under the current path, and the schema
+   is immediately deemed unsatisfiable.
+4. If the field is a leaf (a scalar or enum), the exploration for that path ends
+   successfully. If it is an object, interface, or union, we enqueue a new work
+   item with the updated path and the updated option set.
+5. Loop detection relies only on ({Type}, {OptionSet}) - once we revisit the
+   same composite type with the same (or larger) option set, we do not expand
+   again, ensuring we never loop infinitely.
+
+**ValidateSatisfiability(schema):**
+
+- Let {roots} be the set of root operation types in {schema}.
+- For each {root} in {roots}:
+
+  - Let {initialPath} be the path consisting solely of {root}, represented as
+    `<root>`.
+  - Let {initialOptions} be {PlanOptions(initialPath)}.
+  - If {initialOptions} is empty, the schema is unsatisfiable and composition
+    fails.
+  - Let {queue} be an empty list.
+  - Let {visitedStates} be an empty set of tuples ({Type}, {OptionSet}).
+  - Enqueue the tuple ({root}, {initialPath}, {initialOptions}) into {queue}.
+
+  - While {queue} is not empty:
+    - Dequeue a tuple ({currentType}, {currentPath}, {currentOptions}).
+    - If ({currentType}, {currentOptions}) is in {visitedStates}, continue to
+      the next tuple in {queue}. #TODO This does not take into consideration the case where we have already visited this type with a subset of currentOptions.
+    - Add ({currentType}, {currentOptions}) to {visitedStates}.
+    - Let {fields} be the set of fields on {currentType} in {schema}.
+    - For each {field} in {fields}:
+      - Let {returnType} be the return type of {field}.
+      - If {returnType} is a leaf type
+          - Let {newPath} be {currentPath} extended by {field}, for example `<currentPath>.<fieldName>`.
+          - Let {newOptions} be {PlanOptions(newPath)}
+          - If {newOptions} is empty, the schema is unsatisfiable and composition
+            fails.
+      - Otherwise
+        - For each {possibleType} in {returnType}:
+          - Let {newPath} be {currentPath} extended by {field} with
+            {possibleType}, for example `<currentPath>.<fieldName><possibleType>`.
+          - Let {newOptions} be {PlanOptions(newPath)}
+          - If {newOptions} is empty, the schema is unsatisfiable and composition
+            fails.
+          - Otherwise, enqueue the tuple ({possibleType}, {newPath}, {newOptions})
+            into {queue}.
+
+- If the entire process completes for all {roots} without encountering an empty
+  {newOptions}, the schema is satisfiable.
+
+**Examples**
+
+**Extending a Type with No Lookup:**
+
+```graphql counter-example
+# Profile Schema
+type Query {
+  profileById(id: ID!): Profile
+}
+
+type Profile {
+  id: ID!
+  user: User
+}
+
+type User {
+  id: ID! @shareable
+  name: String
+}
+
+# Order Schema
+type Query {
+  orders: [Order]
+}
+
+type Order {
+  id: ID!
+  user: User
+}
+
+type User {
+  id: ID! @shareable
+  membershipStatus: String
+}
+```
+
+In this scenario, both Profile and Order define a `User` type, yet neither
+provides a `@lookup` field. As a result, there is no way to treat `User` as a
+consistent entity across the two schemas. In other words, the composite schema
+will see a single merged `User` type, but any query that tries to retrieve
+fields from both definitions - for example, `User.name` (from Profile) and
+`User.membershipStatus` (from Order) - has no mechanism to unify the same user
+record.
+
+Without a shared key and a lookup, the distributed executor cannot navigate from
+the `User` data returned by Order to the `User` fields defined by Profile (or
+vice versa). This means queries that span both schemas on the `User` type become
+unsatisfiable, because the executor cannot fetch or recognize the same user
+object in both places. The composition detects this flaw: it sees that the
+merged schema would allow queries combining fields from A and B on `User`, but
+there is no stable identifier and lookup path that makes this possible in
+practice. Consequently, the schema is deemed unsatisfiable and fails
+composition.
+
+**Composite Key Field Missing in the Second Schema**
+
+```graphql counter-example
+# Schema Product
+type Query {
+  # A composite lookup that uses both `id` and `sku`
+  productByIdSku(id: ID!, sku: String!): Product @lookup
+}
+
+type Product {
+  id: ID!
+  sku: String!
+  name: String
+}
+
+# Schema Inventory
+type Query {
+  # A lookup that uses only `id`
+  productById(id: ID!): Product @lookup
+}
+
+type Product {
+  id: ID!
+  stock: Int
+}
+```
+
+In the Product schema, the `Product` is implicitly identified by a **composite
+key** of `(id, sku)`, as shown by the `productByIdSku(id: ID!, sku: String!)`
+lookup. In Inventory, there is a `Product` type as well, but the only lookup is
+`productById(id: ID!)`, which ignores `sku`.
+
+When these schemas compose, the result is a single `Product` type that has two
+keys - `(id, sku)` from Product and `(id)` from Inventory. The distributed
+executor must figure out how to unify the same product record across both
+sources, but there is no consistent lookup path that includes all required
+fields. While, when the query first retrieves a product from schema Product
+(knowing `sku`) it can move to Inventory via `id`, there is no valid path if the
+query starts from Inventory’s `productById` to Product’s `productByIdSku`.
+{PlanOptions} with `<Query>.productById<Product>.name` would return an empty
+set.
+
+**Key Mismatch Between Source Schemas:**
+
+Imagine a scenario where a type `Product` is defined in two separate source
+schemas - `Products` and `Inventory`. Each schema provides a lookup for
+`Product`, but neither defines the key for `Product` as it exists in the other
+schema.
+
+In this situation, the schema is unsatisfiable. For instance, if we call
+{PlanOptions()} with `<Query>.productById<Product>.sku`, we end up with an empty
+set of options. This occurs because there is no bridge between the two schemas,
+and `sku` is defined in a different schema:
+
+```graphql counter-example
+# Schema Products
+type Query {
+  productById(id: ID!): Product @lookup
+}
+
+type Product {
+  id: ID!
+  description: String
+}
+
+# Schema Inventory
+type Query {
+  productBySku(sku: String!): Product @lookup
+}
+
+type Product {
+  sku: String!
+  stock: Int!
+}
+```
+
+However, if we introduce a third schema - the `ProductIndex` - that defines both
+`id` and `sku` (and includes lookups for each), the overall schema becomes
+satisfiable:
+
+```graphql example
+# Schema Products
+type Query {
+  productById(id: ID!): Product @lookup
+}
+
+type Product {
+  id: ID!
+  description: String
+}
+
+# Schema Inventory
+type Query {
+  productBySku(sku: String!): Product @lookup
+}
+
+type Product {
+  sku: String!
+  stock: Int!
+}
+
+# Schema ProductIndex
+type Query {
+  productById(id: ID!): Product @lookup
+  productBySku(sku: ID!): Product @lookup
+}
+
+type Product {
+  id: ID!
+  sku: String!
+}
+```
+
+In this example, {PlanOptions()} with `<Query>.productById<Product>.sku` will
+return `{ProductIndex}` as a valid option.
+
+**Missing Field in a Shared Value Type**
+
+```graphql counter-example
+# Schema User
+type Query {
+  userById(id: ID!): User @lookup
+}
+
+type User {
+  id: ID!
+  address: Address
+}
+
+type Address @shareable {
+  street: String
+  city: String
+}
+
+# Schema Orders
+type Query {
+  orderById(id: ID!): Order @lookup
+}
+
+type Order {
+  id: ID!
+  shippingAddress: Address
+}
+
+type Address @shareable {
+  street: String
+  city: String
+  country: String
+}
+```
+
+In this setup, `Address` is **not** declared as an entity (`@lookup` does not
+apply), so it behaves as a simple value type in both schemas. However, in the
+User schema, `Address` includes only `{ street, city }`, while the Orders
+schema, `Address` adds an extra field `country`. When the composite schema
+merges these two definitions, it must unify `Address` into a single type
+containing all fields. Consequently, the merged schema would have an `Address`
+with fields `{ street, city, country }`.
+
+A query that requests data from the User schema, such as:
+
+```graphql counter-example
+{
+  userById(id: "some-id") {
+    address {
+      city
+      country
+    }
+  }
+}
+```
+
+will attempt to retrieve `country` from User’s version of `Address`. But because
+`Address` is not an entity, there is no `@lookup` to fetch that field to schema
+Orders. Since schema Users never defined `country`, the executor cannot fetch it
+there, producing an unsatisfiable path. The composition process detects that any
+reference to `Address.country` for data originating from the User Schema is not
+satisfiable, thus failing composition.
+
+To resolve this, both schemas would need to align on the `Address` type either
+both define `country` or neither does or turn `Address` into an entity with some
+form of bridging lookup. As it stands, the mismatch in value-type fields across
+the two schemas makes the composite schema unsatisfiable.
+
+** Entity vs. Value Type Conflict**
+
+```graphql counter-example
+## Schema Products
+type Query {
+  productById(id: ID!): Product @lookup
+}
+
+type Product {
+  id: ID!
+  # Category is just a nested value type here (no @lookup, no id).
+  category: Category
+}
+
+type Category {
+  name: String
+}
+
+### Schema Categories
+type Query {
+  # Category is treated as an entity with its own lookup
+  categoryById(id: ID!): Category @lookup
+}
+
+type Category @key(fields: "id") {
+  id: ID!
+  description: String
+}
+```
+
+In the Products schema, `Category` is simply a nested value type. There is no
+`@lookup` field or key to identify it, and `Product.category` does not provide
+an ID or other identifier. By contrast, the Categories schema, treats `Category`
+as an entity with an `id` and a corresponding lookup (`categoryById(id: ID!)`).
+When the composite schema merges these two definitions, it attempts to unify
+them into a single `Category` type.
+
+Now consider a query that fetches a product from the Products schema and then
+tries to retrieve `Category.description` (a field that only exists in the schema
+Categories). The distributed executor would first fetch the product from the
+Product schema (including its `Category`), but this schema never provides an ID
+for that category. In effect, the executor cannot lookup the `Category` from the
+categories schema, so that `description` can be fetched. The result of
+{PlantOptions()} with `<Query>.productById<Product>.category<Category>.name` is
+an empty set.
+
+**Shared Entity without a lookup**
+
+It is not required that every schema define a `@lookup` for a shared entity as
+long all fields are covered by a schema that has a lookup. In the example below,
+the `Order` schema references `User` but does not provide a `@lookup` for it.
+Instead, it marks the `User.id` field as `@shareable` (or could have used
+`@key(fields: "id")`), while the separate `User` schema offers the actual lookup
+for that entity.
+
+```graphql
+# Schema: Order
+type Query {
+  orderById(id: ID!): Order @lookup
+}
+
+type Order {
+  id: ID! @shareable
+  user: User
+}
+
+type User @key(fields: "id") {
+  id: ID!
+  name: String
+}
+
+# Schema: User
+type Query {
+  userById(id: ID!): User @lookup
+}
+
+type User @key(fields: "id") {
+  id: ID!
+  name: String
+  email: String
+}
+```
+
+Since the `User` schema provides a way to look up `User` by `id`, and the
+`Order` schema shares the same `User.id` field, the composite schema knows how
+to fetch a user’s details. Any query path that involves `<Order>.user<User>.*`
+remains satisfiable, because the composed schema can route the request to the
+`User` schema for those fields.

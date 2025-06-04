@@ -1,4 +1,3 @@
-#!/bin/bash -e
 # This script publishes the GraphQL specification document to the web.
 
 # Determine if this is a tagged release
