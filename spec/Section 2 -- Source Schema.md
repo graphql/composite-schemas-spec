@@ -15,11 +15,11 @@ The `@lookup` directive is used within a _source schema_ to specify output
 fields that can be used by the _distributed GraphQL executor_ to resolve an
 entity by a stable key.
 
-The stable key is defined by the arguments of the field. Each argument must
-match a field on the return type of the lookup field.
+The stable key is defined by the arguments of the field. Each lookup argument
+must match a field on the return type of the lookup field.
 
-Source schemas can provide multiple lookup fields for the same entity that
-resolve the entity by different keys.
+Source schemas can provide multiple lookup fields for the same entity to resolve
+the entity by different keys.
 
 In this example, the source schema specifies that the `Product` entity can be
 resolved with the `productById` field or the `productByName` field. Both lookup
@@ -32,29 +32,16 @@ type Query {
   productByName(name: String!): Product @lookup
 }
 
-type Product @key(fields: "id") @key(fields: "name") {
+type Product {
   id: ID!
   name: String!
 }
 ```
 
-The arguments of a lookup field must correspond to fields specified as an entity
-key with the `@key` directive on the entity type.
-
-```graphql example
-type Query {
-  node(id: ID!): Node @lookup
-}
-
-interface Node @key(fields: "id") {
-  id: ID!
-}
-```
-
 Lookup fields may return object, interface, or union types. In case a lookup
 field returns an abstract type (interface type or union type), all possible
-object types are considered entities and must have keys that correspond with the
-field's argument signature.
+object types of the abstract return type are considered entities, and each must
+have fields that correspond to every argument of the lookup field.
 
 ```graphql example
 type Query {
@@ -63,7 +50,7 @@ type Query {
 
 union Product = Electronics | Clothing
 
-type Electronics @key(fields: "id categoryId") {
+type Electronics {
   id: ID!
   categoryId: Int
   name: String
@@ -71,7 +58,7 @@ type Electronics @key(fields: "id categoryId") {
   price: Float
 }
 
-type Clothing @key(fields: "id categoryId") {
+type Clothing {
   id: ID!
   categoryId: Int
   name: String
@@ -80,8 +67,9 @@ type Clothing @key(fields: "id categoryId") {
 }
 ```
 
-The following example shows an invalid lookup field as the `Clothing` type does
-not declare a key that corresponds with the lookup field's argument signature.
+The following example shows an invalid lookup field because the `Clothing` type,
+which is one of the possible object types of the abstract return type, does not
+define all the fields required by the lookup field’s arguments.
 
 ```graphql counter-example
 type Query {
@@ -90,7 +78,7 @@ type Query {
 
 union Product = Electronics | Clothing
 
-type Electronics @key(fields: "id categoryId") {
+type Electronics {
   id: ID!
   categoryId: Int
   name: String
@@ -98,29 +86,21 @@ type Electronics @key(fields: "id categoryId") {
   price: Float
 }
 
-# Clothing does not have a key that corresponds
+# Clothing does not have a field that corresponds
 # with the lookup field's argument signature.
-type Clothing @key(fields: "id") {
+type Clothing {
   id: ID!
-  categoryId: Int
   name: String
   size: String
   price: Float
 }
 ```
 
-If the lookup returns an interface, the interface must also be annotated with a
-`@key` directive and declare its keys.
-
-```graphql example
-interface Node @key(fields: "id") {
-  id: ID!
-}
-```
-
-Lookup fields must be accessible from the Query type. If not directly on the
-Query type, they must be accessible via fields that do not require arguments,
-starting from the Query root type.
+Lookup fields must be accessible from the `Query` type. If a lookup field is not
+defined directly on the `Query` type, it must be reachable by following a chain
+of fields — starting from the `Query` root type — where none of the intermediate
+fields have arguments. This ensures that lookup fields are accessible to the
+executor.
 
 ```graphql example
 type Query {
@@ -131,55 +111,8 @@ type Lookups {
   productById(id: ID!): Product @lookup
 }
 
-type Product @key(fields: "id") {
+type Product {
   id: ID!
-}
-```
-
-Lookups can also be nested within other lookups and allow resolving nested
-entities that are part of an aggregate. In the following example the `Product`
-can be resolved by its ID but also the `ProductPrice` can be resolved by passing
-in a composite key containing the product ID and region name of the product
-price.
-
-```graphql example
-type Query {
-  productById(id: ID!): Product @lookup
-}
-
-type Product @key(fields: "id") {
-  id: ID!
-  price(regionName: String!): ProductPrice @lookup
-}
-
-type ProductPrice @key(fields: "regionName product { id }") {
-  regionName: String!
-  product: Product
-  value: Float!
-}
-```
-
-Nested lookups must immediately follow the parent lookup and cannot be nested
-with fields in between.
-
-```graphql counter-example
-type Query {
-  productById(id: ID!): Product @lookup
-}
-
-type Product @key(fields: "id") {
-  id: ID!
-  details: ProductDetails
-}
-
-type ProductDetails {
-  price(regionName: String!): ProductPrice @lookup
-}
-
-type ProductPrice @key(fields: "regionName product { id }") {
-  regionName: String!
-  product: Product
-  value: Float!
 }
 ```
 
@@ -189,10 +122,12 @@ type ProductPrice @key(fields: "regionName product { id }") {
 directive @internal on OBJECT | FIELD_DEFINITION
 ```
 
-The `@internal` directive is used to mark types and fields as internal within a
-source schema. Internal types and fields do not appear in the final
-client-facing composite schema and are internal to the source schema they reside
-in.
+The `@internal` directive is used in combination with lookup fields and allows
+you to declare internal types and fields. Internal types and fields do not
+appear in the final client-facing composite schema and do not participate in the
+standard schema-merging process. This allows a source schema to define lookup
+fields for resolving entities that should not be accessible through the
+client-facing composite schema.
 
 ```graphql example
 # Source Schema
@@ -202,13 +137,14 @@ type Query {
 }
 
 # Composite Schema
-type Product {
+type Query {
   productById(id: ID!): Product
 }
 ```
 
-Internal types and field do not participate in the normal schema-merging
-process.
+Since internal types and fields do not participate in the standard
+schema-merging process they do not collide with similar named fields or types on
+other source schemas.
 
 ```graphql example
 # Source Schema A
@@ -227,13 +163,13 @@ type Query {
 }
 
 # Composite Schema
-type Product {
+type Query {
   productById(id: ID!): Product
 }
 ```
 
-Internal fields may be used by the distributed GraphQL executor as lookup fields
-for entity resolution or to supply additional data.
+Internal fields can only be used by the distributed GraphQL executor as lookup
+fields for entity resolution.
 
 ```graphql example
 # Source Schema A
@@ -249,12 +185,26 @@ type InternalLookups @internal {
 }
 
 # Composite Schema
-type Product {
+type Query {
   productById(id: ID!): Product
 }
 ```
 
-In contrast to `@inaccessible` the effect of `@internal` is local to it's source
+Since internal fields are not part of the standard schema-merging process, they
+cannot be used as key fields or in requirements. This is because there is no
+semantic equivalence of the field or type to another source schema.
+
+```graphql counter-example
+type Query {
+  productById(id: ID!): Product @lookup
+}
+
+type Product {
+  id: ID! @internal
+}
+```
+
+In contrast to `@inaccessible`, the effect of `@internal` is local to its source
 schema.
 
 ```graphql example
@@ -349,19 +299,19 @@ directive @is(field: FieldSelectionMap!) on ARGUMENT_DEFINITION
 The `@is` directive is utilized on lookup fields to describe how the arguments
 can be mapped from the entity type that the lookup field resolves. The mapping
 establishes semantic equivalence between disparate type system members across
-source schemas and is used in cases where the argument does not 1:1 align with a
-field on the entity type.
+source schemas and is used in cases where an argument does not directly align
+with a field on the entity type.
 
 In the following example, the directive specifies that the `id` argument on the
 field `Query.personById` and the field `Person.id` on the return type of the
 field are semantically the same.
 
-Note: In this case the `@is` directive could also be omitted as the argument and
-field names match.
+Note: In cases where the lookup argument name aligns with the field name on the
+return type, the `@is` directive can be omitted.
 
 ```graphql example
 type Query {
-  personById(id: ID! @is(field: "id")): Person @lookup
+  personById(productId: ID! @is(field: "id")): Person @lookup
 }
 ```
 
@@ -373,7 +323,9 @@ type Query {
 }
 ```
 
-The `@is` directive is not limited to a single argument.
+The `@is` directive can be applied to multiple arguments within the same lookup
+field, allowing each argument to be mapped individually to fields on the return
+type.
 
 ```graphql example
 type Query {
@@ -384,8 +336,8 @@ type Query {
 }
 ```
 
-The `@is` directive can also be used in combination with `@oneOf` to specify
-lookup fields that can resolve entities by different keys.
+The `@is` directive can also be used in combination with `@oneOf` to specify a
+single lookup field that can resolve entities by multiple keys.
 
 ```graphql example
 type Query {
@@ -489,10 +441,9 @@ input ProductDimensionInput {
 directive @key(fields: FieldSelectionSet!) repeatable on OBJECT | INTERFACE
 ```
 
-The @key directive is used to designate an entity's unique key, which identifies
-how to uniquely reference an instance of an entity across different source
-schemas. It allows a source schema to indicate which fields form a unique
-identifier, or **key**, for an entity.
+The `@key` directive is used to designate an entity's unique key, which
+identifies how to uniquely reference an instance of an entity across different
+source schemas.
 
 ```graphql example
 type Product @key(fields: "id") {
@@ -503,9 +454,9 @@ type Product @key(fields: "id") {
 }
 ```
 
-Each occurrence of the @key directive on an object or interface type specifies
-one distinct unique key for that entity, which enables a gateway to perform
-lookups and resolve instances of the entity based on that key.
+Each occurrence of the `@key` directive on an object or interface type specifies
+one distinct unique key for that entity. Keys allow the distributed GraphQL
+executor to distinguish between different entities of the same type.
 
 ```graphql example
 type Product @key(fields: "id") @key(fields: "sku") {
@@ -533,6 +484,42 @@ The directive is applicable to both OBJECT and INTERFACE types. This allows
 entities that implement an interface to inherit the key(s) defined at the
 interface level, ensuring consistent identification across different
 implementations of that interface.
+
+By applying the `@key` directive all referenced fields become sharable even if
+the fields are not explicitly marked with `@shareable`.
+
+```graphql example
+# source schema A
+type Product @key(fields: "id") {
+  id: ID!
+  price: Float!
+}
+
+# source schema B
+type Product @key(fields: "id") {
+  id: ID!
+  name: String!
+}
+```
+
+Fields must be explicitly marked as a key or annotated with the `@shareable`
+directive to allow multiple source schemas to define them, ensuring that the
+decision to serve a field from more than one source schema is intentional and
+coordinated.
+
+```graphql counter-example
+# source schema A
+type Product @key(fields: "id") {
+  id: ID!
+  price: Float!
+}
+
+# source schema B
+type Product {
+  id: ID!
+  name: String!
+}
+```
 
 **Arguments:**
 
