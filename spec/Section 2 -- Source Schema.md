@@ -18,8 +18,8 @@ entity by a stable key.
 The stable key is defined by the arguments of the field. Each lookup argument
 must match a field on the return type of the lookup field.
 
-Source schemas can provide multiple lookup fields for the same entity that
-resolve the entity by different keys.
+Source schemas can provide multiple lookup fields for the same entity to resolve
+the entity by different keys.
 
 In this example, the source schema specifies that the `Product` entity can be
 resolved with the `productById` field or the `productByName` field. Both lookup
@@ -40,8 +40,8 @@ type Product {
 
 Lookup fields may return object, interface, or union types. In case a lookup
 field returns an abstract type (interface type or union type), all possible
-object types are considered entities and each object type must have fields that
-correspond with all arguments of the lookup field.
+object types of the abstract return type are considered entities, and each must
+have fields that correspond to every argument of the lookup field.
 
 ```graphql example
 type Query {
@@ -67,8 +67,9 @@ type Clothing {
 }
 ```
 
-The following example shows an invalid lookup field as the `Clothing` type does
-not declare a field that corresponds with the lookup's argument signature.
+The following example shows an invalid lookup field because the `Clothing` type,
+which is one of the possible object types of the abstract return type, does not
+define all the fields required by the lookup field’s arguments.
 
 ```graphql counter-example
 type Query {
@@ -95,9 +96,10 @@ type Clothing {
 }
 ```
 
-Lookup fields must be accessible from the Query type. If not directly on the
-Query type, they must be accessible via fields that do not require arguments,
-starting from the Query root type.
+Lookup fields must be accessible from the `Query` type. If a lookup field is not
+defined directly on the `Query` type, it must be reachable by following a chain
+of fields — starting from the `Query` root type — where none of the intermediate
+fields have arguments. This ensures that lookup fields are accessible to the executor.
 
 ```graphql example
 type Query {
@@ -110,53 +112,6 @@ type Lookups {
 
 type Product {
   id: ID!
-}
-```
-
-Lookups can also be nested within other lookups and allow resolving nested
-entities that are part of an aggregate. In the following example the `Product`
-can be resolved by its ID but also the `ProductPrice` can be resolved by passing
-in a composite key containing the product ID and region name of the product
-price.
-
-```graphql example
-type Query {
-  productById(id: ID!): Product @lookup
-}
-
-type Product {
-  id: ID!
-  price(regionName: String!): ProductPrice @lookup
-}
-
-type ProductPrice {
-  regionName: String!
-  product: Product
-  value: Float!
-}
-```
-
-Nested lookups must immediately follow the parent lookup and cannot be nested
-with fields in between.
-
-```graphql counter-example
-type Query {
-  productById(id: ID!): Product @lookup
-}
-
-type Product {
-  id: ID!
-  details: ProductDetails
-}
-
-type ProductDetails {
-  price(regionName: String!): ProductPrice @lookup
-}
-
-type ProductPrice {
-  regionName: String!
-  product: Product
-  value: Float!
 }
 ```
 
