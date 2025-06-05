@@ -99,7 +99,8 @@ type Clothing {
 Lookup fields must be accessible from the `Query` type. If a lookup field is not
 defined directly on the `Query` type, it must be reachable by following a chain
 of fields — starting from the `Query` root type — where none of the intermediate
-fields have arguments. This ensures that lookup fields are accessible to the executor.
+fields have arguments. This ensures that lookup fields are accessible to the
+executor.
 
 ```graphql example
 type Query {
@@ -121,10 +122,12 @@ type Product {
 directive @internal on OBJECT | FIELD_DEFINITION
 ```
 
-The `@internal` directive is used to mark types and fields as internal within a
-source schema. Internal types and fields do not appear in the final
-client-facing composite schema and are internal to the source schema they reside
-in.
+The `@internal` directive is used in combination with lookup fields and allows
+you to declare internal types and fields. Internal types and fields do not
+appear in the final client-facing composite schema and do not participate in the
+standard schema-merging process. This allow a source schema to define lookup
+fields for resolving entities that should not be accessible through the
+client-facing composite schema.
 
 ```graphql example
 # Source Schema
@@ -134,13 +137,14 @@ type Query {
 }
 
 # Composite Schema
-type Product {
+type Query {
   productById(id: ID!): Product
 }
 ```
 
-Internal types and field do not participate in the normal schema-merging
-process.
+Since internal types and fields do not participate in the standard
+schema-merging process they do not collide with similar named fields or types on
+other source schemas.
 
 ```graphql example
 # Source Schema A
@@ -159,13 +163,13 @@ type Query {
 }
 
 # Composite Schema
-type Product {
+type Query {
   productById(id: ID!): Product
 }
 ```
 
-Internal fields may be used by the distributed GraphQL executor as lookup fields
-for entity resolution or to supply additional data.
+Internal fields can only be used by the distributed GraphQL executor as lookup
+fields for entity resolution.
 
 ```graphql example
 # Source Schema A
@@ -181,12 +185,26 @@ type InternalLookups @internal {
 }
 
 # Composite Schema
-type Product {
+type Query {
   productById(id: ID!): Product
 }
 ```
 
-In contrast to `@inaccessible` the effect of `@internal` is local to it's source
+Since internal fields are not part of the standard schema-merging process, they
+cannot be used as key fields or in requirements. This is because there is no
+semantic equivalence of the field or type to another source schema.
+
+```graphql counter-example
+type Query {
+  productById(id: ID!): Product @lookup
+}
+
+type Product {
+  id: ID! @internal
+}
+```
+
+In contrast to `@inaccessible`, the effect of `@internal` is local to it's source
 schema.
 
 ```graphql example
