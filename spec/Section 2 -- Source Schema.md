@@ -310,7 +310,7 @@ Note: In cases where the lookup argument name aligns with the field name on the
 return type, the `@is` directive can be omitted.
 
 ```graphql example
-extend type Query {
+type Query {
   personById(productId: ID! @is(field: "id")): Person @lookup
 }
 ```
@@ -318,7 +318,7 @@ extend type Query {
 The `@is` directive also allows referring to nested fields relative to `Person`.
 
 ```graphql example
-extend type Query {
+type Query {
   personByAddressId(id: ID! @is(field: "address.id")): Person
 }
 ```
@@ -328,7 +328,7 @@ field, allowing each argument to be mapped individually to fields on the return
 type.
 
 ```graphql example
-extend type Query {
+type Query {
   personByAddressId(
     id: ID! @is(field: "address.id")
     kind: PersonKind @is(field: "kind")
@@ -340,7 +340,7 @@ The `@is` directive can also be used in combination with `@oneOf` to specify a
 single lookup field that can resolve entities by multiple keys.
 
 ```graphql example
-extend type Query {
+type Query {
   person(
     by: PersonByInput
       @is(field: "{ id } | { addressId: address.id } | { name }")
@@ -399,7 +399,8 @@ type Product {
   id: ID!
   delivery(
     zip: String!
-    dimension: ProductDimensionInput! @require(field: "{ size: dimension.size, weight: dimension.weight }"))
+    dimension: ProductDimensionInput!
+      @require(field: "{ size: dimension.size, weight: dimension.weight }")
   ): DeliveryEstimates
 }
 ```
@@ -413,7 +414,9 @@ type Product {
   delivery(
     zip: String!
     dimension: ProductDimensionInput!
-      @require(field: "{ productSize: dimension.size, productWeight: dimension.weight }"))
+      @require(
+        field: "{ productSize: dimension.size, productWeight: dimension.weight }"
+      )
   ): DeliveryEstimates
 }
 
@@ -435,7 +438,7 @@ input ProductDimensionInput {
 ## @key
 
 ```graphql
-directive @key(fields: SelectionSet!) repeatable on OBJECT | INTERFACE
+directive @key(fields: FieldSelectionSet!) repeatable on OBJECT | INTERFACE
 ```
 
 The `@key` directive is used to designate an entity's unique key, which
@@ -456,7 +459,7 @@ one distinct unique key for that entity. Keys allow the distributed GraphQL
 executor to distinguish between different entities of the same type.
 
 ```graphql example
-type Product @key(fields: "id") @key(fields: "key") {
+type Product @key(fields: "id") @key(fields: "sku") {
   id: ID!
   sku: String!
   name: String!
@@ -520,7 +523,7 @@ type Product {
 
 **Arguments:**
 
-- `fields`: Represents a selection set syntax.
+- `fields`: Represents a field selection set syntax.
 
 ## @shareable
 
@@ -607,7 +610,7 @@ type Product @key(fields: "id") {
 ## @provides
 
 ```graphql
-directive @provides(fields: SelectionSet!) on FIELD_DEFINITION
+directive @provides(fields: FieldSelectionSet!) on FIELD_DEFINITION
 ```
 
 The `@provides` directive indicates that a field can provide certain subfields
@@ -725,8 +728,8 @@ type Query {
 
 **Arguments:**
 
-- `fields`: Represents a selection set syntax describing the subfields of the
-  returned type that can be provided by the current source schema.
+- `fields`: Represents a field selection set syntax describing the subfields of
+  the returned type that can be provided by the current source schema.
 
 ## @external
 
@@ -768,7 +771,7 @@ type Review {
   author: User @provides(fields: "email")
 }
 
-extend type User {
+type User {
   id: ID!
   email: String! @external
 }
@@ -806,7 +809,7 @@ type Product @key(fields: "id") {
 }
 
 # The new "Payments" schema:
-extend type Product @key(fields: "id") {
+type Product @key(fields: "id") {
   id: ID! @external
   price: Float! @override(from: "Catalog")
   tax: Float!
@@ -824,14 +827,14 @@ type Product @key(fields: "id") {
 }
 
 # The new "Payments" schema:
-extend type Product @key(fields: "id") {
+type Product @key(fields: "id") {
   id: ID! @external
   price: Float! @override(from: "Catalog")
   tax: Float!
 }
 
 # The new "Pricing" schema:
-extend type Product @key(fields: "id") {
+type Product @key(fields: "id") {
   id: ID! @external
   price: Float! @override(from: "Payments")
   tax: Float!
@@ -849,7 +852,7 @@ type Product @key(fields: "id") {
 }
 
 # The new "Payments" schema:
-extend type Product @key(fields: "id") {
+type Product @key(fields: "id") {
   id: ID! @external
   price: Float! @override(from: "Catalog")
   tax: Float!

@@ -52,14 +52,14 @@ considered valid. For non-scalar arguments, you must specify each field of the
 input type in {SelectedObjectValue}.
 
 ```graphql example
-extend type Query {
+type Query {
   findUserByName(user: UserInput! @is(field: "{ firstName: firstName }")): User
     @lookup
 }
 ```
 
 ```graphql counter-example
-extend type Query {
+type Query {
   findUserByName(user: UserInput! @is(field: "firstName")): User @lookup
 }
 ```
@@ -385,17 +385,30 @@ mediaById<Book>.isbn
 
 SelectedValue ::
 
-- Path
-- SelectedObjectValue
+- SelectedValue | SelectedValueEntry
+- `|`? SelectedValueEntry
+
+SelectedValueEntry ::
+
+- Path [lookahead != `.`]
 - Path . SelectedObjectValue
-- SelectedValue | SelectedValue
+- Path SelectedListValue
+- SelectedObjectValue
 
-A {SelectedValue} is defined as either a {Path} or a {SelectedObjectValue}
+A {SelectedValue} consists of one or more {SelectedValueEntry} components, which
+may be joined by a pipe (`|`) operator to indicate alternative selections based
+on type.
 
-A {Path} is designed to point to only a single value, although it may reference
-multiple fields depending on the return type. To allow selection from different
-paths based on type, a {Path} can include multiple paths separated by a pipe
-(`|`).
+Each {SelectedValueEntry} may take one of the following forms:
+
+- A {Path} (when not immediately followed by a dot) that is designed to point to
+  a single value, although it may reference multiple fields depending on its
+  return type.
+- A {Path} immediately followed by a dot and a {SelectedObjectValue} to denote a
+  nested object selection.
+- A {Path} immediately followed by a {SelectedListValue} to denote selection
+  from a list.
+- A standalone {SelectedObjectValue}
 
 In the following example, the value could be `title` when referring to a `Book`
 and `movieTitle` when referring to a `Movie`.
@@ -409,11 +422,11 @@ operator is applied when mapping an abstract output type to a `@oneOf` input
 type.
 
 ```graphql example
-{ movieId: <Movie>.id } | { productId: <Product>.id }
+{ bookId: <Book>.id } | { movieId: <Movie>.id }
 ```
 
 ```graphql example
-{ nested: { movieId: <Movie>.id } | { productId: <Product>.id }}
+{ nested: { bookId: <Book>.id } | { movieId: <Movie>.id } }
 ```
 
 ### SelectedObjectValue
@@ -425,6 +438,7 @@ SelectedObjectValue ::
 SelectedObjectField ::
 
 - Name: SelectedValue
+- Name
 
 {SelectedObjectValue} are unordered lists of keyed input values wrapped in
 curly-braces `{}`. It has to be used when the expected input type is an object
@@ -471,6 +485,7 @@ type Product {
 SelectedListValue ::
 
 - [ SelectedValue ]
+- [ SelectedListValue ]
 
 A {SelectedListValue} is an ordered list of {SelectedValue} wrapped in square
 brackets `[]`. It is used to express semantic equivalence between an argument
@@ -634,9 +649,13 @@ input FindMediaInput @oneOf {
   movieId: ID
 }
 
-type SearchStoreInput {
+input SearchStoreInput {
   city: String
   hasInStock: FindMediaInput
+}
+
+input Nested {
+  nested: FindMediaInput
 }
 ```
 
@@ -668,9 +687,9 @@ title
 <Book>.title
 ```
 
-Incorrect paths where the field does not exist on the specified type is not
-valid result in validation errors. For instance, if `<Book>.movieId` is
-referenced but `movieId` is not a field of `Book`, will result in an invalid
+Incorrect paths where the field does not exist on the specified type are not
+valid and result in validation errors. For instance, if `<Book>.movieId` is
+referenced but `movieId` is not a field of `Book`, it will result in an invalid
 {Path}.
 
 ```graphql counter-example
@@ -706,26 +725,26 @@ For example, the following {Path} is valid if `title` is a scalar field on the
 `Book` type:
 
 ```graphql example
-book.title
+title
 ```
 
 The following {Path} is invalid because `title` should not have subselections:
 
 ```graphql counter-example
-book.title.something
+title.something
 ```
 
 For non-leaf fields, the {Path} must continue to specify subselections until a
 leaf field is reached:
 
 ```graphql example
-book.author.id
+author.id
 ```
 
 Invalid {Path} where non-leaf fields do not have further selections:
 
 ```graphql counter-example
-book.author
+author
 ```
 
 ### Type Reference Is Possible
@@ -782,7 +801,7 @@ type Store {
 }
 ```
 
-Non-coercible values are invalid. The following examples are invalid:
+Non-coercible values are invalid. The following example is invalid:
 
 ```graphql counter-example
 type Query {
@@ -827,7 +846,7 @@ In contrast, the following is invalid because it uses a field "address" which is
 not defined on the expected type:
 
 ```graphql counter-example
-extend type Query {
+type Query {
   storeById(id: ID! @is(field: "address")): Store! @lookup
 }
 
@@ -856,7 +875,7 @@ would create ambiguity and potential conflicts.
 For example, the following is invalid:
 
 ```graphql counter-example
-extend type Query {
+type Query {
   storeById(id: ID! @is(field: "id id")): Store! @lookup
 }
 
@@ -900,7 +919,7 @@ input UserInput {
 Then, an invalid selection would be missing the required `id` field:
 
 ```graphql counter-example
-extend type Query {
+type Query {
   userById(user: UserInput! @is(field: "{ name: name }")): User! @lookup
 }
 ```
@@ -909,7 +928,7 @@ If the `UserInput` type requires the `name` field, but the `User` type has an
 optional `name` field, the following selection would be valid.
 
 ```graphql example
-extend type Query {
+type Query {
   findUser(input: UserInput! @is(field: "{ name: name }")): User! @lookup
 }
 
@@ -928,7 +947,7 @@ But if the `UserInput` type requires the `name` field but it's not defined in
 the `User` type, the selection would be invalid.
 
 ```graphql counter-example
-extend type Query {
+type Query {
   findUser(input: UserInput! @is(field: "{ id: id }")): User! @lookup
 }
 
