@@ -299,7 +299,7 @@ directive @is(field: FieldSelectionMap!) on ARGUMENT_DEFINITION
 The `@is` directive is utilized on lookup fields to describe how the arguments
 can be mapped from the entity type that the lookup field resolves. The mapping
 establishes semantic equivalence between disparate type system members across
-source schemas and is used in cases where n argument does not directly align
+source schemas and is used in cases where an argument does not directly align
 with a field on the entity type.
 
 In the following example, the directive specifies that the `id` argument on the
