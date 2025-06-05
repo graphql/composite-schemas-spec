@@ -204,7 +204,7 @@ type Product {
 }
 ```
 
-In contrast to `@inaccessible`, the effect of `@internal` is local to it's
+In contrast to `@inaccessible`, the effect of `@internal` is local to its
 source schema.
 
 ```graphql example
