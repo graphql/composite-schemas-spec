@@ -125,7 +125,7 @@ directive @internal on OBJECT | FIELD_DEFINITION
 The `@internal` directive is used in combination with lookup fields and allows
 you to declare internal types and fields. Internal types and fields do not
 appear in the final client-facing composite schema and do not participate in the
-standard schema-merging process. This allow a source schema to define lookup
+standard schema-merging process. This allows a source schema to define lookup
 fields for resolving entities that should not be accessible through the
 client-facing composite schema.
 
