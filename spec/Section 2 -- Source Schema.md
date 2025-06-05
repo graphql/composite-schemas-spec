@@ -204,8 +204,8 @@ type Product {
 }
 ```
 
-In contrast to `@inaccessible`, the effect of `@internal` is local to it's source
-schema.
+In contrast to `@inaccessible`, the effect of `@internal` is local to it's
+source schema.
 
 ```graphql example
 # Source Schema A
@@ -299,19 +299,19 @@ directive @is(field: FieldSelectionMap!) on ARGUMENT_DEFINITION
 The `@is` directive is utilized on lookup fields to describe how the arguments
 can be mapped from the entity type that the lookup field resolves. The mapping
 establishes semantic equivalence between disparate type system members across
-source schemas and is used in cases where the argument does not 1:1 align with a
-field on the entity type.
+source schemas and is used in cases where n argument does not directly align
+with a field on the entity type.
 
 In the following example, the directive specifies that the `id` argument on the
 field `Query.personById` and the field `Person.id` on the return type of the
 field are semantically the same.
 
-Note: In this case the `@is` directive could also be omitted as the argument and
-field names match.
+Note: In cases where the lookup argument name aligns with the field name on the
+return type, the `@is` directive can be omitted.
 
 ```graphql example
 extend type Query {
-  personById(id: ID! @is(field: "id")): Person @lookup
+  personById(productId: ID! @is(field: "id")): Person @lookup
 }
 ```
 
@@ -323,7 +323,9 @@ extend type Query {
 }
 ```
 
-The `@is` directive is not limited to a single argument.
+The `@is` directive can be applied to multiple arguments within the same lookup
+field, allowing each argument to be mapped individually to fields on the return
+type.
 
 ```graphql example
 extend type Query {
@@ -334,8 +336,8 @@ extend type Query {
 }
 ```
 
-The `@is` directive can also be used in combination with `@oneOf` to specify
-lookup fields that can resolve entities by different keys.
+The `@is` directive can also be used in combination with `@oneOf` to specify a
+single lookup field that can resolve entities by multiple keys.
 
 ```graphql example
 extend type Query {
