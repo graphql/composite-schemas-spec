@@ -133,7 +133,8 @@ This example maps the `Product.width` and `Product.height` fields to the
 ```graphql example
 type Product {
   shippingCost(
-    dimension: DimensionInput @require(field: "{ width: width height: height }")
+    dimension: DimensionInput
+      @require(field: "{ width: width, height: height }")
   ): Currency
 }
 ```
@@ -143,7 +144,7 @@ The shorthand equivalent is:
 ```graphql example
 type Product {
   shippingCost(
-    dimension: DimensionInput @require(field: "{ width height }")
+    dimension: DimensionInput @require(field: "{ width, height }")
   ): Currency
 }
 ```
@@ -154,7 +155,7 @@ mapping is required.
 ```graphql example
 type Product {
   shippingCost(
-    dimension: DimensionInput @require(field: "{ w: width h: height }")
+    dimension: DimensionInput @require(field: "{ w: width, h: height }")
   ): Currency
 }
 ```
@@ -178,7 +179,7 @@ This example shows how to map nested fields explicitly:
 type Product {
   shippingCost(
     dimension: DimensionInput
-      @require(field: "{ width: dimension.width height: dimension.height }")
+      @require(field: "{ width: dimension.width, height: dimension.height }")
   ): Currency
 }
 ```
@@ -190,7 +191,7 @@ traverse the output object:
 type Product {
   shippingCost(
     dimension: DimensionInput
-      @require(field: "{ width: size.width height: size.height }")
+      @require(field: "{ width: size.width, height: size.height }")
   ): Currency
 }
 ```
@@ -204,7 +205,7 @@ input object:
 ```graphql example
 type Product {
   shippingCost(
-    dimension: DimensionInput @require(field: "dimension.{ width height }")
+    dimension: DimensionInput @require(field: "dimension.{ width, height }")
   ): Currency
 }
 ```
@@ -214,7 +215,7 @@ This example is equivalent to the previous one:
 ```graphql example
 type Product {
   shippingCost(
-    dimension: DimensionInput @require(field: "size.{ width height }")
+    dimension: DimensionInput @require(field: "size.{ width, height }")
   ): Currency
 }
 ```
@@ -228,7 +229,7 @@ This example is NOT allowed because it lacks the dot syntax for lists:
 type Product {
   shippingCost(
     dimensions: [DimensionInput]
-      @require(field: "{ width: dimensions.width height: dimensions.height }")
+      @require(field: "{ width: dimensions.width, height: dimensions.height }")
   ): Currency
 }
 ```
@@ -238,7 +239,8 @@ Instead, use the path syntax and brackets to specify the list elements:
 ```graphql example
 type Product {
   shippingCost(
-    dimensions: [DimensionInput] @require(field: "dimensions[{ width height }]")
+    dimensions: [DimensionInput]
+      @require(field: "dimensions[{ width, height }]")
   ): Currency
 }
 ```
@@ -262,7 +264,7 @@ This example nests the `weight` field and the `dimension` object with its
 type Product {
   shippingCost(
     package: PackageInput
-      @require(field: "{ weight, dimension: dimension.{ width height } }")
+      @require(field: "{ weight, dimension: dimension.{ width, height } }")
   ): Currency
 }
 ```
@@ -274,7 +276,7 @@ This example nests the `weight` field and the `size` object with its `width` and
 type Product {
   shippingCost(
     package: PackageInput
-      @require(field: "{ weight, size: dimension.{ width height } }")
+      @require(field: "{ weight, size: dimension.{ width, height } }")
   ): Currency
 }
 ```
@@ -287,7 +289,7 @@ This example nests `Product.width` and `Product.height` under `dimension`:
 type Product {
   shippingCost(
     package: PackageInput
-      @require(field: "{ weight, dimension: { width height } }")
+      @require(field: "{ weight, dimension: { width, height } }")
   ): Currency
 }
 ```
@@ -298,7 +300,7 @@ In the following example, dimensions are nested under `dimension` in the output:
 type Product {
   shippingCost(
     package: PackageInput
-      @require(field: "{ weight, dimension: dimension.{ width height } }")
+      @require(field: "{ weight, dimension: dimension.{ width, height } }")
   ): Currency
 }
 ```
@@ -457,13 +459,16 @@ structure of the input type.
 
 This allows for reducing repetition in the selection.
 
+Commas are optional throughout GraphQL so trailing commas are allowed and
+repeated commas do not represent missing values.
+
 The following example is valid:
 
 ```graphql example
 type Product {
   dimension: Dimension!
   shippingCost(
-    dimension: DimensionInput! @require(field: "dimension.{ size weight }")
+    dimension: DimensionInput! @require(field: "dimension.{ size, weight }")
   ): Int!
 }
 ```
@@ -475,7 +480,7 @@ type Product {
   dimensions: Dimension!
   shippingCost(
     dimensions: DimensionInput!
-      @require(field: "{ size: dimensions.size weight: dimensions.weight }")
+      @require(field: "{ size: dimensions.size, weight: dimensions.weight }")
   ): Int! @lookup
 }
 ```
@@ -513,7 +518,7 @@ elements:
 ```graphql counter-example
 type Product {
   parts: [Part!]!
-  partIds(parts: [PartInput!]! @require(field: "parts[id name]")): [ID!]!
+  partIds(parts: [PartInput!]! @require(field: "parts[id, name]")): [ID!]!
 }
 
 input PartInput {
@@ -537,7 +542,7 @@ The following example is valid:
 ```graphql example
 type Product {
   parts: [Part!]!
-  partIds(parts: [PartInput!]! @require(field: "parts[{ id name }]")): [ID!]!
+  partIds(parts: [PartInput!]! @require(field: "parts[{ id, name }]")): [ID!]!
 }
 
 input PartInput {
@@ -553,7 +558,7 @@ match the shape of the output object.
 type Product {
   parts: [[Part!]]!
   partIds(
-    parts: [[PartInput!]]! @require(field: "parts[[{ id name }]]")
+    parts: [[PartInput!]]! @require(field: "parts[[{ id, name }]]")
   ): [ID!]!
 }
 
@@ -569,7 +574,7 @@ The following example is valid:
 type Query {
   findLocation(
     location: LocationInput!
-      @is(field: "{ coordinates: coordinates[{lat: x lon: y}]}")
+      @is(field: "{ coordinates: coordinates[{ lat: x, lon: y }]}")
   ): Location @lookup
 }
 
@@ -876,7 +881,7 @@ For example, the following is invalid:
 
 ```graphql counter-example
 type Query {
-  storeById(id: ID! @is(field: "id id")): Store! @lookup
+  storeById(id: ID! @is(field: "{ id, id }")): Store! @lookup
 }
 
 type Store {
