@@ -5495,7 +5495,7 @@ enum DeliveryStatus {
 }
 ```
 
-#### Enum Type Default Value Uses Inaccessible Value
+#### Enum Type Default Value Inaccessible
 
 **Error Code**
 
@@ -5508,8 +5508,7 @@ enum DeliveryStatus {
 
 ValidateArgumentDefaultValues():
 
-- Let {arguments} be the set of all arguments of fields and directives the
-  composed schema
+- Let {arguments} be the set of all arguments of fields in the composed schema
 - For each {argument} in {arguments}
   - If {argument} has a default value:
     - Let {defaultValue} be the default value of {argument}
@@ -5537,7 +5536,8 @@ ValidateDefaultValue(defaultValue):
   - Let {objectFields} be a list of all fields of {defaultValue}
   - For each {objectField} in {objectFields}:
     - Let {value} be the value of {objectField}
-    - return {ValidateDefaultValue(value)}
+    - If {ValidateDefaultValue(value)} is false
+      - return false
 - If {defaultValue} is an EnumValue:
   - If {enum} be the enum type of {defaultValue}
   - If {enum} does not have a value with the name of {defaultValue}
@@ -5547,9 +5547,9 @@ ValidateDefaultValue(defaultValue):
 **Explanatory Text**
 
 This rule ensures that inaccessible enum values are not exposed in the composed
-schema through default values. Output field arguments, input fields, and
-directive arguments must only use enum values as their default value when not
-annotated with the `@inaccessible` directive.
+schema through default values. Output field arguments and input fields must only
+use enum values as their default value when not annotated with the
+`@inaccessible` directive.
 
 In this example the `FOO` value in the `Enum1` enum is not marked with
 `@inaccessible`, hence it does not violate the rule.
@@ -5566,9 +5566,9 @@ enum Enum1 {
 }
 ```
 
-The following example violates this rule because the default value for the field
-`field` in type `Input1` references an enum value (`FOO`) that is marked as
-`@inaccessible`.
+The following example violates this rule because the default value for the
+argument (`arg`) and the input field (`field`) references an enum value (`FOO`)
+that is marked as `@inaccessible`.
 
 ```graphql counter-example
 # Schema A
@@ -5580,7 +5580,30 @@ input Input1 {
   field: Enum1 = FOO
 }
 
-directive @directive1(arg: Enum1 = FOO) on FIELD_DEFINITION
+enum Enum1 {
+  FOO @inaccessible
+  BAR
+}
+```
+
+The following example violates this rule because the default value for the
+argument (`arg`) and the input field (`field2`) references an `@inaccessible`
+enum value (`FOO`) within an object value.
+
+```graphql counter-example
+# Schema A
+type Query {
+  field(arg: Input1 = { field1: FOO }): [Baz!]!
+}
+
+input Input1 {
+  field1: Enum1
+  field2: Input2 = { field3: FOO }
+}
+
+input Input2 {
+  field3: Enum1
+}
 
 enum Enum1 {
   FOO @inaccessible
@@ -5588,21 +5611,23 @@ enum Enum1 {
 }
 ```
 
-The following example violates this rule because the default value for the field
-`field` in type `Input1` references an enum value (`FOO`) that is marked as
-`@inaccessible`.
+The following example violates this rule because the default value for the
+argument (`arg`) and the input field (`field`) references an `@inaccessible`
+enum value (`FOO`) within a list.
 
 ```graphql counter-example
 # Schema A
 type Query {
-  field(arg: Input1 = { field2: "ERROR" }): [Baz!]!
+  field(arg: [Enum1] = [FOO]): [Baz!]!
 }
 
-directive @directive1(arg: Input1 = { field2: "ERROR" }) on FIELD_DEFINITION
-
 input Input1 {
-  field1: String
-  field2: String @inaccessible
+  field: [Enum1] = [FOO]
+}
+
+enum Enum1 {
+  FOO @inaccessible
+  BAR
 }
 ```
 
