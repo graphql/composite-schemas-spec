@@ -1236,7 +1236,7 @@ In cases where the lookup argument name aligns with the field name on the return
 <section id="sec-Root-Query-Used.Formal-Specification" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L389"><a href="#sec-Root-Query-Used.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L391">Let <var data-name="rootQuery">rootQuery</var> be the root query type defined in the schema, if it exists.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L391">Let <var data-name="rootQuery">rootQuery</var> be the root mutation type defined in the schema, if it exists.</li>
 <li data-source="spec/Section%204%20--%20Composition.md#L392-L393">Let <var data-name="namedQueryType">namedQueryType</var> be the type with the name <code>Query</code> in <var data-name="schema">schema</var>, if it exists.</li>
 <li data-source="spec/Section%204%20--%20Composition.md#L394-L395">If <var data-name="rootQuery">rootQuery</var> is defined:<ul>
 <li data-source="spec/Section%204%20--%20Composition.md#L395"><var data-name="rootQuery">rootQuery</var> must be named <code>Query</code>.</li>
@@ -2576,9 +2576,9 @@ In cases where the lookup argument name aligns with the field name on the return
 <section id="sec-Require-Invalid-Syntax.Examples" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L1841"><a href="#sec-Require-Invalid-Syntax.Examples" title="link to this subsection">Examples</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L1843-L1844">In the following example, the <code>@require</code> directive&rsquo;s <code>field</code> argument is a valid selection map and satisfies the rule.</p>
-<pre id="example-b116e" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L1846-L1856"><a href="#example-b116e">Example № 100</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-2e1c6" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L1846-L1856"><a href="#example-2e1c6">Example № 100</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
-  <span class="token property-query">profile</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"name"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Profile</span>
+  <span class="token property-query">profile</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"name"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Profile</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">type</span> <span class="token class-name">Profile</span> <span class="token punctuation">{</span>
@@ -2641,9 +2641,9 @@ In cases where the lookup argument name aligns with the field name on the return
 <section id="sec-Require-Invalid-Fields-Type.Examples" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L1908"><a href="#sec-Require-Invalid-Fields-Type.Examples" title="link to this subsection">Examples</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L1910-L1911">In the following example, the <code>@require</code> directive&rsquo;s <code>field</code> argument is a valid string and satisfies the rule.</p>
-<pre id="example-3059f" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L1913-L1923"><a href="#example-3059f">Example № 102</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-bc34d" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L1913-L1923"><a href="#example-bc34d">Example № 102</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
-  <span class="token property-query">profile</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"name"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Profile</span>
+  <span class="token property-query">profile</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"name"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Profile</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">type</span> <span class="token class-name">Profile</span> <span class="token punctuation">{</span>
@@ -6102,10 +6102,10 @@ Number of items to fetch
 <section id="sec-Require-Invalid-Fields.Examples" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Composition.md#L5878"><a href="#sec-Require-Invalid-Fields.Examples" title="link to this subsection">Examples</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L5880-L5881">In the following example, the <code>@require</code> directive&rsquo;s <code>field</code> argument is a valid selection set and satisfies the rule.</p>
-<pre id="example-d5069" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5883-L5900"><a href="#example-d5069">Example № 188</a><code><span class="token comment"># Schema A</span>
+<pre id="example-da281" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5883-L5900"><a href="#example-da281">Example № 188</a><code><span class="token comment"># Schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
-  <span class="token property-query">profile</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"name"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Profile</span>
+  <span class="token property-query">profile</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"name"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Profile</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">type</span> <span class="token class-name">Profile</span> <span class="token punctuation">{</span>
@@ -6427,118 +6427,116 @@ Number of items to fetch
 </code></pre>
 <p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L128">Complex objects can be mapped to arguments by specifying each field.</p>
 <p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L130-L131">This example maps the <code>Product.width</code> and <code>Product.height</code> fields to the <code>dimension</code> argument:</p>
-<pre id="example-81328" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L133-L140"><a href="#example-81328">Example № 204</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<pre id="example-55571" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L133-L139"><a href="#example-55571">Example № 204</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token property-query">shippingCost</span><span class="token punctuation">(</span>
-    <span class="token attr-name">dimension</span><span class="token punctuation">:</span> <span class="token atom-input class-name">DimensionInput</span>
-      <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ width: width, height: height }"</span><span class="token punctuation">)</span>
+    <span class="token attr-name">dimension</span><span class="token punctuation">:</span> <span class="token atom-input class-name">DimensionInput</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ width: width height: height }"</span><span class="token punctuation">)</span>
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Currency</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L142">The shorthand equivalent is:</p>
-<pre id="example-5f6d2" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L144-L150"><a href="#example-5f6d2">Example № 205</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L141">The shorthand equivalent is:</p>
+<pre id="example-59fba" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L143-L149"><a href="#example-59fba">Example № 205</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token property-query">shippingCost</span><span class="token punctuation">(</span>
-    <span class="token attr-name">dimension</span><span class="token punctuation">:</span> <span class="token atom-input class-name">DimensionInput</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ width, height }"</span><span class="token punctuation">)</span>
+    <span class="token attr-name">dimension</span><span class="token punctuation">:</span> <span class="token atom-input class-name">DimensionInput</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ width height }"</span><span class="token punctuation">)</span>
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Currency</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L152-L153">In case the input field names do not match the output field names, explicit mapping is required.</p>
-<pre id="example-9205f" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L155-L161"><a href="#example-9205f">Example № 206</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L151-L152">In case the input field names do not match the output field names, explicit mapping is required.</p>
+<pre id="example-e314c" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L154-L160"><a href="#example-e314c">Example № 206</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token property-query">shippingCost</span><span class="token punctuation">(</span>
-    <span class="token attr-name">dimension</span><span class="token punctuation">:</span> <span class="token atom-input class-name">DimensionInput</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ w: width, h: height }"</span><span class="token punctuation">)</span>
+    <span class="token attr-name">dimension</span><span class="token punctuation">:</span> <span class="token atom-input class-name">DimensionInput</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ w: width h: height }"</span><span class="token punctuation">)</span>
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Currency</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L163-L164">Even if <code>Product.dimension</code> has all the fields needed for the input object, an explicit mapping is always required.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L166">This example is NOT allowed because it lacks explicit mapping:</p>
-<pre id="example-9430e" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L168-L172"><a href="#example-9430e">Counter Example № 207</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L162-L163">Even if <code>Product.dimension</code> has all the fields needed for the input object, an explicit mapping is always required.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L165">This example is NOT allowed because it lacks explicit mapping:</p>
+<pre id="example-9430e" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L167-L171"><a href="#example-9430e">Counter Example № 207</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token property-query">shippingCost</span><span class="token punctuation">(</span><span class="token attr-name">dimension</span><span class="token punctuation">:</span> <span class="token atom-input class-name">DimensionInput</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"dimension"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Currency</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L174">Instead, you can traverse into output fields by specifying the path.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L176">This example shows how to map nested fields explicitly:</p>
-<pre id="example-6e097" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L178-L185"><a href="#example-6e097">Example № 208</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L173">Instead, you can traverse into output fields by specifying the path.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L175">This example shows how to map nested fields explicitly:</p>
+<pre id="example-be69a" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L177-L184"><a href="#example-be69a">Example № 208</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token property-query">shippingCost</span><span class="token punctuation">(</span>
     <span class="token attr-name">dimension</span><span class="token punctuation">:</span> <span class="token atom-input class-name">DimensionInput</span>
-      <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ width: dimension.width, height: dimension.height }"</span><span class="token punctuation">)</span>
+      <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ width: dimension.width height: dimension.height }"</span><span class="token punctuation">)</span>
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Currency</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L187-L188">The path does NOT affect the structure of the input object. It is only used to traverse the output object:</p>
-<pre id="example-3627a" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L190-L197"><a href="#example-3627a">Example № 209</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L186-L187">The path does NOT affect the structure of the input object. It is only used to traverse the output object:</p>
+<pre id="example-e916c" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L189-L196"><a href="#example-e916c">Example № 209</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token property-query">shippingCost</span><span class="token punctuation">(</span>
     <span class="token attr-name">dimension</span><span class="token punctuation">:</span> <span class="token atom-input class-name">DimensionInput</span>
-      <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ width: size.width, height: size.height }"</span><span class="token punctuation">)</span>
+      <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ width: size.width height: size.height }"</span><span class="token punctuation">)</span>
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Currency</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L199-L200">To avoid repeating yourself, you can prefix the selection with a path that ends in a dot to traverse INTO the output type.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L202-L203">This affects how fields get interpreted but does NOT affect the structure of the input object:</p>
-<pre id="example-62fd6" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L205-L211"><a href="#example-62fd6">Example № 210</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L198-L199">To avoid repeating yourself, you can prefix the selection with a path that ends in a dot to traverse INTO the output type.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L201-L202">This affects how fields get interpreted but does NOT affect the structure of the input object:</p>
+<pre id="example-fd4cb" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L204-L210"><a href="#example-fd4cb">Example № 210</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token property-query">shippingCost</span><span class="token punctuation">(</span>
-    <span class="token attr-name">dimension</span><span class="token punctuation">:</span> <span class="token atom-input class-name">DimensionInput</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"dimension.{ width, height }"</span><span class="token punctuation">)</span>
+    <span class="token attr-name">dimension</span><span class="token punctuation">:</span> <span class="token atom-input class-name">DimensionInput</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"dimension.{ width height }"</span><span class="token punctuation">)</span>
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Currency</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L213">This example is equivalent to the previous one:</p>
-<pre id="example-4a8d8" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L215-L221"><a href="#example-4a8d8">Example № 211</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L212">This example is equivalent to the previous one:</p>
+<pre id="example-27e4c" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L214-L220"><a href="#example-27e4c">Example № 211</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token property-query">shippingCost</span><span class="token punctuation">(</span>
-    <span class="token attr-name">dimension</span><span class="token punctuation">:</span> <span class="token atom-input class-name">DimensionInput</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"size.{ width, height }"</span><span class="token punctuation">)</span>
+    <span class="token attr-name">dimension</span><span class="token punctuation">:</span> <span class="token atom-input class-name">DimensionInput</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"size.{ width height }"</span><span class="token punctuation">)</span>
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Currency</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L223-L224">The path syntax is required for lists because list-valued path expressions would be ambiguous otherwise.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L226">This example is NOT allowed because it lacks the dot syntax for lists:</p>
-<pre id="example-55ca5" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L228-L235"><a href="#example-55ca5">Counter Example № 212</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
-  <span class="token property-query">shippingCost</span><span class="token punctuation">(</span>
-    <span class="token attr-name">dimensions</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token atom-input class-name">DimensionInput</span><span class="token punctuation">]</span>
-      <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ width: dimensions.width, height: dimensions.height }"</span><span class="token punctuation">)</span>
-  <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Currency</span>
-<span class="token punctuation">}</span>
-</code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L237">Instead, use the path syntax and brackets to specify the list elements:</p>
-<pre id="example-3271c" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L239-L246"><a href="#example-3271c">Example № 213</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L222-L223">The path syntax is required for lists because list-valued path expressions would be ambiguous otherwise.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L225">This example is NOT allowed because it lacks the dot syntax for lists:</p>
+<pre id="example-fa3c5" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L227-L234"><a href="#example-fa3c5">Counter Example № 212</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token property-query">shippingCost</span><span class="token punctuation">(</span>
     <span class="token attr-name">dimensions</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token atom-input class-name">DimensionInput</span><span class="token punctuation">]</span>
-      <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"dimensions[{ width, height }]"</span><span class="token punctuation">)</span>
+      <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ width: dimensions.width height: dimensions.height }"</span><span class="token punctuation">)</span>
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Currency</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L248-L249">With the path syntax it is possible to also select fields from a list of nested objects:</p>
-<pre id="example-bcf9b" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L251-L255"><a href="#example-bcf9b">Example № 214</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L236">Instead, use the path syntax and brackets to specify the list elements:</p>
+<pre id="example-e3457" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L238-L244"><a href="#example-e3457">Example № 213</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+  <span class="token property-query">shippingCost</span><span class="token punctuation">(</span>
+    <span class="token attr-name">dimensions</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token atom-input class-name">DimensionInput</span><span class="token punctuation">]</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"dimensions[{ width height }]"</span><span class="token punctuation">)</span>
+  <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Currency</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L246-L247">With the path syntax it is possible to also select fields from a list of nested objects:</p>
+<pre id="example-bcf9b" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L249-L253"><a href="#example-bcf9b">Example № 214</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
     <span class="token property-query">shippingCost</span><span class="token punctuation">(</span><span class="token attr-name">partIds</span><span class="token punctuation">:</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"parts[id]"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Currency</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L257-L258">For more complex input objects, all these constructs can be nested. This allows for detailed and precise mappings.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L260-L261">This example nests the <code>weight</code> field and the <code>dimension</code> object with its <code>width</code> and <code>height</code> fields:</p>
-<pre id="example-45bec" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L263-L270"><a href="#example-45bec">Example № 215</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L255-L256">For more complex input objects, all these constructs can be nested. This allows for detailed and precise mappings.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L258-L259">This example nests the <code>weight</code> field and the <code>dimension</code> object with its <code>width</code> and <code>height</code> fields:</p>
+<pre id="example-c07d2" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L261-L268"><a href="#example-c07d2">Example № 215</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token property-query">shippingCost</span><span class="token punctuation">(</span>
     <span class="token attr-name">package</span><span class="token punctuation">:</span> <span class="token atom-input class-name">PackageInput</span>
-      <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ weight, dimension: dimension.{ width, height } }"</span><span class="token punctuation">)</span>
+      <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ weight, dimension: dimension.{ width height } }"</span><span class="token punctuation">)</span>
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Currency</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L272-L273">This example nests the <code>weight</code> field and the <code>size</code> object with its <code>width</code> and <code>height</code> fields:</p>
-<pre id="example-1dbbc" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L275-L282"><a href="#example-1dbbc">Example № 216</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L270-L271">This example nests the <code>weight</code> field and the <code>size</code> object with its <code>width</code> and <code>height</code> fields:</p>
+<pre id="example-40460" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L273-L280"><a href="#example-40460">Example № 216</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token property-query">shippingCost</span><span class="token punctuation">(</span>
     <span class="token attr-name">package</span><span class="token punctuation">:</span> <span class="token atom-input class-name">PackageInput</span>
-      <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ weight, size: dimension.{ width, height } }"</span><span class="token punctuation">)</span>
+      <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ weight, size: dimension.{ width height } }"</span><span class="token punctuation">)</span>
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Currency</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L284">The label can be used to nest values that aren&rsquo;t nested in the output.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L286">This example nests <code>Product.width</code> and <code>Product.height</code> under <code>dimension</code>:</p>
-<pre id="example-96e80" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L288-L295"><a href="#example-96e80">Example № 217</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L282">The label can be used to nest values that aren&rsquo;t nested in the output.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L284">This example nests <code>Product.width</code> and <code>Product.height</code> under <code>dimension</code>:</p>
+<pre id="example-79bb3" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L286-L293"><a href="#example-79bb3">Example № 217</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token property-query">shippingCost</span><span class="token punctuation">(</span>
     <span class="token attr-name">package</span><span class="token punctuation">:</span> <span class="token atom-input class-name">PackageInput</span>
-      <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ weight, dimension: { width, height } }"</span><span class="token punctuation">)</span>
+      <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ weight, dimension: { width height } }"</span><span class="token punctuation">)</span>
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Currency</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L297">In the following example, dimensions are nested under <code>dimension</code> in the output:</p>
-<pre id="example-e276d" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L299-L306"><a href="#example-e276d">Example № 218</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L295">In the following example, dimensions are nested under <code>dimension</code> in the output:</p>
+<pre id="example-70210" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L297-L304"><a href="#example-70210">Example № 218</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token property-query">shippingCost</span><span class="token punctuation">(</span>
     <span class="token attr-name">package</span><span class="token punctuation">:</span> <span class="token atom-input class-name">PackageInput</span>
-      <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ weight, dimension: dimension.{ width, height } }"</span><span class="token punctuation">)</span>
+      <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ weight, dimension: dimension.{ width height } }"</span><span class="token punctuation">)</span>
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Currency</span>
 <span class="token punctuation">}</span>
 </code></pre>
@@ -6546,125 +6544,124 @@ Number of items to fetch
 </section>
 </section>
 <section id="sec-Language" secid="6.2">
-<h2 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L308"><span class="spec-secid" title="link to this section"><a href="#sec-Language">6.2</a></span>Language</h2>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L310-L311">According to the GraphQL specification, an argument is a key-value pair in which the key is the name of the argument and the value is a <code>Value</code>.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L313-L315">The <code>Value</code> of an argument can take various forms: it might be a scalar value (such as <code>Int</code>, <code>Float</code>, <code>String</code>, <code>Boolean</code>, <code>Null</code>, or <code>Enum</code>), a list (<code>ListValue</code>), an input object (<code>ObjectValue</code>), or a <code>Variable</code>.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L317-L319">Within the scope of the <span class="spec-nt"><span data-name="FieldSelectionMap">FieldSelectionMap</span></span>, the relationship between input and output is established by defining the <code>Value</code> of the argument as a selection of fields from the output object.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L321-L323">Yet only certain types of <code>Value</code> have a semantic meaning. <code>ObjectValue</code> and <code>ListValue</code> are used to define the structure of the value. Scalar values, on the other hand, do not carry semantic importance in this context.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L325-L326">While variables may have legitimate use cases, they are considered out of scope for the current discussion.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L328-L329">However, it&rsquo;s worth noting that there could be potential applications for allowing them in the future.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L331-L333">Given that these potential values do not align with the standard literals defined in the GraphQL specification, a new literal called <span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span> is introduced, along with <span class="spec-nt"><a href="#SelectedObjectValue" data-name="SelectedObjectValue">SelectedObjectValue</a></span>.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L335">Beyond these literals, an additional literal called <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> is necessary.</p>
+<h2 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L306"><span class="spec-secid" title="link to this section"><a href="#sec-Language">6.2</a></span>Language</h2>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L308-L309">According to the GraphQL specification, an argument is a key-value pair in which the key is the name of the argument and the value is a <code>Value</code>.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L311-L313">The <code>Value</code> of an argument can take various forms: it might be a scalar value (such as <code>Int</code>, <code>Float</code>, <code>String</code>, <code>Boolean</code>, <code>Null</code>, or <code>Enum</code>), a list (<code>ListValue</code>), an input object (<code>ObjectValue</code>), or a <code>Variable</code>.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L315-L317">Within the scope of the <span class="spec-nt"><span data-name="FieldSelectionMap">FieldSelectionMap</span></span>, the relationship between input and output is established by defining the <code>Value</code> of the argument as a selection of fields from the output object.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L319-L321">Yet only certain types of <code>Value</code> have a semantic meaning. <code>ObjectValue</code> and <code>ListValue</code> are used to define the structure of the value. Scalar values, on the other hand, do not carry semantic importance in this context.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L323-L324">While variables may have legitimate use cases, they are considered out of scope for the current discussion.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L326-L327">However, it&rsquo;s worth noting that there could be potential applications for allowing them in the future.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L329-L331">Given that these potential values do not align with the standard literals defined in the GraphQL specification, a new literal called <span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span> is introduced, along with <span class="spec-nt"><a href="#SelectedObjectValue" data-name="SelectedObjectValue">SelectedObjectValue</a></span>.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L333">Beyond these literals, an additional literal called <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> is necessary.</p>
 <section id="sec-Language.Name" secid="6.2.1">
-<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L337"><span class="spec-secid" title="link to this section"><a href="#sec-Language.Name">6.2.1</a></span>Name</h3>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L339-L340">Is equivalent to the <span class="spec-nt"><span data-name="Name">Name</span></span> defined in the <a href="https://spec.graphql.org/October2021/#Name">GraphQL specification</a></p>
+<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L335"><span class="spec-secid" title="link to this section"><a href="#sec-Language.Name">6.2.1</a></span>Name</h3>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L337-L338">Is equivalent to the <span class="spec-nt"><span data-name="Name">Name</span></span> defined in the <a href="https://spec.graphql.org/October2021/#Name">GraphQL specification</a></p>
 </section>
 <section id="sec-Path" secid="6.2.2">
-<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L342"><span class="spec-secid" title="link to this section"><a href="#sec-Path">6.2.2</a></span>Path</h3>
-<div class="spec-production d2" id="Path" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L344-L347">
+<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L340"><span class="spec-secid" title="link to this section"><a href="#sec-Path">6.2.2</a></span>Path</h3>
+<div class="spec-production d2" id="Path" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L342-L345">
 <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span><div class="spec-rhs"><span class="spec-t">&lt;</span><span class="spec-nt"><a href="#TypeName" data-name="TypeName">TypeName</a></span><span class="spec-t">&gt;</span><span class="spec-t">.</span><span class="spec-nt"><a href="#PathSegment" data-name="PathSegment">PathSegment</a></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#PathSegment" data-name="PathSegment">PathSegment</a></span></div>
 </div>
-<div class="spec-production d2" id="PathSegment" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L349-L353">
+<div class="spec-production d2" id="PathSegment" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L347-L351">
 <span class="spec-nt"><a href="#PathSegment" data-name="PathSegment">PathSegment</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#FieldName" data-name="FieldName">FieldName</a></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#FieldName" data-name="FieldName">FieldName</a></span><span class="spec-t">.</span><span class="spec-nt"><a href="#PathSegment" data-name="PathSegment">PathSegment</a></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#FieldName" data-name="FieldName">FieldName</a></span><span class="spec-t">&lt;</span><span class="spec-nt"><a href="#TypeName" data-name="TypeName">TypeName</a></span><span class="spec-t">&gt;</span><span class="spec-t">.</span><span class="spec-nt"><a href="#PathSegment" data-name="PathSegment">PathSegment</a></span></div>
 </div>
-<div class="spec-production d2" id="FieldName" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L355-L357">
+<div class="spec-production d2" id="FieldName" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L353-L355">
 <span class="spec-nt"><a href="#FieldName" data-name="FieldName">FieldName</a></span><div class="spec-rhs"><span class="spec-nt"><span data-name="Name">Name</span></span></div>
 </div>
-<div class="spec-production d2" id="TypeName" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L359-L361">
+<div class="spec-production d2" id="TypeName" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L357-L359">
 <span class="spec-nt"><a href="#TypeName" data-name="TypeName">TypeName</a></span><div class="spec-rhs"><span class="spec-nt"><span data-name="Name">Name</span></span></div>
 </div>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L363-L365">The <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> literal is a string used to select a single output value from the <em>return type</em> by specifying a path to that value. This path is defined as a sequence of field names, each separated by a period (<code>.</code>) to create segments.</p>
-<pre id="example-0327e" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L367-L369"><a href="#example-0327e">Example № 219</a><code><span class="token property">book</span>.<span class="token property">title</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L361-L363">The <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> literal is a string used to select a single output value from the <em>return type</em> by specifying a path to that value. This path is defined as a sequence of field names, each separated by a period (<code>.</code>) to create segments.</p>
+<pre id="example-0327e" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L365-L367"><a href="#example-0327e">Example № 219</a><code><span class="token property">book</span>.<span class="token property">title</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L371-L373">Each segment specifies a field in the context of the parent, with the root segment referencing a field in the <em>return type</em> of the query. Arguments are not allowed in a <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L375-L377">To select a field when dealing with abstract types, the segment selecting the parent field must specify the concrete type of the field using angle brackets after the field name if the field is not defined on an interface.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L379-L380">In the following example, the path <code>mediaById&lt;Book&gt;.isbn</code> specifies that <code>mediaById</code> returns a <code>Book</code>, and the <code>isbn</code> field is selected from that <code>Book</code>.</p>
-<pre id="example-db2de" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L382-L384"><a href="#example-db2de">Example № 220</a><code><span class="token property">mediaById</span>&lt;<span class="token property">Book</span>>.<span class="token property">isbn</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L369-L371">Each segment specifies a field in the context of the parent, with the root segment referencing a field in the <em>return type</em> of the query. Arguments are not allowed in a <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L373-L375">To select a field when dealing with abstract types, the segment selecting the parent field must specify the concrete type of the field using angle brackets after the field name if the field is not defined on an interface.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L377-L378">In the following example, the path <code>mediaById&lt;Book&gt;.isbn</code> specifies that <code>mediaById</code> returns a <code>Book</code>, and the <code>isbn</code> field is selected from that <code>Book</code>.</p>
+<pre id="example-db2de" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L380-L382"><a href="#example-db2de">Example № 220</a><code><span class="token property">mediaById</span>&lt;<span class="token property">Book</span>>.<span class="token property">isbn</span>
 </code></pre>
 </section>
 <section id="sec-SelectedValue" secid="6.2.3">
-<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L386"><span class="spec-secid" title="link to this section"><a href="#sec-SelectedValue">6.2.3</a></span>SelectedValue</h3>
-<div class="spec-production d2" id="SelectedValue" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L388-L391">
+<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L384"><span class="spec-secid" title="link to this section"><a href="#sec-SelectedValue">6.2.3</a></span>SelectedValue</h3>
+<div class="spec-production d2" id="SelectedValue" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L386-L389">
 <span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span><span class="spec-t">|</span><span class="spec-nt"><a href="#SelectedValueEntry" data-name="SelectedValueEntry">SelectedValueEntry</a></span></div>
 <div class="spec-rhs"><span class="spec-quantified"><span class="spec-t">|</span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-nt"><a href="#SelectedValueEntry" data-name="SelectedValueEntry">SelectedValueEntry</a></span></div>
 </div>
-<div class="spec-production d2" id="SelectedValueEntry" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L393-L398">
+<div class="spec-production d2" id="SelectedValueEntry" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L391-L396">
 <span class="spec-nt"><a href="#SelectedValueEntry" data-name="SelectedValueEntry">SelectedValueEntry</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span><span class="spec-lookahead not"><span class="spec-t">.</span></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span><span class="spec-t">.</span><span class="spec-nt"><a href="#SelectedObjectValue" data-name="SelectedObjectValue">SelectedObjectValue</a></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span><span class="spec-nt"><a href="#SelectedListValue" data-name="SelectedListValue">SelectedListValue</a></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#SelectedObjectValue" data-name="SelectedObjectValue">SelectedObjectValue</a></span></div>
 </div>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L400-L402">A <span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span> consists of one or more <span class="spec-nt"><a href="#SelectedValueEntry" data-name="SelectedValueEntry">SelectedValueEntry</a></span> components, which may be joined by a pipe (<code>|</code>) operator to indicate alternative selections based on type.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L404">Each <span class="spec-nt"><a href="#SelectedValueEntry" data-name="SelectedValueEntry">SelectedValueEntry</a></span> may take one of the following forms:</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L398-L400">A <span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span> consists of one or more <span class="spec-nt"><a href="#SelectedValueEntry" data-name="SelectedValueEntry">SelectedValueEntry</a></span> components, which may be joined by a pipe (<code>|</code>) operator to indicate alternative selections based on type.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L402">Each <span class="spec-nt"><a href="#SelectedValueEntry" data-name="SelectedValueEntry">SelectedValueEntry</a></span> may take one of the following forms:</p>
 <ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L406-L408">A <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> (when not immediately followed by a dot) that is designed to point to a single value, although it may reference multiple fields depending on its return type.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L409-L410">A <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> immediately followed by a dot and a <span class="spec-nt"><a href="#SelectedObjectValue" data-name="SelectedObjectValue">SelectedObjectValue</a></span> to denote a nested object selection.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L411-L412">A <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> immediately followed by a <span class="spec-nt"><a href="#SelectedListValue" data-name="SelectedListValue">SelectedListValue</a></span> to denote selection from a list.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L413">A standalone <span class="spec-nt"><a href="#SelectedObjectValue" data-name="SelectedObjectValue">SelectedObjectValue</a></span></li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L404-L406">A <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> (when not immediately followed by a dot) that is designed to point to a single value, although it may reference multiple fields depending on its return type.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L407-L408">A <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> immediately followed by a dot and a <span class="spec-nt"><a href="#SelectedObjectValue" data-name="SelectedObjectValue">SelectedObjectValue</a></span> to denote a nested object selection.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L409-L410">A <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> immediately followed by a <span class="spec-nt"><a href="#SelectedListValue" data-name="SelectedListValue">SelectedListValue</a></span> to denote selection from a list.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L411">A standalone <span class="spec-nt"><a href="#SelectedObjectValue" data-name="SelectedObjectValue">SelectedObjectValue</a></span></li>
 </ul>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L415-L416">In the following example, the value could be <code>title</code> when referring to a <code>Book</code> and <code>movieTitle</code> when referring to a <code>Movie</code>.</p>
-<pre id="example-1cfdd" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L418-L420"><a href="#example-1cfdd">Example № 221</a><code><span class="token property">mediaById</span>&lt;<span class="token property">Book</span>>.<span class="token property">title</span> <span class="token operator">|</span> <span class="token property">mediaById</span>&lt;<span class="token property">Movie</span>>.<span class="token property">movieTitle</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L413-L414">In the following example, the value could be <code>title</code> when referring to a <code>Book</code> and <code>movieTitle</code> when referring to a <code>Movie</code>.</p>
+<pre id="example-1cfdd" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L416-L418"><a href="#example-1cfdd">Example № 221</a><code><span class="token property">mediaById</span>&lt;<span class="token property">Book</span>>.<span class="token property">title</span> <span class="token operator">|</span> <span class="token property">mediaById</span>&lt;<span class="token property">Movie</span>>.<span class="token property">movieTitle</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L422-L424">The <code>|</code> operator can be used to match multiple possible <span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span>. This operator is applied when mapping an abstract output type to a <code>@oneOf</code> input type.</p>
-<pre id="example-ac7a2" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L426-L428"><a href="#example-ac7a2">Example № 222</a><code><span class="token punctuation">{</span> <span class="token attr-name">bookId</span><span class="token punctuation">:</span> &lt;<span class="token property">Book</span>>.<span class="token property">id</span> <span class="token punctuation">}</span> <span class="token operator">|</span> <span class="token punctuation">{</span> <span class="token attr-name">movieId</span><span class="token punctuation">:</span> &lt;<span class="token property">Movie</span>>.<span class="token property">id</span> <span class="token punctuation">}</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L420-L422">The <code>|</code> operator can be used to match multiple possible <span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span>. This operator is applied when mapping an abstract output type to a <code>@oneOf</code> input type.</p>
+<pre id="example-ac7a2" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L424-L426"><a href="#example-ac7a2">Example № 222</a><code><span class="token punctuation">{</span> <span class="token attr-name">bookId</span><span class="token punctuation">:</span> &lt;<span class="token property">Book</span>>.<span class="token property">id</span> <span class="token punctuation">}</span> <span class="token operator">|</span> <span class="token punctuation">{</span> <span class="token attr-name">movieId</span><span class="token punctuation">:</span> &lt;<span class="token property">Movie</span>>.<span class="token property">id</span> <span class="token punctuation">}</span>
 </code></pre>
-<pre id="example-4722a" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L430-L432"><a href="#example-4722a">Example № 223</a><code><span class="token punctuation">{</span> <span class="token attr-name">nested</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token attr-name">bookId</span><span class="token punctuation">:</span> &lt;<span class="token property">Book</span>>.<span class="token property">id</span> <span class="token punctuation">}</span> <span class="token operator">|</span> <span class="token punctuation">{</span> <span class="token attr-name">movieId</span><span class="token punctuation">:</span> &lt;<span class="token property">Movie</span>>.<span class="token property">id</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span>
+<pre id="example-4722a" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L428-L430"><a href="#example-4722a">Example № 223</a><code><span class="token punctuation">{</span> <span class="token attr-name">nested</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token attr-name">bookId</span><span class="token punctuation">:</span> &lt;<span class="token property">Book</span>>.<span class="token property">id</span> <span class="token punctuation">}</span> <span class="token operator">|</span> <span class="token punctuation">{</span> <span class="token attr-name">movieId</span><span class="token punctuation">:</span> &lt;<span class="token property">Movie</span>>.<span class="token property">id</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span>
 </code></pre>
 </section>
 <section id="sec-SelectedObjectValue" secid="6.2.4">
-<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L434"><span class="spec-secid" title="link to this section"><a href="#sec-SelectedObjectValue">6.2.4</a></span>SelectedObjectValue</h3>
-<div class="spec-production d2" id="SelectedObjectValue" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L436-L438">
+<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L432"><span class="spec-secid" title="link to this section"><a href="#sec-SelectedObjectValue">6.2.4</a></span>SelectedObjectValue</h3>
+<div class="spec-production d2" id="SelectedObjectValue" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L434-L436">
 <span class="spec-nt"><a href="#SelectedObjectValue" data-name="SelectedObjectValue">SelectedObjectValue</a></span><div class="spec-rhs"><span class="spec-t">{</span><span class="spec-quantified"><span class="spec-nt"><a href="#SelectedObjectField" data-name="SelectedObjectField">SelectedObjectField</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span><span class="spec-t">}</span></div>
 </div>
-<div class="spec-production d2" id="SelectedObjectField" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L440-L443">
+<div class="spec-production d2" id="SelectedObjectField" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L438-L441">
 <span class="spec-nt"><a href="#SelectedObjectField" data-name="SelectedObjectField">SelectedObjectField</a></span><div class="spec-rhs"><span class="spec-nt"><span data-name="Name">Name</span></span><span class="spec-t">:</span><span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span></div>
 <div class="spec-rhs"><span class="spec-nt"><span data-name="Name">Name</span></span></div>
 </div>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L445-L447"><span class="spec-nt"><a href="#SelectedObjectValue" data-name="SelectedObjectValue">SelectedObjectValue</a></span> are unordered lists of keyed input values wrapped in curly-braces <code>{}</code>. It has to be used when the expected input type is an object type.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L449-L452">This structure is similar to the <code>ObjectValue</code> defined in the GraphQL specification, but it differs by allowing the inclusion of <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> values within a <span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span>, thus extending the traditional <code>ObjectValue</code> capabilities to support direct path selections.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L454-L458">A <span class="spec-nt"><a href="#SelectedObjectValue" data-name="SelectedObjectValue">SelectedObjectValue</a></span> following a <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> is scoped to the type of the field selected by the <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>. This means that the root of all <span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span> inside the selection is no longer scoped to the root (defined by <code>@is</code> or <code>@require</code>) but to the field selected by the <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>. The <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> does not affect the structure of the input type.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L460">This allows for reducing repetition in the selection.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L462-L463">Commas are optional throughout GraphQL so trailing commas are allowed and repeated commas do not represent missing values.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L465">The following example is valid:</p>
-<pre id="example-56baf" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L467-L474"><a href="#example-56baf">Example № 224</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L443-L445"><span class="spec-nt"><a href="#SelectedObjectValue" data-name="SelectedObjectValue">SelectedObjectValue</a></span> are unordered lists of keyed input values wrapped in curly-braces <code>{}</code>. It has to be used when the expected input type is an object type.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L447-L450">This structure is similar to the <code>ObjectValue</code> defined in the GraphQL specification, but it differs by allowing the inclusion of <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> values within a <span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span>, thus extending the traditional <code>ObjectValue</code> capabilities to support direct path selections.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L452-L456">A <span class="spec-nt"><a href="#SelectedObjectValue" data-name="SelectedObjectValue">SelectedObjectValue</a></span> following a <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> is scoped to the type of the field selected by the <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>. This means that the root of all <span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span> inside the selection is no longer scoped to the root (defined by <code>@is</code> or <code>@require</code>) but to the field selected by the <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>. The <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> does not affect the structure of the input type.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L458">This allows for reducing repetition in the selection.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L460">The following example is valid:</p>
+<pre id="example-50236" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L462-L469"><a href="#example-50236">Example № 224</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">dimension</span><span class="token punctuation">:</span> <span class="token class-name">Dimension</span><span class="token operator">!</span>
   <span class="token property-query">shippingCost</span><span class="token punctuation">(</span>
-    <span class="token attr-name">dimension</span><span class="token punctuation">:</span> <span class="token atom-input class-name">DimensionInput</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"dimension.{ size, weight }"</span><span class="token punctuation">)</span>
+    <span class="token attr-name">dimension</span><span class="token punctuation">:</span> <span class="token atom-input class-name">DimensionInput</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"dimension.{ size weight }"</span><span class="token punctuation">)</span>
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">Int</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L476">The following example is equivalent to the previous one:</p>
-<pre id="example-bb22b" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L478-L486"><a href="#example-bb22b">Example № 225</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L471">The following example is equivalent to the previous one:</p>
+<pre id="example-733bd" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L473-L481"><a href="#example-733bd">Example № 225</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">dimensions</span><span class="token punctuation">:</span> <span class="token class-name">Dimension</span><span class="token operator">!</span>
   <span class="token property-query">shippingCost</span><span class="token punctuation">(</span>
     <span class="token attr-name">dimensions</span><span class="token punctuation">:</span> <span class="token atom-input class-name">DimensionInput</span><span class="token operator">!</span>
-      <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ size: dimensions.size, weight: dimensions.weight }"</span><span class="token punctuation">)</span>
+      <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ size: dimensions.size weight: dimensions.weight }"</span><span class="token punctuation">)</span>
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">Int</span><span class="token operator">!</span> <span class="token directive function">@lookup</span>
 <span class="token punctuation">}</span>
 </code></pre>
 </section>
 <section id="sec-SelectedListValue" secid="6.2.5">
-<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L488"><span class="spec-secid" title="link to this section"><a href="#sec-SelectedListValue">6.2.5</a></span>SelectedListValue</h3>
-<div class="spec-production d2" id="SelectedListValue" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L490-L493">
+<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L483"><span class="spec-secid" title="link to this section"><a href="#sec-SelectedListValue">6.2.5</a></span>SelectedListValue</h3>
+<div class="spec-production d2" id="SelectedListValue" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L485-L488">
 <span class="spec-nt"><a href="#SelectedListValue" data-name="SelectedListValue">SelectedListValue</a></span><div class="spec-rhs"><span class="spec-t">[</span><span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span><span class="spec-t">]</span></div>
 <div class="spec-rhs"><span class="spec-t">[</span><span class="spec-nt"><a href="#SelectedListValue" data-name="SelectedListValue">SelectedListValue</a></span><span class="spec-t">]</span></div>
 </div>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L495-L498">A <span class="spec-nt"><a href="#SelectedListValue" data-name="SelectedListValue">SelectedListValue</a></span> is an ordered list of <span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span> wrapped in square brackets <code>[]</code>. It is used to express semantic equivalence between an argument expecting a list of values and the values of a list field within the output object.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L500-L501">The <span class="spec-nt"><a href="#SelectedListValue" data-name="SelectedListValue">SelectedListValue</a></span> differs from the <code>ListValue</code> defined in the GraphQL specification by only allowing one <span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span> as an element.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L503">The following example is valid:</p>
-<pre id="example-fa029" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L505-L510"><a href="#example-fa029">Example № 226</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L490-L493">A <span class="spec-nt"><a href="#SelectedListValue" data-name="SelectedListValue">SelectedListValue</a></span> is an ordered list of <span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span> wrapped in square brackets <code>[]</code>. It is used to express semantic equivalence between an argument expecting a list of values and the values of a list field within the output object.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L495-L496">The <span class="spec-nt"><a href="#SelectedListValue" data-name="SelectedListValue">SelectedListValue</a></span> differs from the <code>ListValue</code> defined in the GraphQL specification by only allowing one <span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span> as an element.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L498">The following example is valid:</p>
+<pre id="example-fa029" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L500-L505"><a href="#example-fa029">Example № 226</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">parts</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">Part</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
   <span class="token property-query">partIds</span><span class="token punctuation">(</span><span class="token attr-name">partIds</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token scalar">ID</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"parts[id]"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token scalar">ID</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L512-L513">In this example, the <code>partIds</code> argument is semantically equivalent to the <code>id</code> fields of the <code>parts</code> list.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L515-L516">The following example is invalid because it uses multiple <span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span> as elements:</p>
-<pre id="example-0c7e0" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L518-L528"><a href="#example-0c7e0">Counter Example № 227</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L507-L508">In this example, the <code>partIds</code> argument is semantically equivalent to the <code>id</code> fields of the <code>parts</code> list.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L510-L511">The following example is invalid because it uses multiple <span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span> as elements:</p>
+<pre id="example-6046e" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L513-L523"><a href="#example-6046e">Counter Example № 227</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">parts</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">Part</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
-  <span class="token property-query">partIds</span><span class="token punctuation">(</span><span class="token attr-name">parts</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token atom-input class-name">PartInput</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"parts[id, name]"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token scalar">ID</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
+  <span class="token property-query">partIds</span><span class="token punctuation">(</span><span class="token attr-name">parts</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token atom-input class-name">PartInput</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"parts[id name]"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token scalar">ID</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">input</span> <span class="token atom-input class-name">PartInput</span> <span class="token punctuation">{</span>
@@ -6672,12 +6669,12 @@ Number of items to fetch
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L530-L532">A <span class="spec-nt"><a href="#SelectedObjectValue" data-name="SelectedObjectValue">SelectedObjectValue</a></span> can be used as an element of a <span class="spec-nt"><a href="#SelectedListValue" data-name="SelectedListValue">SelectedListValue</a></span> to select multiple object fields as long as the input type is a list of structurally equivalent objects.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L534-L538">Similar to <span class="spec-nt"><a href="#SelectedObjectValue" data-name="SelectedObjectValue">SelectedObjectValue</a></span>, a <span class="spec-nt"><a href="#SelectedListValue" data-name="SelectedListValue">SelectedListValue</a></span> following a <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> is scoped to the type of the field selected by the <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>. This means that the root of all <span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span> inside the selection is no longer scoped to the root (defined by <code>@is</code> or <code>@require</code>) but to the field selected by the <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>. The <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> does not affect the structure of the input type.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L540">The following example is valid:</p>
-<pre id="example-f4e04" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L542-L552"><a href="#example-f4e04">Example № 228</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L525-L527">A <span class="spec-nt"><a href="#SelectedObjectValue" data-name="SelectedObjectValue">SelectedObjectValue</a></span> can be used as an element of a <span class="spec-nt"><a href="#SelectedListValue" data-name="SelectedListValue">SelectedListValue</a></span> to select multiple object fields as long as the input type is a list of structurally equivalent objects.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L529-L533">Similar to <span class="spec-nt"><a href="#SelectedObjectValue" data-name="SelectedObjectValue">SelectedObjectValue</a></span>, a <span class="spec-nt"><a href="#SelectedListValue" data-name="SelectedListValue">SelectedListValue</a></span> following a <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> is scoped to the type of the field selected by the <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>. This means that the root of all <span class="spec-nt"><a href="#SelectedValue" data-name="SelectedValue">SelectedValue</a></span> inside the selection is no longer scoped to the root (defined by <code>@is</code> or <code>@require</code>) but to the field selected by the <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>. The <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> does not affect the structure of the input type.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L535">The following example is valid:</p>
+<pre id="example-1e02e" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L537-L547"><a href="#example-1e02e">Example № 228</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">parts</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">Part</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
-  <span class="token property-query">partIds</span><span class="token punctuation">(</span><span class="token attr-name">parts</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token atom-input class-name">PartInput</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"parts[{ id, name }]"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token scalar">ID</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
+  <span class="token property-query">partIds</span><span class="token punctuation">(</span><span class="token attr-name">parts</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token atom-input class-name">PartInput</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"parts[{ id name }]"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token scalar">ID</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">input</span> <span class="token atom-input class-name">PartInput</span> <span class="token punctuation">{</span>
@@ -6685,11 +6682,11 @@ Number of items to fetch
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L554-L555">In case the input type is a nested list, the shape of the input object must match the shape of the output object.</p>
-<pre id="example-338b2" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L557-L569"><a href="#example-338b2">Example № 229</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L549-L550">In case the input type is a nested list, the shape of the input object must match the shape of the output object.</p>
+<pre id="example-60610" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L552-L564"><a href="#example-60610">Example № 229</a><code><span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">parts</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token class-name">Part</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token operator">!</span>
   <span class="token property-query">partIds</span><span class="token punctuation">(</span>
-    <span class="token attr-name">parts</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token atom-input class-name">PartInput</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"parts[[{ id, name }]]"</span><span class="token punctuation">)</span>
+    <span class="token attr-name">parts</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token atom-input class-name">PartInput</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token operator">!</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"parts[[{ id name }]]"</span><span class="token punctuation">)</span>
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token scalar">ID</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 
@@ -6698,11 +6695,11 @@ Number of items to fetch
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L571">The following example is valid:</p>
-<pre id="example-6a775" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L573-L598"><a href="#example-6a775">Example № 230</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L566">The following example is valid:</p>
+<pre id="example-39bac" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L568-L593"><a href="#example-39bac">Example № 230</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token property-query">findLocation</span><span class="token punctuation">(</span>
     <span class="token attr-name">location</span><span class="token punctuation">:</span> <span class="token atom-input class-name">LocationInput</span><span class="token operator">!</span>
-      <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ coordinates: coordinates[{ lat: x, lon: y }]}"</span><span class="token punctuation">)</span>
+      <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ coordinates: coordinates[{lat: x lon: y}]}"</span><span class="token punctuation">)</span>
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Location</span> <span class="token directive function">@lookup</span>
 <span class="token punctuation">}</span>
 
@@ -6727,12 +6724,12 @@ Number of items to fetch
 </section>
 </section>
 <section id="sec-Validation" secid="6.3">
-<h2 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L600"><span class="spec-secid" title="link to this section"><a href="#sec-Validation">6.3</a></span>Validation</h2>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L602-L603">Validation ensures that <span class="spec-nt"><span data-name="FieldSelectionMap">FieldSelectionMap</span></span> scalars are semantically correct within the given context.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L605-L607">Validation of <span class="spec-nt"><span data-name="FieldSelectionMap">FieldSelectionMap</span></span> scalars occurs during the composition phase, ensuring that all <span class="spec-nt"><span data-name="FieldSelectionMap">FieldSelectionMap</span></span> entries are syntactically correct and semantically meaningful relative to the context.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L609-L611">Composition is only possible if the <span class="spec-nt"><span data-name="FieldSelectionMap">FieldSelectionMap</span></span> is validated successfully. An invalid <span class="spec-nt"><span data-name="FieldSelectionMap">FieldSelectionMap</span></span> results in undefined behavior, making composition impossible.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L613-L614">In this section, we will assume the following type system in order to demonstrate examples:</p>
-<pre data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L616-L665"><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<h2 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L595"><span class="spec-secid" title="link to this section"><a href="#sec-Validation">6.3</a></span>Validation</h2>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L597-L598">Validation ensures that <span class="spec-nt"><span data-name="FieldSelectionMap">FieldSelectionMap</span></span> scalars are semantically correct within the given context.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L600-L602">Validation of <span class="spec-nt"><span data-name="FieldSelectionMap">FieldSelectionMap</span></span> scalars occurs during the composition phase, ensuring that all <span class="spec-nt"><span data-name="FieldSelectionMap">FieldSelectionMap</span></span> entries are syntactically correct and semantically meaningful relative to the context.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L604-L606">Composition is only possible if the <span class="spec-nt"><span data-name="FieldSelectionMap">FieldSelectionMap</span></span> is validated successfully. An invalid <span class="spec-nt"><span data-name="FieldSelectionMap">FieldSelectionMap</span></span> results in undefined behavior, making composition impossible.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L608-L609">In this section, we will assume the following type system in order to demonstrate examples:</p>
+<pre data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L611-L660"><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">mediaById</span><span class="token punctuation">(</span><span class="token attr-name">mediaId</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Media</span>
   <span class="token attr-name">findMedia</span><span class="token punctuation">(</span><span class="token attr-name">input</span><span class="token punctuation">:</span> <span class="token atom-input class-name">FindMediaInput</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Media</span>
   <span class="token attr-name">searchStore</span><span class="token punctuation">(</span><span class="token attr-name">search</span><span class="token punctuation">:</span> <span class="token atom-input class-name">SearchStoreInput</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">Store</span><span class="token punctuation">]</span><span class="token operator">!</span>
@@ -6782,15 +6779,15 @@ Number of items to fetch
 <span class="token punctuation">}</span>
 </code></pre>
 <section id="sec-Path-Field-Selections" secid="6.3.1">
-<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L667"><span class="spec-secid" title="link to this section"><a href="#sec-Path-Field-Selections">6.3.1</a></span>Path Field Selections</h3>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L669-L670">Each segment of a <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> must correspond to a valid field defined on the current type context.</p>
+<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L662"><span class="spec-secid" title="link to this section"><a href="#sec-Path-Field-Selections">6.3.1</a></span>Path Field Selections</h3>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L664-L665">Each segment of a <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> must correspond to a valid field defined on the current type context.</p>
 <section id="sec-Path-Field-Selections.Formal-Specification" class="subsec">
-<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L672"><a href="#sec-Path-Field-Selections.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L667"><a href="#sec-Path-Field-Selections.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L674-L677">For each <var data-name="segment">segment</var> in the <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>:<ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L675-L677">If the <var data-name="segment">segment</var> is a field<ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L676">Let <var data-name="fieldName">fieldName</var> be the field name in the current <var data-name="segment">segment</var>.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L677"><var data-name="fieldName">fieldName</var> must be defined on the current type in scope.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L669-L672">For each <var data-name="segment">segment</var> in the <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>:<ul>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L670-L672">If the <var data-name="segment">segment</var> is a field<ul>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L671">Let <var data-name="fieldName">fieldName</var> be the field name in the current <var data-name="segment">segment</var>.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L672"><var data-name="fieldName">fieldName</var> must be defined on the current type in scope.</li>
 </ul>
 </li>
 </ul>
@@ -6798,34 +6795,34 @@ Number of items to fetch
 </ul>
 </section>
 <section id="sec-Path-Field-Selections.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L679"><a href="#sec-Path-Field-Selections.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L681-L683">The <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> literal is used to reference a specific output field from an input field. Each segment in the <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> must correspond to a field that is valid within the current type scope.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L685">For example, the following <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> is valid in the context of <code>Book</code>:</p>
-<pre id="example-db002" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L687-L689"><a href="#example-db002">Example № 231</a><code><span class="token property">title</span>
+<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L674"><a href="#sec-Path-Field-Selections.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L676-L678">The <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> literal is used to reference a specific output field from an input field. Each segment in the <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> must correspond to a field that is valid within the current type scope.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L680">For example, the following <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> is valid in the context of <code>Book</code>:</p>
+<pre id="example-db002" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L682-L684"><a href="#example-db002">Example № 231</a><code><span class="token property">title</span>
 </code></pre>
-<pre id="example-e6354" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L691-L693"><a href="#example-e6354">Example № 232</a><code>&lt;<span class="token property">Book</span>>.<span class="token property">title</span>
+<pre id="example-e6354" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L686-L688"><a href="#example-e6354">Example № 232</a><code>&lt;<span class="token property">Book</span>>.<span class="token property">title</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L695-L698">Incorrect paths where the field does not exist on the specified type are not valid and result in validation errors. For instance, if <code>&lt;Book&gt;.movieId</code> is referenced but <code>movieId</code> is not a field of <code>Book</code>, it will result in an invalid <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>.</p>
-<pre id="example-3529a" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L700-L702"><a href="#example-3529a">Counter Example № 233</a><code><span class="token property">movieId</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L690-L693">Incorrect paths where the field does not exist on the specified type are not valid and result in validation errors. For instance, if <code>&lt;Book&gt;.movieId</code> is referenced but <code>movieId</code> is not a field of <code>Book</code>, it will result in an invalid <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>.</p>
+<pre id="example-3529a" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L695-L697"><a href="#example-3529a">Counter Example № 233</a><code><span class="token property">movieId</span>
 </code></pre>
-<pre id="example-9565a" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L704-L706"><a href="#example-9565a">Counter Example № 234</a><code>&lt;<span class="token property">Book</span>>.<span class="token property">movieId</span>
+<pre id="example-9565a" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L699-L701"><a href="#example-9565a">Counter Example № 234</a><code>&lt;<span class="token property">Book</span>>.<span class="token property">movieId</span>
 </code></pre>
 </section>
 </section>
 <section id="sec-Path-Terminal-Field-Selections" secid="6.3.2">
-<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L708"><span class="spec-secid" title="link to this section"><a href="#sec-Path-Terminal-Field-Selections">6.3.2</a></span>Path Terminal Field Selections</h3>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L710-L711">Each terminal segment of a <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> must follow the rules regarding whether the selected field is a leaf node.</p>
+<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L703"><span class="spec-secid" title="link to this section"><a href="#sec-Path-Terminal-Field-Selections">6.3.2</a></span>Path Terminal Field Selections</h3>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L705-L706">Each terminal segment of a <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> must follow the rules regarding whether the selected field is a leaf node.</p>
 <section id="sec-Path-Terminal-Field-Selections.Formal-Specification" class="subsec">
-<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L713"><a href="#sec-Path-Terminal-Field-Selections.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L708"><a href="#sec-Path-Terminal-Field-Selections.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L715-L720">For each <var data-name="segment">segment</var> in the <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>:<ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L716">Let <var data-name="selectedType">selectedType</var> be the unwrapped type of the current <var data-name="segment">segment</var>.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L717-L718">If <var data-name="selectedType">selectedType</var> is a scalar or enum:<ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L718">There must not be any further segments in <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L710-L715">For each <var data-name="segment">segment</var> in the <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>:<ul>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L711">Let <var data-name="selectedType">selectedType</var> be the unwrapped type of the current <var data-name="segment">segment</var>.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L712-L713">If <var data-name="selectedType">selectedType</var> is a scalar or enum:<ul>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L713">There must not be any further segments in <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>.</li>
 </ul>
 </li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L719-L720">If <var data-name="selectedType">selectedType</var> is an object, interface, or union:<ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L720">There must be another segment in <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L714-L715">If <var data-name="selectedType">selectedType</var> is an object, interface, or union:<ul>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L715">There must be another segment in <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>.</li>
 </ul>
 </li>
 </ul>
@@ -6833,69 +6830,69 @@ Number of items to fetch
 </ul>
 </section>
 <section id="sec-Path-Terminal-Field-Selections.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L722"><a href="#sec-Path-Terminal-Field-Selections.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L724-L727">A <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> that refers to scalar or enum fields must end at those fields. No further field selections are allowed after a scalar or enum. On the other hand, fields returning objects, interfaces, or unions must continue to specify further selections until you reach a scalar or enum field.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L729-L730">For example, the following <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> is valid if <code>title</code> is a scalar field on the <code>Book</code> type:</p>
-<pre id="example-3c0b2" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L732-L734"><a href="#example-3c0b2">Example № 235</a><code><span class="token property">title</span>
+<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L717"><a href="#sec-Path-Terminal-Field-Selections.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L719-L722">A <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> that refers to scalar or enum fields must end at those fields. No further field selections are allowed after a scalar or enum. On the other hand, fields returning objects, interfaces, or unions must continue to specify further selections until you reach a scalar or enum field.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L724-L725">For example, the following <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> is valid if <code>title</code> is a scalar field on the <code>Book</code> type:</p>
+<pre id="example-3c0b2" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L727-L729"><a href="#example-3c0b2">Example № 235</a><code><span class="token property">title</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L736">The following <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> is invalid because <code>title</code> should not have subselections:</p>
-<pre id="example-4f776" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L738-L740"><a href="#example-4f776">Counter Example № 236</a><code><span class="token property">title</span>.<span class="token property">something</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L731">The following <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> is invalid because <code>title</code> should not have subselections:</p>
+<pre id="example-4f776" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L733-L735"><a href="#example-4f776">Counter Example № 236</a><code><span class="token property">title</span>.<span class="token property">something</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L742-L743">For non-leaf fields, the <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> must continue to specify subselections until a leaf field is reached:</p>
-<pre id="example-43d79" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L745-L747"><a href="#example-43d79">Example № 237</a><code><span class="token property">author</span>.<span class="token property">id</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L737-L738">For non-leaf fields, the <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> must continue to specify subselections until a leaf field is reached:</p>
+<pre id="example-43d79" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L740-L742"><a href="#example-43d79">Example № 237</a><code><span class="token property">author</span>.<span class="token property">id</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L749">Invalid <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> where non-leaf fields do not have further selections:</p>
-<pre id="example-8cc17" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L751-L753"><a href="#example-8cc17">Counter Example № 238</a><code><span class="token property">author</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L744">Invalid <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> where non-leaf fields do not have further selections:</p>
+<pre id="example-8cc17" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L746-L748"><a href="#example-8cc17">Counter Example № 238</a><code><span class="token property">author</span>
 </code></pre>
 </section>
 </section>
 <section id="sec-Type-Reference-Is-Possible" secid="6.3.3">
-<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L755"><span class="spec-secid" title="link to this section"><a href="#sec-Type-Reference-Is-Possible">6.3.3</a></span>Type Reference Is Possible</h3>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L757-L758">Each segment of a <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> that references a type, must be a type that is valid in the current context.</p>
+<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L750"><span class="spec-secid" title="link to this section"><a href="#sec-Type-Reference-Is-Possible">6.3.3</a></span>Type Reference Is Possible</h3>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L752-L753">Each segment of a <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> that references a type, must be a type that is valid in the current context.</p>
 <section id="sec-Type-Reference-Is-Possible.Formal-Specification" class="subsec">
-<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L760"><a href="#sec-Type-Reference-Is-Possible.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L755"><a href="#sec-Type-Reference-Is-Possible.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L762-L768">For each <var data-name="segment">segment</var> in a <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>:<ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L763-L768">If <var data-name="segment">segment</var> is a type reference:<ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L764">Let <var data-name="type">type</var> be the type referenced in the <var data-name="segment">segment</var>.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L765">Let <var data-name="parentType">parentType</var> be the type of the parent of the <var data-name="segment">segment</var>.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L766-L767">Let <var data-name="applicableTypes">applicableTypes</var> be the intersection of <span class="spec-call"><a href="#GetPossibleTypes()" data-name="GetPossibleTypes">GetPossibleTypes</a>(<var data-name="type">type</var>)</span> and <span class="spec-call"><a href="#GetPossibleTypes()" data-name="GetPossibleTypes">GetPossibleTypes</a>(<var data-name="parentType">parentType</var>)</span>.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L768"><var data-name="applicableTypes">applicableTypes</var> must not be empty.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L757-L763">For each <var data-name="segment">segment</var> in a <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span>:<ul>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L758-L763">If <var data-name="segment">segment</var> is a type reference:<ul>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L759">Let <var data-name="type">type</var> be the type referenced in the <var data-name="segment">segment</var>.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L760">Let <var data-name="parentType">parentType</var> be the type of the parent of the <var data-name="segment">segment</var>.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L761-L762">Let <var data-name="applicableTypes">applicableTypes</var> be the intersection of <span class="spec-call"><a href="#GetPossibleTypes()" data-name="GetPossibleTypes">GetPossibleTypes</a>(<var data-name="type">type</var>)</span> and <span class="spec-call"><a href="#GetPossibleTypes()" data-name="GetPossibleTypes">GetPossibleTypes</a>(<var data-name="parentType">parentType</var>)</span>.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L763"><var data-name="applicableTypes">applicableTypes</var> must not be empty.</li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
-<div class="spec-algo" id="GetPossibleTypes()" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L770-L774">
+<div class="spec-algo" id="GetPossibleTypes()" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L765-L769">
 <span class="spec-call"><a href="#GetPossibleTypes()" data-name="GetPossibleTypes">GetPossibleTypes</a>(<var data-name="type">type</var>)</span><ol>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L772">If <var data-name="type">type</var> is an object type, return a set containing <var data-name="type">type</var>.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L773">If <var data-name="type">type</var> is an interface type, return the set of types implementing <var data-name="type">type</var>.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L774">If <var data-name="type">type</var> is a union type, return the set of possible types of <var data-name="type">type</var>.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L767">If <var data-name="type">type</var> is an object type, return a set containing <var data-name="type">type</var>.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L768">If <var data-name="type">type</var> is an interface type, return the set of types implementing <var data-name="type">type</var>.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L769">If <var data-name="type">type</var> is a union type, return the set of possible types of <var data-name="type">type</var>.</li>
 </ol>
 </div>
 </section>
 <section id="sec-Type-Reference-Is-Possible.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L776"><a href="#sec-Type-Reference-Is-Possible.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L778-L780">Type references inside a <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> must be valid within the context of the surrounding type. A type reference is only valid if the referenced type could logically apply within the parent type.</p>
+<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L771"><a href="#sec-Type-Reference-Is-Possible.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L773-L775">Type references inside a <span class="spec-nt"><a href="#Path" data-name="Path">Path</a></span> must be valid within the context of the surrounding type. A type reference is only valid if the referenced type could logically apply within the parent type.</p>
 </section>
 </section>
 <section id="sec-Values-of-Correct-Type" secid="6.3.4">
-<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L782"><span class="spec-secid" title="link to this section"><a href="#sec-Values-of-Correct-Type">6.3.4</a></span>Values of Correct Type</h3>
+<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L777"><span class="spec-secid" title="link to this section"><a href="#sec-Values-of-Correct-Type">6.3.4</a></span>Values of Correct Type</h3>
 <section id="sec-Values-of-Correct-Type.Formal-Specification" class="subsec">
-<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L784"><a href="#sec-Values-of-Correct-Type.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L779"><a href="#sec-Values-of-Correct-Type.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L786-L788">For each SelectedValue <var data-name="value">value</var>:<ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L787">Let <var data-name="type">type</var> be the type expected in the position <var data-name="value">value</var> is found.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L788"><var data-name="value">value</var> must be coercible to <var data-name="type">type</var>.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L781-L783">For each SelectedValue <var data-name="value">value</var>:<ul>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L782">Let <var data-name="type">type</var> be the type expected in the position <var data-name="value">value</var> is found.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L783"><var data-name="value">value</var> must be coercible to <var data-name="type">type</var>.</li>
 </ul>
 </li>
 </ul>
 </section>
 <section id="sec-Values-of-Correct-Type.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L790"><a href="#sec-Values-of-Correct-Type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L792-L793">Literal values must be compatible with the type expected in the position they are found.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L795-L796">The following examples are valid use of value literals in the context of <span class="spec-nt"><span data-name="FieldSelectionMap">FieldSelectionMap</span></span> scalar:</p>
-<pre id="example-c9dc9" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L798-L807"><a href="#example-c9dc9">Example № 239</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L785"><a href="#sec-Values-of-Correct-Type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L787-L788">Literal values must be compatible with the type expected in the position they are found.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L790-L791">The following examples are valid use of value literals in the context of <span class="spec-nt"><span data-name="FieldSelectionMap">FieldSelectionMap</span></span> scalar:</p>
+<pre id="example-c9dc9" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L793-L802"><a href="#example-c9dc9">Example № 239</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token property-query">storeById</span><span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span> <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Store</span><span class="token operator">!</span> <span class="token directive function">@lookup</span>
 <span class="token punctuation">}</span>
 
@@ -6904,8 +6901,8 @@ Number of items to fetch
   <span class="token attr-name">city</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L809">Non-coercible values are invalid. The following example is invalid:</p>
-<pre id="example-d18c1" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L811-L820"><a href="#example-d18c1">Counter Example № 240</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L804">Non-coercible values are invalid. The following example is invalid:</p>
+<pre id="example-d18c1" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L806-L815"><a href="#example-d18c1">Counter Example № 240</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token property-query">storeById</span><span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span> <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Store</span><span class="token operator">!</span> <span class="token directive function">@lookup</span>
 <span class="token punctuation">}</span>
 
@@ -6917,23 +6914,23 @@ Number of items to fetch
 </section>
 </section>
 <section id="sec-Selected-Object-Field-Names" secid="6.3.5">
-<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L822"><span class="spec-secid" title="link to this section"><a href="#sec-Selected-Object-Field-Names">6.3.5</a></span>Selected Object Field Names</h3>
+<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L817"><span class="spec-secid" title="link to this section"><a href="#sec-Selected-Object-Field-Names">6.3.5</a></span>Selected Object Field Names</h3>
 <section id="sec-Selected-Object-Field-Names.Formal-Specification" class="subsec">
-<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L824"><a href="#sec-Selected-Object-Field-Names.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L819"><a href="#sec-Selected-Object-Field-Names.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L826-L830">For each Selected Object Field <var data-name="field">field</var> in the document:<ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L827">Let <var data-name="fieldName">fieldName</var> be the Name of <var data-name="field">field</var>.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L828-L829">Let <var data-name="fieldDefinition">fieldDefinition</var> be the field definition provided by the parent selected object type named <var data-name="fieldName">fieldName</var>.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L830"><var data-name="fieldDefinition">fieldDefinition</var> must exist.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L821-L825">For each Selected Object Field <var data-name="field">field</var> in the document:<ul>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L822">Let <var data-name="fieldName">fieldName</var> be the Name of <var data-name="field">field</var>.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L823-L824">Let <var data-name="fieldDefinition">fieldDefinition</var> be the field definition provided by the parent selected object type named <var data-name="fieldName">fieldName</var>.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L825"><var data-name="fieldDefinition">fieldDefinition</var> must exist.</li>
 </ul>
 </li>
 </ul>
 </section>
 <section id="sec-Selected-Object-Field-Names.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L832"><a href="#sec-Selected-Object-Field-Names.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L834-L835">Every field provided in an selected object value must be defined in the set of possible fields of that input object&rsquo;s expected type.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L837">For example, the following is valid:</p>
-<pre id="example-51bdc" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L839-L848"><a href="#example-51bdc">Example № 241</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L827"><a href="#sec-Selected-Object-Field-Names.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L829-L830">Every field provided in an selected object value must be defined in the set of possible fields of that input object&rsquo;s expected type.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L832">For example, the following is valid:</p>
+<pre id="example-51bdc" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L834-L843"><a href="#example-51bdc">Example № 241</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token property-query">storeById</span><span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span> <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Store</span><span class="token operator">!</span> <span class="token directive function">@lookup</span>
 <span class="token punctuation">}</span>
 
@@ -6942,8 +6939,8 @@ Number of items to fetch
   <span class="token attr-name">city</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L850-L851">In contrast, the following is invalid because it uses a field &ldquo;address&rdquo; which is not defined on the expected type:</p>
-<pre id="example-185a0" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L853-L862"><a href="#example-185a0">Counter Example № 242</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L845-L846">In contrast, the following is invalid because it uses a field &ldquo;address&rdquo; which is not defined on the expected type:</p>
+<pre id="example-185a0" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L848-L857"><a href="#example-185a0">Counter Example № 242</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token property-query">storeById</span><span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span> <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"address"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Store</span><span class="token operator">!</span> <span class="token directive function">@lookup</span>
 <span class="token punctuation">}</span>
 
@@ -6955,15 +6952,15 @@ Number of items to fetch
 </section>
 </section>
 <section id="sec-Selected-Object-Field-Uniqueness" secid="6.3.6">
-<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L864"><span class="spec-secid" title="link to this section"><a href="#sec-Selected-Object-Field-Uniqueness">6.3.6</a></span>Selected Object Field Uniqueness</h3>
+<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L859"><span class="spec-secid" title="link to this section"><a href="#sec-Selected-Object-Field-Uniqueness">6.3.6</a></span>Selected Object Field Uniqueness</h3>
 <section id="sec-Selected-Object-Field-Uniqueness.Formal-Specification" class="subsec">
-<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L866"><a href="#sec-Selected-Object-Field-Uniqueness.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L861"><a href="#sec-Selected-Object-Field-Uniqueness.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L868-L873">For each selected object value <var data-name="selectedObject">selectedObject</var>:<ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L869-L873">For every <var data-name="field">field</var> in <var data-name="selectedObject">selectedObject</var>:<ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L870">Let <var data-name="name">name</var> be the Name of <var data-name="field">field</var>.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L871-L872">Let <var data-name="fields">fields</var> be all Selected Object Fields named <var data-name="name">name</var> in <var data-name="selectedObject">selectedObject</var>.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L873"><var data-name="fields">fields</var> must be the set containing only <var data-name="field">field</var>.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L863-L868">For each selected object value <var data-name="selectedObject">selectedObject</var>:<ul>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L864-L868">For every <var data-name="field">field</var> in <var data-name="selectedObject">selectedObject</var>:<ul>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L865">Let <var data-name="name">name</var> be the Name of <var data-name="field">field</var>.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L866-L867">Let <var data-name="fields">fields</var> be all Selected Object Fields named <var data-name="name">name</var> in <var data-name="selectedObject">selectedObject</var>.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L868"><var data-name="fields">fields</var> must be the set containing only <var data-name="field">field</var>.</li>
 </ul>
 </li>
 </ul>
@@ -6971,11 +6968,11 @@ Number of items to fetch
 </ul>
 </section>
 <section id="sec-Selected-Object-Field-Uniqueness.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L875"><a href="#sec-Selected-Object-Field-Uniqueness.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L877-L878">Selected objects must not contain more than one field with the same name, as it would create ambiguity and potential conflicts.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L880">For example, the following is invalid:</p>
-<pre id="example-46ec1" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L882-L891"><a href="#example-46ec1">Counter Example № 243</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
-  <span class="token property-query">storeById</span><span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span> <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ id, id }"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Store</span><span class="token operator">!</span> <span class="token directive function">@lookup</span>
+<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L870"><a href="#sec-Selected-Object-Field-Uniqueness.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L872-L873">Selected objects must not contain more than one field with the same name, as it would create ambiguity and potential conflicts.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L875">For example, the following is invalid:</p>
+<pre id="example-c27c5" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L877-L886"><a href="#example-c27c5">Counter Example № 243</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+  <span class="token property-query">storeById</span><span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span> <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"id id"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Store</span><span class="token operator">!</span> <span class="token directive function">@lookup</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">type</span> <span class="token class-name">Store</span> <span class="token punctuation">{</span>
@@ -6986,20 +6983,20 @@ Number of items to fetch
 </section>
 </section>
 <section id="sec-Required-Selected-Object-Fields" secid="6.3.7">
-<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L893"><span class="spec-secid" title="link to this section"><a href="#sec-Required-Selected-Object-Fields">6.3.7</a></span>Required Selected Object Fields</h3>
+<h3 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L888"><span class="spec-secid" title="link to this section"><a href="#sec-Required-Selected-Object-Fields">6.3.7</a></span>Required Selected Object Fields</h3>
 <section id="sec-Required-Selected-Object-Fields.Formal-Specification" class="subsec">
-<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L895"><a href="#sec-Required-Selected-Object-Fields.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L890"><a href="#sec-Required-Selected-Object-Fields.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L897-L907">For each Selected Object:<ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L898">Let <var data-name="fields">fields</var> be the fields provided by that Selected Object.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L899-L900">Let <var data-name="fieldDefinitions">fieldDefinitions</var> be the set of input object field definitions of that Selected Object.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L901-L907">For each <var data-name="fieldDefinition">fieldDefinition</var> in <var data-name="fieldDefinitions">fieldDefinitions</var>:<ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L902">Let <var data-name="type">type</var> be the expected type of <var data-name="fieldDefinition">fieldDefinition</var>.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L903">Let <var data-name="defaultValue">defaultValue</var> be the default value of <var data-name="fieldDefinition">fieldDefinition</var>.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L904-L907">If <var data-name="type">type</var> is Non-Null and <var data-name="defaultValue">defaultValue</var> does not exist:<ul>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L905">Let <var data-name="fieldName">fieldName</var> be the name of <var data-name="fieldDefinition">fieldDefinition</var>.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L906">Let <var data-name="field">field</var> be the input object field in <var data-name="fields">fields</var> named <var data-name="fieldName">fieldName</var>.</li>
-<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L907"><var data-name="field">field</var> must exist.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L892-L902">For each Selected Object:<ul>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L893">Let <var data-name="fields">fields</var> be the fields provided by that Selected Object.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L894-L895">Let <var data-name="fieldDefinitions">fieldDefinitions</var> be the set of input object field definitions of that Selected Object.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L896-L902">For each <var data-name="fieldDefinition">fieldDefinition</var> in <var data-name="fieldDefinitions">fieldDefinitions</var>:<ul>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L897">Let <var data-name="type">type</var> be the expected type of <var data-name="fieldDefinition">fieldDefinition</var>.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L898">Let <var data-name="defaultValue">defaultValue</var> be the default value of <var data-name="fieldDefinition">fieldDefinition</var>.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L899-L902">If <var data-name="type">type</var> is Non-Null and <var data-name="defaultValue">defaultValue</var> does not exist:<ul>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L900">Let <var data-name="fieldName">fieldName</var> be the name of <var data-name="fieldDefinition">fieldDefinition</var>.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L901">Let <var data-name="field">field</var> be the input object field in <var data-name="fields">fields</var> named <var data-name="fieldName">fieldName</var>.</li>
+<li data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L902"><var data-name="field">field</var> must exist.</li>
 </ul>
 </li>
 </ul>
@@ -7009,36 +7006,36 @@ Number of items to fetch
 </ul>
 </section>
 <section id="sec-Required-Selected-Object-Fields.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L909"><a href="#sec-Required-Selected-Object-Fields.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L911-L913">Input object fields may be required. This means that a selected object field is required if the corresponding input field is required. Otherwise, the selected object field is optional.</p>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L915">For instance, if the <code>UserInput</code> type requires the <code>id</code> field:</p>
-<pre id="example-5e94b" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L917-L922"><a href="#example-5e94b">Example № 244</a><code><span class="token keyword">input</span> <span class="token atom-input class-name">UserInput</span> <span class="token punctuation">{</span>
+<h6 data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L904"><a href="#sec-Required-Selected-Object-Fields.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L906-L908">Input object fields may be required. This means that a selected object field is required if the corresponding input field is required. Otherwise, the selected object field is optional.</p>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L910">For instance, if the <code>UserInput</code> type requires the <code>id</code> field:</p>
+<pre id="example-5e94b" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L912-L917"><a href="#example-5e94b">Example № 244</a><code><span class="token keyword">input</span> <span class="token atom-input class-name">UserInput</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L924">Then, an invalid selection would be missing the required <code>id</code> field:</p>
-<pre id="example-c7272" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L926-L930"><a href="#example-c7272">Counter Example № 245</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L919">Then, an invalid selection would be missing the required <code>id</code> field:</p>
+<pre id="example-c7272" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L921-L925"><a href="#example-c7272">Counter Example № 245</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token property-query">userById</span><span class="token punctuation">(</span><span class="token attr-name">user</span><span class="token punctuation">:</span> <span class="token atom-input class-name">UserInput</span><span class="token operator">!</span> <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ name: name }"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">User</span><span class="token operator">!</span> <span class="token directive function">@lookup</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L932-L933">If the <code>UserInput</code> type has an optional <code>name</code> field, but the <code>User</code> type requires the <code>name</code> field, the following selection would be valid.</p>
-<pre id="example-64b7f" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L935-L949"><a href="#example-64b7f">Example № 246</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L927-L928">If the <code>UserInput</code> type requires the <code>name</code> field, but the <code>User</code> type has an optional <code>name</code> field, the following selection would be valid.</p>
+<pre id="example-6fab0" class="spec-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L930-L944"><a href="#example-6fab0">Example № 246</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token property-query">findUser</span><span class="token punctuation">(</span><span class="token attr-name">input</span><span class="token punctuation">:</span> <span class="token atom-input class-name">UserInput</span><span class="token operator">!</span> <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ name: name }"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">User</span><span class="token operator">!</span> <span class="token directive function">@lookup</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span>
-  <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
+  <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">input</span> <span class="token atom-input class-name">UserInput</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span>
-  <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
+  <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L951-L952">But if the <code>UserInput</code> type requires the <code>name</code> field but it&rsquo;s not defined in the <code>User</code> type, the selection would be invalid.</p>
-<pre id="example-5953d" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L954-L967"><a href="#example-5953d">Counter Example № 247</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<p data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L946-L947">But if the <code>UserInput</code> type requires the <code>name</code> field but it&rsquo;s not defined in the <code>User</code> type, the selection would be invalid.</p>
+<pre id="example-5953d" class="spec-counter-example" data-language="graphql" data-source="spec/Appendix%20A%20--%20Field%20Selection.md#L949-L962"><a href="#example-5953d">Counter Example № 247</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token property-query">findUser</span><span class="token punctuation">(</span><span class="token attr-name">input</span><span class="token punctuation">:</span> <span class="token atom-input class-name">UserInput</span><span class="token operator">!</span> <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"{ id: id }"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">User</span><span class="token operator">!</span> <span class="token directive function">@lookup</span>
 <span class="token punctuation">}</span>
 
