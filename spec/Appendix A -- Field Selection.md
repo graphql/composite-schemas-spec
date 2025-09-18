@@ -929,8 +929,8 @@ type Query {
 }
 ```
 
-If the `UserInput` type requires the `name` field, but the `User` type has an
-optional `name` field, the following selection would be valid.
+If the `UserInput` type has an optional `name` field, but the `User` type
+requires the `name` field, the following selection would be valid.
 
 ```graphql example
 type Query {
@@ -939,12 +939,12 @@ type Query {
 
 type User {
   id: ID
-  name: String
+  name: String!
 }
 
 input UserInput {
   id: ID
-  name: String!
+  name: String
 }
 ```
 

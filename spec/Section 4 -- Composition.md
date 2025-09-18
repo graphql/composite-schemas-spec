@@ -1846,7 +1846,7 @@ selection map and satisfies the rule.
 ```graphql example
 type User @key(fields: "id") {
   id: ID!
-  profile(name: String! @require(field: "name")): Profile
+  profile(name: String @require(field: "name")): Profile
 }
 
 type Profile {
@@ -1913,7 +1913,7 @@ string and satisfies the rule.
 ```graphql example
 type User @key(fields: "id") {
   id: ID!
-  profile(name: String! @require(field: "name")): Profile
+  profile(name: String @require(field: "name")): Profile
 }
 
 type Profile {
@@ -5884,7 +5884,7 @@ selection set and satisfies the rule.
 # Schema A
 type User @key(fields: "id") {
   id: ID!
-  profile(name: String! @require(field: "name")): Profile
+  profile(name: String @require(field: "name")): Profile
 }
 
 type Profile {
