@@ -3301,6 +3301,121 @@ type Bill {
 }
 ```
 
+### Validate Shareable Directives
+
+#### Invalid Field Sharing
+
+**Error Code**
+
+`INVALID_FIELD_SHARING`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {typeNames} be the set of all object type names from all source schemas
+  that are not declared as `@internal`
+- For each {typeName} in {typeNames}:
+  - Let {typeDefinitions} be the list of all type definitions from different
+    source schemas with the name {typeName}.
+  - Let {fieldNames} be the set of all field names from all {typeDefinitions}
+    that are not declared as `@internal` or `@external`, part of a `@key`
+    directive, or overridden.
+  - For each {fieldName} in {fieldNames}:
+    - Let {fieldDefinitions} be the list of all field definitions from
+      {typeDefinitions} with the name {fieldName}.
+      - If {fieldDefinitions} has more than one element:
+        - For each {fieldDefinition} in {fieldDefinitions}:
+          - {fieldDefinition} must be annotated with `@shareable`.
+
+**Explanatory Text**
+
+A field in a federated GraphQL schema may be marked `@shareable`, indicating
+that the same field can be resolved by multiple schemas without conflict. When a
+field is **not** marked as `@shareable` (sometimes called "non-shareable"), it
+cannot be provided by more than one schema.
+
+Field definitions marked as `@external` and overridden fields are excluded when
+validating whether a field is shareable. These annotations indicate specific
+cases where field ownership lies with another schema or has been replaced.
+
+**Examples**
+
+In this example, the `User` type field `fullName` is marked as shareable in both
+schemas, allowing them to serve consistent data for that field without conflict.
+
+```graphql example
+# Schema A
+type User @key(fields: "id") {
+  id: ID!
+  username: String
+  fullName: String @shareable
+}
+
+# Schema B
+type User @key(fields: "id") {
+  id: ID!
+  fullName: String @shareable
+  email: String
+}
+```
+
+In the following example, `User.fullName` is overridden in one schema and
+therefore the field can be defined in the other schema without being marked as
+`@shareable`.
+
+```graphql example
+# Schema A
+type User @key(fields: "id") {
+  id: ID!
+  fullName: String @override(from: "B")
+}
+
+# Schema B
+type User @key(fields: "id") {
+  id: ID!
+  fullName: String
+}
+```
+
+In the following example, `User.fullName` is marked as `@external` in one schema
+and therefore the field can be defined in the other schema without being marked
+as `@shareable`.
+
+```graphql example
+# Schema A
+type User @key(fields: "id") {
+  id: ID!
+  fullName: String @external
+}
+
+# Schema B
+type User @key(fields: "id") {
+  id: ID!
+  fullName: String
+}
+```
+
+In the following counter-example, `User.fullName` is non-shareable but is
+defined and resolved by two different schemas, resulting in an
+`INVALID_FIELD_SHARING` error.
+
+```graphql counter-example
+# Schema A
+type User @key(fields: "id") {
+  id: ID!
+  fullName: String
+}
+
+# Schema B
+type User @key(fields: "id") {
+  id: ID!
+  fullName: String
+}
+```
+
 ## Merge
 
 During this stage, all definitions from each source schema are combined into a
@@ -5924,11 +6039,11 @@ type Book {
 
 ### Validate Shareable Directives
 
-#### Invalid Field Sharing
+#### Invalid Shareable Usage
 
 **Error Code**
 
-`INVALID_FIELD_SHARING`
+`INVALID_SHAREABLE_USAGE`
 
 **Severity**
 
@@ -5936,34 +6051,29 @@ ERROR
 
 **Formal Specification**
 
-- Let {schema} be the merged composite execution schema.
-- Let {types} be the set of all object and interface types in {schema}.
+- Let {schema} be one of the composed schemas.
+- Let {types} be the set of types defined in {schema}.
 - For each {type} in {types}:
+  - If {type} is an interface type:
+    - For each field definition {field} in {type}:
+      - If {field} is annotated with `@shareable`, produce an
+        `INVALID_SHAREABLE_USAGE` error.
   - If {type} is the `Subscription` type:
-    - Let {fields} be the set of all fields in {type}.
-    - For each {field} in {fields}:
-      - If {field} is marked with `@shareable`:
-        - Produce an `INVALID_FIELD_SHARING` error.
-  - Otherwise:
-    - Let {fields} be the set of all fields on {type}.
-    - For each {field} in {fields}:
-      - If {field} is not part of a `@key` directive:
-        - Let {fieldDefinitions} be the set of all field definitions for {field}
-          across all source schemas excluding fields marked with `@external` or
-          `@override`.
-        - If {fieldDefinitions} has more than one element:
-          - {field} must be marked as `@shareable` in at least one schema.
+    - For each field definition {field} in {type}:
+      - If {field} is annotated with `@shareable`, produce an
+        `INVALID_SHAREABLE_USAGE` error.
 
 **Explanatory Text**
 
-A field in a federated GraphQL schema may be marked `@shareable`, indicating
-that the same field can be resolved by multiple schemas without conflict. When a
-field is **not** marked as `@shareable` (sometimes called "non-shareable"), it
-cannot be provided by more than one schema.
+The `@shareable` directive is intended to indicate that a field on an **object
+type** can be resolved by multiple schemas without conflict. As a result, it is
+only valid to use `@shareable` on fields **of object types** (or on the entire
+object type itself).
 
-Field definitions marked as `@external` or `@override` are excluded when
-validating whether a field is shareable. These annotations indicate specific
-cases where field ownership lies with another schema or has been replaced.
+Applying `@shareable` to interface fields is disallowed and violates the valid
+usage of the directive. This rule prevents schema composition errors and data
+conflicts by ensuring that `@shareable` is used only in contexts where shared
+field resolution is meaningful and unambiguous.
 
 Additionally, subscription root fields cannot be shared (i.e., they are
 effectively non-shareable), as subscription events from multiple schemas would
@@ -5972,84 +6082,26 @@ as shareable or to define it in multiple schemas triggers the same error.
 
 **Examples**
 
-In this example, the `User` type field `fullName` is marked as shareable in both
-schemas, allowing them to serve consistent data for that field without conflict.
+In this example, the field `orderStatus` on the `Order` object type is marked
+with `@shareable`, which is allowed. It signals that this field can be served
+from multiple schemas without creating a conflict.
 
 ```graphql example
-# Schema A
-type User @key(fields: "id") {
+type Order {
   id: ID!
-  username: String
-  fullName: String @shareable
-}
-
-# Schema B
-type User @key(fields: "id") {
-  id: ID!
-  fullName: String @shareable
-  email: String
+  orderStatus: String @shareable
+  total: Float
 }
 ```
 
-In the following example, `User.fullName` is overridden in one schema and
-therefore the field can be defined in multiple schemas without being marked as
-`@shareable`.
-
-```graphql example
-# Schema A
-type User @key(fields: "id") {
-  id: ID!
-  fullName: String @override(from: "B")
-}
-
-# Schema B
-type User @key(fields: "id") {
-  id: ID!
-  fullName: String
-}
-```
-
-In the following example, `User.fullName` is marked as `@external` in one schema
-and therefore the field can be defined in the other schema without being marked
-as `@shareable`.
-
-```graphql example
-# Schema A
-type User @key(fields: "id") {
-  id: ID!
-  fullName: String @external
-}
-
-# Schema B
-type User @key(fields: "id") {
-  id: ID!
-  fullName: String
-}
-```
-
-In the following counter-example, `User.profile` is non-shareable but is defined
-and resolved by two different schemas, resulting in an `INVALID_FIELD_SHARING`
-error.
+In this counter-example, the `InventoryItem` interface has a field `sku` marked
+with `@shareable`, which is invalid usage. Marking an interface field as
+shareable leads to an `INVALID_SHAREABLE_USAGE` error.
 
 ```graphql counter-example
-# Schema A
-type User @key(fields: "id") {
-  id: ID!
-  profile: Profile
-}
-
-type Profile {
-  avatarUrl: String
-}
-
-# Schema B
-type User @key(fields: "id") {
-  id: ID!
-  profile: Profile
-}
-
-type Profile {
-  avatarUrl: String
+interface InventoryItem {
+  sku: ID! @shareable
+  name: String
 }
 ```
 
@@ -6071,63 +6123,6 @@ type Order {
 # Schema B
 type Subscription {
   newOrderPlaced: Order @shareable
-}
-```
-
-#### Invalid Shareable Usage
-
-**Error Code**
-
-`INVALID_SHAREABLE_USAGE`
-
-**Severity**
-
-ERROR
-
-**Formal Specification**
-
-- Let {schema} be one of the composed schemas.
-- Let {types} be the set of types defined in {schema}.
-- For each {type} in {types}:
-  - If {type} is an interface type:
-    - For each field definition {field} in {type}:
-      - If {field} is annotated with `@shareable`, produce an
-        `INVALID_SHAREABLE_USAGE` error.
-
-**Explanatory Text**
-
-The `@shareable` directive is intended to indicate that a field on an **object
-type** can be resolved by multiple schemas without conflict. As a result, it is
-only valid to use `@shareable` on fields **of object types** (or on the entire
-object type itself).
-
-Applying `@shareable` to interface fields is disallowed and violates the valid
-usage of the directive. This rule prevents schema composition errors and data
-conflicts by ensuring that `@shareable` is used only in contexts where shared
-field resolution is meaningful and unambiguous.
-
-**Examples**
-
-In this example, the field `orderStatus` on the `Order` object type is marked
-with `@shareable`, which is allowed. It signals that this field can be served
-from multiple schemas without creating a conflict.
-
-```graphql example
-type Order {
-  id: ID!
-  orderStatus: String @shareable
-  total: Float
-}
-```
-
-In this example, the `InventoryItem` interface has a field `sku` marked with
-`@shareable`, which is invalid usage. Marking an interface field as shareable
-leads to an `INVALID_SHAREABLE_USAGE` error.
-
-```graphql counter-example
-interface InventoryItem {
-  sku: ID! @shareable
-  name: String
 }
 ```
 
