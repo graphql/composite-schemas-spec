@@ -5951,7 +5951,7 @@ Even if the field selection map for `@is(field: "…")` is syntactically valid,
 its contents must also be valid within the composed schema. Fields must exist on
 the parent type for them to be referenced by `@is`. In addition, fields
 referencing unknown fields break the valid usage of `@is`, leading to an
-`IS_INVALID_FIELD` error.
+`IS_INVALID_FIELDS` error.
 
 **Examples**
 
@@ -5971,8 +5971,8 @@ type Person {
 ```
 
 In this counter-example, the `@is` directive references a field (`unknownField`)
-that does not exist on the return type (`Person`), causing an `IS_INVALID_FIELD`
-error.
+that does not exist on the return type (`Person`), causing an
+`IS_INVALID_FIELDS` error.
 
 ```graphql counter-example
 # Schema A
