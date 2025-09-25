@@ -736,9 +736,22 @@ interface Node {
 
 `IS_INVALID_SYNTAX`
 
+**Severity**
+
+ERROR
+
 **Formal Specification**
 
-(to be completed)
+- Let {compositeTypes} be the set of all composite types in the schema.
+- For each {composite} in {compositeTypes}:
+  - Let {fields} be the set of fields on {composite}.
+  - Let {arguments} be the set of all arguments on {fields}.
+  - For each {argument} in {arguments}:
+    - If {argument} is **not** annotated with `@is`:
+      - Continue
+    - Let {fieldArg} be the string value of the `field` argument of the `@is`
+      directive on {argument}.
+    - {fieldArg} must be be parsable as a valid selection map
 
 **Explanatory Text**
 
@@ -783,9 +796,24 @@ type Person {
 
 `IS_INVALID_FIELD_TYPE`
 
+**Severity**
+
+ERROR
+
 **Formal Specification**
 
-(to be completed)
+- Let {schema} be the source schema to validate.
+- Let {compositeTypes} be the set of all composite types in {schema}.
+- For each {composite} in {compositeTypes}:
+  - Let {fields} be the set of fields on {composite}.
+  - Let {arguments} be the set of all arguments on {fields}.
+  - For each {argument} in {arguments}:
+    - If {argument} is **not** annotated with `@is`:
+      - Continue
+    - Let {fieldArg} be the value of the `field` argument of the `@is` directive
+      on {argument}.
+    - If {fieldArg} is **not** a string:
+      - Produce an `IS_INVALID_FIELD_TYPE` error.
 
 **Explanatory Text**
 
@@ -831,9 +859,22 @@ type Person {
 
 `IS_INVALID_USAGE`
 
+**Severity**
+
+ERROR
+
 **Formal Specification**
 
-(to be completed)
+- Let {schema} be the source schema to validate.
+- Let {compositeTypes} be the set of all composite types in {schema}.
+- For each {compositeType} in {compositeTypes}:
+  - Let {fields} be the set of fields on {compositeType}.
+  - For each {field} in {fields}:
+    - Let {arguments} be the set of all arguments on {field}.
+    - For each {argument} in {arguments}:
+      - If {argument} is **not** annotated with `@is`:
+        - Continue
+      - {field} must be annotated with `@lookup`
 
 **Explanatory Text**
 
@@ -5867,15 +5908,42 @@ type Product @inaccessible {
 
 ### Validate Is Directives
 
-#### Is Invalid Field
+#### Is Invalid Fields
 
 **Error Code**
 
-`IS_INVALID_FIELD`
+`IS_INVALID_FIELDS`
+
+**Severity**
+
+ERROR
 
 **Formal Specification**
 
-(to be completed)
+- Let {schemas} be all source schemas.
+- Let {compositeTypes} be the set of all composite types in {schemas}.
+- For each {composite} in {compositeTypes}:
+  - Let {fields} be the set of fields on {composite}.
+  - Let {arguments} be the set of all arguments on {fields}.
+  - For each {argument} in {arguments}:
+    - If {argument} is **not** annotated with `@is`:
+      - Continue
+    - Let {schema} be the schema that defines {argument}.
+    - Let {declaringField} be the field that defines {argument}.
+    - Let {declaringType} be the type that defines {declaringField}.
+    - Let {otherSchemas} be the set of all {schemas} excluding {schema}.
+    - Let {fieldArg} be the string value of the `field` argument of the `@is`
+      directive on {argument}.
+    - Let {parsedFieldArg} be the parsed selection map from {fieldArg}.
+    - The parsed selection map {parsedFieldArg} must satisfy the validation
+      rules defined in Appendix A, Section 6.3, using:
+      - {declaringType} as the initial root type.
+      - The combined schema context formed by the union of {otherSchemas} as the
+        schema context except all fields marked as `@internal`
+      - Validation succeeds if each required field selection path can be
+        resolved across this combined schema context. Individual fields in the
+        selection may exist in different schemas; it is not required that all
+        fields referenced by {parsedFieldArg} reside within a single schema.
 
 **Explanatory Text**
 
