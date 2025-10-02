@@ -742,7 +742,8 @@ ERROR
 
 **Formal Specification**
 
-- Let {types} be the set of all {INTERFACE} and {OBJECT} types in the source schema.
+- Let {types} be the set of all {INTERFACE} and {OBJECT} types in the source
+  schema.
 - For each {type} in {types}:
   - Let {fields} be the set of all lookup fields on {type}.
   - Let {arguments} be the set of all arguments on {fields}.
@@ -755,9 +756,9 @@ ERROR
 **Explanatory Text**
 
 The `@is` directive’s `field` argument must be syntactically valid GraphQL. If
-the {FieldSelectionMap} string is malformed (e.g., missing closing braces, unbalanced
-quotes, invalid tokens), then the schema cannot be composed correctly. In such
-cases, the error `IS_INVALID_SYNTAX` is raised.
+the {FieldSelectionMap} string is malformed (e.g., missing closing braces,
+unbalanced quotes, invalid tokens), then the schema cannot be composed
+correctly. In such cases, the error `IS_INVALID_SYNTAX` is raised.
 
 **Examples**
 
