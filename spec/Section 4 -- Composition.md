@@ -728,6 +728,189 @@ interface Node {
 }
 ```
 
+### Validate `@is` Directive
+
+#### Is Invalid Syntax
+
+**Error Code**
+
+`IS_INVALID_SYNTAX`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {types} be the set of all {INTERFACE} and {OBJECT} types in the source
+  schema.
+- For each {type} in {types}:
+  - Let {fields} be the set of all lookup fields on {type}.
+  - Let {arguments} be the set of all arguments on {fields}.
+  - For each {argument} in {arguments}:
+    - If {argument} is annotated with `@is`:
+      - Let {fieldArg} be the string value of the `field` argument of the `@is`
+        directive on {argument}.
+      - {fieldArg} must be be parsable as a valid {FieldSelectionMap}.
+
+**Explanatory Text**
+
+The `@is` directive’s `field` argument must be syntactically valid GraphQL. If
+the {FieldSelectionMap} string is malformed (e.g., missing closing braces,
+unbalanced quotes, invalid tokens), then the schema cannot be composed
+correctly. In such cases, the error `IS_INVALID_SYNTAX` is raised.
+
+**Examples**
+
+In the following example, the `@is` directive’s `field` argument is a valid
+{FieldSelectionMap} and satisfies the rule.
+
+```graphql example
+type Query {
+  product(id: ID! @is(field: "id")): Product @lookup
+}
+
+type Product {
+  id: ID!
+  name: String
+}
+```
+
+In the following counter-example, the `@is` directive’s `field` argument has
+invalid syntax because it is missing a closing brace.
+
+```graphql counter-example
+type Query {
+  product(id: ID! @is(field: "{ id ")): Product @lookup
+}
+
+type Product {
+  id: ID!
+  name: String
+}
+```
+
+#### Is Invalid Field Type
+
+**Error Code**
+
+`IS_INVALID_FIELD_TYPE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {compositeTypes} be the set of all composite types in {schema}.
+- For each {composite} in {compositeTypes}:
+  - Let {fields} be the set of fields on {composite}.
+  - Let {arguments} be the set of all arguments on {fields}.
+  - For each {argument} in {arguments}:
+    - If {argument} is **not** annotated with `@is`:
+      - Continue
+    - Let {fieldArg} be the value of the `field` argument of the `@is` directive
+      on {argument}.
+    - If {fieldArg} is **not** a string:
+      - Produce an `IS_INVALID_FIELD_TYPE` error.
+
+**Explanatory Text**
+
+When using the `@is` directive, the `field` argument must always be a string
+that describes how the arguments can be mapped from the entity type that the
+lookup field resolves. If the `field` argument is provided as a type other than
+a string (such as an integer, boolean, or enum), the directive usage is invalid
+and will cause schema composition to fail.
+
+**Examples**
+
+In the following example, the `@is` directive’s `field` argument is a valid
+string and satisfies the rule.
+
+```graphql example
+type Query {
+  personById(id: ID! @is(field: "id")): Person @lookup
+}
+
+type Person {
+  id: ID!
+  name: String
+}
+```
+
+Since `field` is set to `123` (an integer) instead of a string, this violates
+the rule and triggers an `IS_INVALID_FIELD_TYPE` error.
+
+```graphql counter-example
+type Query {
+  personById(id: ID! @is(field: 123)): Person @lookup
+}
+
+type Person {
+  id: ID!
+  name: String
+}
+```
+
+#### Is Invalid Usage
+
+**Error Code**
+
+`IS_INVALID_USAGE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {compositeTypes} be the set of all composite types in {schema}.
+- For each {compositeType} in {compositeTypes}:
+  - Let {fields} be the set of fields on {compositeType}.
+  - For each {field} in {fields}:
+    - Let {arguments} be the set of all arguments on {field}.
+    - For each {argument} in {arguments}:
+      - If {argument} is **not** annotated with `@is`:
+        - Continue
+      - {field} must be annotated with `@lookup`
+
+**Explanatory Text**
+
+When using the `@is` directive, the field declaring the argument must be a
+lookup field (i.e. have the `@lookup` directive applied).
+
+**Examples**
+
+In the following example, the `@is` directive is applied to an argument declared
+on a field with the `@lookup` directive, satisfying the rule.
+
+```graphql example
+type Query {
+  personById(id: ID! @is(field: "id")): Person @lookup
+}
+
+type Person {
+  id: ID!
+  name: String
+}
+```
+
+In the following counter-example, the `@is` directive is applied to an argument
+declared on a field without the `@lookup` directive, violating the rule.
+
+```graphql counter-example
+type Query {
+  personById(id: ID! @is(field: "id")): Person
+}
+
+type Person {
+  id: ID!
+  name: String
+}
+```
+
 ### Validate Key Directives
 
 #### Key Fields Select Invalid Type
@@ -5860,6 +6043,86 @@ type User {
 
 type Product @inaccessible {
   id: ID!
+}
+```
+
+### Validate Is Directives
+
+#### Is Invalid Fields
+
+**Error Code**
+
+`IS_INVALID_FIELDS`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be all source schemas.
+- Let {compositeTypes} be the set of all composite types in {schemas}.
+- For each {composite} in {compositeTypes}:
+  - Let {fields} be the set of fields on {composite}.
+  - Let {arguments} be the set of all arguments on {fields}.
+  - For each {argument} in {arguments}:
+    - If {argument} is **not** annotated with `@is`:
+      - Continue
+    - Let {schema} be the schema that defines {argument}.
+    - Let {declaringField} be the field that defines {argument}.
+    - Let {declaringType} be the type that defines {declaringField}.
+    - Let {otherSchemas} be the set of all {schemas} excluding {schema}.
+    - Let {fieldArg} be the string value of the `field` argument of the `@is`
+      directive on {argument}.
+    - Let {parsedFieldArg} be the parsed selection map from {fieldArg}.
+    - The parsed selection map {parsedFieldArg} must satisfy the validation
+      rules defined in Appendix A, Section 6.3, using:
+      - {declaringType} as the initial root type.
+      - The combined schema context formed by the union of {otherSchemas} as the
+        schema context except all fields marked as `@internal`
+      - Validation succeeds if each required field selection path can be
+        resolved across this combined schema context. Individual fields in the
+        selection may exist in different schemas; it is not required that all
+        fields referenced by {parsedFieldArg} reside within a single schema.
+
+**Explanatory Text**
+
+Even if the field selection map for `@is(field: "…")` is syntactically valid,
+its contents must also be valid within the composed schema. Fields must exist on
+the parent type for them to be referenced by `@is`. In addition, fields
+referencing unknown fields break the valid usage of `@is`, leading to an
+`IS_INVALID_FIELDS` error.
+
+**Examples**
+
+In the following example, the `@is` directive’s `field` argument is a valid
+field selection map and satisfies the rule.
+
+```graphql example
+# Schema A
+type Query {
+  personById(id: ID! @is(field: "id")): Person @lookup
+}
+
+type Person {
+  id: ID!
+  name: String
+}
+```
+
+In this counter-example, the `@is` directive references a field (`unknownField`)
+that does not exist on the return type (`Person`), causing an
+`IS_INVALID_FIELDS` error.
+
+```graphql counter-example
+# Schema A
+type Query {
+  personById(id: ID! @is(field: "unknownField")): Person @lookup
+}
+
+type Person {
+  id: ID!
+  name: String
 }
 ```
 
