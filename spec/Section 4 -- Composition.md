@@ -728,7 +728,7 @@ interface Node {
 }
 ```
 
-### Validate Is Directives
+### Validate `@is` Directive
 
 #### Is Invalid Syntax
 
@@ -742,35 +742,34 @@ ERROR
 
 **Formal Specification**
 
-- Let {compositeTypes} be the set of all composite types in the schema.
-- For each {composite} in {compositeTypes}:
-  - Let {fields} be the set of fields on {composite}.
+- Let {types} be the set of all {INTERFACE} and {OBJECT} types in the source schema.
+- For each {type} in {types}:
+  - Let {fields} be the set of all lookup fields on {type}.
   - Let {arguments} be the set of all arguments on {fields}.
   - For each {argument} in {arguments}:
-    - If {argument} is **not** annotated with `@is`:
-      - Continue
-    - Let {fieldArg} be the string value of the `field` argument of the `@is`
-      directive on {argument}.
-    - {fieldArg} must be be parsable as a valid selection map
+    - If {argument} is annotated with `@is`:
+      - Let {fieldArg} be the string value of the `field` argument of the `@is`
+        directive on {argument}.
+      - {fieldArg} must be be parsable as a valid {FieldSelectionMap}.
 
 **Explanatory Text**
 
 The `@is` directive’s `field` argument must be syntactically valid GraphQL. If
-the selection map string is malformed (e.g., missing closing braces, unbalanced
+the {FieldSelectionMap} string is malformed (e.g., missing closing braces, unbalanced
 quotes, invalid tokens), then the schema cannot be composed correctly. In such
 cases, the error `IS_INVALID_SYNTAX` is raised.
 
 **Examples**
 
 In the following example, the `@is` directive’s `field` argument is a valid
-selection map and satisfies the rule.
+{FieldSelectionMap} and satisfies the rule.
 
 ```graphql example
 type Query {
-  personById(id: ID! @is(field: "id")): Person @lookup
+  product(id: ID! @is(field: "id")): Product @lookup
 }
 
-type Person {
+type Product {
   id: ID!
   name: String
 }
@@ -781,10 +780,10 @@ invalid syntax because it is missing a closing brace.
 
 ```graphql counter-example
 type Query {
-  personById(id: ID! @is(field: "{ id ")): Person @lookup
+  product(id: ID! @is(field: "{ id ")): Product @lookup
 }
 
-type Person {
+type Product {
   id: ID!
   name: String
 }
