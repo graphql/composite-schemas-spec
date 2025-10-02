@@ -1954,7 +1954,7 @@ on the composite type it returns. If a field's base type is not an object or
 interface type (e.g., `String`, `Int`, `Boolean`, `Enum`, `Union`, or an `Input`
 type), it cannot hold nested fields for `@provides` to select. Consequently,
 attaching `@provides` to such a field is invalid and raises a
-`PROVIDES_ON_NON_OBJECT_FIELD` error.
+`PROVIDES_ON_NON_COMPOSITE_FIELD` error.
 
 **Examples**
 
@@ -1980,7 +1980,7 @@ type User {
 
 In this counter-example, `email` has a scalar base type (`String`). Because
 scalars do not expose sub-fields, attaching `@provides` to `email` triggers a
-`PROVIDES_ON_NON_OBJECT_FIELD` error.
+`PROVIDES_ON_NON_COMPOSITE_FIELD` error.
 
 ```graphql counter-example
 type User {
