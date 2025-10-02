@@ -3318,7 +3318,7 @@ ERROR
 - Let {typeNames} be the set of all object type names from all source schemas
   that are not declared as `@internal`
 - For each {typeName} in {typeNames}:
-  - Let {typeDefinitions} be the list of all type definitions from different
+  - Let {typeDefinitions} be the list of all object type definitions from all
     source schemas with the name {typeName}.
   - Let {fieldNames} be the set of all field names from all {typeDefinitions}
     that are not declared as `@internal` or `@external`, part of a `@key`
