@@ -169,7 +169,7 @@ GraphQL introspection queries to work.
 type __Type @inaccessible {
   kind: __TypeKind!
   name: String
-  fields(includeDeprecated: Boolean = false): [__Field!]
+  fields(includeDeprecated: Boolean! = false): [__Field!]
 }
 ```
 
