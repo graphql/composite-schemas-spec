@@ -1,0 +1,7 @@
+# https://github.com/DavidAnson/markdownlint
+
+# Multiple headings with the same content.
+MD024:
+  siblings_only: true
+# Emphasis used instead of a heading.
+MD036: false

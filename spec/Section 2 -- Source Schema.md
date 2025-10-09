@@ -236,7 +236,18 @@ type Product {
 ## @inaccessible
 
 ```graphql
-directive @inaccessible on FIELD_DEFINITION | OBJECT | INTERFACE | UNION | ARGUMENT_DEFINITION | SCALAR | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+# prettier-ignore
+directive @inaccessible on
+  | FIELD_DEFINITION
+  | OBJECT
+  | INTERFACE
+  | UNION
+  | ARGUMENT_DEFINITION
+  | SCALAR
+  | ENUM
+  | ENUM_VALUE
+  | INPUT_OBJECT
+  | INPUT_FIELD_DEFINITION
 ```
 
 The `@inaccessible` directive is used to prevent specific type system members
