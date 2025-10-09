@@ -1856,6 +1856,84 @@ type User @key(fields: "id") {
 }
 ```
 
+#### Provides Invalid Fields
+
+**Error Code**
+
+`PROVIDES_INVALID_FIELDS`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {fieldsWithProvides} be the set of all fields annotated with the
+  `@provides` directive in {schema}.
+- For each {field} in {fieldsWithProvides}:
+  - Let {fieldsArg} be the string value of the `fields` argument of the
+    `@provides` directive on {field}.
+  - Let {parsedFieldSelectionSet} be the parsed field selection set from
+    {fieldsArg}.
+  - Let {returnType} be the return type of {field}.
+  - {ValidateFieldSelectionSet(parsedFieldSelectionSet, returnType)} must be
+    true.
+
+ValidateFieldSelectionSet(fieldSelectionSet, parentType):
+
+- For each {selection} in {fieldSelectionSet}:
+  - Let {selectedField} be the field selected by {selection} in {parentType}.
+  - If {selectedField} does not exist on {parentType}:
+    - return false
+  - Let {selectedType} be the type of {selectedField}
+  - If {selectedType} is an {INTERFACE} or {OBJECT} type
+    - Let {subSelectionSet} be the field selection set of {selection}
+    - If {subSelectionSet} is empty
+      - return false
+    - If {ValidateFieldSelectionSet(subSelectionSet, fieldType)} is false
+      - return false
+- return true
+
+**Explanatory Text**
+
+Even if the `@provides(fields: "…")` argument is well-formed syntactically, the
+selected fields must actually exist on the return type of the field. Invalid
+field references—e.g., selecting non-existent fields, referencing fields on the
+wrong type, or incorrectly omitting required nested selections—lead to a
+`PROVIDES_INVALID_FIELDS` error.
+
+**Examples**
+
+In the following example, the `@provides` directive references a valid field
+(`hobbies`) on the `UserDetails` type.
+
+```graphql example
+type User @key(fields: "id") {
+  id: ID!
+  details: UserDetails @provides(fields: "hobbies")
+}
+
+type UserDetails {
+  hobbies: [String]
+}
+```
+
+In the following counter-example, the `@provides` directive specifies a field
+named `unknownField` which is not defined on `UserDetails`. This raises a
+`PROVIDES_INVALID_FIELDS` error.
+
+```graphql counter-example
+type User @key(fields: "id") {
+  id: ID!
+  details: UserDetails @provides(fields: "unknownField")
+}
+
+type UserDetails {
+  hobbies: [String]
+}
+```
+
 #### Provides Invalid Fields Type
 
 **Error Code**
@@ -6123,86 +6201,6 @@ type Query {
 type Person {
   id: ID!
   name: String
-}
-```
-
-### Validate Provides Directives
-
-#### Provides Invalid Fields
-
-**Error Code**
-
-`PROVIDES_INVALID_FIELDS`
-
-**Severity**
-
-ERROR
-
-**Formal Specification**
-
-- Let {schema} be the merged composite execution schema.
-- Let {fieldsWithProvides} be the set of all fields annotated with the
-  `@provides` directive in {schema}.
-- For each {field} in {fieldsWithProvides}:
-  - Let {fieldsArg} be the string value of the `fields` argument of the
-    `@provides` directive on {field}.
-  - Let {parsedFieldSelectionSet} be the parsed field selection set from
-    {fieldsArg}.
-  - Let {returnType} be the return type of {field}.
-  - {ValidateFieldSelectionSet(parsedFieldSelectionSet, returnType)} must be
-    true.
-
-ValidateFieldSelectionSet(fieldSelectionSet, parentType):
-
-- For each {selection} in {fieldSelectionSet}:
-  - Let {selectedField} be the field selected by {selection} in {parentType}.
-  - If {selectedField} does not exist on {parentType}:
-    - return false
-  - Let {selectedType} be the type of {selectedField}
-  - If {selectedType} is a composite type
-    - Let {subSelectionSet} be the field selection set of {selection}
-    - If {subSelectionSet} is empty
-      - return false
-    - If {ValidateFieldSelectionSet(subSelectionSet, fieldType)} is false
-      - return false
-- return true
-
-**Explanatory Text**
-
-Even if the `@provides(fields: "…")` argument is well-formed syntactically, the
-selected fields must actually exist on the return type of the field. Invalid
-field references—e.g., selecting non-existent fields, referencing fields on the
-wrong type, or incorrectly omitting required nested selections—lead to a
-`PROVIDES_INVALID_FIELDS` error.
-
-**Examples**
-
-In the following example, the `@provides` directive references a valid field
-(`hobbies`) on the `UserDetails` type.
-
-```graphql example
-type User @key(fields: "id") {
-  id: ID!
-  details: UserDetails @provides(fields: "hobbies")
-}
-
-type UserDetails {
-  hobbies: [String]
-}
-```
-
-In the following counter-example, the `@provides` directive specifies a field
-named `unknownField` which is not defined on `UserDetails`. This raises a
-`PROVIDES_INVALID_FIELDS` error.
-
-```graphql counter-example
-type User @key(fields: "id") {
-  id: ID!
-  details: UserDetails @provides(fields: "unknownField")
-}
-
-type UserDetails {
-  hobbies: [String]
 }
 ```
 
