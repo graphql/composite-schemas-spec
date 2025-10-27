@@ -3112,7 +3112,7 @@ type Product {
 
 # Source schema B
 type Product {
-  name(language: Language): String
+  name(language: Language): String @external
 }
 ```
 
@@ -3128,7 +3128,7 @@ type Product {
 
 # Source schema B
 type Product {
-  name(language: String): String
+  name(language: String): String @external
 }
 ```
 
