@@ -182,6 +182,7 @@ This is an example of a non-normative note.</div>
 <li><a href="#sec-Post-Merge-Validation"><span class="spec-secid">3.4</span>Post Merge Validation</a><ol>
 <li><a href="#sec-Post-Merge-Validation.Validate-Type-System"><span class="spec-secid">3.4.1</span>Validate Type System</a><ol>
 <li><a href="#sec-No-Queries"><span class="spec-secid">3.4.1.1</span>No Queries</a></li>
+<li><a href="#sec-Reference-To-Inaccessible-Type"><span class="spec-secid">3.4.1.2</span>Reference To Inaccessible Type</a></li>
 </ol>
 </li>
 <li><a href="#sec-Post-Merge-Validation.Validate-Composite-Types"><span class="spec-secid">3.4.2</span>Validate Composite Types</a><ol>
@@ -194,7 +195,6 @@ This is an example of a non-normative note.</div>
 <li><a href="#sec-Post-Merge-Validation.Validate-Input-Types"><span class="spec-secid">3.4.3</span>Validate Input Types</a><ol>
 <li><a href="#sec-Empty-Merged-Input-Object-Type"><span class="spec-secid">3.4.3.1</span>Empty Merged Input Object Type</a></li>
 <li><a href="#sec-Non-Null-Input-Fields-cannot-be-inaccessible"><span class="spec-secid">3.4.3.2</span>Non-Null Input Fields cannot be inaccessible</a></li>
-<li><a href="#sec-Input-Fields-cannot-reference-inaccessible-type"><span class="spec-secid">3.4.3.3</span>Input Fields cannot reference inaccessible type</a></li>
 </ol>
 </li>
 <li><a href="#sec-Post-Merge-Validation.Validate-Enums"><span class="spec-secid">3.4.4</span>Validate Enums</a><ol>
@@ -5405,38 +5405,102 @@ Number of items to fetch
 </code></pre>
 </section>
 </section>
+<section id="sec-Reference-To-Inaccessible-Type" secid="3.4.1.2">
+<h4 data-source="spec/Section%204%20--%20Composition.md#L5082"><span class="spec-secid" title="link to this section"><a href="#sec-Reference-To-Inaccessible-Type">3.4.1.2</a></span>Reference To Inaccessible Type</h4>
+<section id="sec-Reference-To-Inaccessible-Type.Error-Code" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5084"><a href="#sec-Reference-To-Inaccessible-Type.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5086"><code>REFERENCE_TO_INACCESSIBLE_TYPE</code></p>
+</section>
+<section id="sec-Reference-To-Inaccessible-Type.Formal-Specification" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5088"><a href="#sec-Reference-To-Inaccessible-Type.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L5090-L5091">Let <var data-name="inputFields">inputFields</var> be the set of all accessible fields of the input types in the composed schema.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5092-L5094">For each <var data-name="inputField">inputField</var> in <var data-name="inputFields">inputFields</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L5093">Let <var data-name="namedType">namedType</var> be the named type that <var data-name="inputField">inputField</var> references</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5094"><var data-name="namedType">namedType</var> must be accessible.</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5095-L5096">Let <var data-name="outputFields">outputFields</var> be the set of all accessible fields of the output types in the composed schema.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5097-L5099">For each <var data-name="outputField">outputField</var> in <var data-name="outputFields">outputFields</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L5098">Let <var data-name="namedType">namedType</var> be the named type that <var data-name="outputField">outputField</var> references</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5099"><var data-name="namedType">namedType</var> must be accessible.</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5100-L5101">Let <var data-name="arguments">arguments</var> be the set of all accessible arguments of the output fields in the composed schema.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5102-L5104">For each <var data-name="argument">argument</var> in <var data-name="arguments">arguments</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L5103">Let <var data-name="namedType">namedType</var> be the named type that <var data-name="argument">argument</var> references</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5104"><var data-name="namedType">namedType</var> must be accessible.</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="sec-Reference-To-Inaccessible-Type.Explanatory-Text" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5106"><a href="#sec-Reference-To-Inaccessible-Type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5108-L5110">In a composed schema, fields and arguments must only reference types that are exposed. This requirement guarantees that public types do not reference inaccessible structures which are intended for internal use.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L5112">A valid case where a public input field references another public input type:</p>
+<pre id="example-02e7c" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5114-L5123"><a href="#example-02e7c">Example № 177</a><code><span class="token keyword">input</span> <span class="token object">Input1</span> <span class="token punctuation">{</span>
+  <span class="token attr-name">field1</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
+  <span class="token attr-name">field2</span><span class="token punctuation">:</span> <span class="token class-name">Input2</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">input</span> <span class="token object">Input2</span> <span class="token punctuation">{</span>
+  <span class="token attr-name">field3</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p data-source="spec/Section%204%20--%20Composition.md#L5125">Another valid case is where the field is not exposed in the composed schema:</p>
+<pre id="example-7811b" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5127-L5136"><a href="#example-7811b">Example № 178</a><code><span class="token keyword">input</span> <span class="token object">Input1</span> <span class="token punctuation">{</span>
+  <span class="token attr-name">field1</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
+  <span class="token attr-name">field2</span><span class="token punctuation">:</span> <span class="token class-name">Input2</span> <span class="token directive function">@inaccessible</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">input</span> <span class="token property">Input2</span> <span class="token directive function">@inaccessible</span> <span class="token punctuation">{</span>
+  <span class="token attr-name">field3</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p data-source="spec/Section%204%20--%20Composition.md#L5138">An invalid case is when an input field references an inaccessible type:</p>
+<pre id="example-fd09c" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5140-L5149"><a href="#example-fd09c">Counter Example № 179</a><code><span class="token keyword">input</span> <span class="token object">Input1</span> <span class="token punctuation">{</span>
+  <span class="token attr-name">field1</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
+  <span class="token attr-name">field2</span><span class="token punctuation">:</span> <span class="token class-name">Input2</span><span class="token operator">!</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">input</span> <span class="token property">Input2</span> <span class="token directive function">@inaccessible</span> <span class="token punctuation">{</span>
+  <span class="token attr-name">field3</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</section>
+</section>
 </section>
 <section id="sec-Post-Merge-Validation.Validate-Composite-Types" secid="3.4.2">
-<h3 data-source="spec/Section%204%20--%20Composition.md#L5082"><span class="spec-secid" title="link to this section"><a href="#sec-Post-Merge-Validation.Validate-Composite-Types">3.4.2</a></span>Validate Composite Types</h3>
+<h3 data-source="spec/Section%204%20--%20Composition.md#L5151"><span class="spec-secid" title="link to this section"><a href="#sec-Post-Merge-Validation.Validate-Composite-Types">3.4.2</a></span>Validate Composite Types</h3>
 <section id="sec-Empty-Merged-Object-Type" secid="3.4.2.1">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L5084"><span class="spec-secid" title="link to this section"><a href="#sec-Empty-Merged-Object-Type">3.4.2.1</a></span>Empty Merged Object Type</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L5153"><span class="spec-secid" title="link to this section"><a href="#sec-Empty-Merged-Object-Type">3.4.2.1</a></span>Empty Merged Object Type</h4>
 <section id="sec-Empty-Merged-Object-Type.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5086"><a href="#sec-Empty-Merged-Object-Type.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5088"><code>EMPTY_MERGED_OBJECT_TYPE</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5155"><a href="#sec-Empty-Merged-Object-Type.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5157"><code>EMPTY_MERGED_OBJECT_TYPE</code></p>
 </section>
 <section id="sec-Empty-Merged-Object-Type.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5090"><a href="#sec-Empty-Merged-Object-Type.Severity" title="link to this subsection">Severity</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5092">ERROR</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5159"><a href="#sec-Empty-Merged-Object-Type.Severity" title="link to this subsection">Severity</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5161">ERROR</p>
 </section>
 <section id="sec-Empty-Merged-Object-Type.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5094"><a href="#sec-Empty-Merged-Object-Type.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5163"><a href="#sec-Empty-Merged-Object-Type.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5096">Let <var data-name="types">types</var> be the set of all object types in the composed schema.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5097-L5099">For each <var data-name="type">type</var> in <var data-name="types">types</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5098">Let <var data-name="fields">fields</var> be a set of all fields in <var data-name="type">type</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5099"><var data-name="fields">fields</var> must not be empty.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5165">Let <var data-name="types">types</var> be the set of all object types in the composed schema.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5166-L5168">For each <var data-name="type">type</var> in <var data-name="types">types</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L5167">Let <var data-name="fields">fields</var> be a set of all fields in <var data-name="type">type</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5168"><var data-name="fields">fields</var> must not be empty.</li>
 </ul>
 </li>
 </ul>
 </section>
 <section id="sec-Empty-Merged-Object-Type.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5101"><a href="#sec-Empty-Merged-Object-Type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5103-L5107">For object types defined across multiple source schemas, the merged object type is the superset of all fields defined in these source schemas. However, any field marked with <code>@inaccessible</code> in any source schema is hidden and not included in the merged object type. An object type with no fields, after considering <code>@inaccessible</code> annotations, is considered empty and invalid.</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5170"><a href="#sec-Empty-Merged-Object-Type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5172-L5176">For object types defined across multiple source schemas, the merged object type is the superset of all fields defined in these source schemas. However, any field marked with <code>@inaccessible</code> in any source schema is hidden and not included in the merged object type. An object type with no fields, after considering <code>@inaccessible</code> annotations, is considered empty and invalid.</p>
 </section>
 <section id="sec-Empty-Merged-Object-Type.Examples" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5109"><a href="#sec-Empty-Merged-Object-Type.Examples" title="link to this subsection">Examples</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5111-L5113">In the following example, the merged object type <code>Author</code> is valid. It includes all fields from both source schemas, with <code>age</code> being hidden due to the <code>@inaccessible</code> directive in one of the source schemas:</p>
-<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5115-L5128"><code><span class="token comment"># Schema A</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5178"><a href="#sec-Empty-Merged-Object-Type.Examples" title="link to this subsection">Examples</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5180-L5182">In the following example, the merged object type <code>Author</code> is valid. It includes all fields from both source schemas, with <code>age</code> being hidden due to the <code>@inaccessible</code> directive in one of the source schemas:</p>
+<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5184-L5197"><code><span class="token comment"># Schema A</span>
 
 <span class="token keyword">type</span> <span class="token class-name">Author</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
@@ -5449,8 +5513,8 @@ Number of items to fetch
   <span class="token attr-name">registered</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5130-L5132">If the <code>@inaccessible</code> directive is applied to an object type itself, the entire merged object type is excluded from the composite execution schema, and it is not required to contain any fields.</p>
-<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5134-L5146"><code><span class="token comment"># Schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L5199-L5201">If the <code>@inaccessible</code> directive is applied to an object type itself, the entire merged object type is excluded from the composite execution schema, and it is not required to contain any fields.</p>
+<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5203-L5215"><code><span class="token comment"># Schema A</span>
 
 <span class="token keyword">type</span> <span class="token class-name">Author</span> <span class="token directive function">@inaccessible</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
@@ -5462,8 +5526,8 @@ Number of items to fetch
   <span class="token attr-name">registered</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5148-L5151">This counter-example demonstrates an invalid merged object type. In this case, <code>Author</code> is defined in two source schemas, but all fields are marked as <code>@inaccessible</code> in at least one of the source schemas, resulting in an empty merged object type:</p>
-<pre id="example-45fca" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5153-L5167"><a href="#example-45fca">Counter Example № 177</a><code><span class="token comment"># Schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L5217-L5220">This counter-example demonstrates an invalid merged object type. In this case, <code>Author</code> is defined in two source schemas, but all fields are marked as <code>@inaccessible</code> in at least one of the source schemas, resulting in an empty merged object type:</p>
+<pre id="example-45fca" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5222-L5236"><a href="#example-45fca">Counter Example № 180</a><code><span class="token comment"># Schema A</span>
 
 <span class="token keyword">type</span> <span class="token class-name">Author</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@inaccessible</span>
@@ -5480,34 +5544,34 @@ Number of items to fetch
 </section>
 </section>
 <section id="sec-Empty-Merged-Interface-Type" secid="3.4.2.2">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L5169"><span class="spec-secid" title="link to this section"><a href="#sec-Empty-Merged-Interface-Type">3.4.2.2</a></span>Empty Merged Interface Type</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L5238"><span class="spec-secid" title="link to this section"><a href="#sec-Empty-Merged-Interface-Type">3.4.2.2</a></span>Empty Merged Interface Type</h4>
 <section id="sec-Empty-Merged-Interface-Type.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5171"><a href="#sec-Empty-Merged-Interface-Type.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5173"><code>EMPTY_MERGED_INTERFACE_TYPE</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5240"><a href="#sec-Empty-Merged-Interface-Type.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5242"><code>EMPTY_MERGED_INTERFACE_TYPE</code></p>
 </section>
 <section id="sec-Empty-Merged-Interface-Type.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5175"><a href="#sec-Empty-Merged-Interface-Type.Severity" title="link to this subsection">Severity</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5177">ERROR</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5244"><a href="#sec-Empty-Merged-Interface-Type.Severity" title="link to this subsection">Severity</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5246">ERROR</p>
 </section>
 <section id="sec-Empty-Merged-Interface-Type.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5179"><a href="#sec-Empty-Merged-Interface-Type.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5248"><a href="#sec-Empty-Merged-Interface-Type.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5181">Let <var data-name="types">types</var> be the set of all interface types in the composed schema.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5182-L5184">For each <var data-name="type">type</var> in <var data-name="types">types</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5183">Let <var data-name="fields">fields</var> be a set of all fields in <var data-name="type">type</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5184"><var data-name="fields">fields</var> must not be empty.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5250">Let <var data-name="types">types</var> be the set of all interface types in the composed schema.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5251-L5253">For each <var data-name="type">type</var> in <var data-name="types">types</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L5252">Let <var data-name="fields">fields</var> be a set of all fields in <var data-name="type">type</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5253"><var data-name="fields">fields</var> must not be empty.</li>
 </ul>
 </li>
 </ul>
 </section>
 <section id="sec-Empty-Merged-Interface-Type.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5186"><a href="#sec-Empty-Merged-Interface-Type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5188-L5192">For interface types defined across multiple source schemas, the merged interface type is the superset of all fields defined in these source schemas. However, any field marked with <code>@inaccessible</code> in any source schema is hidden and not included in the merged interface type. An interface type with no fields, after considering <code>@inaccessible</code> annotations, is considered empty and invalid.</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5255"><a href="#sec-Empty-Merged-Interface-Type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5257-L5261">For interface types defined across multiple source schemas, the merged interface type is the superset of all fields defined in these source schemas. However, any field marked with <code>@inaccessible</code> in any source schema is hidden and not included in the merged interface type. An interface type with no fields, after considering <code>@inaccessible</code> annotations, is considered empty and invalid.</p>
 </section>
 <section id="sec-Empty-Merged-Interface-Type.Examples" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5194"><a href="#sec-Empty-Merged-Interface-Type.Examples" title="link to this subsection">Examples</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5196-L5198">In the following example, the merged object type <code>Product</code> is valid. It includes all fields from both source schemas, with <code>price</code> being hidden due to the <code>@inaccessible</code> directive in one of the source schemas:</p>
-<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5200-L5212"><code><span class="token comment"># Schema A</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5263"><a href="#sec-Empty-Merged-Interface-Type.Examples" title="link to this subsection">Examples</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5265-L5267">In the following example, the merged object type <code>Product</code> is valid. It includes all fields from both source schemas, with <code>price</code> being hidden due to the <code>@inaccessible</code> directive in one of the source schemas:</p>
+<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5269-L5281"><code><span class="token comment"># Schema A</span>
 <span class="token keyword">interface</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
   <span class="token attr-name">price</span><span class="token punctuation">:</span> <span class="token scalar">Int</span> <span class="token directive function">@inaccessible</span>
@@ -5519,8 +5583,8 @@ Number of items to fetch
   <span class="token attr-name">inStock</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5214-L5216">If the <code>@inaccessible</code> directive is applied to an interface type itself, the entire merged interface type is excluded from the composite execution schema, and it is not required to contain any fields.</p>
-<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5218-L5230"><code><span class="token comment"># Schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L5283-L5285">If the <code>@inaccessible</code> directive is applied to an interface type itself, the entire merged interface type is excluded from the composite execution schema, and it is not required to contain any fields.</p>
+<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5287-L5299"><code><span class="token comment"># Schema A</span>
 <span class="token keyword">interface</span> <span class="token class-name">Product</span> <span class="token directive function">@inaccessible</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
   <span class="token attr-name">price</span><span class="token punctuation">:</span> <span class="token scalar">Int</span>
@@ -5532,8 +5596,8 @@ Number of items to fetch
   <span class="token attr-name">inStock</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5232-L5235">This counter-example demonstrates an invalid merged interface type. In this case, <code>Product</code> is defined in two source schemas, but all fields are marked as <code>@inaccessible</code> in at least one of the source schemas, resulting in an empty merged interface type:</p>
-<pre id="example-0e94b" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5237-L5249"><a href="#example-0e94b">Counter Example № 178</a><code><span class="token comment"># Schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L5301-L5304">This counter-example demonstrates an invalid merged interface type. In this case, <code>Product</code> is defined in two source schemas, but all fields are marked as <code>@inaccessible</code> in at least one of the source schemas, resulting in an empty merged interface type:</p>
+<pre id="example-0e94b" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5306-L5318"><a href="#example-0e94b">Counter Example № 181</a><code><span class="token comment"># Schema A</span>
 <span class="token keyword">interface</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
   <span class="token attr-name">price</span><span class="token punctuation">:</span> <span class="token scalar">Int</span> <span class="token directive function">@inaccessible</span>
@@ -5548,27 +5612,27 @@ Number of items to fetch
 </section>
 </section>
 <section id="sec-Implemented-by-Inaccessible" secid="3.4.2.3">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L5251"><span class="spec-secid" title="link to this section"><a href="#sec-Implemented-by-Inaccessible">3.4.2.3</a></span>Implemented by Inaccessible</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L5320"><span class="spec-secid" title="link to this section"><a href="#sec-Implemented-by-Inaccessible">3.4.2.3</a></span>Implemented by Inaccessible</h4>
 <section id="sec-Implemented-by-Inaccessible.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5253"><a href="#sec-Implemented-by-Inaccessible.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5255"><code>IMPLEMENTED_BY_INACCESSIBLE</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5322"><a href="#sec-Implemented-by-Inaccessible.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5324"><code>IMPLEMENTED_BY_INACCESSIBLE</code></p>
 </section>
 <section id="sec-Implemented-by-Inaccessible.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5257"><a href="#sec-Implemented-by-Inaccessible.Severity" title="link to this subsection">Severity</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5259">ERROR</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5326"><a href="#sec-Implemented-by-Inaccessible.Severity" title="link to this subsection">Severity</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5328">ERROR</p>
 </section>
 <section id="sec-Implemented-by-Inaccessible.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5261"><a href="#sec-Implemented-by-Inaccessible.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5330"><a href="#sec-Implemented-by-Inaccessible.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5263">Let <var data-name="schema">schema</var> be the merged composite execution schema.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5264">Let <var data-name="types">types</var> be the set of all object and interface types in <var data-name="schema">schema</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5265-L5273">For each <var data-name="type">type</var> in <var data-name="types">types</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5266-L5267">Let <var data-name="implementedInterfaces">implementedInterfaces</var> be the set of all interfaces implemented by <var data-name="type">type</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5268-L5273">For each <var data-name="implementedInterface">implementedInterface</var> in <var data-name="implementedInterfaces">implementedInterfaces</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5269-L5270">Let <var data-name="interfaceFields">interfaceFields</var> be the set of all fields defined on <var data-name="implementedInterface">implementedInterface</var> that are visible in the merged schema.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5271-L5273">For each <var data-name="interfaceField">interfaceField</var> in <var data-name="interfaceFields">interfaceFields</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5272">Let <var data-name="fieldName">fieldName</var> be the name of <var data-name="interfaceField">interfaceField</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5273"><var data-name="type">type</var> must have a field with the name <var data-name="fieldName">fieldName</var></li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5332">Let <var data-name="schema">schema</var> be the merged composite execution schema.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5333">Let <var data-name="types">types</var> be the set of all object and interface types in <var data-name="schema">schema</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5334-L5342">For each <var data-name="type">type</var> in <var data-name="types">types</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L5335-L5336">Let <var data-name="implementedInterfaces">implementedInterfaces</var> be the set of all interfaces implemented by <var data-name="type">type</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5337-L5342">For each <var data-name="implementedInterface">implementedInterface</var> in <var data-name="implementedInterfaces">implementedInterfaces</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L5338-L5339">Let <var data-name="interfaceFields">interfaceFields</var> be the set of all fields defined on <var data-name="implementedInterface">implementedInterface</var> that are visible in the merged schema.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5340-L5342">For each <var data-name="interfaceField">interfaceField</var> in <var data-name="interfaceFields">interfaceFields</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L5341">Let <var data-name="fieldName">fieldName</var> be the name of <var data-name="interfaceField">interfaceField</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5342"><var data-name="type">type</var> must have a field with the name <var data-name="fieldName">fieldName</var></li>
 </ul>
 </li>
 </ul>
@@ -5578,14 +5642,14 @@ Number of items to fetch
 </ul>
 </section>
 <section id="sec-Implemented-by-Inaccessible.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5275"><a href="#sec-Implemented-by-Inaccessible.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5277-L5283">This rule ensures that inaccessible fields (<code>@inaccessible</code>) on an object or interface type are not exposed through an interface. A composite type that implements an interface must provide public access to each field defined by the interface. If a field on an object type is marked as <code>@inaccessible</code> but implements an interface field that is visible in the composed schema, this creates a contradiction: the interface contract requires that field to be accessible, yet the implementation hides it.</p>
-<p data-source="spec/Section%204%20--%20Composition.md#L5285-L5287">This rule prevents inconsistencies in the composed schema, ensuring that every interface field visible in the composed schema is also publicly visible on all types implementing that interface.</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5344"><a href="#sec-Implemented-by-Inaccessible.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5346-L5352">This rule ensures that inaccessible fields (<code>@inaccessible</code>) on an object or interface type are not exposed through an interface. A composite type that implements an interface must provide public access to each field defined by the interface. If a field on an object type is marked as <code>@inaccessible</code> but implements an interface field that is visible in the composed schema, this creates a contradiction: the interface contract requires that field to be accessible, yet the implementation hides it.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L5354-L5356">This rule prevents inconsistencies in the composed schema, ensuring that every interface field visible in the composed schema is also publicly visible on all types implementing that interface.</p>
 </section>
 <section id="sec-Implemented-by-Inaccessible.Examples" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5289"><a href="#sec-Implemented-by-Inaccessible.Examples" title="link to this subsection">Examples</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5291-L5292">In the following example, <code>User.id</code> is accessible and implements <code>Node.id</code> which is also accessible, no error occurs.</p>
-<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5294-L5304"><code><span class="token comment"># The interface field `id` is visible and provided by `User` without @inaccessible.</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5358"><a href="#sec-Implemented-by-Inaccessible.Examples" title="link to this subsection">Examples</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5360-L5361">In the following example, <code>User.id</code> is accessible and implements <code>Node.id</code> which is also accessible, no error occurs.</p>
+<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5363-L5373"><code><span class="token comment"># The interface field `id` is visible and provided by `User` without @inaccessible.</span>
 <span class="token keyword">interface</span> <span class="token class-name">Node</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
@@ -5595,8 +5659,8 @@ Number of items to fetch
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5306-L5308">Since <code>Auditable</code> and its field <code>lastAudit</code> are <code>@inaccessible</code>, the <code>Order.lastAudit</code> field is allowed to be <code>@inaccessible</code> because it does not implement any visible interface field in the composed schema.</p>
-<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5310-L5320"><code><span class="token comment"># The entire interface is @inaccessible, thus its fields are not publicly visible.</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L5375-L5377">Since <code>Auditable</code> and its field <code>lastAudit</code> are <code>@inaccessible</code>, the <code>Order.lastAudit</code> field is allowed to be <code>@inaccessible</code> because it does not implement any visible interface field in the composed schema.</p>
+<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5379-L5389"><code><span class="token comment"># The entire interface is @inaccessible, thus its fields are not publicly visible.</span>
 <span class="token keyword">interface</span> <span class="token class-name">Auditable</span> <span class="token directive function">@inaccessible</span> <span class="token punctuation">{</span>
   <span class="token attr-name">lastAudit</span><span class="token punctuation">:</span> <span class="token class-name">DateTime</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
@@ -5606,8 +5670,8 @@ Number of items to fetch
   <span class="token attr-name">orderNumber</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5322-L5325">In this example, <code>Node.id</code> is visible in the public schema (no <code>@inaccessible</code>), but <code>User.id</code> is marked <code>@inaccessible</code>. This violates the interface contract because <code>User</code> claims to implement <code>Node</code>, yet does not expose the <code>id</code> field to the public schema.</p>
-<pre id="example-6c1d1" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5327-L5336"><a href="#example-6c1d1">Counter Example № 179</a><code><span class="token keyword">interface</span> <span class="token class-name">Node</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L5391-L5394">In this example, <code>Node.id</code> is visible in the public schema (no <code>@inaccessible</code>), but <code>User.id</code> is marked <code>@inaccessible</code>. This violates the interface contract because <code>User</code> claims to implement <code>Node</code>, yet does not expose the <code>id</code> field to the public schema.</p>
+<pre id="example-6c1d1" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5396-L5405"><a href="#example-6c1d1">Counter Example № 182</a><code><span class="token keyword">interface</span> <span class="token class-name">Node</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 
@@ -5619,27 +5683,27 @@ Number of items to fetch
 </section>
 </section>
 <section id="sec-Interface-Field-No-Implementation" secid="3.4.2.4">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L5338"><span class="spec-secid" title="link to this section"><a href="#sec-Interface-Field-No-Implementation">3.4.2.4</a></span>Interface Field No Implementation</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L5407"><span class="spec-secid" title="link to this section"><a href="#sec-Interface-Field-No-Implementation">3.4.2.4</a></span>Interface Field No Implementation</h4>
 <section id="sec-Interface-Field-No-Implementation.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5340"><a href="#sec-Interface-Field-No-Implementation.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5342"><code>INTERFACE_FIELD_NO_IMPLEMENTATION</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5409"><a href="#sec-Interface-Field-No-Implementation.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5411"><code>INTERFACE_FIELD_NO_IMPLEMENTATION</code></p>
 </section>
 <section id="sec-Interface-Field-No-Implementation.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5344"><a href="#sec-Interface-Field-No-Implementation.Severity" title="link to this subsection">Severity</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5346">ERROR</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5413"><a href="#sec-Interface-Field-No-Implementation.Severity" title="link to this subsection">Severity</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5415">ERROR</p>
 </section>
 <section id="sec-Interface-Field-No-Implementation.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5348"><a href="#sec-Interface-Field-No-Implementation.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5417"><a href="#sec-Interface-Field-No-Implementation.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5350">Let <var data-name="schema">schema</var> be the merged composite execution schema.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5351">Let <var data-name="objectTypes">objectTypes</var> be the set of all object types defined in <var data-name="schema">schema</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5352-L5359">For each <var data-name="objectType">objectType</var> in <var data-name="objectTypes">objectTypes</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5353">Let <var data-name="interfaces">interfaces</var> be the set of interface types that <var data-name="objectType">objectType</var> implements.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5354-L5359">For each <var data-name="interface">interface</var> in <var data-name="interfaces">interfaces</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5355-L5356">Let <var data-name="interfaceFields">interfaceFields</var> be the set of fields defined on <var data-name="interface">interface</var> that are visible in the merged schema.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5357-L5359">For each <var data-name="field">field</var> in <var data-name="interfaceFields">interfaceFields</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5358-L5359">If <var data-name="field">field</var> is not present on <var data-name="objectType">objectType</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5359">Produce an <code>INTERFACE_FIELD_NO_IMPLEMENTATION</code> error.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5419">Let <var data-name="schema">schema</var> be the merged composite execution schema.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5420">Let <var data-name="objectTypes">objectTypes</var> be the set of all object types defined in <var data-name="schema">schema</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5421-L5428">For each <var data-name="objectType">objectType</var> in <var data-name="objectTypes">objectTypes</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L5422">Let <var data-name="interfaces">interfaces</var> be the set of interface types that <var data-name="objectType">objectType</var> implements.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5423-L5428">For each <var data-name="interface">interface</var> in <var data-name="interfaces">interfaces</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L5424-L5425">Let <var data-name="interfaceFields">interfaceFields</var> be the set of fields defined on <var data-name="interface">interface</var> that are visible in the merged schema.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5426-L5428">For each <var data-name="field">field</var> in <var data-name="interfaceFields">interfaceFields</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L5427-L5428">If <var data-name="field">field</var> is not present on <var data-name="objectType">objectType</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L5428">Produce an <code>INTERFACE_FIELD_NO_IMPLEMENTATION</code> error.</li>
 </ul>
 </li>
 </ul>
@@ -5651,14 +5715,14 @@ Number of items to fetch
 </ul>
 </section>
 <section id="sec-Interface-Field-No-Implementation.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5361"><a href="#sec-Interface-Field-No-Implementation.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5363-L5367">In GraphQL, any object type that implements an interface must provide a field definition for every field declared by that interface. If an object type fails to implement a particular field required by one of its interfaces, the composite schema becomes invalid because the resulting schema breaks the contract defined by that interface.</p>
-<p data-source="spec/Section%204%20--%20Composition.md#L5369-L5372">This rule checks that object types merged from different sources correctly implement all interface fields. In scenarios where a schema defines an interface field, but the implementing object type in another schema omits that field, an error is raised.</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5430"><a href="#sec-Interface-Field-No-Implementation.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5432-L5436">In GraphQL, any object type that implements an interface must provide a field definition for every field declared by that interface. If an object type fails to implement a particular field required by one of its interfaces, the composite schema becomes invalid because the resulting schema breaks the contract defined by that interface.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L5438-L5441">This rule checks that object types merged from different sources correctly implement all interface fields. In scenarios where a schema defines an interface field, but the implementing object type in another schema omits that field, an error is raised.</p>
 </section>
 <section id="sec-Interface-Field-No-Implementation.Examples" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5374"><a href="#sec-Interface-Field-No-Implementation.Examples" title="link to this subsection">Examples</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5376-L5378">In this valid example, the <code>User</code> interface has three fields: <code>id</code>, <code>name</code>, and <code>email</code>. Both the <code>RegisteredUser</code> and <code>GuestUser</code> types implement all three fields, satisfying the interface contract.</p>
-<pre id="example-2b227" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5380-L5408"><a href="#example-2b227">Example № 180</a><code><span class="token comment"># Schema A</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5443"><a href="#sec-Interface-Field-No-Implementation.Examples" title="link to this subsection">Examples</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5445-L5447">In this valid example, the <code>User</code> interface has three fields: <code>id</code>, <code>name</code>, and <code>email</code>. Both the <code>RegisteredUser</code> and <code>GuestUser</code> types implement all three fields, satisfying the interface contract.</p>
+<pre id="example-2b227" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5449-L5477"><a href="#example-2b227">Example № 183</a><code><span class="token comment"># Schema A</span>
 <span class="token keyword">interface</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
@@ -5686,9 +5750,9 @@ Number of items to fetch
   <span class="token attr-name">temporaryCartId</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5410-L5412">In this counter-example, the <code>User</code> interface is defined with three fields, but the <code>GuestUser</code> type omits one of them (<code>email</code>), causing an <code>INTERFACE_FIELD_NO_IMPLEMENTATION</code> error.</p>
-<p data-source="spec/Section%204%20--%20Composition.md#L5414-L5417">Although <code>GuestUser</code> implements <code>User</code>, it does not provide the <code>email</code> field. Since the merged schema sees that the interface <code>User</code> has <code>email</code> but <code>GuestUser</code> does not provide it, the schema composition fails with the <code>INTERFACE_FIELD_NO_IMPLEMENTATION</code> error.</p>
-<pre id="example-bfdae" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5419-L5445"><a href="#example-bfdae">Counter Example № 181</a><code><span class="token comment"># Schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L5479-L5481">In this counter-example, the <code>User</code> interface is defined with three fields, but the <code>GuestUser</code> type omits one of them (<code>email</code>), causing an <code>INTERFACE_FIELD_NO_IMPLEMENTATION</code> error.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L5483-L5486">Although <code>GuestUser</code> implements <code>User</code>, it does not provide the <code>email</code> field. Since the merged schema sees that the interface <code>User</code> has <code>email</code> but <code>GuestUser</code> does not provide it, the schema composition fails with the <code>INTERFACE_FIELD_NO_IMPLEMENTATION</code> error.</p>
+<pre id="example-bfdae" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5488-L5514"><a href="#example-bfdae">Counter Example № 184</a><code><span class="token comment"># Schema A</span>
 <span class="token keyword">interface</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
@@ -5718,36 +5782,36 @@ Number of items to fetch
 </section>
 </section>
 <section id="sec-Post-Merge-Validation.Validate-Input-Types" secid="3.4.3">
-<h3 data-source="spec/Section%204%20--%20Composition.md#L5447"><span class="spec-secid" title="link to this section"><a href="#sec-Post-Merge-Validation.Validate-Input-Types">3.4.3</a></span>Validate Input Types</h3>
+<h3 data-source="spec/Section%204%20--%20Composition.md#L5516"><span class="spec-secid" title="link to this section"><a href="#sec-Post-Merge-Validation.Validate-Input-Types">3.4.3</a></span>Validate Input Types</h3>
 <section id="sec-Empty-Merged-Input-Object-Type" secid="3.4.3.1">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L5449"><span class="spec-secid" title="link to this section"><a href="#sec-Empty-Merged-Input-Object-Type">3.4.3.1</a></span>Empty Merged Input Object Type</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L5518"><span class="spec-secid" title="link to this section"><a href="#sec-Empty-Merged-Input-Object-Type">3.4.3.1</a></span>Empty Merged Input Object Type</h4>
 <section id="sec-Empty-Merged-Input-Object-Type.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5451"><a href="#sec-Empty-Merged-Input-Object-Type.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5453"><code>EMPTY_MERGED_INPUT_OBJECT_TYPE</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5520"><a href="#sec-Empty-Merged-Input-Object-Type.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5522"><code>EMPTY_MERGED_INPUT_OBJECT_TYPE</code></p>
 </section>
 <section id="sec-Empty-Merged-Input-Object-Type.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5455"><a href="#sec-Empty-Merged-Input-Object-Type.Severity" title="link to this subsection">Severity</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5457">ERROR</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5524"><a href="#sec-Empty-Merged-Input-Object-Type.Severity" title="link to this subsection">Severity</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5526">ERROR</p>
 </section>
 <section id="sec-Empty-Merged-Input-Object-Type.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5459"><a href="#sec-Empty-Merged-Input-Object-Type.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5528"><a href="#sec-Empty-Merged-Input-Object-Type.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5461">Let <var data-name="inputTypes">inputTypes</var> be the set of all input object types in the composite schema.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5462-L5464">For each <var data-name="inputType">inputType</var> in <var data-name="inputTypes">inputTypes</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5463">Let <var data-name="fields">fields</var> be a set of all fields in <var data-name="inputType">inputType</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5464"><var data-name="fields">fields</var> must not be empty.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5530">Let <var data-name="inputTypes">inputTypes</var> be the set of all input object types in the composite schema.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5531-L5533">For each <var data-name="inputType">inputType</var> in <var data-name="inputTypes">inputTypes</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L5532">Let <var data-name="fields">fields</var> be a set of all fields in <var data-name="inputType">inputType</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5533"><var data-name="fields">fields</var> must not be empty.</li>
 </ul>
 </li>
 </ul>
 </section>
 <section id="sec-Empty-Merged-Input-Object-Type.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5466"><a href="#sec-Empty-Merged-Input-Object-Type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5468-L5473">For input object types defined across multiple source schemas, the merged input object type is the intersection of all fields defined in these source schemas. Any field marked with the <code>@inaccessible</code> directive in any source schema is hidden and not included in the merged input object type. An input object type with no fields, after considering <code>@inaccessible</code> annotations, is considered empty and invalid.</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5535"><a href="#sec-Empty-Merged-Input-Object-Type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5537-L5542">For input object types defined across multiple source schemas, the merged input object type is the intersection of all fields defined in these source schemas. Any field marked with the <code>@inaccessible</code> directive in any source schema is hidden and not included in the merged input object type. An input object type with no fields, after considering <code>@inaccessible</code> annotations, is considered empty and invalid.</p>
 </section>
 <section id="sec-Empty-Merged-Input-Object-Type.Examples" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5475"><a href="#sec-Empty-Merged-Input-Object-Type.Examples" title="link to this subsection">Examples</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5477">In the following example, the merged input object type <code>BookFilter</code> is valid.</p>
-<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5479-L5487"><code><span class="token keyword">input</span> <span class="token object">BookFilter</span> <span class="token punctuation">{</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5544"><a href="#sec-Empty-Merged-Input-Object-Type.Examples" title="link to this subsection">Examples</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5546">In the following example, the merged input object type <code>BookFilter</code> is valid.</p>
+<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5548-L5556"><code><span class="token keyword">input</span> <span class="token object">BookFilter</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 
@@ -5755,8 +5819,8 @@ Number of items to fetch
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5489-L5491">If the <code>@inaccessible</code> directive is applied to an input object type itself, the entire merged input object type is excluded from the composite execution schema, and it is not required to contain any fields.</p>
-<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5493-L5502"><code><span class="token keyword">input</span> <span class="token property">BookFilter</span> <span class="token directive function">@inaccessible</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L5558-L5560">If the <code>@inaccessible</code> directive is applied to an input object type itself, the entire merged input object type is excluded from the composite execution schema, and it is not required to contain any fields.</p>
+<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5562-L5571"><code><span class="token keyword">input</span> <span class="token property">BookFilter</span> <span class="token directive function">@inaccessible</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
   <span class="token attr-name">minPageCount</span><span class="token punctuation">:</span> <span class="token scalar">Int</span>
 <span class="token punctuation">}</span>
@@ -5765,8 +5829,8 @@ Number of items to fetch
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5504-L5507">This counter-example demonstrates an invalid merged input object type. In this case, <code>BookFilter</code> is defined in two source schemas, but all fields are marked as <code>@inaccessible</code> in at least one of the source schemas, resulting in an empty merged input object type:</p>
-<pre id="example-27c30" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5509-L5519"><a href="#example-27c30">Counter Example № 182</a><code><span class="token keyword">input</span> <span class="token object">BookFilter</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L5573-L5576">This counter-example demonstrates an invalid merged input object type. In this case, <code>BookFilter</code> is defined in two source schemas, but all fields are marked as <code>@inaccessible</code> in at least one of the source schemas, resulting in an empty merged input object type:</p>
+<pre id="example-27c30" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5578-L5588"><a href="#example-27c30">Counter Example № 185</a><code><span class="token keyword">input</span> <span class="token object">BookFilter</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@inaccessible</span>
   <span class="token attr-name">paperback</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span>
 <span class="token punctuation">}</span>
@@ -5776,8 +5840,8 @@ Number of items to fetch
   <span class="token attr-name">paperback</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span> <span class="token directive function">@inaccessible</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5521-L5522">Here is another counter-example where the merged input object type is empty because no fields intersect between the two source schemas:</p>
-<pre id="example-db290" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5524-L5532"><a href="#example-db290">Counter Example № 183</a><code><span class="token keyword">input</span> <span class="token object">BookFilter</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L5590-L5591">Here is another counter-example where the merged input object type is empty because no fields intersect between the two source schemas:</p>
+<pre id="example-db290" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5593-L5601"><a href="#example-db290">Counter Example № 186</a><code><span class="token keyword">input</span> <span class="token object">BookFilter</span> <span class="token punctuation">{</span>
   <span class="token attr-name">paperback</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span>
 <span class="token punctuation">}</span>
 
@@ -5788,19 +5852,19 @@ Number of items to fetch
 </section>
 </section>
 <section id="sec-Non-Null-Input-Fields-cannot-be-inaccessible" secid="3.4.3.2">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L5534"><span class="spec-secid" title="link to this section"><a href="#sec-Non-Null-Input-Fields-cannot-be-inaccessible">3.4.3.2</a></span>Non-Null Input Fields cannot be inaccessible</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L5603"><span class="spec-secid" title="link to this section"><a href="#sec-Non-Null-Input-Fields-cannot-be-inaccessible">3.4.3.2</a></span>Non-Null Input Fields cannot be inaccessible</h4>
 <section id="sec-Non-Null-Input-Fields-cannot-be-inaccessible.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5536"><a href="#sec-Non-Null-Input-Fields-cannot-be-inaccessible.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5538"><code>NON_NULL_INPUT_FIELD_IS_INACCESSIBLE</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5605"><a href="#sec-Non-Null-Input-Fields-cannot-be-inaccessible.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5607"><code>NON_NULL_INPUT_FIELD_IS_INACCESSIBLE</code></p>
 </section>
 <section id="sec-Non-Null-Input-Fields-cannot-be-inaccessible.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5540"><a href="#sec-Non-Null-Input-Fields-cannot-be-inaccessible.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5609"><a href="#sec-Non-Null-Input-Fields-cannot-be-inaccessible.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5542-L5543">Let <var data-name="fields">fields</var> be the set of all fields across all input types in all source schemas.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5544-L5547">For each <var data-name="field">field</var> in <var data-name="fields">fields</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5545-L5547">If <var data-name="field">field</var> is a non-null input field:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5546">Let <var data-name="coordinate">coordinate</var> be the coordinate of <var data-name="field">field</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5547"><var data-name="coordinate">coordinate</var> must be in the composed schema.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5611-L5612">Let <var data-name="fields">fields</var> be the set of all fields across all input types in all source schemas.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5613-L5616">For each <var data-name="field">field</var> in <var data-name="fields">fields</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L5614-L5616">If <var data-name="field">field</var> is a non-null input field:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L5615">Let <var data-name="coordinate">coordinate</var> be the coordinate of <var data-name="field">field</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5616"><var data-name="coordinate">coordinate</var> must be in the composed schema.</li>
 </ul>
 </li>
 </ul>
@@ -5808,18 +5872,18 @@ Number of items to fetch
 </ul>
 </section>
 <section id="sec-Non-Null-Input-Fields-cannot-be-inaccessible.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5549"><a href="#sec-Non-Null-Input-Fields-cannot-be-inaccessible.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5551-L5556">When an input field is declared as non-null in any source schema, it imposes a hard requirement: queries or mutations that reference this field <em>must</em> provide a value for it. If the field is then marked as <code>@inaccessible</code> or removed during schema composition, the final schema would still implicitly demand a value for a field that no longer exists in the composed schema, making it impossible to fulfill the requirement.</p>
-<p data-source="spec/Section%204%20--%20Composition.md#L5558">As a result:</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5618"><a href="#sec-Non-Null-Input-Fields-cannot-be-inaccessible.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5620-L5625">When an input field is declared as non-null in any source schema, it imposes a hard requirement: queries or mutations that reference this field <em>must</em> provide a value for it. If the field is then marked as <code>@inaccessible</code> or removed during schema composition, the final schema would still implicitly demand a value for a field that no longer exists in the composed schema, making it impossible to fulfill the requirement.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L5627">As a result:</p>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5560-L5562"><strong>Nullable</strong> (optional) fields can be hidden or removed without invalidating the composed schema, because the user is never <em>required</em> to supply a value for them.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5563-L5565"><strong>Non-null</strong> (required) fields, however, must remain exposed in the composed schema so that users can provide values for those fields. Hiding a required input field breaks the schema contract and leads to an invalid composition.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5629-L5631"><strong>Nullable</strong> (optional) fields can be hidden or removed without invalidating the composed schema, because the user is never <em>required</em> to supply a value for them.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5632-L5634"><strong>Non-null</strong> (required) fields, however, must remain exposed in the composed schema so that users can provide values for those fields. Hiding a required input field breaks the schema contract and leads to an invalid composition.</li>
 </ul>
 </section>
 <section id="sec-Non-Null-Input-Fields-cannot-be-inaccessible.Examples" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5567"><a href="#sec-Non-Null-Input-Fields-cannot-be-inaccessible.Examples" title="link to this subsection">Examples</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5569-L5571">The following is valid because the <code>age</code> field, although <code>@inaccessible</code> in one source schema, is nullable and can be safely omitted in the final schema without breaking any mandatory input requirement.</p>
-<pre id="example-f0168" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5573-L5590"><a href="#example-f0168">Example № 184</a><code><span class="token comment"># Schema A</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5636"><a href="#sec-Non-Null-Input-Fields-cannot-be-inaccessible.Examples" title="link to this subsection">Examples</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5638-L5640">The following is valid because the <code>age</code> field, although <code>@inaccessible</code> in one source schema, is nullable and can be safely omitted in the final schema without breaking any mandatory input requirement.</p>
+<pre id="example-f0168" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5642-L5659"><a href="#example-f0168">Example № 187</a><code><span class="token comment"># Schema A</span>
 <span class="token keyword">input</span> <span class="token object">BookFilter</span> <span class="token punctuation">{</span>
   <span class="token attr-name">author</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
   <span class="token attr-name">age</span><span class="token punctuation">:</span> <span class="token scalar">Int</span> <span class="token directive function">@inaccessible</span>
@@ -5836,8 +5900,8 @@ Number of items to fetch
   <span class="token attr-name">author</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5592">Another valid case is when a nullable input field is removed during merging:</p>
-<pre id="example-0499f" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5594-L5610"><a href="#example-0499f">Example № 185</a><code><span class="token comment"># Schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L5661">Another valid case is when a nullable input field is removed during merging:</p>
+<pre id="example-0499f" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5663-L5679"><a href="#example-0499f">Example № 188</a><code><span class="token comment"># Schema A</span>
 <span class="token keyword">input</span> <span class="token object">BookFilter</span> <span class="token punctuation">{</span>
   <span class="token attr-name">author</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
   <span class="token attr-name">age</span><span class="token punctuation">:</span> <span class="token scalar">Int</span>
@@ -5853,8 +5917,8 @@ Number of items to fetch
   <span class="token attr-name">author</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5612">An invalid case is when a non-null input field is inaccessible:</p>
-<pre id="example-6611c" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5614-L5631"><a href="#example-6611c">Counter Example № 186</a><code><span class="token comment"># Schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L5681">An invalid case is when a non-null input field is inaccessible:</p>
+<pre id="example-6611c" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5683-L5700"><a href="#example-6611c">Counter Example № 189</a><code><span class="token comment"># Schema A</span>
 <span class="token keyword">input</span> <span class="token object">BookFilter</span> <span class="token punctuation">{</span>
   <span class="token attr-name">author</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
   <span class="token attr-name">age</span><span class="token punctuation">:</span> <span class="token scalar">Int</span><span class="token operator">!</span>
@@ -5871,8 +5935,8 @@ Number of items to fetch
   <span class="token attr-name">author</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5633">Another invalid case is when a non-null input field is removed during merging:</p>
-<pre id="example-4e685" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5635-L5651"><a href="#example-4e685">Counter Example № 187</a><code><span class="token comment"># Schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L5702">Another invalid case is when a non-null input field is removed during merging:</p>
+<pre id="example-4e685" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5704-L5720"><a href="#example-4e685">Counter Example № 190</a><code><span class="token comment"># Schema A</span>
 <span class="token keyword">input</span> <span class="token object">BookFilter</span> <span class="token punctuation">{</span>
   <span class="token attr-name">author</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
   <span class="token attr-name">age</span><span class="token punctuation">:</span> <span class="token scalar">Int</span><span class="token operator">!</span>
@@ -5886,94 +5950,42 @@ Number of items to fetch
 <span class="token comment"># Composite Schema</span>
 <span class="token keyword">input</span> <span class="token object">BookFilter</span> <span class="token punctuation">{</span>
   <span class="token attr-name">author</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
-<span class="token punctuation">}</span>
-</code></pre>
-</section>
-</section>
-<section id="sec-Input-Fields-cannot-reference-inaccessible-type" secid="3.4.3.3">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L5653"><span class="spec-secid" title="link to this section"><a href="#sec-Input-Fields-cannot-reference-inaccessible-type">3.4.3.3</a></span>Input Fields cannot reference inaccessible type</h4>
-<section id="sec-Input-Fields-cannot-reference-inaccessible-type.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5655"><a href="#sec-Input-Fields-cannot-reference-inaccessible-type.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5657"><code>INPUT_FIELD_REFERENCES_INACCESSIBLE_TYPE</code></p>
-</section>
-<section id="sec-Input-Fields-cannot-reference-inaccessible-type.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5659"><a href="#sec-Input-Fields-cannot-reference-inaccessible-type.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
-<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5661-L5662">Let <var data-name="fields">fields</var> be the set of all fields of the input types in the composed schema.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5663-L5665">For each <var data-name="field">field</var> in <var data-name="fields">fields</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5664">Let <var data-name="namedType">namedType</var> be the named type that <var data-name="field">field</var> references</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5665"><var data-name="namedType">namedType</var> must be in the composed schema.</li>
-</ul>
-</li>
-</ul>
-</section>
-<section id="sec-Input-Fields-cannot-reference-inaccessible-type.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5667"><a href="#sec-Input-Fields-cannot-reference-inaccessible-type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5669-L5671">In a composed schema, a field within an input type must only reference types that are exposed. This requirement guarantees that public types do not reference inaccessible structures which are intended for internal use.</p>
-<p data-source="spec/Section%204%20--%20Composition.md#L5673">A valid case where a public input field references another public input type:</p>
-<pre id="example-02e7c" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5675-L5684"><a href="#example-02e7c">Example № 188</a><code><span class="token keyword">input</span> <span class="token object">Input1</span> <span class="token punctuation">{</span>
-  <span class="token attr-name">field1</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
-  <span class="token attr-name">field2</span><span class="token punctuation">:</span> <span class="token class-name">Input2</span>
-<span class="token punctuation">}</span>
-
-<span class="token keyword">input</span> <span class="token object">Input2</span> <span class="token punctuation">{</span>
-  <span class="token attr-name">field3</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
-<span class="token punctuation">}</span>
-</code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5686">Another valid case is where the field is not exposed in the composed schema:</p>
-<pre id="example-7811b" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5688-L5697"><a href="#example-7811b">Example № 189</a><code><span class="token keyword">input</span> <span class="token object">Input1</span> <span class="token punctuation">{</span>
-  <span class="token attr-name">field1</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
-  <span class="token attr-name">field2</span><span class="token punctuation">:</span> <span class="token class-name">Input2</span> <span class="token directive function">@inaccessible</span>
-<span class="token punctuation">}</span>
-
-<span class="token keyword">input</span> <span class="token property">Input2</span> <span class="token directive function">@inaccessible</span> <span class="token punctuation">{</span>
-  <span class="token attr-name">field3</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
-<span class="token punctuation">}</span>
-</code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5699">An invalid case is when an input field references an inaccessible type:</p>
-<pre id="example-fd09c" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5701-L5710"><a href="#example-fd09c">Counter Example № 190</a><code><span class="token keyword">input</span> <span class="token object">Input1</span> <span class="token punctuation">{</span>
-  <span class="token attr-name">field1</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
-  <span class="token attr-name">field2</span><span class="token punctuation">:</span> <span class="token class-name">Input2</span><span class="token operator">!</span>
-<span class="token punctuation">}</span>
-
-<span class="token keyword">input</span> <span class="token property">Input2</span> <span class="token directive function">@inaccessible</span> <span class="token punctuation">{</span>
-  <span class="token attr-name">field3</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
 </section>
 </section>
 </section>
 <section id="sec-Post-Merge-Validation.Validate-Enums" secid="3.4.4">
-<h3 data-source="spec/Section%204%20--%20Composition.md#L5712"><span class="spec-secid" title="link to this section"><a href="#sec-Post-Merge-Validation.Validate-Enums">3.4.4</a></span>Validate Enums</h3>
+<h3 data-source="spec/Section%204%20--%20Composition.md#L5722"><span class="spec-secid" title="link to this section"><a href="#sec-Post-Merge-Validation.Validate-Enums">3.4.4</a></span>Validate Enums</h3>
 <section id="sec-Empty-Merged-Enum-Type" secid="3.4.4.1">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L5714"><span class="spec-secid" title="link to this section"><a href="#sec-Empty-Merged-Enum-Type">3.4.4.1</a></span>Empty Merged Enum Type</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L5724"><span class="spec-secid" title="link to this section"><a href="#sec-Empty-Merged-Enum-Type">3.4.4.1</a></span>Empty Merged Enum Type</h4>
 <section id="sec-Empty-Merged-Enum-Type.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5716"><a href="#sec-Empty-Merged-Enum-Type.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5718"><code>EMPTY_MERGED_ENUM_TYPE</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5726"><a href="#sec-Empty-Merged-Enum-Type.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5728"><code>EMPTY_MERGED_ENUM_TYPE</code></p>
 </section>
 <section id="sec-Empty-Merged-Enum-Type.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5720"><a href="#sec-Empty-Merged-Enum-Type.Severity" title="link to this subsection">Severity</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5722">ERROR</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5730"><a href="#sec-Empty-Merged-Enum-Type.Severity" title="link to this subsection">Severity</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5732">ERROR</p>
 </section>
 <section id="sec-Empty-Merged-Enum-Type.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5724"><a href="#sec-Empty-Merged-Enum-Type.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5734"><a href="#sec-Empty-Merged-Enum-Type.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5726">Let <var data-name="enumTypes">enumTypes</var> be the set of all enum types in the composite schema.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5727-L5729">For each <var data-name="enumType">enumType</var> in <var data-name="enumTypes">enumTypes</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5728">Let <var data-name="values">values</var> be a set of all values in <var data-name="enumType">enumType</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5729"><var data-name="values">values</var> must not be empty.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5736">Let <var data-name="enumTypes">enumTypes</var> be the set of all enum types in the composite schema.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5737-L5739">For each <var data-name="enumType">enumType</var> in <var data-name="enumTypes">enumTypes</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L5738">Let <var data-name="values">values</var> be a set of all values in <var data-name="enumType">enumType</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5739"><var data-name="values">values</var> must not be empty.</li>
 </ul>
 </li>
 </ul>
 </section>
 <section id="sec-Empty-Merged-Enum-Type.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5731"><a href="#sec-Empty-Merged-Enum-Type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5733-L5736">Enum values have to be an exact match across all source schemas. If an enum value only exists in one source schema, it has to be marked as <code>@inaccessible</code>. Enum members that are marked as <code>@inaccessible</code> are not included in the merged enum type. An enum type with no values is considered empty and invalid.</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5741"><a href="#sec-Empty-Merged-Enum-Type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5743-L5746">Enum values have to be an exact match across all source schemas. If an enum value only exists in one source schema, it has to be marked as <code>@inaccessible</code>. Enum members that are marked as <code>@inaccessible</code> are not included in the merged enum type. An enum type with no values is considered empty and invalid.</p>
 </section>
 <section id="sec-Empty-Merged-Enum-Type.Examples" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5738"><a href="#sec-Empty-Merged-Enum-Type.Examples" title="link to this subsection">Examples</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5740-L5742">In the following example, the merged enum type <code>DeliveryStatus</code> is valid. It includes all values from both source schemas, with <code>PENDING</code> being hidden due to the <code>@inaccessible</code> directive in one of the source schemas:</p>
-<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5744-L5757"><code><span class="token comment"># Schema A</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5748"><a href="#sec-Empty-Merged-Enum-Type.Examples" title="link to this subsection">Examples</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5750-L5752">In the following example, the merged enum type <code>DeliveryStatus</code> is valid. It includes all values from both source schemas, with <code>PENDING</code> being hidden due to the <code>@inaccessible</code> directive in one of the source schemas:</p>
+<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5754-L5767"><code><span class="token comment"># Schema A</span>
 <span class="token keyword">enum</span> <span class="token class-name">DeliveryStatus</span> <span class="token punctuation">{</span>
   <span class="token constant">PENDING</span> <span class="token directive function">@inaccessible</span>
   <span class="token constant">SHIPPED</span>
@@ -5986,8 +5998,8 @@ Number of items to fetch
   <span class="token constant">DELIVERED</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5759-L5761">If the <code>@inaccessible</code> directive is applied to an enum type itself, the entire merged enum type is excluded from the composite execution schema, and it is not required to contain any values.</p>
-<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5763-L5775"><code><span class="token comment"># Schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L5769-L5771">If the <code>@inaccessible</code> directive is applied to an enum type itself, the entire merged enum type is excluded from the composite execution schema, and it is not required to contain any values.</p>
+<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5773-L5785"><code><span class="token comment"># Schema A</span>
 <span class="token keyword">enum</span> <span class="token class-name">DeliveryStatus</span> <span class="token directive function">@inaccessible</span> <span class="token punctuation">{</span>
   <span class="token constant">SHIPPED</span>
   <span class="token constant">DELIVERED</span>
@@ -5999,8 +6011,8 @@ Number of items to fetch
   <span class="token constant">DELIVERED</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5777-L5780">This counter-example demonstrates an invalid merged enum type. In this case, <code>DeliveryStatus</code> is defined in two source schemas, but all values are marked as <code>@inaccessible</code> in at least one of the source schemas, resulting in an empty merged enum type:</p>
-<pre id="example-26816" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5782-L5794"><a href="#example-26816">Counter Example № 191</a><code><span class="token comment"># Schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L5787-L5790">This counter-example demonstrates an invalid merged enum type. In this case, <code>DeliveryStatus</code> is defined in two source schemas, but all values are marked as <code>@inaccessible</code> in at least one of the source schemas, resulting in an empty merged enum type:</p>
+<pre id="example-26816" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5792-L5804"><a href="#example-26816">Counter Example № 191</a><code><span class="token comment"># Schema A</span>
 <span class="token keyword">enum</span> <span class="token class-name">DeliveryStatus</span> <span class="token punctuation">{</span>
   <span class="token constant">PENDING</span> <span class="token directive function">@inaccessible</span>
   <span class="token constant">DELIVERED</span>
@@ -6015,41 +6027,24 @@ Number of items to fetch
 </section>
 </section>
 <section id="sec-Enum-Type-Default-Value-Inaccessible" secid="3.4.4.2">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L5796"><span class="spec-secid" title="link to this section"><a href="#sec-Enum-Type-Default-Value-Inaccessible">3.4.4.2</a></span>Enum Type Default Value Inaccessible</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L5806"><span class="spec-secid" title="link to this section"><a href="#sec-Enum-Type-Default-Value-Inaccessible">3.4.4.2</a></span>Enum Type Default Value Inaccessible</h4>
 <section id="sec-Enum-Type-Default-Value-Inaccessible.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5798"><a href="#sec-Enum-Type-Default-Value-Inaccessible.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5800"><code>ENUM_TYPE_DEFAULT_VALUE_INACCESSIBLE</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5808"><a href="#sec-Enum-Type-Default-Value-Inaccessible.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5810"><code>ENUM_TYPE_DEFAULT_VALUE_INACCESSIBLE</code></p>
 </section>
 <section id="sec-Enum-Type-Default-Value-Inaccessible.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5802"><a href="#sec-Enum-Type-Default-Value-Inaccessible.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5812"><a href="#sec-Enum-Type-Default-Value-Inaccessible.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5804"><span class="spec-call"><a href="#ValidateArgumentDefaultValues()" data-name="ValidateArgumentDefaultValues">ValidateArgumentDefaultValues</a>()</span> must be true.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5805"><span class="spec-call"><a href="#ValidateInputFieldDefaultValues()" data-name="ValidateInputFieldDefaultValues">ValidateInputFieldDefaultValues</a>()</span> must be true.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5814"><span class="spec-call"><a href="#ValidateArgumentDefaultValues()" data-name="ValidateArgumentDefaultValues">ValidateArgumentDefaultValues</a>()</span> must be true.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5815"><span class="spec-call"><a href="#ValidateInputFieldDefaultValues()" data-name="ValidateInputFieldDefaultValues">ValidateInputFieldDefaultValues</a>()</span> must be true.</li>
 </ul>
-<div class="spec-algo" id="ValidateArgumentDefaultValues()" data-source="spec/Section%204%20--%20Composition.md#L5807-L5815">
+<div class="spec-algo" id="ValidateArgumentDefaultValues()" data-source="spec/Section%204%20--%20Composition.md#L5817-L5825">
 <span class="spec-call"><a href="#ValidateArgumentDefaultValues()" data-name="ValidateArgumentDefaultValues">ValidateArgumentDefaultValues</a>()</span><ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L5809">Let <var data-name="arguments">arguments</var> be the set of all arguments of fields in the composed schema</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5810-L5814">For each <var data-name="argument">argument</var> in <var data-name="arguments">arguments</var><ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L5811-L5814">If <var data-name="argument">argument</var> has a default value:<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L5812">Let <var data-name="defaultValue">defaultValue</var> be the default value of <var data-name="argument">argument</var></li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5813-L5814">If not <span class="spec-call"><a href="#ValidateDefaultValue()" data-name="ValidateDefaultValue">ValidateDefaultValue</a>(<var data-name="defaultValue">defaultValue</var>)</span><ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L5814">return false</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5815">return true</li>
-</ol>
-</div>
-<div class="spec-algo" id="ValidateInputFieldDefaultValues()" data-source="spec/Section%204%20--%20Composition.md#L5817-L5825">
-<span class="spec-call"><a href="#ValidateInputFieldDefaultValues()" data-name="ValidateInputFieldDefaultValues">ValidateInputFieldDefaultValues</a>()</span><ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L5819">Let <var data-name="inputFields">inputFields</var> be the set of all input fields in the composed schema</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5820-L5824">For each <var data-name="inputField">inputField</var> in <var data-name="inputFields">inputFields</var>:<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L5821-L5824">If <var data-name="inputField">inputField</var> has a default value:<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L5822">Let <var data-name="defaultValue">defaultValue</var> be the default value of <var data-name="inputField">inputField</var></li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5823-L5824">If <span class="spec-call"><a href="#ValidateDefaultValue()" data-name="ValidateDefaultValue">ValidateDefaultValue</a>(<var data-name="defaultValue">defaultValue</var>)</span> is false<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L5819">Let <var data-name="arguments">arguments</var> be the set of all arguments of fields in the composed schema</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5820-L5824">For each <var data-name="argument">argument</var> in <var data-name="arguments">arguments</var><ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L5821-L5824">If <var data-name="argument">argument</var> has a default value:<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L5822">Let <var data-name="defaultValue">defaultValue</var> be the default value of <var data-name="argument">argument</var></li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5823-L5824">If not <span class="spec-call"><a href="#ValidateDefaultValue()" data-name="ValidateDefaultValue">ValidateDefaultValue</a>(<var data-name="defaultValue">defaultValue</var>)</span><ol>
 <li data-source="spec/Section%204%20--%20Composition.md#L5824">return false</li>
 </ol>
 </li>
@@ -6060,47 +6055,64 @@ Number of items to fetch
 <li data-source="spec/Section%204%20--%20Composition.md#L5825">return true</li>
 </ol>
 </div>
-<div class="spec-algo" id="ValidateDefaultValue()" data-source="spec/Section%204%20--%20Composition.md#L5827-L5843">
+<div class="spec-algo" id="ValidateInputFieldDefaultValues()" data-source="spec/Section%204%20--%20Composition.md#L5827-L5835">
+<span class="spec-call"><a href="#ValidateInputFieldDefaultValues()" data-name="ValidateInputFieldDefaultValues">ValidateInputFieldDefaultValues</a>()</span><ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L5829">Let <var data-name="inputFields">inputFields</var> be the set of all input fields in the composed schema</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5830-L5834">For each <var data-name="inputField">inputField</var> in <var data-name="inputFields">inputFields</var>:<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L5831-L5834">If <var data-name="inputField">inputField</var> has a default value:<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L5832">Let <var data-name="defaultValue">defaultValue</var> be the default value of <var data-name="inputField">inputField</var></li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5833-L5834">If <span class="spec-call"><a href="#ValidateDefaultValue()" data-name="ValidateDefaultValue">ValidateDefaultValue</a>(<var data-name="defaultValue">defaultValue</var>)</span> is false<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L5834">return false</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5835">return true</li>
+</ol>
+</div>
+<div class="spec-algo" id="ValidateDefaultValue()" data-source="spec/Section%204%20--%20Composition.md#L5837-L5853">
 <span class="spec-call"><a href="#ValidateDefaultValue()" data-name="ValidateDefaultValue">ValidateDefaultValue</a>(<var data-name="defaultValue">defaultValue</var>)</span><ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L5829-L5832">If <var data-name="defaultValue">defaultValue</var> is a ListValue:<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L5830-L5832">For each <var data-name="valueNode">valueNode</var> in <var data-name="defaultValue">defaultValue</var>:<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L5831-L5832">If <span class="spec-call"><a href="#ValidateDefaultValue()" data-name="ValidateDefaultValue">ValidateDefaultValue</a>(<var data-name="valueNode">valueNode</var>)</span> is false<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L5832">return false</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5833-L5838">If <var data-name="defaultValue">defaultValue</var> is an ObjectValue:<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L5834">Let <var data-name="objectFields">objectFields</var> be a list of all fields of <var data-name="defaultValue">defaultValue</var></li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5835-L5838">For each <var data-name="objectField">objectField</var> in <var data-name="objectFields">objectFields</var>:<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L5836">Let <var data-name="value">value</var> be the value of <var data-name="objectField">objectField</var></li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5837-L5838">If <span class="spec-call"><a href="#ValidateDefaultValue()" data-name="ValidateDefaultValue">ValidateDefaultValue</a>(<var data-name="value">value</var>)</span> is false<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L5838">return false</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5839-L5842">If <var data-name="defaultValue">defaultValue</var> is an EnumValue:<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L5840">If <var data-name="enum">enum</var> be the enum type of <var data-name="defaultValue">defaultValue</var></li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5841-L5842">If <var data-name="enum">enum</var> does not have a value with the name of <var data-name="defaultValue">defaultValue</var><ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L5839-L5842">If <var data-name="defaultValue">defaultValue</var> is a ListValue:<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L5840-L5842">For each <var data-name="valueNode">valueNode</var> in <var data-name="defaultValue">defaultValue</var>:<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L5841-L5842">If <span class="spec-call"><a href="#ValidateDefaultValue()" data-name="ValidateDefaultValue">ValidateDefaultValue</a>(<var data-name="valueNode">valueNode</var>)</span> is false<ol>
 <li data-source="spec/Section%204%20--%20Composition.md#L5842">return false</li>
 </ol>
 </li>
 </ol>
 </li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5843">return true</li>
+</ol>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5843-L5848">If <var data-name="defaultValue">defaultValue</var> is an ObjectValue:<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L5844">Let <var data-name="objectFields">objectFields</var> be a list of all fields of <var data-name="defaultValue">defaultValue</var></li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5845-L5848">For each <var data-name="objectField">objectField</var> in <var data-name="objectFields">objectFields</var>:<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L5846">Let <var data-name="value">value</var> be the value of <var data-name="objectField">objectField</var></li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5847-L5848">If <span class="spec-call"><a href="#ValidateDefaultValue()" data-name="ValidateDefaultValue">ValidateDefaultValue</a>(<var data-name="value">value</var>)</span> is false<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L5848">return false</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5849-L5852">If <var data-name="defaultValue">defaultValue</var> is an EnumValue:<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L5850">If <var data-name="enum">enum</var> be the enum type of <var data-name="defaultValue">defaultValue</var></li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5851-L5852">If <var data-name="enum">enum</var> does not have a value with the name of <var data-name="defaultValue">defaultValue</var><ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L5852">return false</li>
+</ol>
+</li>
+</ol>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5853">return true</li>
 </ol>
 </div>
 </section>
 <section id="sec-Enum-Type-Default-Value-Inaccessible.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5845"><a href="#sec-Enum-Type-Default-Value-Inaccessible.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5847-L5850">This rule ensures that inaccessible enum values are not exposed in the composed schema through default values. Output field arguments and input fields must only use enum values as their default value when not annotated with the <code>@inaccessible</code> directive.</p>
-<p data-source="spec/Section%204%20--%20Composition.md#L5852-L5853">In this example the <code>FOO</code> value in the <code>Enum1</code> enum is not marked with <code>@inaccessible</code>, hence it does not violate the rule.</p>
-<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5855-L5865"><code><span class="token comment"># Schema A</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5855"><a href="#sec-Enum-Type-Default-Value-Inaccessible.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5857-L5860">This rule ensures that inaccessible enum values are not exposed in the composed schema through default values. Output field arguments and input fields must only use enum values as their default value when not annotated with the <code>@inaccessible</code> directive.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L5862-L5863">In this example the <code>FOO</code> value in the <code>Enum1</code> enum is not marked with <code>@inaccessible</code>, hence it does not violate the rule.</p>
+<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5865-L5875"><code><span class="token comment"># Schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">field</span><span class="token punctuation">(</span><span class="token attr-name">type</span><span class="token punctuation">:</span> <span class="token class-name">Enum1</span> <span class="token operator">=</span> <span class="token constant">FOO</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">Baz</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
@@ -6110,8 +6122,8 @@ Number of items to fetch
   <span class="token constant">BAR</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5867-L5869">The following example violates this rule because the default value for the argument (<code>arg</code>) and the input field (<code>field</code>) references an enum value (<code>FOO</code>) that is marked as <code>@inaccessible</code>.</p>
-<pre id="example-8a5fb" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5871-L5885"><a href="#example-8a5fb">Counter Example № 192</a><code><span class="token comment"># Schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L5877-L5879">The following example violates this rule because the default value for the argument (<code>arg</code>) and the input field (<code>field</code>) references an enum value (<code>FOO</code>) that is marked as <code>@inaccessible</code>.</p>
+<pre id="example-8a5fb" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5881-L5895"><a href="#example-8a5fb">Counter Example № 192</a><code><span class="token comment"># Schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">field</span><span class="token punctuation">(</span><span class="token attr-name">arg</span><span class="token punctuation">:</span> <span class="token class-name">Enum1</span> <span class="token operator">=</span> <span class="token constant">FOO</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">Baz</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
@@ -6125,8 +6137,8 @@ Number of items to fetch
   <span class="token constant">BAR</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5887-L5889">The following example violates this rule because the default value for the argument (<code>arg</code>) and the input field (<code>field2</code>) references an <code>@inaccessible</code> enum value (<code>FOO</code>) within an object value.</p>
-<pre id="example-75995" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5891-L5910"><a href="#example-75995">Counter Example № 193</a><code><span class="token comment"># Schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L5897-L5899">The following example violates this rule because the default value for the argument (<code>arg</code>) and the input field (<code>field2</code>) references an <code>@inaccessible</code> enum value (<code>FOO</code>) within an object value.</p>
+<pre id="example-75995" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5901-L5920"><a href="#example-75995">Counter Example № 193</a><code><span class="token comment"># Schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">field</span><span class="token punctuation">(</span><span class="token attr-name">arg</span><span class="token punctuation">:</span> <span class="token class-name">Input1</span> <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token attr-name">field1</span><span class="token punctuation">:</span> <span class="token constant">FOO</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">Baz</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
@@ -6145,8 +6157,8 @@ Number of items to fetch
   <span class="token constant">BAR</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5912-L5914">The following example violates this rule because the default value for the argument (<code>arg</code>) and the input field (<code>field</code>) references an <code>@inaccessible</code> enum value (<code>FOO</code>) within a list.</p>
-<pre id="example-c2a62" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5916-L5930"><a href="#example-c2a62">Counter Example № 194</a><code><span class="token comment"># Schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L5922-L5924">The following example violates this rule because the default value for the argument (<code>arg</code>) and the input field (<code>field</code>) references an <code>@inaccessible</code> enum value (<code>FOO</code>) within a list.</p>
+<pre id="example-c2a62" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5926-L5940"><a href="#example-c2a62">Counter Example № 194</a><code><span class="token comment"># Schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">field</span><span class="token punctuation">(</span><span class="token attr-name">arg</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">Enum1</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token constant">FOO</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">Baz</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
@@ -6164,36 +6176,36 @@ Number of items to fetch
 </section>
 </section>
 <section id="sec-Validate-Union-Types" secid="3.4.5">
-<h3 data-source="spec/Section%204%20--%20Composition.md#L5932"><span class="spec-secid" title="link to this section"><a href="#sec-Validate-Union-Types">3.4.5</a></span>Validate Union Types</h3>
+<h3 data-source="spec/Section%204%20--%20Composition.md#L5942"><span class="spec-secid" title="link to this section"><a href="#sec-Validate-Union-Types">3.4.5</a></span>Validate Union Types</h3>
 <section id="sec-Empty-Merged-Union-Type" secid="3.4.5.1">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L5934"><span class="spec-secid" title="link to this section"><a href="#sec-Empty-Merged-Union-Type">3.4.5.1</a></span>Empty Merged Union Type</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L5944"><span class="spec-secid" title="link to this section"><a href="#sec-Empty-Merged-Union-Type">3.4.5.1</a></span>Empty Merged Union Type</h4>
 <section id="sec-Empty-Merged-Union-Type.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5936"><a href="#sec-Empty-Merged-Union-Type.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5938"><code>EMPTY_MERGED_UNION_TYPE</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5946"><a href="#sec-Empty-Merged-Union-Type.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5948"><code>EMPTY_MERGED_UNION_TYPE</code></p>
 </section>
 <section id="sec-Empty-Merged-Union-Type.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5940"><a href="#sec-Empty-Merged-Union-Type.Severity" title="link to this subsection">Severity</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5942">ERROR</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5950"><a href="#sec-Empty-Merged-Union-Type.Severity" title="link to this subsection">Severity</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5952">ERROR</p>
 </section>
 <section id="sec-Empty-Merged-Union-Type.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5944"><a href="#sec-Empty-Merged-Union-Type.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5954"><a href="#sec-Empty-Merged-Union-Type.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5946">Let <var data-name="unionTypes">unionTypes</var> be the set of all union types in the composite schema.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5947-L5949">For each <var data-name="unionType">unionType</var> in <var data-name="unionTypes">unionTypes</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L5948">Let <var data-name="members">members</var> be a set of all member types in <var data-name="unionType">unionType</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L5949"><var data-name="members">members</var> must not be empty.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5956">Let <var data-name="unionTypes">unionTypes</var> be the set of all union types in the composite schema.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5957-L5959">For each <var data-name="unionType">unionType</var> in <var data-name="unionTypes">unionTypes</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L5958">Let <var data-name="members">members</var> be a set of all member types in <var data-name="unionType">unionType</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L5959"><var data-name="members">members</var> must not be empty.</li>
 </ul>
 </li>
 </ul>
 </section>
 <section id="sec-Empty-Merged-Union-Type.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5951"><a href="#sec-Empty-Merged-Union-Type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5953-L5957">For union types defined across multiple source schemas, the merged union type is the union of all member types defined in these source schemas. However, any member type marked with <code>@inaccessible</code> in any source schema is hidden and not included in the merged union type. A union type with no members, after considering <code>@inaccessible</code> annotations, is considered empty and invalid.</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5961"><a href="#sec-Empty-Merged-Union-Type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5963-L5967">For union types defined across multiple source schemas, the merged union type is the union of all member types defined in these source schemas. However, any member type marked with <code>@inaccessible</code> in any source schema is hidden and not included in the merged union type. A union type with no members, after considering <code>@inaccessible</code> annotations, is considered empty and invalid.</p>
 </section>
 <section id="sec-Empty-Merged-Union-Type.Examples" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L5959"><a href="#sec-Empty-Merged-Union-Type.Examples" title="link to this subsection">Examples</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L5961-L5963">In the following example, the merged union type <code>SearchResult</code> is valid. It includes all member types from both source schemas, with <code>User</code> being hidden due to the <code>@inaccessible</code> directive in one of the source schemas:</p>
-<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5965-L5990"><code><span class="token comment"># Schema A</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L5969"><a href="#sec-Empty-Merged-Union-Type.Examples" title="link to this subsection">Examples</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L5971-L5973">In the following example, the merged union type <code>SearchResult</code> is valid. It includes all member types from both source schemas, with <code>User</code> being hidden due to the <code>@inaccessible</code> directive in one of the source schemas:</p>
+<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5975-L6000"><code><span class="token comment"># Schema A</span>
 <span class="token keyword">union</span> <span class="token class-name">SearchResult</span> <span class="token operator">=</span> <span class="token property">User</span> <span class="token operator">|</span> <span class="token property">Product</span>
 
 <span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@inaccessible</span> <span class="token punctuation">{</span>
@@ -6218,8 +6230,8 @@ Number of items to fetch
 <span class="token comment"># Composite Schema</span>
 <span class="token keyword">union</span> <span class="token class-name">SearchResult</span> <span class="token operator">=</span> <span class="token property">Product</span> <span class="token operator">|</span> <span class="token property">Order</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L5992-L5994">If the <code>@inaccessible</code> directive is applied to a union type itself, the entire merged union type is excluded from the composite execution schema, and it is not required to contain any members.</p>
-<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L5996-L6018"><code><span class="token comment"># Schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L6002-L6004">If the <code>@inaccessible</code> directive is applied to a union type itself, the entire merged union type is excluded from the composite execution schema, and it is not required to contain any members.</p>
+<pre data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6006-L6028"><code><span class="token comment"># Schema A</span>
 <span class="token keyword">union</span> <span class="token class-name">SearchResult</span> <span class="token directive function">@inaccessible</span> <span class="token operator">=</span> <span class="token property">User</span> <span class="token operator">|</span> <span class="token property">Product</span>
 
 <span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
@@ -6241,8 +6253,8 @@ Number of items to fetch
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L6020-L6023">This counter-example demonstrates an invalid merged union type. In this case, <code>SearchResult</code> is defined in two source schemas, but all member types are marked as <code>@inaccessible</code> in at least one of the source schemas, resulting in an empty merged union type:</p>
-<pre id="example-1ea7e" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6025-L6047"><a href="#example-1ea7e">Counter Example № 195</a><code><span class="token comment"># Schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L6030-L6033">This counter-example demonstrates an invalid merged union type. In this case, <code>SearchResult</code> is defined in two source schemas, but all member types are marked as <code>@inaccessible</code> in at least one of the source schemas, resulting in an empty merged union type:</p>
+<pre id="example-1ea7e" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6035-L6057"><a href="#example-1ea7e">Counter Example № 195</a><code><span class="token comment"># Schema A</span>
 <span class="token keyword">union</span> <span class="token class-name">SearchResult</span> <span class="token operator">=</span> <span class="token property">User</span> <span class="token operator">|</span> <span class="token property">Product</span>
 
 <span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@inaccessible</span> <span class="token punctuation">{</span>
@@ -6268,40 +6280,40 @@ Number of items to fetch
 </section>
 </section>
 <section id="sec-Validate-Is-Directives" secid="3.4.6">
-<h3 data-source="spec/Section%204%20--%20Composition.md#L6049"><span class="spec-secid" title="link to this section"><a href="#sec-Validate-Is-Directives">3.4.6</a></span>Validate Is Directives</h3>
+<h3 data-source="spec/Section%204%20--%20Composition.md#L6059"><span class="spec-secid" title="link to this section"><a href="#sec-Validate-Is-Directives">3.4.6</a></span>Validate Is Directives</h3>
 <section id="sec-Is-Invalid-Fields" secid="3.4.6.1">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L6051"><span class="spec-secid" title="link to this section"><a href="#sec-Is-Invalid-Fields">3.4.6.1</a></span>Is Invalid Fields</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L6061"><span class="spec-secid" title="link to this section"><a href="#sec-Is-Invalid-Fields">3.4.6.1</a></span>Is Invalid Fields</h4>
 <section id="sec-Is-Invalid-Fields.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L6053"><a href="#sec-Is-Invalid-Fields.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L6055"><code>IS_INVALID_FIELDS</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6063"><a href="#sec-Is-Invalid-Fields.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L6065"><code>IS_INVALID_FIELDS</code></p>
 </section>
 <section id="sec-Is-Invalid-Fields.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L6057"><a href="#sec-Is-Invalid-Fields.Severity" title="link to this subsection">Severity</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L6059">ERROR</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6067"><a href="#sec-Is-Invalid-Fields.Severity" title="link to this subsection">Severity</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L6069">ERROR</p>
 </section>
 <section id="sec-Is-Invalid-Fields.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L6061"><a href="#sec-Is-Invalid-Fields.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6071"><a href="#sec-Is-Invalid-Fields.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L6063">Let <var data-name="schemas">schemas</var> be all source schemas.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6064">Let <var data-name="compositeTypes">compositeTypes</var> be the set of all composite types in <var data-name="schemas">schemas</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6065-L6086">For each <var data-name="composite">composite</var> in <var data-name="compositeTypes">compositeTypes</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L6066">Let <var data-name="fields">fields</var> be the set of fields on <var data-name="composite">composite</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6067">Let <var data-name="arguments">arguments</var> be the set of all arguments on <var data-name="fields">fields</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6068-L6086">For each <var data-name="argument">argument</var> in <var data-name="arguments">arguments</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L6069-L6070">If <var data-name="argument">argument</var> is <strong>not</strong> annotated with <code>@is</code>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L6070">Continue</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6073">Let <var data-name="schemas">schemas</var> be all source schemas.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6074">Let <var data-name="compositeTypes">compositeTypes</var> be the set of all composite types in <var data-name="schemas">schemas</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6075-L6096">For each <var data-name="composite">composite</var> in <var data-name="compositeTypes">compositeTypes</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6076">Let <var data-name="fields">fields</var> be the set of fields on <var data-name="composite">composite</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6077">Let <var data-name="arguments">arguments</var> be the set of all arguments on <var data-name="fields">fields</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6078-L6096">For each <var data-name="argument">argument</var> in <var data-name="arguments">arguments</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6079-L6080">If <var data-name="argument">argument</var> is <strong>not</strong> annotated with <code>@is</code>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6080">Continue</li>
 </ul>
 </li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6071">Let <var data-name="schema">schema</var> be the schema that defines <var data-name="argument">argument</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6072">Let <var data-name="declaringField">declaringField</var> be the field that defines <var data-name="argument">argument</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6073">Let <var data-name="declaringType">declaringType</var> be the type that defines <var data-name="declaringField">declaringField</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6074">Let <var data-name="otherSchemas">otherSchemas</var> be the set of all <var data-name="schemas">schemas</var> excluding <var data-name="schema">schema</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6075-L6076">Let <var data-name="fieldArg">fieldArg</var> be the string value of the <code>field</code> argument of the <code>@is</code> directive on <var data-name="argument">argument</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6077">Let <var data-name="parsedFieldArg">parsedFieldArg</var> be the parsed selection map from <var data-name="fieldArg">fieldArg</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6078-L6086">The parsed selection map <var data-name="parsedFieldArg">parsedFieldArg</var> must satisfy the validation rules defined in Appendix A, Section 6.3, using:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L6080"><var data-name="declaringType">declaringType</var> as the initial root type.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6081-L6082">The combined schema context formed by the union of <var data-name="otherSchemas">otherSchemas</var> as the schema context except all fields marked as <code>@internal</code></li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6083-L6086">Validation succeeds if each required field selection path can be resolved across this combined schema context. Individual fields in the selection may exist in different schemas; it is not required that all fields referenced by <var data-name="parsedFieldArg">parsedFieldArg</var> reside within a single schema.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6081">Let <var data-name="schema">schema</var> be the schema that defines <var data-name="argument">argument</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6082">Let <var data-name="declaringField">declaringField</var> be the field that defines <var data-name="argument">argument</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6083">Let <var data-name="declaringType">declaringType</var> be the type that defines <var data-name="declaringField">declaringField</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6084">Let <var data-name="otherSchemas">otherSchemas</var> be the set of all <var data-name="schemas">schemas</var> excluding <var data-name="schema">schema</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6085-L6086">Let <var data-name="fieldArg">fieldArg</var> be the string value of the <code>field</code> argument of the <code>@is</code> directive on <var data-name="argument">argument</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6087">Let <var data-name="parsedFieldArg">parsedFieldArg</var> be the parsed selection map from <var data-name="fieldArg">fieldArg</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6088-L6096">The parsed selection map <var data-name="parsedFieldArg">parsedFieldArg</var> must satisfy the validation rules defined in Appendix A, Section 6.3, using:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6090"><var data-name="declaringType">declaringType</var> as the initial root type.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6091-L6092">The combined schema context formed by the union of <var data-name="otherSchemas">otherSchemas</var> as the schema context except all fields marked as <code>@internal</code></li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6093-L6096">Validation succeeds if each required field selection path can be resolved across this combined schema context. Individual fields in the selection may exist in different schemas; it is not required that all fields referenced by <var data-name="parsedFieldArg">parsedFieldArg</var> reside within a single schema.</li>
 </ul>
 </li>
 </ul>
@@ -6311,13 +6323,13 @@ Number of items to fetch
 </ul>
 </section>
 <section id="sec-Is-Invalid-Fields.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L6088"><a href="#sec-Is-Invalid-Fields.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L6090-L6094">Even if the field selection map for <code>@is(field: "…")</code> is syntactically valid, its contents must also be valid within the composed schema. Fields must exist on the parent type for them to be referenced by <code>@is</code>. In addition, fields referencing unknown fields break the valid usage of <code>@is</code>, leading to an <code>IS_INVALID_FIELDS</code> error.</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6098"><a href="#sec-Is-Invalid-Fields.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L6100-L6104">Even if the field selection map for <code>@is(field: "…")</code> is syntactically valid, its contents must also be valid within the composed schema. Fields must exist on the parent type for them to be referenced by <code>@is</code>. In addition, fields referencing unknown fields break the valid usage of <code>@is</code>, leading to an <code>IS_INVALID_FIELDS</code> error.</p>
 </section>
 <section id="sec-Is-Invalid-Fields.Examples" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L6096"><a href="#sec-Is-Invalid-Fields.Examples" title="link to this subsection">Examples</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L6098-L6099">In the following example, the <code>@is</code> directive&rsquo;s <code>field</code> argument is a valid field selection map and satisfies the rule.</p>
-<pre id="example-b9f65" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6101-L6111"><a href="#example-b9f65">Example № 196</a><code><span class="token comment"># Schema A</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6106"><a href="#sec-Is-Invalid-Fields.Examples" title="link to this subsection">Examples</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L6108-L6109">In the following example, the <code>@is</code> directive&rsquo;s <code>field</code> argument is a valid field selection map and satisfies the rule.</p>
+<pre id="example-b9f65" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6111-L6121"><a href="#example-b9f65">Example № 196</a><code><span class="token comment"># Schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token property-query">personById</span><span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span> <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Person</span> <span class="token directive function">@lookup</span>
 <span class="token punctuation">}</span>
@@ -6327,8 +6339,8 @@ Number of items to fetch
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L6113-L6115">In this counter-example, the <code>@is</code> directive references a field (<code>unknownField</code>) that does not exist on the return type (<code>Person</code>), causing an <code>IS_INVALID_FIELDS</code> error.</p>
-<pre id="example-63aba" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6117-L6127"><a href="#example-63aba">Counter Example № 197</a><code><span class="token comment"># Schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L6123-L6125">In this counter-example, the <code>@is</code> directive references a field (<code>unknownField</code>) that does not exist on the return type (<code>Person</code>), causing an <code>IS_INVALID_FIELDS</code> error.</p>
+<pre id="example-63aba" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6127-L6137"><a href="#example-63aba">Counter Example № 197</a><code><span class="token comment"># Schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token property-query">personById</span><span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span> <span class="token directive function">@is</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"unknownField"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Person</span> <span class="token directive function">@lookup</span>
 <span class="token punctuation">}</span>
@@ -6342,65 +6354,65 @@ Number of items to fetch
 </section>
 </section>
 <section id="sec-Post-Merge-Validation.Validate-Provides-Directives" secid="3.4.7">
-<h3 data-source="spec/Section%204%20--%20Composition.md#L6129"><span class="spec-secid" title="link to this section"><a href="#sec-Post-Merge-Validation.Validate-Provides-Directives">3.4.7</a></span>Validate Provides Directives</h3>
+<h3 data-source="spec/Section%204%20--%20Composition.md#L6139"><span class="spec-secid" title="link to this section"><a href="#sec-Post-Merge-Validation.Validate-Provides-Directives">3.4.7</a></span>Validate Provides Directives</h3>
 <section id="sec-Provides-Invalid-Fields" secid="3.4.7.1">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L6131"><span class="spec-secid" title="link to this section"><a href="#sec-Provides-Invalid-Fields">3.4.7.1</a></span>Provides Invalid Fields</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L6141"><span class="spec-secid" title="link to this section"><a href="#sec-Provides-Invalid-Fields">3.4.7.1</a></span>Provides Invalid Fields</h4>
 <section id="sec-Provides-Invalid-Fields.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L6133"><a href="#sec-Provides-Invalid-Fields.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L6135"><code>PROVIDES_INVALID_FIELDS</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6143"><a href="#sec-Provides-Invalid-Fields.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L6145"><code>PROVIDES_INVALID_FIELDS</code></p>
 </section>
 <section id="sec-Provides-Invalid-Fields.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L6137"><a href="#sec-Provides-Invalid-Fields.Severity" title="link to this subsection">Severity</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L6139">ERROR</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6147"><a href="#sec-Provides-Invalid-Fields.Severity" title="link to this subsection">Severity</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L6149">ERROR</p>
 </section>
 <section id="sec-Provides-Invalid-Fields.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L6141"><a href="#sec-Provides-Invalid-Fields.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6151"><a href="#sec-Provides-Invalid-Fields.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L6143">Let <var data-name="schema">schema</var> be the merged composite execution schema.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6144-L6145">Let <var data-name="fieldsWithProvides">fieldsWithProvides</var> be the set of all fields annotated with the <code>@provides</code> directive in <var data-name="schema">schema</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6146-L6153">For each <var data-name="field">field</var> in <var data-name="fieldsWithProvides">fieldsWithProvides</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L6147-L6148">Let <var data-name="fieldsArg">fieldsArg</var> be the string value of the <code>fields</code> argument of the <code>@provides</code> directive on <var data-name="field">field</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6149-L6150">Let <var data-name="parsedFieldSelectionSet">parsedFieldSelectionSet</var> be the parsed field selection set from <var data-name="fieldsArg">fieldsArg</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6151">Let <var data-name="returnType">returnType</var> be the return type of <var data-name="field">field</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6152-L6153"><span class="spec-call"><a href="#ValidateFieldSelectionSet()" data-name="ValidateFieldSelectionSet">ValidateFieldSelectionSet</a>(<var data-name="parsedFieldSelectionSet">parsedFieldSelectionSet</var>, <var data-name="returnType">returnType</var>)</span> must be true.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6153">Let <var data-name="schema">schema</var> be the merged composite execution schema.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6154-L6155">Let <var data-name="fieldsWithProvides">fieldsWithProvides</var> be the set of all fields annotated with the <code>@provides</code> directive in <var data-name="schema">schema</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6156-L6163">For each <var data-name="field">field</var> in <var data-name="fieldsWithProvides">fieldsWithProvides</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6157-L6158">Let <var data-name="fieldsArg">fieldsArg</var> be the string value of the <code>fields</code> argument of the <code>@provides</code> directive on <var data-name="field">field</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6159-L6160">Let <var data-name="parsedFieldSelectionSet">parsedFieldSelectionSet</var> be the parsed field selection set from <var data-name="fieldsArg">fieldsArg</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6161">Let <var data-name="returnType">returnType</var> be the return type of <var data-name="field">field</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6162-L6163"><span class="spec-call"><a href="#ValidateFieldSelectionSet()" data-name="ValidateFieldSelectionSet">ValidateFieldSelectionSet</a>(<var data-name="parsedFieldSelectionSet">parsedFieldSelectionSet</var>, <var data-name="returnType">returnType</var>)</span> must be true.</li>
 </ul>
 </li>
 </ul>
-<div class="spec-algo" id="ValidateFieldSelectionSet()" data-source="spec/Section%204%20--%20Composition.md#L6155-L6168">
+<div class="spec-algo" id="ValidateFieldSelectionSet()" data-source="spec/Section%204%20--%20Composition.md#L6165-L6178">
 <span class="spec-call"><a href="#ValidateFieldSelectionSet()" data-name="ValidateFieldSelectionSet">ValidateFieldSelectionSet</a>(<var data-name="fieldSelectionSet">fieldSelectionSet</var>, <var data-name="parentType">parentType</var>)</span><ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L6157-L6167">For each <var data-name="selection">selection</var> in <var data-name="fieldSelectionSet">fieldSelectionSet</var>:<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L6158">Let <var data-name="selectedField">selectedField</var> be the field selected by <var data-name="selection">selection</var> in <var data-name="parentType">parentType</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6159-L6160">If <var data-name="selectedField">selectedField</var> does not exist on <var data-name="parentType">parentType</var>:<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L6160">return false</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6167-L6177">For each <var data-name="selection">selection</var> in <var data-name="fieldSelectionSet">fieldSelectionSet</var>:<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L6168">Let <var data-name="selectedField">selectedField</var> be the field selected by <var data-name="selection">selection</var> in <var data-name="parentType">parentType</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6169-L6170">If <var data-name="selectedField">selectedField</var> does not exist on <var data-name="parentType">parentType</var>:<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L6170">return false</li>
 </ol>
 </li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6161">Let <var data-name="selectedType">selectedType</var> be the type of <var data-name="selectedField">selectedField</var></li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6162-L6167">If <var data-name="selectedType">selectedType</var> is a composite type<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L6163">Let <var data-name="subSelectionSet">subSelectionSet</var> be the field selection set of <var data-name="selection">selection</var></li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6164-L6165">If <var data-name="subSelectionSet">subSelectionSet</var> is empty<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L6165">return false</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6171">Let <var data-name="selectedType">selectedType</var> be the type of <var data-name="selectedField">selectedField</var></li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6172-L6177">If <var data-name="selectedType">selectedType</var> is a composite type<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L6173">Let <var data-name="subSelectionSet">subSelectionSet</var> be the field selection set of <var data-name="selection">selection</var></li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6174-L6175">If <var data-name="subSelectionSet">subSelectionSet</var> is empty<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L6175">return false</li>
 </ol>
 </li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6166-L6167">If <span class="spec-call"><a href="#ValidateFieldSelectionSet()" data-name="ValidateFieldSelectionSet">ValidateFieldSelectionSet</a>(<var data-name="subSelectionSet">subSelectionSet</var>, <var data-name="fieldType">fieldType</var>)</span> is false<ol>
-<li data-source="spec/Section%204%20--%20Composition.md#L6167">return false</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6176-L6177">If <span class="spec-call"><a href="#ValidateFieldSelectionSet()" data-name="ValidateFieldSelectionSet">ValidateFieldSelectionSet</a>(<var data-name="subSelectionSet">subSelectionSet</var>, <var data-name="fieldType">fieldType</var>)</span> is false<ol>
+<li data-source="spec/Section%204%20--%20Composition.md#L6177">return false</li>
 </ol>
 </li>
 </ol>
 </li>
 </ol>
 </li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6168">return true</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6178">return true</li>
 </ol>
 </div>
 </section>
 <section id="sec-Provides-Invalid-Fields.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L6170"><a href="#sec-Provides-Invalid-Fields.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L6172-L6176">Even if the <code>@provides(fields: "…")</code> argument is well-formed syntactically, the selected fields must actually exist on the return type of the field. Invalid field references&mdash;e.g., selecting non-existent fields, referencing fields on the wrong type, or incorrectly omitting required nested selections&mdash;lead to a <code>PROVIDES_INVALID_FIELDS</code> error.</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6180"><a href="#sec-Provides-Invalid-Fields.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L6182-L6186">Even if the <code>@provides(fields: "…")</code> argument is well-formed syntactically, the selected fields must actually exist on the return type of the field. Invalid field references&mdash;e.g., selecting non-existent fields, referencing fields on the wrong type, or incorrectly omitting required nested selections&mdash;lead to a <code>PROVIDES_INVALID_FIELDS</code> error.</p>
 </section>
 <section id="sec-Provides-Invalid-Fields.Examples" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L6178"><a href="#sec-Provides-Invalid-Fields.Examples" title="link to this subsection">Examples</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L6180-L6181">In the following example, the <code>@provides</code> directive references a valid field (<code>hobbies</code>) on the <code>UserDetails</code> type.</p>
-<pre id="example-270d7" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6183-L6192"><a href="#example-270d7">Example № 198</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6188"><a href="#sec-Provides-Invalid-Fields.Examples" title="link to this subsection">Examples</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L6190-L6191">In the following example, the <code>@provides</code> directive references a valid field (<code>hobbies</code>) on the <code>UserDetails</code> type.</p>
+<pre id="example-270d7" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6193-L6202"><a href="#example-270d7">Example № 198</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token attr-name">details</span><span class="token punctuation">:</span> <span class="token class-name">UserDetails</span> <span class="token directive function">@provides</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"hobbies"</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
@@ -6409,8 +6421,8 @@ Number of items to fetch
   <span class="token attr-name">hobbies</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token scalar">String</span><span class="token punctuation">]</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L6194-L6196">In the following counter-example, the <code>@provides</code> directive specifies a field named <code>unknownField</code> which is not defined on <code>UserDetails</code>. This raises a <code>PROVIDES_INVALID_FIELDS</code> error.</p>
-<pre id="example-a93fe" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6198-L6207"><a href="#example-a93fe">Counter Example № 199</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L6204-L6206">In the following counter-example, the <code>@provides</code> directive specifies a field named <code>unknownField</code> which is not defined on <code>UserDetails</code>. This raises a <code>PROVIDES_INVALID_FIELDS</code> error.</p>
+<pre id="example-a93fe" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6208-L6217"><a href="#example-a93fe">Counter Example № 199</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token attr-name">details</span><span class="token punctuation">:</span> <span class="token class-name">UserDetails</span> <span class="token directive function">@provides</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"unknownField"</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
@@ -6423,40 +6435,40 @@ Number of items to fetch
 </section>
 </section>
 <section id="sec-Post-Merge-Validation.Validate-Require-Directives" secid="3.4.8">
-<h3 data-source="spec/Section%204%20--%20Composition.md#L6209"><span class="spec-secid" title="link to this section"><a href="#sec-Post-Merge-Validation.Validate-Require-Directives">3.4.8</a></span>Validate Require Directives</h3>
+<h3 data-source="spec/Section%204%20--%20Composition.md#L6219"><span class="spec-secid" title="link to this section"><a href="#sec-Post-Merge-Validation.Validate-Require-Directives">3.4.8</a></span>Validate Require Directives</h3>
 <section id="sec-Require-Invalid-Fields" secid="3.4.8.1">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L6211"><span class="spec-secid" title="link to this section"><a href="#sec-Require-Invalid-Fields">3.4.8.1</a></span>Require Invalid Fields</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L6221"><span class="spec-secid" title="link to this section"><a href="#sec-Require-Invalid-Fields">3.4.8.1</a></span>Require Invalid Fields</h4>
 <section id="sec-Require-Invalid-Fields.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L6213"><a href="#sec-Require-Invalid-Fields.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L6215"><code>REQUIRE_INVALID_FIELDS</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6223"><a href="#sec-Require-Invalid-Fields.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L6225"><code>REQUIRE_INVALID_FIELDS</code></p>
 </section>
 <section id="sec-Require-Invalid-Fields.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L6217"><a href="#sec-Require-Invalid-Fields.Severity" title="link to this subsection">Severity</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L6219">ERROR</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6227"><a href="#sec-Require-Invalid-Fields.Severity" title="link to this subsection">Severity</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L6229">ERROR</p>
 </section>
 <section id="sec-Require-Invalid-Fields.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L6221"><a href="#sec-Require-Invalid-Fields.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6231"><a href="#sec-Require-Invalid-Fields.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L6223">Let <var data-name="schemas">schemas</var> be all source schemas.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6224">Let <var data-name="compositeTypes">compositeTypes</var> be the set of all composite types in <var data-name="schemas">schemas</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6225-L6246">For each <var data-name="composite">composite</var> in <var data-name="compositeTypes">compositeTypes</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L6226">Let <var data-name="fields">fields</var> be the set of fields on <var data-name="composite">composite</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6227">Let <var data-name="arguments">arguments</var> be the set of all arguments on <var data-name="fields">fields</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6228-L6246">For each <var data-name="argument">argument</var> in <var data-name="arguments">arguments</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L6229-L6230">If <var data-name="argument">argument</var> is <strong>not</strong> annotated with <code>@require</code>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L6230">Continue</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6233">Let <var data-name="schemas">schemas</var> be all source schemas.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6234">Let <var data-name="compositeTypes">compositeTypes</var> be the set of all composite types in <var data-name="schemas">schemas</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6235-L6256">For each <var data-name="composite">composite</var> in <var data-name="compositeTypes">compositeTypes</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6236">Let <var data-name="fields">fields</var> be the set of fields on <var data-name="composite">composite</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6237">Let <var data-name="arguments">arguments</var> be the set of all arguments on <var data-name="fields">fields</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6238-L6256">For each <var data-name="argument">argument</var> in <var data-name="arguments">arguments</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6239-L6240">If <var data-name="argument">argument</var> is <strong>not</strong> annotated with <code>@require</code>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6240">Continue</li>
 </ul>
 </li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6231">Let <var data-name="schema">schema</var> be the schema that defines <var data-name="argument">argument</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6232">Let <var data-name="declaringField">declaringField</var> be the field that defines <var data-name="argument">argument</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6233">Let <var data-name="declaringType">declaringType</var> be the type that defines <var data-name="declaringField">declaringField</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6234">Let <var data-name="otherSchemas">otherSchemas</var> be the set of all <var data-name="schemas">schemas</var> excluding <var data-name="schema">schema</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6235-L6236">Let <var data-name="fieldArg">fieldArg</var> be the string value of the <code>field</code> argument of the <code>@require</code> directive on <var data-name="argument">argument</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6237">Let <var data-name="parsedFieldArg">parsedFieldArg</var> be the parsed selection map from <var data-name="fieldArg">fieldArg</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6238-L6246">The parsed selection map <var data-name="parsedFieldArg">parsedFieldArg</var> must satisfy the validation rules defined in Appendix A, Section 6.3, using:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L6240"><var data-name="declaringType">declaringType</var> as the initial root type.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6241-L6242">The combined schema context formed by the union of <var data-name="otherSchemas">otherSchemas</var> as the schema context except all fields marked as <code>@internal</code></li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6243-L6246">Validation succeeds if each required field selection path can be resolved across this combined schema context. Individual fields in the selection may exist in different schemas; it is not required that all fields referenced by <var data-name="parsedFieldArg">parsedFieldArg</var> reside within a single schema.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6241">Let <var data-name="schema">schema</var> be the schema that defines <var data-name="argument">argument</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6242">Let <var data-name="declaringField">declaringField</var> be the field that defines <var data-name="argument">argument</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6243">Let <var data-name="declaringType">declaringType</var> be the type that defines <var data-name="declaringField">declaringField</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6244">Let <var data-name="otherSchemas">otherSchemas</var> be the set of all <var data-name="schemas">schemas</var> excluding <var data-name="schema">schema</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6245-L6246">Let <var data-name="fieldArg">fieldArg</var> be the string value of the <code>field</code> argument of the <code>@require</code> directive on <var data-name="argument">argument</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6247">Let <var data-name="parsedFieldArg">parsedFieldArg</var> be the parsed selection map from <var data-name="fieldArg">fieldArg</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6248-L6256">The parsed selection map <var data-name="parsedFieldArg">parsedFieldArg</var> must satisfy the validation rules defined in Appendix A, Section 6.3, using:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6250"><var data-name="declaringType">declaringType</var> as the initial root type.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6251-L6252">The combined schema context formed by the union of <var data-name="otherSchemas">otherSchemas</var> as the schema context except all fields marked as <code>@internal</code></li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6253-L6256">Validation succeeds if each required field selection path can be resolved across this combined schema context. Individual fields in the selection may exist in different schemas; it is not required that all fields referenced by <var data-name="parsedFieldArg">parsedFieldArg</var> reside within a single schema.</li>
 </ul>
 </li>
 </ul>
@@ -6466,13 +6478,13 @@ Number of items to fetch
 </ul>
 </section>
 <section id="sec-Require-Invalid-Fields.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L6248"><a href="#sec-Require-Invalid-Fields.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L6250-L6254">Even if the selection map for <code>@require(field: "…")</code> is syntactically valid, its contents must also be valid. Required fields must exist on the parent type in a <strong>different schema than the one defining the requirement</strong> for them to be referenced by <code>@require</code>. Additionally, requiring unknown fields invalidates <code>@require</code>, resulting in a <code>REQUIRE_INVALID_FIELDS</code> error.</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6258"><a href="#sec-Require-Invalid-Fields.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L6260-L6264">Even if the selection map for <code>@require(field: "…")</code> is syntactically valid, its contents must also be valid. Required fields must exist on the parent type in a <strong>different schema than the one defining the requirement</strong> for them to be referenced by <code>@require</code>. Additionally, requiring unknown fields invalidates <code>@require</code>, resulting in a <code>REQUIRE_INVALID_FIELDS</code> error.</p>
 </section>
 <section id="sec-Require-Invalid-Fields.Examples" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L6256"><a href="#sec-Require-Invalid-Fields.Examples" title="link to this subsection">Examples</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L6258-L6259">In the following example, the <code>@require</code> directive&rsquo;s <code>field</code> argument is a valid selection set and satisfies the rule.</p>
-<pre id="example-d5069" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6261-L6278"><a href="#example-d5069">Example № 200</a><code><span class="token comment"># Schema A</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6266"><a href="#sec-Require-Invalid-Fields.Examples" title="link to this subsection">Examples</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L6268-L6269">In the following example, the <code>@require</code> directive&rsquo;s <code>field</code> argument is a valid selection set and satisfies the rule.</p>
+<pre id="example-d5069" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6271-L6288"><a href="#example-d5069">Example № 200</a><code><span class="token comment"># Schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token directive function">@key</span><span class="token punctuation">(</span><span class="token attr-name">fields</span><span class="token punctuation">:</span> <span class="token string">"id"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token property-query">profile</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"name"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token class-name">Profile</span>
@@ -6489,14 +6501,14 @@ Number of items to fetch
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L6280-L6282">In this counter-example, the <code>@require</code> directive references a field (<code>unknownField</code>) that does not exist on the parent type (<code>Book</code>), causing a <code>REQUIRE_INVALID_FIELDS</code> error.</p>
-<pre id="example-e09bc" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6284-L6289"><a href="#example-e09bc">Counter Example № 201</a><code><span class="token keyword">type</span> <span class="token class-name">Book</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L6290-L6292">In this counter-example, the <code>@require</code> directive references a field (<code>unknownField</code>) that does not exist on the parent type (<code>Book</code>), causing a <code>REQUIRE_INVALID_FIELDS</code> error.</p>
+<pre id="example-e09bc" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6294-L6299"><a href="#example-e09bc">Counter Example № 201</a><code><span class="token keyword">type</span> <span class="token class-name">Book</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token property-query">pages</span><span class="token punctuation">(</span><span class="token attr-name">pageSize</span><span class="token punctuation">:</span> <span class="token scalar">Int</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"unknownField"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">Int</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L6291-L6293">In the following counter-example, the <code>@require</code> directive references a field from itself (<code>Book.size</code>) which is not allowed. This results in a <code>REQUIRE_INVALID_FIELDS</code> error.</p>
-<pre id="example-8646e" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6295-L6301"><a href="#example-8646e">Counter Example № 202</a><code><span class="token keyword">type</span> <span class="token class-name">Book</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L6301-L6303">In the following counter-example, the <code>@require</code> directive references a field from itself (<code>Book.size</code>) which is not allowed. This results in a <code>REQUIRE_INVALID_FIELDS</code> error.</p>
+<pre id="example-8646e" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6305-L6311"><a href="#example-8646e">Counter Example № 202</a><code><span class="token keyword">type</span> <span class="token class-name">Book</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token attr-name">size</span><span class="token punctuation">:</span> <span class="token scalar">Int</span>
   <span class="token property-query">pages</span><span class="token punctuation">(</span><span class="token attr-name">pageSize</span><span class="token punctuation">:</span> <span class="token scalar">Int</span> <span class="token directive function">@require</span><span class="token punctuation">(</span><span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token string">"size"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">Int</span>
@@ -6506,33 +6518,33 @@ Number of items to fetch
 </section>
 </section>
 <section id="sec-Post-Merge-Validation.Validate-Shareable-Directives" secid="3.4.9">
-<h3 data-source="spec/Section%204%20--%20Composition.md#L6303"><span class="spec-secid" title="link to this section"><a href="#sec-Post-Merge-Validation.Validate-Shareable-Directives">3.4.9</a></span>Validate Shareable Directives</h3>
+<h3 data-source="spec/Section%204%20--%20Composition.md#L6313"><span class="spec-secid" title="link to this section"><a href="#sec-Post-Merge-Validation.Validate-Shareable-Directives">3.4.9</a></span>Validate Shareable Directives</h3>
 <section id="sec-Invalid-Shareable-Usage" secid="3.4.9.1">
-<h4 data-source="spec/Section%204%20--%20Composition.md#L6305"><span class="spec-secid" title="link to this section"><a href="#sec-Invalid-Shareable-Usage">3.4.9.1</a></span>Invalid Shareable Usage</h4>
+<h4 data-source="spec/Section%204%20--%20Composition.md#L6315"><span class="spec-secid" title="link to this section"><a href="#sec-Invalid-Shareable-Usage">3.4.9.1</a></span>Invalid Shareable Usage</h4>
 <section id="sec-Invalid-Shareable-Usage.Error-Code" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L6307"><a href="#sec-Invalid-Shareable-Usage.Error-Code" title="link to this subsection">Error Code</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L6309"><code>INVALID_SHAREABLE_USAGE</code></p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6317"><a href="#sec-Invalid-Shareable-Usage.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L6319"><code>INVALID_SHAREABLE_USAGE</code></p>
 </section>
 <section id="sec-Invalid-Shareable-Usage.Severity" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L6311"><a href="#sec-Invalid-Shareable-Usage.Severity" title="link to this subsection">Severity</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L6313">ERROR</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6321"><a href="#sec-Invalid-Shareable-Usage.Severity" title="link to this subsection">Severity</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L6323">ERROR</p>
 </section>
 <section id="sec-Invalid-Shareable-Usage.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L6315"><a href="#sec-Invalid-Shareable-Usage.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6325"><a href="#sec-Invalid-Shareable-Usage.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L6317">Let <var data-name="schema">schema</var> be one of the composed schemas.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6318">Let <var data-name="types">types</var> be the set of types defined in <var data-name="schema">schema</var>.</li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6319-L6327">For each <var data-name="type">type</var> in <var data-name="types">types</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L6320-L6323">If <var data-name="type">type</var> is an interface type:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L6321-L6323">For each field definition <var data-name="field">field</var> in <var data-name="type">type</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L6322-L6323">If <var data-name="field">field</var> is annotated with <code>@shareable</code>, produce an <code>INVALID_SHAREABLE_USAGE</code> error.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6327">Let <var data-name="schema">schema</var> be one of the composed schemas.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6328">Let <var data-name="types">types</var> be the set of types defined in <var data-name="schema">schema</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6329-L6337">For each <var data-name="type">type</var> in <var data-name="types">types</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6330-L6333">If <var data-name="type">type</var> is an interface type:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6331-L6333">For each field definition <var data-name="field">field</var> in <var data-name="type">type</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6332-L6333">If <var data-name="field">field</var> is annotated with <code>@shareable</code>, produce an <code>INVALID_SHAREABLE_USAGE</code> error.</li>
 </ul>
 </li>
 </ul>
 </li>
-<li data-source="spec/Section%204%20--%20Composition.md#L6324-L6327">If <var data-name="type">type</var> is the <code>Subscription</code> type:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L6325-L6327">For each field definition <var data-name="field">field</var> in <var data-name="type">type</var>:<ul>
-<li data-source="spec/Section%204%20--%20Composition.md#L6326-L6327">If <var data-name="field">field</var> is annotated with <code>@shareable</code>, produce an <code>INVALID_SHAREABLE_USAGE</code> error.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6334-L6337">If <var data-name="type">type</var> is the <code>Subscription</code> type:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6335-L6337">For each field definition <var data-name="field">field</var> in <var data-name="type">type</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6336-L6337">If <var data-name="field">field</var> is annotated with <code>@shareable</code>, produce an <code>INVALID_SHAREABLE_USAGE</code> error.</li>
 </ul>
 </li>
 </ul>
@@ -6542,28 +6554,28 @@ Number of items to fetch
 </ul>
 </section>
 <section id="sec-Invalid-Shareable-Usage.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L6329"><a href="#sec-Invalid-Shareable-Usage.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L6331-L6334">The <code>@shareable</code> directive is intended to indicate that a field on an <strong>object type</strong> can be resolved by multiple schemas without conflict. As a result, it is only valid to use <code>@shareable</code> on fields <strong>of object types</strong> (or on the entire object type itself).</p>
-<p data-source="spec/Section%204%20--%20Composition.md#L6336-L6339">Applying <code>@shareable</code> to interface fields is disallowed and violates the valid usage of the directive. This rule prevents schema composition errors and data conflicts by ensuring that <code>@shareable</code> is used only in contexts where shared field resolution is meaningful and unambiguous.</p>
-<p data-source="spec/Section%204%20--%20Composition.md#L6341-L6344">Additionally, subscription root fields cannot be shared (i.e., they are effectively non-shareable), as subscription events from multiple schemas would create conflicts in the composed schema. Attempting to mark a subscription field as shareable or to define it in multiple schemas triggers the same error.</p>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6339"><a href="#sec-Invalid-Shareable-Usage.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L6341-L6344">The <code>@shareable</code> directive is intended to indicate that a field on an <strong>object type</strong> can be resolved by multiple schemas without conflict. As a result, it is only valid to use <code>@shareable</code> on fields <strong>of object types</strong> (or on the entire object type itself).</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6346-L6349">Applying <code>@shareable</code> to interface fields is disallowed and violates the valid usage of the directive. This rule prevents schema composition errors and data conflicts by ensuring that <code>@shareable</code> is used only in contexts where shared field resolution is meaningful and unambiguous.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6351-L6354">Additionally, subscription root fields cannot be shared (i.e., they are effectively non-shareable), as subscription events from multiple schemas would create conflicts in the composed schema. Attempting to mark a subscription field as shareable or to define it in multiple schemas triggers the same error.</p>
 </section>
 <section id="sec-Invalid-Shareable-Usage.Examples" class="subsec">
-<h6 data-source="spec/Section%204%20--%20Composition.md#L6346"><a href="#sec-Invalid-Shareable-Usage.Examples" title="link to this subsection">Examples</a></h6>
-<p data-source="spec/Section%204%20--%20Composition.md#L6348-L6350">In this example, the field <code>orderStatus</code> on the <code>Order</code> object type is marked with <code>@shareable</code>, which is allowed. It signals that this field can be served from multiple schemas without creating a conflict.</p>
-<pre id="example-dcf02" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6352-L6358"><a href="#example-dcf02">Example № 203</a><code><span class="token keyword">type</span> <span class="token class-name">Order</span> <span class="token punctuation">{</span>
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6356"><a href="#sec-Invalid-Shareable-Usage.Examples" title="link to this subsection">Examples</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L6358-L6360">In this example, the field <code>orderStatus</code> on the <code>Order</code> object type is marked with <code>@shareable</code>, which is allowed. It signals that this field can be served from multiple schemas without creating a conflict.</p>
+<pre id="example-dcf02" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6362-L6368"><a href="#example-dcf02">Example № 203</a><code><span class="token keyword">type</span> <span class="token class-name">Order</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
   <span class="token attr-name">orderStatus</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@shareable</span>
   <span class="token attr-name">total</span><span class="token punctuation">:</span> <span class="token scalar">Float</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L6360-L6362">In this counter-example, the <code>InventoryItem</code> interface has a field <code>sku</code> marked with <code>@shareable</code>, which is invalid usage. Marking an interface field as shareable leads to an <code>INVALID_SHAREABLE_USAGE</code> error.</p>
-<pre id="example-b7d31" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6364-L6369"><a href="#example-b7d31">Counter Example № 204</a><code><span class="token keyword">interface</span> <span class="token class-name">InventoryItem</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L6370-L6372">In this counter-example, the <code>InventoryItem</code> interface has a field <code>sku</code> marked with <code>@shareable</code>, which is invalid usage. Marking an interface field as shareable leads to an <code>INVALID_SHAREABLE_USAGE</code> error.</p>
+<pre id="example-b7d31" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6374-L6379"><a href="#example-b7d31">Counter Example № 204</a><code><span class="token keyword">interface</span> <span class="token class-name">InventoryItem</span> <span class="token punctuation">{</span>
   <span class="token attr-name">sku</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span> <span class="token directive function">@shareable</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%204%20--%20Composition.md#L6371-L6373">By definition, root subscription fields cannot be shared across multiple schemas. In this example, both schemas define a subscription field <code>newOrderPlaced</code>:</p>
-<pre id="example-877ca" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6375-L6390"><a href="#example-877ca">Counter Example № 205</a><code><span class="token comment"># Schema A</span>
+<p data-source="spec/Section%204%20--%20Composition.md#L6381-L6383">By definition, root subscription fields cannot be shared across multiple schemas. In this example, both schemas define a subscription field <code>newOrderPlaced</code>:</p>
+<pre id="example-877ca" class="spec-counter-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L6385-L6400"><a href="#example-877ca">Counter Example № 205</a><code><span class="token comment"># Schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Subscription</span> <span class="token punctuation">{</span>
   <span class="token attr-name">newOrderPlaced</span><span class="token punctuation">:</span> <span class="token class-name">Order</span> <span class="token directive function">@shareable</span>
 <span class="token punctuation">}</span>
@@ -6583,8 +6595,8 @@ Number of items to fetch
 </section>
 </section>
 <section id="sec-Validate-Satisfiability" secid="3.5">
-<h2 data-source="spec/Section%204%20--%20Composition.md#L6392"><span class="spec-secid" title="link to this section"><a href="#sec-Validate-Satisfiability">3.5</a></span>Validate Satisfiability</h2>
-<p data-source="spec/Section%204%20--%20Composition.md#L6394-L6398">The final step confirms that the composite schema supports executable queries without leading to invalid conditions. Each query path defined in the merged schema is checked to ensure that every field can be resolved. If any query path is unresolvable, the schema is deemed unsatisfiable, and composition fails. </p>
+<h2 data-source="spec/Section%204%20--%20Composition.md#L6402"><span class="spec-secid" title="link to this section"><a href="#sec-Validate-Satisfiability">3.5</a></span>Validate Satisfiability</h2>
+<p data-source="spec/Section%204%20--%20Composition.md#L6404-L6408">The final step confirms that the composite schema supports executable queries without leading to invalid conditions. Each query path defined in the merged schema is checked to ensure that every field can be resolved. If any query path is unresolvable, the schema is deemed unsatisfiable, and composition fails. </p>
 </section>
 </section>
 <section id="sec-Executor" secid="4">
@@ -7548,6 +7560,7 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <input hidden class="toggle" type="checkbox" id="_toggle_3.4.1" /><label for="_toggle_3.4.1"></label>
 <ol>
 <li id="_sidebar_3.4.1.1"><a href="#sec-No-Queries"><span class="spec-secid">3.4.1.1</span>No Queries</a></li>
+<li id="_sidebar_3.4.1.2"><a href="#sec-Reference-To-Inaccessible-Type"><span class="spec-secid">3.4.1.2</span>Reference To Inaccessible Type</a></li>
 </ol>
 </li>
 <li id="_sidebar_3.4.2"><a href="#sec-Post-Merge-Validation.Validate-Composite-Types"><span class="spec-secid">3.4.2</span>Validate Composite Types</a>
@@ -7564,7 +7577,6 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <ol>
 <li id="_sidebar_3.4.3.1"><a href="#sec-Empty-Merged-Input-Object-Type"><span class="spec-secid">3.4.3.1</span>Empty Merged Input Object Type</a></li>
 <li id="_sidebar_3.4.3.2"><a href="#sec-Non-Null-Input-Fields-cannot-be-inaccessible"><span class="spec-secid">3.4.3.2</span>Non-Null Input Fields cannot be inaccessible</a></li>
-<li id="_sidebar_3.4.3.3"><a href="#sec-Input-Fields-cannot-reference-inaccessible-type"><span class="spec-secid">3.4.3.3</span>Input Fields cannot reference inaccessible type</a></li>
 </ol>
 </li>
 <li id="_sidebar_3.4.4"><a href="#sec-Post-Merge-Validation.Validate-Enums"><span class="spec-secid">3.4.4</span>Validate Enums</a>
