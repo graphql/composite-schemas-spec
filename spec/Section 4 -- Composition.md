@@ -562,11 +562,11 @@ type Product {
 }
 ```
 
-#### External Collision with Another Directive
+#### External Override Collision
 
 **Error Code**
 
-`EXTERNAL_COLLISION_WITH_ANOTHER_DIRECTIVE`
+`EXTERNAL_OVERRIDE_COLLISION`
 
 **Severity**
 
@@ -575,13 +575,79 @@ ERROR
 **Formal Specification**
 
 - Let {schema} be the source schema to validate.
-- Let {types} be the set of all composite types in {schema}.
+- Let {types} be the set of all {INTERFACE} and {OBJECT} types in {schema}.
 - For each {type} in {types}:
   - Let {fields} be the set of fields on {type}.
   - For each {field} in {fields}:
     - If {field} is annotated with `@external`:
-      - For each {argument} in {field}:
-        - {argument} must **not** be annotated with `@require`
+      - {field} must **not** be annotated with `@override`
+
+**Explanatory Text**
+
+The `@external` directive indicates that a field is **defined** in a different
+source schema, and the current schema merely references it. Therefore, a field
+marked with `@external` must **not** simultaneously carry directives that assume
+local ownership or resolution responsibility, such as `@override`, which
+transfers ownership of the field's definition from one schema to another, and is
+incompatible with an already-external field definition.
+
+**Examples**
+
+In this scenario, `User.fullName` is defined in **Schema A** but overridden in
+**Schema B**. Since `@override` is **not** combined with `@external` on the same
+field, no collision occurs.
+
+```graphql example
+# Source Schema A
+type User {
+  id: ID!
+  fullName: String
+}
+
+# Source Schema B
+type User {
+  id: ID!
+  fullName: String @override(from: "SchemaA")
+}
+```
+
+Here, `amount` is marked with both `@override` and `@external`. This violates
+the rule because the field is simultaneously labeled as “override from another
+schema” and “external” in the local schema, producing an
+`EXTERNAL_OVERRIDE_COLLISION` error.
+
+```graphql counter-example
+# Source Schema A
+type Payment {
+  id: ID!
+  amount: Int
+}
+
+# Source Schema B
+type Payment {
+  id: ID!
+  amount: Int @override(from: "SchemaA") @external
+}
+```
+
+#### External Provides Collision
+
+**Error Code**
+
+`EXTERNAL_PROVIDES_COLLISION`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {types} be the set of all {INTERFACE} and {OBJECT} types in {schema}.
+- For each {type} in {types}:
+  - Let {fields} be the set of fields on {type}.
+  - For each {field} in {fields}:
+    - If {field} is annotated with `@external`:
       - {field} must **not** be annotated with `@provides`
 
 **Explanatory Text**
@@ -589,47 +655,33 @@ ERROR
 The `@external` directive indicates that a field is **defined** in a different
 source schema, and the current schema merely references it. Therefore, a field
 marked with `@external` must **not** simultaneously carry directives that assume
-local ownership or resolution responsibility, such as:
-
-- **`@provides`**: Declares that the field can supply additional nested fields
-  from the local schema, which conflicts with the notion of an external field
-  whose definition resides elsewhere.
-
-- **`@require`**: Specifies dependencies on other fields to resolve this field.
-  Since `@external` fields are not locally resolved, there is no need for
-  `@require`.
-
-- **`@override`**: Transfers ownership of the field's definition from one schema
-  to another, which is incompatible with an already-external field definition.
-  Yet this is covered by the `OVERRIDE_COLLISION_WITH_ANOTHER_DIRECTIVE` rule.
-
-Any combination of `@external` with either `@provides` or `@require` on the same
-field results in inconsistent semantics. In such scenarios, an
-`EXTERNAL_COLLISION_WITH_ANOTHER_DIRECTIVE` error is raised.
+local ownership or resolution responsibility, such as `@provides`, which
+declares that the field can supply additional nested fields from the local
+schema, conflicting with the notion of an external field whose definition
+resides elsewhere.
 
 **Examples**
 
-In this example, `method` is **only** annotated with `@external` in Schema B,
-without any other directive. This usage is valid.
+In this example, `description` is **only** annotated with `@provides` in Schema
+B, without any other directive. This usage is valid.
 
 ```graphql example
 # Source Schema A
-type Payment {
+type Invoice {
   id: ID!
-  method: String
+  description: String
 }
 
 # Source Schema B
-type Payment {
+type Invoice {
   id: ID!
-  # This field is external, defined in Schema A.
-  method: String @external
+  description: String @provides(fields: "length")
 }
 ```
 
 In this counter-example, `description` is annotated with `@external` and also
 with `@provides`. Because `@external` and `@provides` cannot co-exist on the
-same field, an `EXTERNAL_COLLISION_WITH_ANOTHER_DIRECTIVE` error is produced.
+same field, an `EXTERNAL_PROVIDES_COLLISION` error is produced.
 
 ```graphql counter-example
 # Source Schema A
@@ -645,9 +697,59 @@ type Invoice {
 }
 ```
 
-The following example is invalid, since `title` is marked with both `@external`
-and has an argument that is annotated with `@require`. This conflict leads to an
-`EXTERNAL_COLLISION_WITH_ANOTHER_DIRECTIVE` error.
+#### External Require Collision
+
+**Error Code**
+
+`EXTERNAL_REQUIRE_COLLISION`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {types} be the set of all {INTERFACE} and {OBJECT} types in {schema}.
+- For each {type} in {types}:
+  - Let {fields} be the set of fields on {type}.
+  - For each {field} in {fields}:
+    - If {field} is annotated with `@external`:
+      - For each {argument} in {field}:
+        - {argument} must **not** be annotated with `@require`
+
+**Explanatory Text**
+
+The `@external` directive indicates that a field is **defined** in a different
+source schema, and the current schema merely references it. Therefore, a field
+marked with `@external` must **not** simultaneously carry directives that assume
+local ownership or resolution responsibility, such as `@require`, which
+specifies dependencies on other fields to resolve this field. Since `@external`
+fields are not locally resolved, there is no need for `@require`.
+
+**Examples**
+
+In this example, `title` has arguments annotated with `@require` in Schema B,
+but is not marked as `@external`. This usage is valid.
+
+```graphql example
+# Source Schema A
+type Book {
+  id: ID!
+  title: String
+  subtitle: String
+}
+
+# Source Schema B
+type Book {
+  id: ID!
+  title(subtitle: String @require(field: "subtitle")): String
+}
+```
+
+The following example is invalid, since `title` is marked with `@external` and
+has an argument that is annotated with `@require`. This conflict leads to an
+`EXTERNAL_REQUIRE_COLLISION` error.
 
 ```graphql counter-example
 # Source Schema A
@@ -660,7 +762,7 @@ type Book {
 # Source Schema B
 type Book {
   id: ID!
-  title(subtitle: String @require(field: "subtitle")) @external
+  title(subtitle: String @require(field: "subtitle")): String @external
 }
 ```
 
@@ -3435,78 +3537,6 @@ type Product {
 ```
 
 ### Validate Override Directives
-
-#### Override Collision with Another Directive
-
-**Error Code**
-
-`OVERRIDE_COLLISION_WITH_ANOTHER_DIRECTIVE`
-
-**Severity**
-
-ERROR
-
-**Formal Specification**
-
-- Let {schemas} be the set of all source schemas to be composed.
-- For each {schema} in {schemas}:
-  - Let {types} be the set of all composite types in {schema}.
-  - For each {type} in {types}:
-    - Let {fields} be the set of fields on {type}.
-    - For each {field} in {fields}:
-      - If {field} is annotated with `@override`:
-        - {field} must **not** be annotated with `@external`
-
-**Explanatory Text**
-
-The `@override` directive designates that ownership of a field is transferred
-from one source schema to another in the resulting composite schema. When such a
-transfer occurs, that field **cannot** also be annotated `@external`. A field
-declared as `@external` is originally defined in a **different** source schema.
-Overriding a field and simultaneously claiming it is external to the local
-schema is contradictory.
-
-In this case composition fails with an
-`OVERRIDE_COLLISION_WITH_ANOTHER_DIRECTIVE` error.
-
-**Examples**
-
-In this scenario, `User.fullName` is defined in **Schema A** but overridden in
-**Schema B**. Since `@override` is **not** combined with any of `@external` on
-the same field, no collision occurs.
-
-```graphql example
-# Source Schema A
-type User {
-  id: ID!
-  fullName: String
-}
-
-# Source Schema B
-type User {
-  id: ID!
-  fullName: String @override(from: "SchemaA")
-}
-```
-
-Here, `amount` is marked with both `@override` and `@external`. This violates
-the rule because the field is simultaneously labeled as “override from another
-schema” and “external” in the local schema, producing an
-`OVERRIDE_COLLISION_WITH_ANOTHER_DIRECTIVE` error.
-
-```graphql counter-example
-# Source Schema A
-type Payment {
-  id: ID!
-  amount: Int
-}
-
-# Source Schema B
-type Payment {
-  id: ID!
-  amount: Int @override(from: "SchemaA") @external
-}
-```
 
 #### Override Source Has Override
 
