@@ -3794,25 +3794,25 @@ In cases where the lookup argument name aligns with the field name on the return
 <h6 data-source="spec/Section%204%20--%20Composition.md#L3186"><a href="#sec-External-Argument-Type-Mismatch.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%204%20--%20Composition.md#L3188-L3191">This rule ensures that arguments on fields marked as <code>@external</code> have types compatible with the corresponding arguments on the fields defined in other source schemas. The arguments must have the exact same type signature, including nullability and list nesting.</p>
 <p data-source="spec/Section%204%20--%20Composition.md#L3193-L3194">Here, the <code>@external</code> field&rsquo;s <code>language</code> argument has the same type (<code>Language</code>) as the base field, satisfying the rule:</p>
-<pre id="example-6bb90" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L3196-L3206"><a href="#example-6bb90">Example № 141</a><code><span class="token comment"># Source schema A</span>
+<pre id="example-fc202" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L3196-L3206"><a href="#example-fc202">Example № 141</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token class-name">Language</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 
 <span class="token comment"># Source schema B</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
-  <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token class-name">Language</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
+  <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token class-name">Language</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@external</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%204%20--%20Composition.md#L3208-L3210">In this example, the <code>@external</code> field&rsquo;s <code>language</code> argument type does not match the base field&rsquo;s <code>language</code> argument type (<code>Language</code> vs. <code>String</code>), violating the rule:</p>
-<pre id="example-cbf2f" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L3212-L3222"><a href="#example-cbf2f">Example № 142</a><code><span class="token comment"># Source schema A</span>
+<pre id="example-90399" class="spec-example" data-language="graphql" data-source="spec/Section%204%20--%20Composition.md#L3212-L3222"><a href="#example-90399">Example № 142</a><code><span class="token comment"># Source schema A</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token class-name">Language</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 
 <span class="token comment"># Source schema B</span>
 <span class="token keyword">type</span> <span class="token class-name">Product</span> <span class="token punctuation">{</span>
-  <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
+  <span class="token attr-name">name</span><span class="token punctuation">(</span><span class="token attr-name">language</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@external</span>
 <span class="token punctuation">}</span>
 </code></pre>
 </section>
