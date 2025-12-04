@@ -2120,6 +2120,95 @@ type Profile {
 }
 ```
 
+### Validate Shareable Directives
+
+#### Invalid Shareable Usage
+
+**Error Code**
+
+`INVALID_SHAREABLE_USAGE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {types} be the set of types defined in {schema}.
+- For each {type} in {types}:
+  - If {type} is an interface type:
+    - For each field definition {field} in {type}:
+      - If {field} is annotated with `@shareable`, produce an
+        `INVALID_SHAREABLE_USAGE` error.
+  - If {type} is the `Subscription` type:
+    - For each field definition {field} in {type}:
+      - If {field} is annotated with `@shareable`, produce an
+        `INVALID_SHAREABLE_USAGE` error.
+
+**Explanatory Text**
+
+The `@shareable` directive is intended to indicate that a field on an **object
+type** can be resolved by multiple schemas without conflict. As a result, it is
+only valid to use `@shareable` on fields **of object types** (or on the entire
+object type itself).
+
+Applying `@shareable` to interface fields is disallowed and violates the valid
+usage of the directive. This rule prevents schema composition errors and data
+conflicts by ensuring that `@shareable` is used only in contexts where shared
+field resolution is meaningful and unambiguous.
+
+Additionally, subscription root fields cannot be shared (i.e., they are
+effectively non-shareable), as subscription events from multiple schemas would
+create conflicts in the composed schema. Attempting to mark a subscription field
+as shareable or to define it in multiple schemas triggers the same error.
+
+**Examples**
+
+In this example, the field `orderStatus` on the `Order` object type is marked
+with `@shareable`, which is allowed. It signals that this field can be served
+from multiple schemas without creating a conflict.
+
+```graphql example
+type Order {
+  id: ID!
+  orderStatus: String @shareable
+  total: Float
+}
+```
+
+In this counter-example, the `InventoryItem` interface has a field `sku` marked
+with `@shareable`, which is invalid usage. Marking an interface field as
+shareable leads to an `INVALID_SHAREABLE_USAGE` error.
+
+```graphql counter-example
+interface InventoryItem {
+  sku: ID! @shareable
+  name: String
+}
+```
+
+By definition, root subscription fields cannot be shared across multiple
+schemas. In this example, both schemas define a subscription field
+`newOrderPlaced`:
+
+```graphql counter-example
+# Schema A
+type Subscription {
+  newOrderPlaced: Order @shareable
+}
+
+type Order {
+  id: ID!
+  items: [String]
+}
+
+# Schema B
+type Subscription {
+  newOrderPlaced: Order @shareable
+}
+```
+
 ## Pre Merge Validation
 
 Prior to merging the schemas, additional validations are performed that require
@@ -6307,95 +6396,6 @@ type Book {
   id: ID!
   size: Int
   pages(pageSize: Int @require(field: "size")): Int
-}
-```
-
-### Validate Shareable Directives
-
-#### Invalid Shareable Usage
-
-**Error Code**
-
-`INVALID_SHAREABLE_USAGE`
-
-**Severity**
-
-ERROR
-
-**Formal Specification**
-
-- Let {schema} be one of the composed schemas.
-- Let {types} be the set of types defined in {schema}.
-- For each {type} in {types}:
-  - If {type} is an interface type:
-    - For each field definition {field} in {type}:
-      - If {field} is annotated with `@shareable`, produce an
-        `INVALID_SHAREABLE_USAGE` error.
-  - If {type} is the `Subscription` type:
-    - For each field definition {field} in {type}:
-      - If {field} is annotated with `@shareable`, produce an
-        `INVALID_SHAREABLE_USAGE` error.
-
-**Explanatory Text**
-
-The `@shareable` directive is intended to indicate that a field on an **object
-type** can be resolved by multiple schemas without conflict. As a result, it is
-only valid to use `@shareable` on fields **of object types** (or on the entire
-object type itself).
-
-Applying `@shareable` to interface fields is disallowed and violates the valid
-usage of the directive. This rule prevents schema composition errors and data
-conflicts by ensuring that `@shareable` is used only in contexts where shared
-field resolution is meaningful and unambiguous.
-
-Additionally, subscription root fields cannot be shared (i.e., they are
-effectively non-shareable), as subscription events from multiple schemas would
-create conflicts in the composed schema. Attempting to mark a subscription field
-as shareable or to define it in multiple schemas triggers the same error.
-
-**Examples**
-
-In this example, the field `orderStatus` on the `Order` object type is marked
-with `@shareable`, which is allowed. It signals that this field can be served
-from multiple schemas without creating a conflict.
-
-```graphql example
-type Order {
-  id: ID!
-  orderStatus: String @shareable
-  total: Float
-}
-```
-
-In this counter-example, the `InventoryItem` interface has a field `sku` marked
-with `@shareable`, which is invalid usage. Marking an interface field as
-shareable leads to an `INVALID_SHAREABLE_USAGE` error.
-
-```graphql counter-example
-interface InventoryItem {
-  sku: ID! @shareable
-  name: String
-}
-```
-
-By definition, root subscription fields cannot be shared across multiple
-schemas. In this example, both schemas define a subscription field
-`newOrderPlaced`:
-
-```graphql counter-example
-# Schema A
-type Subscription {
-  newOrderPlaced: Order @shareable
-}
-
-type Order {
-  id: ID!
-  items: [String]
-}
-
-# Schema B
-type Subscription {
-  newOrderPlaced: Order @shareable
 }
 ```
 
