@@ -1001,7 +1001,7 @@ type Service {
 
 **Error Code**
 
-`KEY_DIRECTIVE_IN_FIELDS_ARG`
+`KEY_DIRECTIVE_IN_FIELDS_ARGUMENT`
 
 **Severity**
 
@@ -1069,7 +1069,7 @@ type FullName {
 
 **Error Code**
 
-`KEY_FIELDS_HAS_ARGS`
+`KEY_FIELDS_HAS_ARGUMENTS`
 
 **Severity**
 
@@ -1588,7 +1588,7 @@ interface Bill {
 
 **Error Code**
 
-`PROVIDES_DIRECTIVE_IN_FIELDS_ARG`
+`PROVIDES_DIRECTIVE_IN_FIELDS_ARGUMENT`
 
 **Severity**
 
@@ -1661,7 +1661,7 @@ type Profile {
 
 **Error Code**
 
-`PROVIDES_FIELDS_HAS_ARGS`
+`PROVIDES_FIELDS_HAS_ARGUMENTS`
 
 **Severity**
 
