@@ -5079,6 +5079,75 @@ type AdminStats {
 }
 ```
 
+#### Reference To Inaccessible Type
+
+**Error Code**
+
+`REFERENCE_TO_INACCESSIBLE_TYPE`
+
+**Formal Specification**
+
+- Let {inputFields} be the set of all accessible fields of the input types in
+  the composed schema.
+- For each {inputField} in {inputFields}:
+  - Let {namedType} be the named type that {inputField} references
+  - {namedType} must be accessible.
+- Let {outputFields} be the set of all accessible fields of the output types in
+  the composed schema.
+- For each {outputField} in {outputFields}:
+  - Let {namedType} be the named type that {outputField} references
+  - {namedType} must be accessible.
+- Let {arguments} be the set of all accessible arguments of the output fields in
+  the composed schema.
+- For each {argument} in {arguments}:
+  - Let {namedType} be the named type that {argument} references
+  - {namedType} must be accessible.
+
+**Explanatory Text**
+
+In a composed schema, fields and arguments must only reference types that are
+exposed. This requirement guarantees that public types do not reference
+inaccessible structures which are intended for internal use.
+
+A valid case where a public input field references another public input type:
+
+```graphql example
+input Input1 {
+  field1: String!
+  field2: Input2
+}
+
+input Input2 {
+  field3: String
+}
+```
+
+Another valid case is where the field is not exposed in the composed schema:
+
+```graphql example
+input Input1 {
+  field1: String!
+  field2: Input2 @inaccessible
+}
+
+input Input2 @inaccessible {
+  field3: String
+}
+```
+
+An invalid case is when an input field references an inaccessible type:
+
+```graphql counter-example
+input Input1 {
+  field1: String!
+  field2: Input2!
+}
+
+input Input2 @inaccessible {
+  field3: String
+}
+```
+
 ### Validate Composite Types
 
 #### Empty Merged Object Type
@@ -5647,65 +5716,6 @@ input BookFilter {
 # Composite Schema
 input BookFilter {
   author: String!
-}
-```
-
-#### Input Fields cannot reference inaccessible type
-
-**Error Code**
-
-`INPUT_FIELD_REFERENCES_INACCESSIBLE_TYPE`
-
-**Formal Specification**
-
-- Let {fields} be the set of all fields of the input types in the composed
-  schema.
-- For each {field} in {fields}:
-  - Let {namedType} be the named type that {field} references
-  - {namedType} must be in the composed schema.
-
-**Explanatory Text**
-
-In a composed schema, a field within an input type must only reference types
-that are exposed. This requirement guarantees that public types do not reference
-inaccessible structures which are intended for internal use.
-
-A valid case where a public input field references another public input type:
-
-```graphql example
-input Input1 {
-  field1: String!
-  field2: Input2
-}
-
-input Input2 {
-  field3: String
-}
-```
-
-Another valid case is where the field is not exposed in the composed schema:
-
-```graphql example
-input Input1 {
-  field1: String!
-  field2: Input2 @inaccessible
-}
-
-input Input2 @inaccessible {
-  field3: String
-}
-```
-
-An invalid case is when an input field references an inaccessible type:
-
-```graphql counter-example
-input Input1 {
-  field1: String!
-  field2: Input2!
-}
-
-input Input2 @inaccessible {
-  field3: String
 }
 ```
 
