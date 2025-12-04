@@ -21,7 +21,7 @@ ecosystem.
 The GraphQL Specification Project has evolved and may continue to evolve in
 future editions of this specification. Previous editions of the GraphQL
 specification can be found at permalinks that match their release tag. The
-latest working draft release can be found at https://spec.graphql.org/draft.
+latest working draft release can be found at <https://spec.graphql.org/draft>.
 
 **Copyright notice**
 
@@ -82,9 +82,11 @@ explicitly in prose (e.g. "Note: ") or are set apart in a note block, like this:
 
 Note: This is an example of a non-normative note.
 
+<!-- markdownlint-disable MD025 -->
+
 # [Overview](Section%201%20--%20Overview.md)
 
-# [Subgraph](Section%202%20--%20Source%20Schema.md)
+# [Source Schema](Section%202%20--%20Source%20Schema.md)
 
 # [Composition](Section%204%20--%20Composition.md)
 
@@ -93,3 +95,5 @@ Note: This is an example of a non-normative note.
 # [Shared Types](Section%206%20--%20Shared%20Types.md)
 
 # [Appendix A -- Field Selection](Appendix%20A%20--%20Field%20Selection.md)
+
+<!-- markdownlint-enable MD025 -->

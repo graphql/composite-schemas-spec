@@ -3726,7 +3726,7 @@ MergeTypes(types):
 - If {kind} is `OBJECT`:
   - Return the result of {MergeObjectTypes(types)}.
 
-#### Merge Scalar Types
+### Merge Scalar Types
 
 **Formal Specification**
 
@@ -3782,7 +3782,7 @@ scalar Date
 scalar Date
 ```
 
-#### Merge Interface Types
+### Merge Interface Types
 
 **Formal Specification**
 
@@ -3901,7 +3901,7 @@ interface Product {
 }
 ```
 
-#### Merge Enum Types
+### Merge Enum Types
 
 **Formal Specification**
 
@@ -4019,7 +4019,7 @@ enum Status {
 }
 ```
 
-#### Merge Union Types
+### Merge Union Types
 
 **Formal Specification**
 
@@ -4116,7 +4116,7 @@ In this case, the `Product` type is marked with `@inaccessible` in the first
 schema. As a result, the `Product` type is excluded from the composed
 `SearchResult`
 
-#### Merge Input Types
+### Merge Input Types
 
 **Formal Specification**
 
@@ -4249,7 +4249,7 @@ input OrderInput {
 In this case, the description from the first schema is retained, while the
 fields are merged from both schemas to create the final `OrderInput` type.
 
-#### Merge Object Types
+### Merge Object Types
 
 **Formal Specification**
 
@@ -4406,7 +4406,7 @@ type Product {
 }
 ```
 
-#### Merge Output Fields
+### Merge Output Fields
 
 **Formal Specification**
 
@@ -4586,7 +4586,7 @@ type Product {
 }
 ```
 
-#### Merge Input Fields
+### Merge Input Fields
 
 **Formal Specification**
 
@@ -4683,7 +4683,7 @@ In the final schema, `minTotal` is defined using the most restrictive type
 (`Int!`), has a default value of `0`, and includes the description from the
 original field in `Schema A`.
 
-#### Merge Argument Definitions
+### Merge Argument Definitions
 
 **Formal Specification**
 
@@ -4779,7 +4779,7 @@ In the merged schema, the `filter` argument is defined with the most restrictive
 type (`ProductFilter!`), includes the description from the original field in
 `Schema A`, and is marked as required.
 
-#### Merge Arguments
+### Merge Arguments
 
 **Formal Specification**
 
