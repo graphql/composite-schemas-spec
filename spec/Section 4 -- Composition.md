@@ -3113,7 +3113,7 @@ ERROR
 This rule ensures that fields marked with `@external` have all the necessary
 arguments that exist on the corresponding field definitions in other source
 schemas. Each argument defined on the base field (the field definition in the
-source source schema) must be present on the `@external` field in other source
+defining source schema) must be present on the `@external` field in other source
 schemas. If an argument is missing on an `@external` field, the field cannot be
 resolved correctly, which is an inconsistency.
 
