@@ -5345,6 +5345,65 @@ input Input2 @inaccessible {
 }
 ```
 
+#### Reference To Internal Type
+
+**Error Code**
+
+`REFERENCE_TO_INTERNAL_TYPE`
+
+**Formal Specification**
+
+- Let {fields} be the set of all fields of the output types in the composed
+  schema.
+- For each {field} in {fields}:
+  - Let {namedType} be the named type that {field} references
+  - {namedType} must exist in the composed schema.
+
+**Explanatory Text**
+
+In a composed schema, fields must not reference internal types. This requirement
+guarantees that public types do not reference internal structures which are
+intended for internal use.
+
+A valid case where a public field references another public type:
+
+```graphql example
+type Object1 {
+  field1: String!
+  field2: Object2
+}
+
+type Object2 {
+  field3: String
+}
+```
+
+Another valid case is where the field is internal in the source schema:
+
+```graphql example
+type Object1 {
+  field1: String!
+  field2: Object2 @internal
+}
+
+type Object2 @internal {
+  field3: String
+}
+```
+
+An invalid case is when a field references an internal type:
+
+```graphql counter-example
+type Object1 {
+  field1: String!
+  field2: Object2!
+}
+
+type Object2 @internal {
+  field3: String
+}
+```
+
 ### Validate Composite Types
 
 #### Empty Merged Object Type
