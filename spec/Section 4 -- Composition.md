@@ -6458,6 +6458,10 @@ ERROR
 
 CollectExecutablePaths(rootType, schema):
 
+Starting from {rootType}, collect each executable field path that can be formed
+in {schema}. Each collected path is represented as an ordered list of tuples
+({type}, {field}).
+
 - Let {paths} be an empty set.
 - Let {stack} be the set of one-element paths `[(rootType, fieldName)]` for each
   field named {fieldName} on {rootType} in {schema}.
@@ -6485,6 +6489,10 @@ CollectExecutablePaths(rootType, schema):
 
 PlanOptions(path, allSchemas):
 
+Given {path}, determine which source schemas can satisfy it. Candidate schemas
+are initialized from the first path element, then refined for the remaining
+elements via `PlanOptionsInternal`.
+
 - Let {pathElements} be the ordered list of tuples ({type}, {field}) in {path}.
 - If {pathElements} is empty:
   - return an empty set.
@@ -6499,6 +6507,10 @@ PlanOptions(path, allSchemas):
 - return `PlanOptionsInternal(remainingPath, initialOptions, allSchemas)`.
 
 PlanOptionsInternal(pathElements, currentOptions, allSchemas):
+
+For the remaining {pathElements}, evaluate one element at a time against
+{currentOptions}. The result is the set of schemas that can satisfy the full
+remainder of the path.
 
 - If {pathElements} is empty:
   - return {currentOptions}.
@@ -6526,6 +6538,10 @@ PlanOptionsInternal(pathElements, currentOptions, allSchemas):
 
 IsReachable(sourceSchema, targetSchema, type, allSchemas):
 
+Execution can transition from {sourceSchema} to {targetSchema} for {type} only
+when {targetSchema} has a compatible `@lookup` whose required input paths are
+resolvable from the current context.
+
 - Let {lookups} be the set of all fields in {targetSchema} that are annotated
   with `@lookup` and resolve {type}. A lookup resolves {type} if:
   - Its unwrapped return type is {type}, or
@@ -6540,12 +6556,18 @@ IsReachable(sourceSchema, targetSchema, type, allSchemas):
 
 FieldHasRequirements(schema, type, field):
 
+A field is requirement-bearing when at least one argument on {field} of {type}
+in {schema} is annotated with `@require`.
+
 - Let {arguments} be the set of arguments on {field} of {type} in {schema}.
 - If any argument in {arguments} is annotated with `@require`:
   - return true.
 - return false.
 
 ResolveRequirements(sourceSchema, targetSchema, type, field, allSchemas):
+
+Each `@require` argument on {field} must be resolvable from allowed schemas
+(excluding {targetSchema}) when execution starts from {sourceSchema}.
 
 - Let {allowedSchemas} be {allSchemas} excluding {targetSchema}.
 - Let {requiredArguments} be the set of arguments on {field} that are annotated
@@ -6567,6 +6589,10 @@ ResolveRequirements(sourceSchema, targetSchema, type, field, allSchemas):
 
 LookupPathSets(lookup, rootType):
 
+For {lookup}, each argument contributes one or more `FieldSelectionMap`
+alternatives. Combine those argument-level alternatives into conjunctive
+path-set requirements rooted at {rootType}.
+
 - Let {pathSets} be a set containing one empty path set.
 - Let {arguments} be the set of arguments on {lookup}.
 - For each {argument} in {arguments}:
@@ -6583,6 +6609,9 @@ LookupPathSets(lookup, rootType):
 
 ExtractPathSets(fieldSelectionMap, rootType, argument):
 
+Interpret {fieldSelectionMap} for {argument} according to Appendix A and
+materialize the path-set alternatives rooted at {rootType}.
+
 - Let {pathSets} be the set of path sets represented by {fieldSelectionMap} for
   {argument}, rooted at {rootType}, according to Appendix A:
   - Each path in a path set is represented as a list of tuples ({type}, {field})
@@ -6592,6 +6621,10 @@ ExtractPathSets(fieldSelectionMap, rootType, argument):
 - return {pathSets}.
 
 IsPathSetResolvable(pathSet, sourceSchema, candidateSchemas):
+
+A conjunctive {pathSet} is resolvable only if every path in the set has at least
+one valid option when starting from {sourceSchema} and considering only
+{candidateSchemas}.
 
 - For each {path} in {pathSet}:
   - Let {options} be
