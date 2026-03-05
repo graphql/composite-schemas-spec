@@ -6491,7 +6491,7 @@ PlanOptions(path, allSchemas):
 
 Given {path}, determine which source schemas can satisfy it. Candidate schemas
 are initialized from the first path element, then refined for the remaining
-elements via `PlanOptionsInternal`.
+elements via `RefinePlanOptions`.
 
 - Let {pathElements} be the ordered list of tuples ({type}, {field}) in {path}.
 - If {pathElements} is empty:
@@ -6504,9 +6504,9 @@ elements via `PlanOptionsInternal`.
 - If {initialOptions} is empty:
   - return an empty set.
 - Let {remainingPath} be {pathElements} without the first element.
-- return `PlanOptionsInternal(remainingPath, initialOptions, allSchemas)`.
+- return `RefinePlanOptions(remainingPath, initialOptions, allSchemas)`.
 
-PlanOptionsInternal(pathElements, currentOptions, allSchemas):
+RefinePlanOptions(pathElements, currentOptions, allSchemas):
 
 For the remaining {pathElements}, evaluate one element at a time against
 {currentOptions}. The result is the set of schemas that can satisfy the full
@@ -6534,7 +6534,7 @@ remainder of the path.
 - If {nextOptions} is empty:
   - return an empty set.
 - Let {remainingPath} be {pathElements} without the first element.
-- return `PlanOptionsInternal(remainingPath, nextOptions, allSchemas)`.
+- return `RefinePlanOptions(remainingPath, nextOptions, allSchemas)`.
 
 IsReachable(sourceSchema, targetSchema, type, allSchemas):
 
@@ -6628,7 +6628,7 @@ one valid option when starting from {sourceSchema} and considering only
 
 - For each {path} in {pathSet}:
   - Let {options} be
-    `PlanOptionsInternal(path, {sourceSchema}, candidateSchemas)`.
+    `RefinePlanOptions(path, {sourceSchema}, candidateSchemas)`.
   - If {options} is empty:
     - return false.
 - return true.
