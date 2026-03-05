@@ -6433,3 +6433,143 @@ The final step confirms that the composite schema supports executable queries
 without leading to invalid conditions. Each query path defined in the merged
 schema is checked to ensure that every field can be resolved. If any query path
 is unresolvable, the schema is deemed unsatisfiable, and composition fails.
+
+### Unsatisfiable Query Path
+
+**Error Code**
+
+`UNSATISFIABLE_QUERY_PATH`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the merged composite execution schema.
+- Let {sourceSchemas} be the set of source schemas used to compose {schema}.
+- Let {operationRootTypes} be the set containing `Query`, `Mutation`, and
+  `Subscription` when defined in {schema}.
+- For each {rootType} in {operationRootTypes}:
+  - Let {paths} be the set of all executable field paths that start at
+    {rootType}.
+  - For each {path} in {paths}:
+    - Let {options} be the result of `PlanOptions(path, sourceSchemas)`.
+    - {options} must not be empty.
+
+PlanOptions(path, allSchemas):
+
+- Let {pathElements} be the ordered list of tuples ({type}, {field}) in {path}.
+- If {pathElements} is empty:
+  - return an empty set.
+- Let ({initialType}, {initialField}) be the first element in {pathElements}.
+- Let {initialOptions} be an empty set.
+- For each {schema} in {allSchemas}:
+  - If {schema} defines {initialField} on {initialType}:
+    - Add {schema} to {initialOptions}.
+- If {initialOptions} is empty:
+  - return an empty set.
+- Let {remainingPath} be {pathElements} without the first element.
+- return `PlanOptionsInternal(remainingPath, initialOptions, allSchemas)`.
+
+PlanOptionsInternal(pathElements, currentOptions, allSchemas):
+
+- If {pathElements} is empty:
+  - return {currentOptions}.
+- Let ({currentType}, {currentField}) be the first element in {pathElements}.
+- Let {nextOptions} be an empty set.
+- For each {currentSchema} in {currentOptions}:
+  - For each {candidateSchema} in {allSchemas}:
+    - If {candidateSchema} does not define {currentField} on {currentType}:
+      - Continue to the next {candidateSchema}.
+    - If {candidateSchema} is not equal to {currentSchema}:
+      - If
+        `IsReachable(currentSchema, candidateSchema, currentType, allSchemas)`
+        is false:
+        - Continue to the next {candidateSchema}.
+    - If {FieldHasRequirements(candidateSchema, currentType, currentField)}:
+      - If
+        `ResolveRequirements(currentSchema, candidateSchema, currentType, currentField, allSchemas)`
+        is false:
+        - Continue to the next {candidateSchema}.
+    - Add {candidateSchema} to {nextOptions}.
+- If {nextOptions} is empty:
+  - return an empty set.
+- Let {remainingPath} be {pathElements} without the first element.
+- return `PlanOptionsInternal(remainingPath, nextOptions, allSchemas)`.
+
+IsReachable(sourceSchema, targetSchema, type, allSchemas):
+
+- Let {lookups} be the set of all fields in {targetSchema} that are annotated
+  with `@lookup` and resolve {type}.
+- For each {lookup} in {lookups}:
+  - Let {lookupPaths} be the set of required field paths for {lookup}, derived
+    from its arguments:
+    - If an argument has `@is`, use the parsed field selection map from that
+      argument.
+    - Otherwise, use the argument name as a single-field path.
+  - Let {lookupReachable} be true.
+  - For each {lookupPath} in {lookupPaths}:
+    - Let {lookupOptions} be
+      `PlanOptionsInternal(lookupPath, {sourceSchema}, allSchemas)`.
+    - If {lookupOptions} is empty:
+      - Set {lookupReachable} to false.
+      - Break.
+  - If {lookupReachable} is true:
+    - return true.
+- return false.
+
+FieldHasRequirements(schema, type, field):
+
+- Let {arguments} be the set of arguments on {field} of {type} in {schema}.
+- If any argument in {arguments} is annotated with `@require`:
+  - return true.
+- return false.
+
+ResolveRequirements(sourceSchema, targetSchema, type, field, allSchemas):
+
+- Let {requirementPaths} be the set of required field paths for {field}, formed
+  from the parsed `@require(field: "...")` selection maps on its arguments.
+- For each {requiredPath} in {requirementPaths}:
+  - Let {requiredOptions} be
+    `PlanOptionsInternal(requiredPath, {sourceSchema}, allSchemas)`.
+  - If {requiredOptions} is empty:
+    - return false.
+- return true.
+
+**Explanatory Text**
+
+The satisfiability phase must ensure that every executable field path in the
+composed API can be fulfilled by at least one valid query plan.
+`PlanOptions(path, allSchemas)` computes this by walking the path step-by-step
+and tracking which source schemas can resolve each step.
+
+When the algorithm stays within the same source schema, it continues directly.
+When it switches to another schema, the transition is valid only if the target
+schema is reachable via a compatible `@lookup` and all required lookup inputs
+can themselves be resolved from the current schema context.
+
+Likewise, if a field declares `@require` dependencies, those dependencies must
+also be resolvable. If any required path cannot be resolved, that candidate
+schema is removed from the options for that path step.
+
+If every candidate is eliminated for any field path, the path is unsatisfiable
+and composition fails with `UNSATISFIABLE_QUERY_PATH`.
+
+**Examples**
+
+The following query path:
+
+`Query.me.profile.age`
+
+is represented as:
+
+`[(Query, me), (User, profile), (Profile, age)]`
+
+Similarly, this path:
+
+`Mutation.createUser.query.me`
+
+is represented as:
+
+`[(Mutation, createUser), (CreateUserPayload, query), (Query, me)]`
