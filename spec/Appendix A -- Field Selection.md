@@ -785,19 +785,16 @@ Each {Arguments} provided on a {Path} segment or on the shorthand form of a
 **Explanatory Text**
 
 Arguments included on a field selection must be defined on the selected field,
-must coerce to the corresponding argument types, and must satisfy the
-field's required arguments. Variables are not permitted; only literal values
-may appear.
+must coerce to the corresponding argument types, and must satisfy the field's
+required arguments. Variables are not permitted; only literal values may appear.
 
-The following example is valid because `unit` is a defined argument of
-`width` and `IMPERIAL` is a valid value of the `Unit` enum:
+The following example is valid because `unit` is a defined argument of `width`
+and `IMPERIAL` is a valid value of the `Unit` enum:
 
 ```graphql example
 type Product {
   width(unit: Unit!): Float!
-  shippingCost(
-    width: Float @require(field: "width(unit: IMPERIAL)")
-  ): Currency
+  shippingCost(width: Float @require(field: "width(unit: IMPERIAL)")): Currency
 }
 ```
 
@@ -807,9 +804,7 @@ The following example is invalid because `scale` is not a defined argument of
 ```graphql counter-example
 type Product {
   width(unit: Unit!): Float!
-  shippingCost(
-    width: Float @require(field: "width(scale: IMPERIAL)")
-  ): Currency
+  shippingCost(width: Float @require(field: "width(scale: IMPERIAL)")): Currency
 }
 ```
 
