@@ -1167,11 +1167,11 @@ type FullName {
 }
 ```
 
-#### Key Fields Has Arguments
+#### Key Invalid Arguments
 
 **Error Code**
 
-`KEY_FIELDS_HAS_ARGUMENTS`
+`KEY_INVALID_ARGUMENTS`
 
 **Severity**
 
@@ -1184,26 +1184,49 @@ ERROR
 - For each {type} in {types}:
   - Let {keyFields} be the set of fields referenced by the `fields` argument of
     the `@key` directive on {type}.
-  - For each {field} in {keyFields}:
-    - HasKeyFieldsArguments(field) must be true.
+  - For each {selection} in {keyFields}:
+    - {ValidateKeyFieldArguments(selection)} must be true.
 
-HasKeyFieldsArguments(field):
+ValidateKeyFieldArguments(selection):
 
-- If {field} has arguments:
-  - return false
-- If {field} has a selection set:
-  - Let {subFields} be the set of all fields in the selection set of {field}.
-  - For each {subField} in {subFields}:
-    - HasKeyFieldsArguments(subField) must be true.
+- Let {field} be the field referenced by {selection}.
+- Let {argumentDefinitions} be the set of argument definitions of {field}.
+- Let {arguments} be the set of arguments provided by {selection}.
+- For each {argument} in {arguments}:
+  - Let {argumentName} be the {Name} of {argument}.
+  - Let {argumentDefinition} be the argument definition in {argumentDefinitions}
+    named {argumentName}.
+  - {argumentDefinition} must exist.
+  - Let {value} be the {Value} of {argument}.
+  - {value} must not contain a {Variable}.
+  - {value} must be coercible to the type of {argumentDefinition}.
+- For each {argumentDefinition} in {argumentDefinitions}:
+  - Let {type} be the expected type of {argumentDefinition}.
+  - Let {defaultValue} be the default value of {argumentDefinition}.
+  - If {type} is Non-Null and {defaultValue} does not exist:
+    - Let {argumentName} be the name of {argumentDefinition}.
+    - An {argument} in {arguments} named {argumentName} must exist.
+- If {selection} has a selection set:
+  - Let {subSelections} be the set of all selections in the selection set of
+    {selection}.
+  - For each {subSelection} in {subSelections}:
+    - {ValidateKeyFieldArguments(subSelection)} must be true.
 - return true
 
 **Explanatory Text**
 
 The `@key` directive is used to define the set of fields that uniquely identify
-an entity. These fields must not include any field that is defined with
-arguments, as arguments introduce variability that prevents consistent and valid
-entity resolution across schemas. Fields included in the `fields` argument of
-the `@key` directive must be static and consistently resolvable.
+an entity. Fields included in the `fields` argument of the `@key` directive may
+accept arguments, provided the supplied values are constant literals — variables
+are not permitted, since a key must be statically resolvable from the schema
+alone. The constants must satisfy the field's argument definitions: argument
+names must be defined on the field, values must be coercible to the
+corresponding argument types, and required arguments without defaults must be
+supplied.
+
+A key may include an argument-bearing field as long as the supplied constants
+make the resolution deterministic. For example, `id(scope: LOCAL)` is a valid
+key field — the entity is identified by its locally-scoped `id`.
 
 **Examples**
 
@@ -1218,13 +1241,41 @@ type User @key(fields: "id name") {
 }
 ```
 
-In this counter-example, the `@key` directive references a field (`tags`) that
-is defined with arguments (`limit`), which is not allowed.
+In this example, the `Product` type has a valid `@key` directive that supplies a
+constant argument to parameterize the key field.
+
+```graphql example
+type Product @key(fields: "id(scope: LOCAL)") {
+  id(scope: IdScope!): ID!
+  name: String
+}
+```
+
+In this counter-example, the `@key` directive references a field (`tags`) but
+fails to supply the required `limit` argument:
 
 ```graphql counter-example
 type User @key(fields: "id tags") {
   id: ID!
-  tags(limit: Int = 10): [String]
+  tags(limit: Int!): [String]
+}
+```
+
+In this counter-example, the `@key` directive supplies an unknown argument
+(`scale`) on `id`:
+
+```graphql counter-example
+type Product @key(fields: "id(scale: LOCAL)") {
+  id(scope: IdScope!): ID!
+}
+```
+
+In this counter-example, the `@key` directive uses a variable, which is not
+permitted because keys must be statically resolvable:
+
+```graphql counter-example
+type Product @key(fields: "id(scope: $scope)") {
+  id(scope: IdScope!): ID!
 }
 ```
 
@@ -1798,6 +1849,13 @@ The `@provides` directive specifies fields that a resolver provides for the
 parent type. The `fields` argument must reference fields that do not have
 arguments, as fields with arguments introduce variability that is incompatible
 with the consistent behavior expected of `@provides`.
+
+Note: Unlike `@key`, `@is`, and `@require`, which describe how to derive or
+identify a value (and may therefore include constant arguments to disambiguate
+the selection), `@provides` advertises that the resolver returns the listed
+fields as part of its parent's selection set. Because the consumer chooses the
+arguments at query time, the resolver cannot pre-commit to a specific
+parameterization, and constant arguments would be meaningless here.
 
 **Examples**
 
@@ -6333,6 +6391,27 @@ type Person {
 }
 ```
 
+The `@is` directive may also reference fields with arguments. In the following
+example, the lookup argument is mapped to the `id` field selected with the
+constant `LOCAL` value for the `scope` argument:
+
+```graphql example
+# Schema A
+type Query {
+  productByLocalId(id: ID! @is(field: "id(scope: LOCAL)")): Product @lookup
+}
+
+type Product {
+  id(scope: IdScope!): ID!
+  name: String
+}
+```
+
+Argument values within `@is` must be constant literals; variables are not
+permitted. Argument names must exist on the referenced field, values must coerce
+to the argument's type, and required arguments without defaults must be
+supplied.
+
 ### Validate Require Directives
 
 #### Require Invalid Fields
@@ -6426,6 +6505,33 @@ type Book {
   pages(pageSize: Int @require(field: "size")): Int
 }
 ```
+
+The `@require` directive may also reference fields with arguments. In the
+following example, the `weight` argument is required from the `weight` output
+field selected with a constant `unit` argument:
+
+```graphql example
+# Schema A
+type Product @key(fields: "id") {
+  id: ID!
+  shippingCost(
+    weight: Float @require(field: "weight(unit: IMPERIAL)")
+  ): Currency
+}
+
+# Schema B
+type Product @key(fields: "id") {
+  id: ID!
+  weight(unit: WeightUnit!): Float
+}
+```
+
+Argument values within `@require` must be constant literals; variables are not
+permitted. Argument names must exist on the referenced field, values must coerce
+to the argument's type, and required arguments without defaults must be
+supplied. When the referenced field is defined in multiple source schemas, the
+argument definitions across those schemas must be mergeable as defined by
+[Field Argument Types Mergeable](#sec-Field-Argument-Types-Mergeable).
 
 ## Validate Satisfiability
 

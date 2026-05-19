@@ -348,9 +348,9 @@ Path ::
 
 PathSegment ::
 
-- FieldName
-- FieldName . PathSegment
-- FieldName < TypeName > . PathSegment
+- FieldName Arguments[Const]?
+- FieldName Arguments[Const]? . PathSegment
+- FieldName Arguments[Const]? < TypeName > . PathSegment
 
 FieldName ::
 
@@ -369,8 +369,38 @@ book.title
 ```
 
 Each segment specifies a field in the context of the parent, with the root
-segment referencing a field in the _return type_ of the query. Arguments are not
-allowed in a {Path}.
+segment referencing a field in the _return type_ of the query.
+
+A segment MAY include {Arguments} to disambiguate or parameterize the selected
+field, using the same syntax defined by the GraphQL specification. Because
+{Arguments} are matched as {Arguments[Const]}, only literal values are permitted
+— variables are not allowed in a {Path}.
+
+In the following example, the `width` and `height` output fields are selected
+with the `unit` argument set to `IMPERIAL`:
+
+```graphql example
+type Product {
+  width(unit: Unit!): Float!
+  height(unit: Unit!): Float!
+  shippingCost(
+    dimensions: DimensionInput
+      @require(
+        field: "{ width: width(unit: IMPERIAL), height: height(unit: IMPERIAL) }"
+      )
+  ): Currency
+}
+```
+
+Arguments may also appear on intermediate segments of a {Path}:
+
+```graphql example
+type Product {
+  shippingCost(
+    weight: Float @require(field: "packaging(material: BOX).weight")
+  ): Currency
+}
+```
 
 To select a field when dealing with abstract types, the segment selecting the
 parent field must specify the concrete type of the field using angle brackets
@@ -440,11 +470,31 @@ SelectedObjectValue ::
 SelectedObjectField ::
 
 - Name: SelectedValue
-- Name
+- Name Arguments[Const]?
 
 {SelectedObjectValue} are unordered lists of keyed input values wrapped in
 curly-braces `{}`. It has to be used when the expected input type is an object
 type.
+
+When the shorthand form (without an explicit label) is used, the {Name} refers
+to both the input field and the output field of the same name. {Arguments} MAY
+follow the {Name} to parameterize the selected output field. As in {Path},
+arguments use {Arguments[Const]} and therefore must consist of literal values
+only — variables are not allowed.
+
+The following example uses the shorthand form together with arguments to select
+`width` and `height` with the `unit` argument:
+
+```graphql example
+type Product {
+  shippingCost(
+    dimensions: DimensionInput
+      @require(
+        field: "dimensions[{ width(unit: IMPERIAL), height(unit: IMPERIAL) }]"
+      )
+  ): Currency
+}
+```
 
 This structure is similar to the `ObjectValue` defined in the GraphQL
 specification, but it differs by allowing the inclusion of {Path} values within
@@ -703,6 +753,79 @@ movieId
 
 ```graphql counter-example
 <Book>.movieId
+```
+
+### Path Field Argument Validity
+
+Each {Arguments} provided on a {Path} segment or on the shorthand form of a
+{SelectedObjectField} must be valid for the selected field.
+
+**Formal Specification**
+
+- For each {segment} in the {Path} that includes {Arguments}:
+  - Let {field} be the field referenced by {segment}.
+  - Let {argumentDefinitions} be the set of argument definitions of {field}.
+  - For each {argument} in {Arguments}:
+    - Let {argumentName} be the {Name} of {argument}.
+    - Let {argumentDefinition} be the argument definition in
+      {argumentDefinitions} named {argumentName}.
+    - {argumentDefinition} must exist.
+    - Let {value} be the {Value} of {argument}.
+    - {value} must not contain a {Variable}.
+    - {value} must be coercible to the type of {argumentDefinition}.
+  - For each {argumentDefinition} in {argumentDefinitions}:
+    - Let {type} be the expected type of {argumentDefinition}.
+    - Let {defaultValue} be the default value of {argumentDefinition}.
+    - If {type} is Non-Null and {defaultValue} does not exist:
+      - Let {argumentName} be the name of {argumentDefinition}.
+      - An {argument} in {Arguments} named {argumentName} must exist.
+- The same rules apply to {Arguments} provided on the shorthand form of a
+  {SelectedObjectField}, where the field is the output field of the same name.
+
+**Explanatory Text**
+
+Arguments included on a field selection must be defined on the selected field,
+must coerce to the corresponding argument types, and must satisfy the field's
+required arguments. Variables are not permitted; only literal values may appear.
+
+The following example is valid because `unit` is a defined argument of `width`
+and `IMPERIAL` is a valid value of the `Unit` enum:
+
+```graphql example
+type Product {
+  width(unit: Unit!): Float!
+  shippingCost(width: Float @require(field: "width(unit: IMPERIAL)")): Currency
+}
+```
+
+The following example is invalid because `scale` is not a defined argument of
+`width`:
+
+```graphql counter-example
+type Product {
+  width(unit: Unit!): Float!
+  shippingCost(width: Float @require(field: "width(scale: IMPERIAL)")): Currency
+}
+```
+
+The following example is invalid because the required `unit` argument is not
+provided:
+
+```graphql counter-example
+type Product {
+  width(unit: Unit!): Float!
+  shippingCost(width: Float @require(field: "width")): Currency
+}
+```
+
+The following example is invalid because variables are not permitted in
+{FieldSelectionMap}:
+
+```graphql counter-example
+type Product {
+  width(unit: Unit!): Float!
+  shippingCost(width: Float @require(field: "width(unit: $unit)")): Currency
+}
 ```
 
 ### Path Terminal Field Selections
