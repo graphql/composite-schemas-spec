@@ -6539,3 +6539,241 @@ The final step confirms that the composite schema supports executable queries
 without leading to invalid conditions. Each query path defined in the merged
 schema is checked to ensure that every field can be resolved. If any query path
 is unresolvable, the schema is deemed unsatisfiable, and composition fails.
+
+### Unsatisfiable Query Path
+
+**Error Code**
+
+`UNSATISFIABLE_QUERY_PATH`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the merged composite execution schema.
+- Let {sourceSchemas} be the set of source schemas used to compose {schema}.
+- Let {operationRootTypes} be the set containing `Query`, `Mutation`, and
+  `Subscription` when defined in {schema}.
+- For each {rootType} in {operationRootTypes}:
+  - Let {paths} be the result of `CollectExecutablePaths(rootType, schema)`.
+  - For each {path} in {paths}:
+    - Let {options} be the result of `PlanOptions(path, sourceSchemas)`.
+    - {options} must not be empty.
+
+CollectExecutablePaths(rootType, schema):
+
+Starting from {rootType}, collect each executable field path that can be formed
+in {schema}. Each collected path is represented as an ordered list of tuples
+({type}, {field}).
+
+- Let {paths} be an empty set.
+- Let {stack} be the set of one-element paths `[(rootType, fieldName)]` for each
+  field named {fieldName} on {rootType} in {schema}.
+- While {stack} is not empty:
+  - Remove one {path} from {stack}.
+  - Add {path} to {paths}.
+  - Let ({parentType}, {parentField}) be the last element in {path}.
+  - Let {returnType} be the unwrapped return type of {parentField} on
+    {parentType} in {schema}.
+  - If {returnType} is an object type:
+    - Let {possibleTypes} be the set containing only {returnType}.
+  - Otherwise if {returnType} is an interface or union type:
+    - Let {possibleTypes} be `GetPossibleTypes(returnType)`.
+  - Otherwise:
+    - Continue to the next {path}.
+  - For each {nextType} in {possibleTypes}:
+    - Let {nextFields} be the set of field names on {nextType} in {schema}.
+    - For each {nextField} in {nextFields}:
+      - Let {nextElement} be the tuple ({nextType}, {nextField}).
+      - If {nextElement} is already in {path}:
+        - Continue to the next {nextField}.
+      - Let {extendedPath} be {path} followed by {nextElement}.
+      - Add {extendedPath} to {stack}.
+- return {paths}.
+
+PlanOptions(path, allSchemas):
+
+Given {path}, determine which source schemas can satisfy it. Candidate schemas
+are initialized from the first path element, then refined for the remaining
+elements via `RefinePlanOptions`.
+
+- Let {pathElements} be the ordered list of tuples ({type}, {field}) in {path}.
+- If {pathElements} is empty:
+  - return an empty set.
+- Let ({initialType}, {initialField}) be the first element in {pathElements}.
+- Let {initialOptions} be an empty set.
+- For each {schema} in {allSchemas}:
+  - If {schema} defines {initialField} on {initialType}:
+    - Add {schema} to {initialOptions}.
+- If {initialOptions} is empty:
+  - return an empty set.
+- Let {remainingPath} be {pathElements} without the first element.
+- return `RefinePlanOptions(remainingPath, initialOptions, allSchemas)`.
+
+RefinePlanOptions(pathElements, currentOptions, allSchemas):
+
+For the remaining {pathElements}, evaluate one element at a time against
+{currentOptions}. The result is the set of schemas that can satisfy the full
+remainder of the path.
+
+- If {pathElements} is empty:
+  - return {currentOptions}.
+- Let ({currentType}, {currentField}) be the first element in {pathElements}.
+- Let {nextOptions} be an empty set.
+- For each {currentSchema} in {currentOptions}:
+  - For each {candidateSchema} in {allSchemas}:
+    - If {candidateSchema} does not define {currentField} on {currentType}:
+      - Continue to the next {candidateSchema}.
+    - If {candidateSchema} is not equal to {currentSchema}:
+      - If
+        `IsReachable(currentSchema, candidateSchema, currentType, allSchemas)`
+        is false:
+        - Continue to the next {candidateSchema}.
+    - If {FieldHasRequirements(candidateSchema, currentType, currentField)}:
+      - If
+        `ResolveRequirements(currentSchema, candidateSchema, currentType, currentField, allSchemas)`
+        is false:
+        - Continue to the next {candidateSchema}.
+    - Add {candidateSchema} to {nextOptions}.
+- If {nextOptions} is empty:
+  - return an empty set.
+- Let {remainingPath} be {pathElements} without the first element.
+- return `RefinePlanOptions(remainingPath, nextOptions, allSchemas)`.
+
+IsReachable(sourceSchema, targetSchema, type, allSchemas):
+
+Execution can transition from {sourceSchema} to {targetSchema} for {type} only
+when {targetSchema} has a compatible `@lookup` whose required input paths are
+resolvable from the current context.
+
+- Let {lookups} be the set of all fields in {targetSchema} that are annotated
+  with `@lookup` and resolve {type}. A lookup resolves {type} if:
+  - Its unwrapped return type is {type}, or
+  - Its unwrapped return type is an interface or union whose possible object
+    types include {type}.
+- For each {lookup} in {lookups}:
+  - Let {lookupPathSets} be `LookupPathSets(lookup, type)`.
+  - For each {lookupPathSet} in {lookupPathSets}:
+    - If `IsPathSetResolvable(lookupPathSet, sourceSchema, allSchemas)` is true:
+      - return true.
+- return false.
+
+FieldHasRequirements(schema, type, field):
+
+A field is requirement-bearing when at least one argument on {field} of {type}
+in {schema} is annotated with `@require`.
+
+- Let {arguments} be the set of arguments on {field} of {type} in {schema}.
+- If any argument in {arguments} is annotated with `@require`:
+  - return true.
+- return false.
+
+ResolveRequirements(sourceSchema, targetSchema, type, field, allSchemas):
+
+Each `@require` argument on {field} must be resolvable from allowed schemas
+(excluding {targetSchema}) when execution starts from {sourceSchema}.
+
+- Let {allowedSchemas} be {allSchemas} excluding {targetSchema}.
+- Let {requiredArguments} be the set of arguments on {field} that are annotated
+  with `@require`.
+- For each {requiredArgument} in {requiredArguments}:
+  - Let {fieldSelectionMap} be the `field` argument value of `@require` on
+    {requiredArgument}.
+  - Let {requirementPathSets} be
+    `ExtractPathSets(fieldSelectionMap, type, requiredArgument)`.
+  - Let {argumentSatisfied} be false.
+  - For each {requirementPathSet} in {requirementPathSets}:
+    - If `IsPathSetResolvable(requirementPathSet, sourceSchema, allowedSchemas)`
+      is true:
+      - Set {argumentSatisfied} to true.
+      - Break.
+  - If {argumentSatisfied} is false:
+    - return false.
+- return true.
+
+LookupPathSets(lookup, rootType):
+
+For {lookup}, each argument contributes one or more `FieldSelectionMap`
+alternatives. Combine those argument-level alternatives into conjunctive
+path-set requirements rooted at {rootType}.
+
+- Let {pathSets} be a set containing one empty path set.
+- Let {arguments} be the set of arguments on {lookup}.
+- For each {argument} in {arguments}:
+  - If {argument} has an `@is` directive:
+    - Let {fieldSelectionMap} be the `field` argument value of `@is`.
+  - Otherwise:
+    - Let {fieldSelectionMap} be the name of {argument}.
+  - Let {argumentPathSets} be
+    `ExtractPathSets(fieldSelectionMap, rootType, argument)`.
+  - Set {pathSets} to the cartesian product of {pathSets} and
+    {argumentPathSets}, where each combined element is the union of both path
+    sets.
+- return {pathSets}.
+
+ExtractPathSets(fieldSelectionMap, rootType, argument):
+
+Interpret {fieldSelectionMap} for {argument} according to Appendix A and
+materialize the path-set alternatives rooted at {rootType}.
+
+- Let {pathSets} be the set of path sets represented by {fieldSelectionMap} for
+  {argument}, rooted at {rootType}, according to Appendix A:
+  - Each path in a path set is represented as a list of tuples ({type}, {field})
+    that starts at {rootType}.
+  - A single path set represents one conjunction of required paths.
+  - Multiple path sets represent alternatives (for example, from `|`).
+- return {pathSets}.
+
+IsPathSetResolvable(pathSet, sourceSchema, candidateSchemas):
+
+A conjunctive {pathSet} is resolvable only if every path in the set has at least
+one valid option when starting from {sourceSchema} and considering only
+{candidateSchemas}.
+
+- For each {path} in {pathSet}:
+  - Let {options} be
+    `RefinePlanOptions(path, {sourceSchema}, candidateSchemas)`.
+  - If {options} is empty:
+    - return false.
+- return true.
+
+**Explanatory Text**
+
+The satisfiability phase must ensure that every executable field path in the
+composed API can be fulfilled by at least one valid query plan.
+`PlanOptions(path, allSchemas)` computes this by walking the path step-by-step
+and tracking which source schemas can resolve each step.
+
+When the algorithm stays within the same source schema, it continues directly.
+When it switches to another schema, the transition is valid only if the target
+schema is reachable via a compatible `@lookup` and all required lookup inputs
+can themselves be resolved from the current schema context.
+
+Likewise, if a field declares `@require` dependencies, those dependencies must
+also be resolvable from schemas other than the one defining that requirement.
+`FieldSelectionMap` alternatives are handled as path-set alternatives where at
+least one alternative must resolve. If no alternative resolves, that candidate
+schema is removed from the options for that path step.
+
+If every candidate is eliminated for any field path, the path is unsatisfiable
+and composition fails with `UNSATISFIABLE_QUERY_PATH`.
+
+**Examples**
+
+The following query path:
+
+`Query.me.profile.age`
+
+is represented as:
+
+`[(Query, me), (User, profile), (Profile, age)]`
+
+Similarly, this path:
+
+`Mutation.createUser.query.me`
+
+is represented as:
+
+`[(Mutation, createUser), (CreateUserPayload, query), (Query, me)]`
