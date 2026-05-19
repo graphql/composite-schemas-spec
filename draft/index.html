@@ -222,7 +222,10 @@ This is an example of a non-normative note.</div>
 </li>
 </ol>
 </li>
-<li><a href="#sec-Validate-Satisfiability"><span class="spec-secid">3.5</span>Validate Satisfiability</a></li>
+<li><a href="#sec-Validate-Satisfiability"><span class="spec-secid">3.5</span>Validate Satisfiability</a><ol>
+<li><a href="#sec-Unsatisfiable-Query-Path"><span class="spec-secid">3.5.1</span>Unsatisfiable Query Path</a></li>
+</ol>
+</li>
 </ol>
 </li>
 <li><a href="#sec-Executor"><span class="spec-secid">4</span>Executor</a><ol>
@@ -6707,7 +6710,258 @@ Number of items to fetch
 </section>
 <section id="sec-Validate-Satisfiability" secid="3.5">
 <h2 data-source="spec/Section%204%20--%20Composition.md#L6536"><span class="spec-secid" title="link to this section"><a href="#sec-Validate-Satisfiability">3.5</a></span>Validate Satisfiability</h2>
-<p data-source="spec/Section%204%20--%20Composition.md#L6538-L6542">The final step confirms that the composite schema supports executable queries without leading to invalid conditions. Each query path defined in the merged schema is checked to ensure that every field can be resolved. If any query path is unresolvable, the schema is deemed unsatisfiable, and composition fails. </p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6538-L6541">The final step confirms that the composite schema supports executable queries without leading to invalid conditions. Each query path defined in the merged schema is checked to ensure that every field can be resolved. If any query path is unresolvable, the schema is deemed unsatisfiable, and composition fails.</p>
+<section id="sec-Unsatisfiable-Query-Path" secid="3.5.1">
+<h3 data-source="spec/Section%204%20--%20Composition.md#L6543"><span class="spec-secid" title="link to this section"><a href="#sec-Unsatisfiable-Query-Path">3.5.1</a></span>Unsatisfiable Query Path</h3>
+<section id="sec-Unsatisfiable-Query-Path.Error-Code" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6545"><a href="#sec-Unsatisfiable-Query-Path.Error-Code" title="link to this subsection">Error Code</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L6547"><code>UNSATISFIABLE_QUERY_PATH</code></p>
+</section>
+<section id="sec-Unsatisfiable-Query-Path.Severity" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6549"><a href="#sec-Unsatisfiable-Query-Path.Severity" title="link to this subsection">Severity</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L6551">ERROR</p>
+</section>
+<section id="sec-Unsatisfiable-Query-Path.Formal-Specification" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6553"><a href="#sec-Unsatisfiable-Query-Path.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6555">Let <var data-name="schema">schema</var> be the merged composite execution schema.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6556">Let <var data-name="sourceSchemas">sourceSchemas</var> be the set of source schemas used to compose <var data-name="schema">schema</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6557-L6558">Let <var data-name="operationRootTypes">operationRootTypes</var> be the set containing <code>Query</code>, <code>Mutation</code>, and <code>Subscription</code> when defined in <var data-name="schema">schema</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6559-L6563">For each <var data-name="rootType">rootType</var> in <var data-name="operationRootTypes">operationRootTypes</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6560">Let <var data-name="paths">paths</var> be the result of <code>CollectExecutablePaths(rootType, schema)</code>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6561-L6563">For each <var data-name="path">path</var> in <var data-name="paths">paths</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6562">Let <var data-name="options">options</var> be the result of <code>PlanOptions(path, sourceSchemas)</code>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6563"><var data-name="options">options</var> must not be empty.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p data-source="spec/Section%204%20--%20Composition.md#L6565">CollectExecutablePaths(rootType, schema):</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6567-L6569">Starting from <var data-name="rootType">rootType</var>, collect each executable field path that can be formed in <var data-name="schema">schema</var>. Each collected path is represented as an ordered list of tuples (<var data-name="type">type</var>, <var data-name="field">field</var>).</p>
+<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6571">Let <var data-name="paths">paths</var> be an empty set.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6572-L6573">Let <var data-name="stack">stack</var> be the set of one-element paths <code>[(rootType, fieldName)]</code> for each field named <var data-name="fieldName">fieldName</var> on <var data-name="rootType">rootType</var> in <var data-name="schema">schema</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6574-L6593">While <var data-name="stack">stack</var> is not empty:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6575">Remove one <var data-name="path">path</var> from <var data-name="stack">stack</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6576">Add <var data-name="path">path</var> to <var data-name="paths">paths</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6577">Let (<var data-name="parentType">parentType</var>, <var data-name="parentField">parentField</var>) be the last element in <var data-name="path">path</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6578-L6579">Let <var data-name="returnType">returnType</var> be the unwrapped return type of <var data-name="parentField">parentField</var> on <var data-name="parentType">parentType</var> in <var data-name="schema">schema</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6580-L6581">If <var data-name="returnType">returnType</var> is an object type:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6581">Let <var data-name="possibleTypes">possibleTypes</var> be the set containing only <var data-name="returnType">returnType</var>.</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6582-L6583">Otherwise if <var data-name="returnType">returnType</var> is an interface or union type:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6583">Let <var data-name="possibleTypes">possibleTypes</var> be <code>GetPossibleTypes(returnType)</code>.</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6584-L6585">Otherwise:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6585">Continue to the next <var data-name="path">path</var>.</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6586-L6593">For each <var data-name="nextType">nextType</var> in <var data-name="possibleTypes">possibleTypes</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6587">Let <var data-name="nextFields">nextFields</var> be the set of field names on <var data-name="nextType">nextType</var> in <var data-name="schema">schema</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6588-L6593">For each <var data-name="nextField">nextField</var> in <var data-name="nextFields">nextFields</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6589">Let <var data-name="nextElement">nextElement</var> be the tuple (<var data-name="nextType">nextType</var>, <var data-name="nextField">nextField</var>).</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6590-L6591">If <var data-name="nextElement">nextElement</var> is already in <var data-name="path">path</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6591">Continue to the next <var data-name="nextField">nextField</var>.</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6592">Let <var data-name="extendedPath">extendedPath</var> be <var data-name="path">path</var> followed by <var data-name="nextElement">nextElement</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6593">Add <var data-name="extendedPath">extendedPath</var> to <var data-name="stack">stack</var>.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6594">return <var data-name="paths">paths</var>.</li>
+</ul>
+<p data-source="spec/Section%204%20--%20Composition.md#L6596">PlanOptions(path, allSchemas):</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6598-L6600">Given <var data-name="path">path</var>, determine which source schemas can satisfy it. Candidate schemas are initialized from the first path element, then refined for the remaining elements via <code>RefinePlanOptions</code>.</p>
+<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6602">Let <var data-name="pathElements">pathElements</var> be the ordered list of tuples (<var data-name="type">type</var>, <var data-name="field">field</var>) in <var data-name="path">path</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6603-L6604">If <var data-name="pathElements">pathElements</var> is empty:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6604">return an empty set.</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6605">Let (<var data-name="initialType">initialType</var>, <var data-name="initialField">initialField</var>) be the first element in <var data-name="pathElements">pathElements</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6606">Let <var data-name="initialOptions">initialOptions</var> be an empty set.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6607-L6609">For each <var data-name="schema">schema</var> in <var data-name="allSchemas">allSchemas</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6608-L6609">If <var data-name="schema">schema</var> defines <var data-name="initialField">initialField</var> on <var data-name="initialType">initialType</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6609">Add <var data-name="schema">schema</var> to <var data-name="initialOptions">initialOptions</var>.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6610-L6611">If <var data-name="initialOptions">initialOptions</var> is empty:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6611">return an empty set.</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6612">Let <var data-name="remainingPath">remainingPath</var> be <var data-name="pathElements">pathElements</var> without the first element.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6613">return <code>RefinePlanOptions(remainingPath, initialOptions, allSchemas)</code>.</li>
+</ul>
+<p data-source="spec/Section%204%20--%20Composition.md#L6615">RefinePlanOptions(pathElements, currentOptions, allSchemas):</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6617-L6619">For the remaining <var data-name="pathElements">pathElements</var>, evaluate one element at a time against <var data-name="currentOptions">currentOptions</var>. The result is the set of schemas that can satisfy the full remainder of the path.</p>
+<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6621-L6622">If <var data-name="pathElements">pathElements</var> is empty:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6622">return <var data-name="currentOptions">currentOptions</var>.</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6623">Let (<var data-name="currentType">currentType</var>, <var data-name="currentField">currentField</var>) be the first element in <var data-name="pathElements">pathElements</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6624">Let <var data-name="nextOptions">nextOptions</var> be an empty set.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6625-L6639">For each <var data-name="currentSchema">currentSchema</var> in <var data-name="currentOptions">currentOptions</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6626-L6639">For each <var data-name="candidateSchema">candidateSchema</var> in <var data-name="allSchemas">allSchemas</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6627-L6628">If <var data-name="candidateSchema">candidateSchema</var> does not define <var data-name="currentField">currentField</var> on <var data-name="currentType">currentType</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6628">Continue to the next <var data-name="candidateSchema">candidateSchema</var>.</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6629-L6633">If <var data-name="candidateSchema">candidateSchema</var> is not equal to <var data-name="currentSchema">currentSchema</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6630-L6633">If <code>IsReachable(currentSchema, candidateSchema, currentType, allSchemas)</code> is false:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6633">Continue to the next <var data-name="candidateSchema">candidateSchema</var>.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6634-L6638">If <span class="spec-call"><span data-name="FieldHasRequirements">FieldHasRequirements</span>(<var data-name="candidateSchema">candidateSchema</var>, <var data-name="currentType">currentType</var>, <var data-name="currentField">currentField</var>)</span>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6635-L6638">If <code>ResolveRequirements(currentSchema, candidateSchema, currentType, currentField, allSchemas)</code> is false:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6638">Continue to the next <var data-name="candidateSchema">candidateSchema</var>.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6639">Add <var data-name="candidateSchema">candidateSchema</var> to <var data-name="nextOptions">nextOptions</var>.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6640-L6641">If <var data-name="nextOptions">nextOptions</var> is empty:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6641">return an empty set.</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6642">Let <var data-name="remainingPath">remainingPath</var> be <var data-name="pathElements">pathElements</var> without the first element.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6643">return <code>RefinePlanOptions(remainingPath, nextOptions, allSchemas)</code>.</li>
+</ul>
+<p data-source="spec/Section%204%20--%20Composition.md#L6645">IsReachable(sourceSchema, targetSchema, type, allSchemas):</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6647-L6649">Execution can transition from <var data-name="sourceSchema">sourceSchema</var> to <var data-name="targetSchema">targetSchema</var> for <var data-name="type">type</var> only when <var data-name="targetSchema">targetSchema</var> has a compatible <code>@lookup</code> whose required input paths are resolvable from the current context.</p>
+<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6651-L6655">Let <var data-name="lookups">lookups</var> be the set of all fields in <var data-name="targetSchema">targetSchema</var> that are annotated with <code>@lookup</code> and resolve <var data-name="type">type</var>. A lookup resolves <var data-name="type">type</var> if:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6653">Its unwrapped return type is <var data-name="type">type</var>, or</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6654-L6655">Its unwrapped return type is an interface or union whose possible object types include <var data-name="type">type</var>.</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6656-L6660">For each <var data-name="lookup">lookup</var> in <var data-name="lookups">lookups</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6657">Let <var data-name="lookupPathSets">lookupPathSets</var> be <code>LookupPathSets(lookup, type)</code>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6658-L6660">For each <var data-name="lookupPathSet">lookupPathSet</var> in <var data-name="lookupPathSets">lookupPathSets</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6659-L6660">If <code>IsPathSetResolvable(lookupPathSet, sourceSchema, allSchemas)</code> is true:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6660">return true.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6661">return false.</li>
+</ul>
+<p data-source="spec/Section%204%20--%20Composition.md#L6663">FieldHasRequirements(schema, type, field):</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6665-L6666">A field is requirement-bearing when at least one argument on <var data-name="field">field</var> of <var data-name="type">type</var> in <var data-name="schema">schema</var> is annotated with <code>@require</code>.</p>
+<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6668">Let <var data-name="arguments">arguments</var> be the set of arguments on <var data-name="field">field</var> of <var data-name="type">type</var> in <var data-name="schema">schema</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6669-L6670">If any argument in <var data-name="arguments">arguments</var> is annotated with <code>@require</code>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6670">return true.</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6671">return false.</li>
+</ul>
+<p data-source="spec/Section%204%20--%20Composition.md#L6673">ResolveRequirements(sourceSchema, targetSchema, type, field, allSchemas):</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6675-L6676">Each <code>@require</code> argument on <var data-name="field">field</var> must be resolvable from allowed schemas (excluding <var data-name="targetSchema">targetSchema</var>) when execution starts from <var data-name="sourceSchema">sourceSchema</var>.</p>
+<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6678">Let <var data-name="allowedSchemas">allowedSchemas</var> be <var data-name="allSchemas">allSchemas</var> excluding <var data-name="targetSchema">targetSchema</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6679-L6680">Let <var data-name="requiredArguments">requiredArguments</var> be the set of arguments on <var data-name="field">field</var> that are annotated with <code>@require</code>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6681-L6693">For each <var data-name="requiredArgument">requiredArgument</var> in <var data-name="requiredArguments">requiredArguments</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6682-L6683">Let <var data-name="fieldSelectionMap">fieldSelectionMap</var> be the <code>field</code> argument value of <code>@require</code> on <var data-name="requiredArgument">requiredArgument</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6684-L6685">Let <var data-name="requirementPathSets">requirementPathSets</var> be <code>ExtractPathSets(fieldSelectionMap, type, requiredArgument)</code>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6686">Let <var data-name="argumentSatisfied">argumentSatisfied</var> be false.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6687-L6691">For each <var data-name="requirementPathSet">requirementPathSet</var> in <var data-name="requirementPathSets">requirementPathSets</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6688-L6691">If <code>IsPathSetResolvable(requirementPathSet, sourceSchema, allowedSchemas)</code> is true:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6690">Set <var data-name="argumentSatisfied">argumentSatisfied</var> to true.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6691">Break.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6692-L6693">If <var data-name="argumentSatisfied">argumentSatisfied</var> is false:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6693">return false.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6694">return true.</li>
+</ul>
+<p data-source="spec/Section%204%20--%20Composition.md#L6696">LookupPathSets(lookup, rootType):</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6698-L6700">For <var data-name="lookup">lookup</var>, each argument contributes one or more <code>FieldSelectionMap</code> alternatives. Combine those argument-level alternatives into conjunctive path-set requirements rooted at <var data-name="rootType">rootType</var>.</p>
+<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6702">Let <var data-name="pathSets">pathSets</var> be a set containing one empty path set.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6703">Let <var data-name="arguments">arguments</var> be the set of arguments on <var data-name="lookup">lookup</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6704-L6713">For each <var data-name="argument">argument</var> in <var data-name="arguments">arguments</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6705-L6706">If <var data-name="argument">argument</var> has an <code>@is</code> directive:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6706">Let <var data-name="fieldSelectionMap">fieldSelectionMap</var> be the <code>field</code> argument value of <code>@is</code>.</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6707-L6708">Otherwise:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6708">Let <var data-name="fieldSelectionMap">fieldSelectionMap</var> be the name of <var data-name="argument">argument</var>.</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6709-L6710">Let <var data-name="argumentPathSets">argumentPathSets</var> be <code>ExtractPathSets(fieldSelectionMap, rootType, argument)</code>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6711-L6713">Set <var data-name="pathSets">pathSets</var> to the cartesian product of <var data-name="pathSets">pathSets</var> and <var data-name="argumentPathSets">argumentPathSets</var>, where each combined element is the union of both path sets.</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6714">return <var data-name="pathSets">pathSets</var>.</li>
+</ul>
+<p data-source="spec/Section%204%20--%20Composition.md#L6716">ExtractPathSets(fieldSelectionMap, rootType, argument):</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6718-L6719">Interpret <var data-name="fieldSelectionMap">fieldSelectionMap</var> for <var data-name="argument">argument</var> according to Appendix A and materialize the path-set alternatives rooted at <var data-name="rootType">rootType</var>.</p>
+<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6721-L6726">Let <var data-name="pathSets">pathSets</var> be the set of path sets represented by <var data-name="fieldSelectionMap">fieldSelectionMap</var> for <var data-name="argument">argument</var>, rooted at <var data-name="rootType">rootType</var>, according to Appendix A:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6723-L6724">Each path in a path set is represented as a list of tuples (<var data-name="type">type</var>, <var data-name="field">field</var>) that starts at <var data-name="rootType">rootType</var>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6725">A single path set represents one conjunction of required paths.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6726">Multiple path sets represent alternatives (for example, from <code>|</code>).</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6727">return <var data-name="pathSets">pathSets</var>.</li>
+</ul>
+<p data-source="spec/Section%204%20--%20Composition.md#L6729">IsPathSetResolvable(pathSet, sourceSchema, candidateSchemas):</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6731-L6733">A conjunctive <var data-name="pathSet">pathSet</var> is resolvable only if every path in the set has at least one valid option when starting from <var data-name="sourceSchema">sourceSchema</var> and considering only <var data-name="candidateSchemas">candidateSchemas</var>.</p>
+<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6735-L6739">For each <var data-name="path">path</var> in <var data-name="pathSet">pathSet</var>:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6736-L6737">Let <var data-name="options">options</var> be <code>RefinePlanOptions(path, {sourceSchema}, candidateSchemas)</code>.</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6738-L6739">If <var data-name="options">options</var> is empty:<ul>
+<li data-source="spec/Section%204%20--%20Composition.md#L6739">return false.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li data-source="spec/Section%204%20--%20Composition.md#L6740">return true.</li>
+</ul>
+</section>
+<section id="sec-Unsatisfiable-Query-Path.Explanatory-Text" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6742"><a href="#sec-Unsatisfiable-Query-Path.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L6744-L6747">The satisfiability phase must ensure that every executable field path in the composed API can be fulfilled by at least one valid query plan. <code>PlanOptions(path, allSchemas)</code> computes this by walking the path step-by-step and tracking which source schemas can resolve each step.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6749-L6752">When the algorithm stays within the same source schema, it continues directly. When it switches to another schema, the transition is valid only if the target schema is reachable via a compatible <code>@lookup</code> and all required lookup inputs can themselves be resolved from the current schema context.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6754-L6758">Likewise, if a field declares <code>@require</code> dependencies, those dependencies must also be resolvable from schemas other than the one defining that requirement. <code>FieldSelectionMap</code> alternatives are handled as path-set alternatives where at least one alternative must resolve. If no alternative resolves, that candidate schema is removed from the options for that path step.</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6760-L6761">If every candidate is eliminated for any field path, the path is unsatisfiable and composition fails with <code>UNSATISFIABLE_QUERY_PATH</code>.</p>
+</section>
+<section id="sec-Unsatisfiable-Query-Path.Examples" class="subsec">
+<h6 data-source="spec/Section%204%20--%20Composition.md#L6763"><a href="#sec-Unsatisfiable-Query-Path.Examples" title="link to this subsection">Examples</a></h6>
+<p data-source="spec/Section%204%20--%20Composition.md#L6765">The following query path:</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6767"><code>Query.me.profile.age</code></p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6769">is represented as:</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6771"><code>[(Query, me), (User, profile), (Profile, age)]</code></p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6773">Similarly, this path:</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6775"><code>Mutation.createUser.query.me</code></p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6777">is represented as:</p>
+<p data-source="spec/Section%204%20--%20Composition.md#L6779-L6780"><code>[(Mutation, createUser), (CreateUserPayload, query), (Query, me)]</code> </p>
+</section>
+</section>
 </section>
 </section>
 <section id="sec-Executor" secid="4">
@@ -7818,7 +8072,12 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 </li>
 </ol>
 </li>
-<li id="_sidebar_3.5"><a href="#sec-Validate-Satisfiability"><span class="spec-secid">3.5</span>Validate Satisfiability</a></li>
+<li id="_sidebar_3.5"><a href="#sec-Validate-Satisfiability"><span class="spec-secid">3.5</span>Validate Satisfiability</a>
+<input hidden class="toggle" type="checkbox" id="_toggle_3.5" /><label for="_toggle_3.5"></label>
+<ol>
+<li id="_sidebar_3.5.1"><a href="#sec-Unsatisfiable-Query-Path"><span class="spec-secid">3.5.1</span>Unsatisfiable Query Path</a></li>
+</ol>
+</li>
 </ol>
 </li>
 <li id="_sidebar_4"><a href="#sec-Executor"><span class="spec-secid">4</span>Executor</a>
