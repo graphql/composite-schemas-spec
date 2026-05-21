@@ -1465,6 +1465,62 @@ type User @key(fields: true) {
 
 ### Validate Lookup Directives
 
+#### Lookup Must Have Arguments
+
+**Error Code**
+
+`LOOKUP_MUST_HAVE_ARGUMENTS`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {fields} be the set of all field definitions annotated with `@lookup` in
+  {schema}.
+- For each {field} in {fields}:
+  - The number of arguments on {field} must be greater than zero.
+
+**Explanatory Text**
+
+Fields annotated with the `@lookup` directive identify a single entity by the
+arguments supplied to them. A lookup field that declares no arguments has no key
+with which to resolve an entity and cannot participate in composition. This rule
+reports such fields as invalid.
+
+**Examples**
+
+For example, the following usage is valid because `productById` declares an
+argument that can be used to resolve a `Product` entity.
+
+```graphql example
+type Query {
+  productById(id: ID!): Product @lookup
+}
+
+type Product {
+  id: ID!
+  name: String
+}
+```
+
+This counter-example demonstrates an invalid usage. The `product` field is
+annotated with `@lookup` but declares no arguments, so it cannot identify which
+entity to resolve.
+
+```graphql counter-example
+type Query {
+  product: Product @lookup
+}
+
+type Product {
+  id: ID!
+  name: String
+}
+```
+
 #### Lookup Returns Non-Nullable Type
 
 **Error Code**
