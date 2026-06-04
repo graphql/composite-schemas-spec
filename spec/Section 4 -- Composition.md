@@ -4864,10 +4864,10 @@ fields. If no description is found, the merged field will have no description.
 
 _Combining Field Types_
 
-The merged field type is computed by calling {MostRestrictiveType(typeA, typeB)}.
-Unlike output fields, where {LeastRestrictiveType(fieldTypes)} is used, input
-fields often follow stricter constraints. If one source schema defines a field
-as non-nullable and another as nullable, the merged field type must be
+The merged field type is computed by calling {MostRestrictiveType(typeA,
+typeB)}. Unlike output fields, where {LeastRestrictiveType(fieldTypes)} is used,
+input fields often follow stricter constraints. If one source schema defines a
+field as non-nullable and another as nullable, the merged field type must be
 non-nullable to satisfy both schemas. {MostRestrictiveType(typeA, typeB)}
 ensures a final input type that is compatible with all definitions of that
 field.
