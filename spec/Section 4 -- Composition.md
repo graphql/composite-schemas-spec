@@ -6958,8 +6958,11 @@ in {schema} is annotated with `@require`.
 
 ResolveRequirements(sourceSchema, targetSchema, type, field, allSchemas):
 
-Each `@require` argument on {field} must be resolvable from allowed schemas
-(excluding {targetSchema}) when execution starts from {sourceSchema}.
+Every alternative of each `@require` argument's selection map on {field} must be
+resolvable from allowed schemas (excluding {targetSchema}) when execution starts
+from {sourceSchema}. The _distributed GraphQL executor_ fetches the data for all
+alternatives before evaluating which value is injected into the argument; an
+alternative that cannot be resolved is therefore a satisfiability error.
 
 - Let {allowedSchemas} be {allSchemas} excluding {targetSchema}.
 - Let {requiredArguments} be the set of arguments on {field} that are annotated
@@ -6969,14 +6972,10 @@ Each `@require` argument on {field} must be resolvable from allowed schemas
     {requiredArgument}.
   - Let {requirementPathSets} be
     `ExtractPathSets(fieldSelectionMap, type, requiredArgument)`.
-  - Let {argumentSatisfied} be false.
   - For each {requirementPathSet} in {requirementPathSets}:
     - If `IsPathSetResolvable(requirementPathSet, sourceSchema, allowedSchemas)`
-      is true:
-      - Set {argumentSatisfied} to true.
-      - Break.
-  - If {argumentSatisfied} is false:
-    - return false.
+      is false:
+      - return false.
 - return true.
 
 LookupPathSets(lookup, rootType):
@@ -7039,9 +7038,20 @@ can themselves be resolved from the current schema context.
 
 Likewise, if a field declares `@require` dependencies, those dependencies must
 also be resolvable from schemas other than the one defining that requirement.
-`FieldSelectionMap` alternatives are handled as path-set alternatives where at
-least one alternative must resolve. If no alternative resolves, that candidate
-schema is removed from the options for that path step.
+The alternatives of a `@require` selection map form a fallback chain that is
+evaluated against runtime data: the _distributed GraphQL executor_ first fetches
+the data for all alternatives and only then evaluates which value is injected
+into the argument - the first alternative that produces a value (see Appendix A,
+Value Production). Which alternative applies is decided by the runtime data, not
+by the query planner. Every alternative must therefore be resolvable; if any
+alternative cannot be resolved, that candidate schema is removed from the
+options for that path step.
+
+The alternatives of an `@is` selection map on a lookup field, in contrast,
+represent alternative stable keys for entering a source schema. Any one of them
+is sufficient: the query planner selects an alternative that is resolvable from
+the current context. This is reflected in {IsReachable}, where a single
+resolvable lookup path set makes the target schema reachable.
 
 If every candidate is eliminated for any field path, the path is unsatisfiable
 and composition fails with `UNSATISFIABLE_QUERY_PATH`.
