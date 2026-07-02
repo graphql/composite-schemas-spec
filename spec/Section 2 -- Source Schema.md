@@ -365,6 +365,15 @@ input PersonByInput @oneOf {
 }
 ```
 
+The alternatives of an `@is` selection map represent alternative stable keys -
+entry requirements for resolving an entity in this source schema. Any one of the
+keys is sufficient to enter the source schema. In contrast to `@require`, where
+the executor fetches the data for all alternatives and the runtime data decides
+which value is used, the query planner selects which alternative it uses based
+on the data it can resolve in the current context. A lookup field is usable as
+long as at least one alternative can be resolved (see
+[Validate Satisfiability](#sec-Validate-Satisfiability)).
+
 **Arguments:**
 
 - `field`: Represents a selection path map syntax.
@@ -441,6 +450,33 @@ input ProductDimensionInput {
   productWeight: Int!
 }
 ```
+
+**Runtime Behavior**
+
+At runtime, the _distributed executor_ first fetches the data for all
+alternatives of the selection map and only then evaluates the map against the
+fetched data to derive the argument value (see
+[Value Production](#sec-Value-Production)). Which alternative supplies the value
+is decided by the runtime data, not by the query planner; the query plan
+requests the data for every alternative. The selection map may produce no value
+for a given runtime object, for example, because a type condition does not match
+the object's runtime type or because a field on an intermediate segment of the
+selected path resolves to null.
+
+If the selection map produces no value, the annotated argument is treated as if
+it had not been provided, and the standard GraphQL argument coercion rules
+apply: if the argument defines a default value, the default value is used; if
+the argument is nullable, it remains unprovided. If the argument is non-null and
+does not define a default value, the requirement cannot be satisfied and the
+field cannot be invoked; a field error is raised for the annotated field and is
+handled according to the standard GraphQL error propagation rules.
+
+Note: Type conditions in a selection map are not required to cover every
+possible runtime type of an abstract type. However, for a non-null argument
+without a default value, an uncovered runtime type means that the annotated
+field always results in a field error for objects of that type. Schema authors
+should cover all possible runtime types, make the argument nullable, or provide
+a default value.
 
 **Arguments:**
 

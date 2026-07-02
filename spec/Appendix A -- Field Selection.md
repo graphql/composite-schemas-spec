@@ -647,6 +647,94 @@ input LocationInput {
 }
 ```
 
+### Value Production
+
+At runtime, the _distributed GraphQL executor_ evaluates a {FieldSelectionMap}
+against a runtime object to derive input values. Evaluation of a {SelectedValue}
+either _produces a value_ or _produces no value_.
+
+A {Path} produces no value if a type condition within the {Path} does not match
+the runtime type of the object it is applied to, or if a field on an
+intermediate segment of the {Path} resolves to {null}. Otherwise, the {Path}
+produces the value of the field selected by its final segment, which may itself
+be {null}.
+
+The alternatives of a {SelectedValue} joined by the pipe (`|`) operator are
+evaluated in the order they are declared, and the {SelectedValue} produces the
+value of the first alternative that produces a value. If no alternative produces
+a value, the {SelectedValue} produces no value.
+
+How the alternatives are planned depends on the directive that uses the
+{FieldSelectionMap}. In a `@require` selection map, the alternatives form a
+fallback chain: the query plan fetches the data for every alternative, and the
+runtime data alone decides which alternative produces the value. In an `@is`
+selection map, the alternatives represent alternative stable keys for entering a
+source schema: any one alternative is sufficient, and the query planner selects
+among the alternatives based on what is resolvable in the current context.
+
+Type conditions within a {SelectedValue} are not required to cover every
+possible runtime type of an abstract type. A runtime object whose type is not
+covered by any alternative results in the {SelectedValue} producing no value.
+
+In the following example, the {SelectedValue} produces the value of `isbn` if
+the runtime type of the media object is `Book` and the value of `releaseDate` if
+the runtime type is `Movie`. For a runtime type covered by neither alternative,
+the {SelectedValue} produces no value.
+
+```graphql example
+<Book>.isbn | <Movie>.releaseDate
+```
+
+For a {SelectedObjectValue}, each selected object field whose {SelectedValue}
+produces a value contributes that value to the resulting input object value. If
+a selected object field produces no value and the corresponding input object
+field is optional (nullable or with a default value), the field is omitted from
+the resulting input object value. If a selected object field produces no value
+and the corresponding input object field is required (non-null without a default
+value), the enclosing {SelectedObjectValue} produces no value. A
+{SelectedObjectValue} in which no selected object field produces a value
+produces no value.
+
+If the expected input type is a OneOf Input Object, the {SelectedObjectValue}
+produces a value only if exactly one selected object field produces a value and
+that value is not {null}; otherwise, the {SelectedObjectValue} produces no
+value. This matches the requirement that exactly one field of a OneOf Input
+Object must be set and non-null.
+
+In the following example, evaluated against a runtime object of type `Movie`,
+the first alternative produces no value: `bookId` produces no value because the
+type condition does not match, and no other selected field produces a value.
+Evaluation falls through to the second alternative, which produces the input
+object `{ movieId: ... }`.
+
+```graphql example
+{ bookId: <Book>.id } | { movieId: <Movie>.id }
+```
+
+For a {Path} followed by a {SelectedObjectValue}, such as
+`dimension.{ size, weight }`, the {SelectedObjectValue} is evaluated against the
+object selected by the {Path}. If the field selected by the {Path} resolves to
+{null}, the selection produces the value {null}.
+
+For a {Path} followed by a {SelectedListValue}, such as `parts[id]`, the value
+of the field selected by the {Path} determines the result. If the field resolves
+to {null}, the selection produces the value {null}. Otherwise, the inner
+selection of the {SelectedListValue} is evaluated for each element of the
+runtime list, producing a list of the same length: a {null} element produces
+{null} at its position, and an element for which the inner selection produces
+{null} or no value also produces {null} at its position. Elements are never
+omitted, so the produced list always has the same length as the runtime list.
+For nested lists, these rules apply recursively to each level of the list.
+
+Note: A produced value is subject to the standard input coercion rules when it
+is applied. A produced {null} - for example, a {null} list element - is only
+valid where the corresponding input type permits {null}.
+
+The effect of a {FieldSelectionMap} that produces no value depends on the
+directive that uses it. For example, an argument annotated with `@require` whose
+selection map produces no value is treated as if the argument had not been
+provided.
+
 ## Validation
 
 Validation ensures that {FieldSelectionMap} scalars are semantically correct
