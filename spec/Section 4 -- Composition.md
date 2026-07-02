@@ -2414,6 +2414,120 @@ type Profile {
 }
 ```
 
+#### Require Inconsistent on Implementation
+
+**Error Code**
+
+`REQUIRE_INCONSISTENT_ON_IMPLEMENTATION`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {implementingTypes} be the set of all object and interface types in
+  {schema} that implement at least one interface.
+- For each {implementingType} in {implementingTypes}:
+  - Let {interfaces} be the set of interface types that {implementingType}
+    implements.
+  - For each {interface} in {interfaces}:
+    - Let {interfaceFields} be the set of fields on {interface}.
+    - For each {interfaceField} in {interfaceFields}:
+      - Let {implementingField} be the field on {implementingType} with the same
+        name as {interfaceField}.
+      - For each {interfaceArgument} in the arguments of {interfaceField}:
+        - Let {implementingArgument} be the argument on {implementingField} with
+          the same name as {interfaceArgument}.
+        - If {interfaceArgument} is annotated with `@require`:
+          - {implementingArgument} must be annotated with `@require`
+        - Otherwise:
+          - {implementingArgument} must **not** be annotated with `@require`
+
+**Explanatory Text**
+
+The `@require` directive may be applied to arguments of fields declared on
+interface types. The selection map is rooted at the interface type and is
+evaluated against the concrete runtime object: fields declared on the interface
+can be selected without type conditions, while fields of specific implementing
+types can be referenced through type conditions.
+
+GraphQL requires an implementing field to redeclare every argument of the
+interface field, and composition removes all arguments annotated with `@require`
+from the composite schema. The `@require` annotation must therefore be applied
+consistently across the interface contract: an argument is annotated with
+`@require` on the interface field and on the corresponding argument of every
+implementing field, or on neither. Consistent annotation removes the argument
+from the interface field and from all implementing fields together, so the
+composite schema retains a valid interface contract. Inconsistent annotation
+would remove the argument from only one side of the contract and break the
+composite schema.
+
+The selection maps of the interface field argument and of an implementing field
+argument may differ: each is validated against its own declaring type, and an
+implementing type may derive the required value from implementation-specific
+fields.
+
+Note: Cross-schema cases in which a merged interface field declares an argument
+that an implementing field lacks are detected after merging by
+[Interface Field Argument No Implementation](#sec-Interface-Field-Argument-No-Implementation).
+
+**Examples**
+
+In this example, the `locale` argument is annotated with `@require` on the
+interface field `Account.displayName` and on the implementing field
+`User.displayName`, satisfying the rule.
+
+```graphql example
+# Source Schema A
+interface Account {
+  id: ID!
+  displayName(locale: String @require(field: "preferredLocale")): String
+}
+
+type User implements Account @key(fields: "id") {
+  id: ID!
+  displayName(locale: String @require(field: "preferredLocale")): String
+}
+
+# Source Schema B
+interface Account {
+  id: ID!
+  preferredLocale: String
+}
+
+type User implements Account @key(fields: "id") {
+  id: ID!
+  preferredLocale: String
+}
+```
+
+In this counter-example, the `locale` argument is annotated with `@require` on
+the implementing field `User.displayName` but not on the interface field
+`Account.displayName`, violating the rule. The composite schema would declare
+`locale` on the interface field but not on the implementing field, breaking the
+interface contract.
+
+```graphql counter-example
+# Source Schema A
+interface Account {
+  id: ID!
+  displayName(locale: String): String
+}
+
+type User implements Account @key(fields: "id") {
+  id: ID!
+  displayName(locale: String @require(field: "preferredLocale")): String
+}
+
+# Source Schema B
+type User @key(fields: "id") {
+  id: ID!
+  preferredLocale: String
+}
+```
+
 ### Validate Shareable Directives
 
 #### Invalid Shareable Usage
@@ -6051,6 +6165,95 @@ type GuestUser implements User {
   id: ID!
   name: String!
   temporaryCartId: String
+}
+```
+
+#### Interface Field Argument No Implementation
+
+**Error Code**
+
+`INTERFACE_FIELD_ARGUMENT_NO_IMPLEMENTATION`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the merged composite execution schema.
+- Let {objectTypes} be the set of all object types defined in {schema}.
+- For each {objectType} in {objectTypes}:
+  - Let {interfaces} be the set of interface types that {objectType} implements.
+  - For each {interface} in {interfaces}:
+    - Let {interfaceFields} be the set of fields defined on {interface} that are
+      visible in the merged schema.
+    - For each {interfaceField} in {interfaceFields}:
+      - If a field with the same name as {interfaceField} is not present on
+        {objectType}:
+        - Continue
+      - Let {objectField} be the field on {objectType} with the same name as
+        {interfaceField}.
+      - Let {interfaceArguments} be the set of arguments on {interfaceField}.
+      - For each {interfaceArgument} in {interfaceArguments}:
+        - Let {argumentName} be the name of {interfaceArgument}.
+        - An argument with the name {argumentName} must be present on
+          {objectField}.
+
+**Explanatory Text**
+
+In GraphQL, an object field that implements an interface field must declare
+every argument that the interface field declares. In a composite schema, this
+contract can break even though every source schema is valid on its own: the
+merge process removes arguments that are annotated with `@require` or
+`@inaccessible` in a source schema, and an argument only survives merging if
+every source schema that contributes the field declares it. If an argument is
+removed from an implementing object field but survives on the merged interface
+field, the composite schema would break the interface contract. This rule
+detects such cases and fails the composition rather than producing an invalid
+composite schema.
+
+**Examples**
+
+In this valid example, the interface field `Account.displayName` and the
+implementing field `User.displayName` both declare the `locale` argument in the
+composite schema.
+
+```graphql example
+# Schema A
+interface Account {
+  id: ID!
+  displayName(locale: String): String
+}
+
+type User implements Account {
+  id: ID!
+  displayName(locale: String): String
+}
+```
+
+In this counter-example, the `locale` argument on `User.displayName` is
+annotated with `@require` in Schema A but not on the interface field in Schema
+B, so it is removed from the implementing field but survives on the merged
+interface field. The merged `User` type no longer correctly implements
+`Account`, raising an `INTERFACE_FIELD_ARGUMENT_NO_IMPLEMENTATION` error.
+
+```graphql counter-example
+# Schema A
+type User @key(fields: "id") {
+  id: ID!
+  displayName(locale: String @require(field: "preferredLocale")): String
+}
+
+# Schema B
+interface Account {
+  id: ID!
+  displayName(locale: String): String
+}
+
+type User implements Account @key(fields: "id") {
+  id: ID!
+  displayName(locale: String): String
+  preferredLocale: String
 }
 ```
 
