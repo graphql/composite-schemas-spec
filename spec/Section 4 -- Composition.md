@@ -1664,6 +1664,160 @@ type User {
 Here, `usersByIds` returns a list of `User` objects, which violates the
 requirement that a `@lookup` field must return a single object.
 
+#### Lookup Key Missing For Type
+
+**Error Code**
+
+`LOOKUP_KEY_MISSING_FOR_TYPE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {lookupFields} be the set of all fields in {schema} annotated with
+  `@lookup`.
+- For each {lookupField} in {lookupFields}:
+  - Let {returnType} be the unwrapped return type of {lookupField}.
+  - Let {possibleTypes} be {GetPossibleTypes(returnType)}.
+  - For each {argument} in the arguments of {lookupField}:
+    - For each {possibleType} in {possibleTypes}:
+      - {IsArgumentMappable(argument, possibleType)} must be true.
+
+IsArgumentMappable(argument, possibleType):
+
+- If {argument} is annotated with `@is`:
+  - Let {selectionMap} be the parsed selection map of the `field` argument of
+    the `@is` directive on {argument}.
+  - For each {alternative} in the alternatives of {selectionMap}:
+    - If the type conditions of {alternative} admit {possibleType} and all
+      fields referenced by {alternative} are defined for {possibleType}:
+      - return true
+  - return false
+- Otherwise:
+  - Let {argumentName} be the name of {argument}.
+  - If {possibleType} defines a field named {argumentName}:
+    - return true
+  - return false
+
+**Explanatory Text**
+
+A lookup field must be able to resolve every possible runtime type of its return
+type. The arguments of a lookup field represent the stable key with which an
+entity is resolved, and each argument must independently be mappable to a field
+for every possible object type of the return type.
+
+Without an `@is` directive, an argument is mapped by its name: every possible
+object type must define a field with the argument's name, either directly or
+through an interface. With an `@is` directive, the selection map defines the
+mapping, and its alternatives may map different runtime types to different
+fields. The alternatives must still cover every possible type: a runtime type
+that is not covered by any alternative cannot be resolved by the lookup field. A
+source schema that can only resolve a subset of the possible types must declare
+a narrower return type instead.
+
+**Examples**
+
+In this example, the selection map covers all possible types of `Media`,
+resolving each by a different key field.
+
+```graphql example
+type Query {
+  mediaByKey(
+    key: MediaKeyInput!
+      @is(
+        field: "{ isbn: <Book>.isbn } | { upc: <Movie>.upc } | { feedUrl: <Podcast>.feedUrl }"
+      )
+  ): Media @lookup
+}
+
+input MediaKeyInput @oneOf {
+  isbn: String
+  upc: String
+  feedUrl: String
+}
+
+interface Media {
+  id: ID!
+}
+
+type Book implements Media {
+  id: ID!
+  isbn: String!
+}
+
+type Movie implements Media {
+  id: ID!
+  upc: String!
+}
+
+type Podcast implements Media {
+  id: ID!
+  feedUrl: String!
+}
+```
+
+In this counter-example, the selection map covers only `Book` and `Movie`.
+`Podcast` is a possible type of `Media` but is not covered by any alternative,
+violating the rule.
+
+```graphql counter-example
+type Query {
+  mediaByKey(
+    key: MediaKeyInput!
+      @is(field: "{ isbn: <Book>.isbn } | { upc: <Movie>.upc }")
+  ): Media @lookup
+}
+
+input MediaKeyInput @oneOf {
+  isbn: String
+  upc: String
+}
+
+interface Media {
+  id: ID!
+}
+
+type Book implements Media {
+  id: ID!
+  isbn: String!
+}
+
+type Movie implements Media {
+  id: ID!
+  upc: String!
+}
+
+type Podcast implements Media {
+  id: ID!
+  feedUrl: String!
+}
+```
+
+In this counter-example, the arguments are mapped by name, but the possible type
+`Clothing` does not define a field named `categoryId`, violating the rule.
+
+```graphql counter-example
+type Query {
+  product(id: ID!, categoryId: Int): Product @lookup
+}
+
+union Product = Electronics | Clothing
+
+type Electronics {
+  id: ID!
+  categoryId: Int
+  name: String
+}
+
+type Clothing {
+  id: ID!
+  name: String
+}
+```
+
 ### Validate Override Directives
 
 #### Override from Self
