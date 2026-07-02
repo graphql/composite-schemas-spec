@@ -920,7 +920,7 @@ ERROR
 **Explanatory Text**
 
 When using the `@is` directive, the `field` argument must always be a string
-that describes how the arguments can be mapped from the entity type that the
+that describes how the arguments can be mapped from the _entity_ type that the
 lookup field resolves. If the `field` argument is provided as a type other than
 a string (such as an integer, boolean, or enum), the directive usage is invalid
 and will cause schema composition to fail.
@@ -1041,10 +1041,10 @@ ERROR
 **Explanatory Text**
 
 The `@key` directive is used to define the set of fields that uniquely identify
-an entity. These fields must reference scalars or object types to ensure a valid
-and consistent representation of the entity across schemas. Fields of types
-`List`, `Interface`, or `Union` cannot be part of a `@key` because they do not
-have a well-defined unique value.
+an _entity_. These fields must reference scalars or object types to ensure a
+valid and consistent representation of the _entity_ across schemas. Fields of
+types `List`, `Interface`, or `Union` cannot be part of a `@key` because they do
+not have a well-defined unique value.
 
 **Examples**
 
@@ -1122,9 +1122,9 @@ ERROR
 **Explanatory Text**
 
 The `@key` directive specifies the set of fields used to uniquely identify an
-entity. The `fields` argument must consist of a valid GraphQL selection set that
-does not include any directive applications. Directives in the `fields` argument
-are not supported.
+_entity_. The `fields` argument must consist of a valid GraphQL selection set
+that does not include any directive applications. Directives in the `fields`
+argument are not supported.
 
 **Examples**
 
@@ -1216,17 +1216,18 @@ ValidateKeyFieldArguments(selection):
 **Explanatory Text**
 
 The `@key` directive is used to define the set of fields that uniquely identify
-an entity. Fields included in the `fields` argument of the `@key` directive may
-accept arguments, provided the supplied values are constant literals — variables
-are not permitted, since a key must be statically resolvable from the schema
-alone. The constants must satisfy the field's argument definitions: argument
-names must be defined on the field, values must be coercible to the
-corresponding argument types, and required arguments without defaults must be
-supplied.
+an _entity_. Fields included in the `fields` argument of the `@key` directive
+may accept arguments, provided the supplied values are constant literals —
+variables are not permitted, since a _stable key_ must be statically resolvable
+from the schema alone. The constants must satisfy the field's argument
+definitions: argument names must be defined on the field, values must be
+coercible to the corresponding argument types, and required arguments without
+defaults must be supplied.
 
-A key may include an argument-bearing field as long as the supplied constants
-make the resolution deterministic. For example, `id(scope: LOCAL)` is a valid
-key field — the entity is identified by its locally-scoped `id`.
+A _stable key_ may include an argument-bearing field as long as the supplied
+constants make the resolution deterministic. For example, `id(scope: LOCAL)` is
+a valid _stable key_ field — the _entity_ is identified by its locally-scoped
+`id`.
 
 **Examples**
 
@@ -1242,7 +1243,7 @@ type User @key(fields: "id name") {
 ```
 
 In this example, the `Product` type has a valid `@key` directive that supplies a
-constant argument to parameterize the key field.
+constant argument to parameterize the _stable key_ field.
 
 ```graphql example
 type Product @key(fields: "id(scope: LOCAL)") {
@@ -1271,7 +1272,7 @@ type Product @key(fields: "id(scale: LOCAL)") {
 ```
 
 In this counter-example, the `@key` directive uses a variable, which is not
-permitted because keys must be statically resolvable:
+permitted because _stable keys_ must be statically resolvable:
 
 ```graphql counter-example
 type Product @key(fields: "id(scope: $scope)") {
@@ -1303,7 +1304,7 @@ ERROR
 
 **Explanatory Text**
 
-Each `@key` directive must specify the fields that uniquely identify an entity
+Each `@key` directive must specify the fields that uniquely identify an _entity_
 using a valid GraphQL selection set in its `fields` argument. If the `fields`
 argument string is syntactically incorrect-missing closing braces, containing
 invalid tokens, or otherwise malformed - it cannot be composed into a valid
@@ -1379,8 +1380,8 @@ Even if the selection set for `@key(fields: "…")` is syntactically valid, fiel
 references within that selection set must also refer to **actual** fields on the
 annotated type. This includes nested selections, which must appear on the
 corresponding return type. If any referenced field is missing or incorrectly
-named, composition fails with a `KEY_INVALID_FIELDS` error because the entity
-key cannot be resolved correctly.
+named, composition fails with a `KEY_INVALID_FIELDS` error because the _stable
+key_ cannot be resolved correctly.
 
 **Examples**
 
@@ -1438,8 +1439,8 @@ fails to compose correctly because it cannot parse a valid field selection.
 **Examples**
 
 In this example, the `@key` directive's `fields` argument is the string
-`"id uuid"`, identifying two fields that form the object key. This usage is
-valid.
+`"id uuid"`, identifying two fields that form a composite _stable key_. This
+usage is valid.
 
 ```graphql example
 type User @key(fields: "id uuid") {
@@ -1485,15 +1486,15 @@ ERROR
 
 **Explanatory Text**
 
-Fields annotated with the `@lookup` directive identify a single entity by the
-arguments supplied to them. A lookup field that declares no arguments has no key
-with which to resolve an entity and cannot participate in composition. This rule
-reports such fields as invalid.
+Fields annotated with the `@lookup` directive identify a single _entity_ by the
+arguments supplied to them. A lookup field that declares no arguments has no
+_stable key_ with which to resolve an _entity_ and cannot participate in
+composition. This rule reports such fields as invalid.
 
 **Examples**
 
 For example, the following usage is valid because `productById` declares an
-argument that can be used to resolve a `Product` entity.
+argument that can be used to resolve a `Product` _entity_.
 
 ```graphql example
 type Query {
@@ -1508,7 +1509,7 @@ type Product {
 
 This counter-example demonstrates an invalid usage. The `product` field is
 annotated with `@lookup` but declares no arguments, so it cannot identify which
-entity to resolve.
+_entity_ to resolve.
 
 ```graphql counter-example
 type Query {
@@ -1543,21 +1544,21 @@ WARNING
 **Explanatory Text**
 
 Fields annotated with the `@lookup` directive are intended to retrieve a single
-entity based on provided arguments. To properly handle cases where the requested
-entity does not exist, such fields should have a nullable return type. This
-allows the field to return `null` when an entity matching the provided criteria
-is not found, following the standard GraphQL practices for representing missing
-data.
+_entity_ based on provided arguments. To properly handle cases where the
+requested _entity_ does not exist, such fields should have a nullable return
+type. This allows the field to return `null` when an _entity_ matching the
+provided criteria is not found, following the standard GraphQL practices for
+representing missing data.
 
-In a distributed system, it is likely that some entities will not be found on
+In a distributed system, it is likely that some _entities_ will not be found on
 other schemas, even when those schemas contribute fields to the type. Ensuring
 that `@lookup` fields have nullable return types also avoids GraphQL errors on
 schemas and prevents result erasure through non-null propagation. By allowing
-null to be returned when an entity is not found, the system can gracefully
+null to be returned when an _entity_ is not found, the system can gracefully
 handle missing data without causing exceptions or unexpected behavior.
 
 Ensuring that `@lookup` fields have nullable return types allows gateways to
-distinguish between cases where an entity is not found (receiving null) and
+distinguish between cases where an _entity_ is not found (receiving null) and
 other error conditions that may have to be propagated to the client.
 
 For example, the following usage is recommended:
@@ -1626,7 +1627,7 @@ IsListType(type):
 **Explanatory Text**
 
 Fields annotated with the `@lookup` directive are intended to retrieve a single
-entity based on provided arguments. To avoid ambiguity in entity resolution,
+_entity_ based on provided arguments. To avoid ambiguity in _entity_ resolution,
 such fields must return a single object and not a list. This validation rule
 enforces that any field annotated with `@lookup` must have a return type that is
 **NOT** a list.
@@ -2506,7 +2507,7 @@ type Subscription {
 ## Pre Merge Validation
 
 Prior to merging the schemas, additional validations are performed that require
-visibility into all source schemas but treat them as separate entities. This
+visibility into all source schemas but treat each source schema separately. This
 step detects conflicts such as incompatible fields or default argument values
 that would render the merged schema unusable. Detecting such conflicts early
 prevents errors that would otherwise be discovered during the merge process.
