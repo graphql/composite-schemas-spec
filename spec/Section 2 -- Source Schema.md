@@ -16,7 +16,11 @@ fields that can be used by the _distributed GraphQL executor_ to resolve an
 entity by a stable key.
 
 The stable key is defined by the arguments of the field. Each lookup argument
-must match a field on the return type of the lookup field.
+must match a field on the return type of the lookup field. The matched field
+does not need to be defined in the source schema that declares the lookup field;
+it must exist on the return type in at least one source schema. The _distributed
+GraphQL executor_ resolves the key value from the source schemas where the field
+is available.
 
 Source schemas can provide multiple lookup fields for the same entity to resolve
 the entity by different keys.
