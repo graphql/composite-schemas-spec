@@ -5,6 +5,78 @@ schema_. Source schemas use directives to express intent and requirements for
 the composition process as well as to describe runtime behavior. The following
 chapters describe the directives that are used to annotate a source schema.
 
+## Entities and Identity
+
+An _entity_ is a type whose instances have an _identity_ that is stable across
+_source schemas_, allowing the _distributed GraphQL executor_ to recognize that
+data contributed by different source schemas describes the same object. An
+_entity_ has one or more _stable keys_ that represent its _identity_. A _stable
+key_ is a set of one or more fields that represents the _identity_ of an
+_entity_ for comparison.
+
+The _identity_ of an _entity_ serves two purposes: comparison and recall.
+Comparison recognizes that two instances refer to the same _entity_. Recall
+fetches an _entity_ again by one of its _stable keys_.
+
+The `@key` directive provides the declarative _identity_ and comparison half. It
+declares that a type is an _entity_ and identifies which field set or field sets
+are its _stable keys_. Declaring _identity_ locally on the type keeps it visible
+without requiring a reader or tool to scan every lookup field across every
+_source schema_ to infer what identifies the _entity_. This follows the
+Explicitness design principle and supports the Collaborative design principle by
+surfacing _identity_ where source schemas coordinate on a shared type.
+
+The `@lookup` directive provides the recall half. It lets the _distributed
+GraphQL executor_ resolve an _entity_ by a _stable key_ in a _source schema_.
+
+In the following example, the `Product` type declares its _identity_ with
+`@key(fields: "id")`. The `productById` lookup field provides recall for the
+same _stable key_.
+
+```graphql example
+type Product @key(fields: "id") {
+  id: ID!
+  name: String!
+  price: Float!
+}
+
+type Query {
+  productById(id: ID!): Product @lookup
+}
+```
+
+A type MAY declare a `@key` for which no `@lookup` field exists in any _source
+schema_; such a _stable key_ represents _identity_ and supports comparison but
+cannot be used by the _distributed GraphQL executor_ to resolve, or recall, the
+_entity_.
+
+In the following example, `sku` is a _stable key_ for comparison. No lookup
+field resolves `Product` by `sku` in any _source schema_.
+
+```graphql example
+type Product @key(fields: "id") @key(fields: "sku") {
+  id: ID!
+  sku: String!
+}
+
+type Query {
+  productById(id: ID!): Product @lookup
+}
+```
+
+A `@key` that could be inferred from a lookup field's arguments MAY be omitted.
+A type that can be resolved by a _stable key_ SHOULD declare a corresponding
+`@key` for that _stable key_, even though the _stable key_ could be inferred
+from the lookup field's arguments. This double bookkeeping keeps the _identity_
+of an _entity_ explicit and locally visible on the type rather than scattered
+across the lookup fields of every _source schema_, in keeping with the
+Explicitness and Collaborative design principles.
+
+Note: A single identifier used both to compare and to fetch an _entity_ couples
+two independent concerns. Separating the comparison _stable key_ from the lookup
+mechanism lets comparison use small, stable values and avoids bloated keys and
+expensive comparisons.
+
 ## @lookup
 
 ```graphql
@@ -13,17 +85,19 @@ directive @lookup on FIELD_DEFINITION
 
 The `@lookup` directive is used within a _source schema_ to specify output
 fields that can be used by the _distributed GraphQL executor_ to resolve an
-entity by a stable key.
+_entity_ by a _stable key_.
 
-The stable key is defined by the arguments of the field. Each lookup argument
-must match a field on the return type of the lookup field.
+For a lookup field, the _stable key_ used for recall is represented by the
+arguments of the field. Each lookup argument must match a field on the return
+type of the lookup field.
 
-Source schemas can provide multiple lookup fields for the same entity to resolve
-the entity by different keys.
+Source schemas can provide multiple lookup fields for the same _entity_ to
+resolve the _entity_ by different _stable keys_.
 
-In this example, the source schema specifies that the `Product` entity can be
+In this example, the source schema specifies that the `Product` _entity_ can be
 resolved with the `productById` field or the `productByName` field. Both lookup
-fields are able to resolve the `Product` entity but do so with different keys.
+fields are able to resolve the `Product` _entity_ but do so with different
+_stable keys_.
 
 ```graphql example
 type Query {
@@ -40,8 +114,8 @@ type Product {
 
 Lookup fields may return object, interface, or union types. In case a lookup
 field returns an abstract type (interface type or union type), all possible
-object types of the abstract return type are considered entities, and each must
-have fields that correspond to every argument of the lookup field.
+object types of the abstract return type are considered _entities_, and each
+must have fields that correspond to every argument of the lookup field.
 
 ```graphql example
 type Query {
@@ -126,7 +200,7 @@ The `@internal` directive is used in combination with lookup fields and allows
 you to declare internal types and fields. Internal types and fields do not
 appear in the final client-facing composite schema and do not participate in the
 standard schema-merging process. This allows a source schema to define lookup
-fields for resolving entities that should not be accessible through the
+fields for resolving _entities_ that should not be accessible through the
 client-facing composite schema.
 
 ```graphql example
@@ -168,8 +242,8 @@ type Query {
 }
 ```
 
-Internal fields can only be used by the distributed GraphQL executor as lookup
-fields for entity resolution.
+Internal fields can only be used by the _distributed GraphQL executor_ as lookup
+fields for _entity_ resolution.
 
 ```graphql example
 # Source Schema A
@@ -308,10 +382,10 @@ directive @is(field: FieldSelectionMap!) on ARGUMENT_DEFINITION
 ```
 
 The `@is` directive is utilized on lookup fields to describe how the arguments
-can be mapped from the entity type that the lookup field resolves. The mapping
+can be mapped from the _entity_ type that the lookup field resolves. The mapping
 establishes semantic equivalence between disparate type system members across
 source schemas and is used in cases where an argument does not directly align
-with a field on the entity type.
+with a field on the _entity_ type.
 
 In the following example, the directive specifies that the `id` argument on the
 field `Query.personById` and the field `Person.id` on the return type of the
@@ -348,7 +422,7 @@ type Query {
 ```
 
 The `@is` directive can also be used in combination with `@oneOf` to specify a
-single lookup field that can resolve entities by multiple keys.
+single lookup field that can resolve _entities_ by multiple _stable keys_.
 
 ```graphql example
 type Query {
@@ -452,8 +526,8 @@ input ProductDimensionInput {
 directive @key(fields: FieldSelectionSet!) repeatable on OBJECT | INTERFACE
 ```
 
-The `@key` directive is used to designate an entity's unique key, which
-identifies how to uniquely reference an instance of an entity across different
+The `@key` directive is used to designate a _stable key_ of an _entity_, which
+identifies how to uniquely reference an instance of an _entity_ across different
 source schemas.
 
 ```graphql example
@@ -466,8 +540,9 @@ type Product @key(fields: "id") {
 ```
 
 Each occurrence of the `@key` directive on an object or interface type specifies
-one distinct unique key for that entity. Keys allow the distributed GraphQL
-executor to distinguish between different entities of the same type.
+one distinct _stable key_ for that _entity_. These _stable keys_ allow the
+_distributed GraphQL executor_ to distinguish between different _entities_ of
+the same type.
 
 ```graphql example
 type Product @key(fields: "id") @key(fields: "sku") {
@@ -478,9 +553,9 @@ type Product @key(fields: "id") @key(fields: "sku") {
 }
 ```
 
-While multiple keys define separate ways to reference the same entity based on
-different sets of fields, a composite key allows for uniquely identifying an
-entity by using a combination of multiple fields.
+While multiple _stable keys_ define separate ways to reference the same _entity_
+based on different sets of fields, a composite _stable key_ allows for uniquely
+identifying an _entity_ by using a combination of multiple fields.
 
 ```graphql example
 type Product @key(fields: "id sku") {
@@ -492,8 +567,8 @@ type Product @key(fields: "id sku") {
 ```
 
 The directive is applicable to both OBJECT and INTERFACE types. This allows
-entities that implement an interface to inherit the key(s) defined at the
-interface level, ensuring consistent identification across different
+_entities_ that implement an interface to inherit the _stable keys_ defined at
+the interface level, ensuring consistent identification across different
 implementations of that interface.
 
 By applying the `@key` directive all referenced fields become sharable even if
@@ -513,10 +588,10 @@ type Product @key(fields: "id") {
 }
 ```
 
-Fields must be explicitly marked as a key or annotated with the `@shareable`
-directive to allow multiple source schemas to define them, ensuring that the
-decision to serve a field from more than one source schema is intentional and
-coordinated.
+Fields must be explicitly marked as part of a _stable key_ or annotated with the
+`@shareable` directive to allow multiple source schemas to define them, ensuring
+that the decision to serve a field from more than one source schema is
+intentional and coordinated.
 
 ```graphql counter-example
 # source schema A
@@ -752,10 +827,10 @@ The @external directive indicates that a field is recognized by the current
 source schema but is not directly contributed (resolved) by it. Instead, this
 schema references the field for specific composition purposes.
 
-**Entity Keys**
+**Stable Keys**
 
 When combined with one or more `@key` directives, an external field can serve as
-an entity identifier (or part of a composite identifier).
+a _stable key_ (or part of a composite _stable key_).
 
 ```graphql example
 type Query {
@@ -790,9 +865,9 @@ type User {
 
 When a field is marked `@external`, the composition process understands that the
 field is provided by another source schema. The current source schema references
-it only for entity identification (via `@key`) or for providing a field through
-`@provides`. If no such usage exists, the presence of an `@external` field
-produces a composition error.
+it only for _entity_ identification (via `@key`) or for providing a field
+through `@provides`. If no such usage exists, the presence of an `@external`
+field produces a composition error.
 
 ## @override
 
