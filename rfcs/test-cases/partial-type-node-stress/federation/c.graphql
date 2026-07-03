@@ -1,0 +1,15 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key"])
+
+interface Node @key(fields: "id") {
+  id: ID!
+}
+
+type Order implements Node @key(fields: "id") {
+  id: ID!
+  total: Float!
+}
+
+type Query {
+  orderById(id: ID!): Order
+}

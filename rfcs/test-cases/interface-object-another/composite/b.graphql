@@ -1,0 +1,12 @@
+type Query {
+  otherField: String
+  someTypeById(id: ID!): SomeType @lookup @internal
+}
+
+interface MyInterface @key(fields: "id") {
+  id: ID!
+}
+
+type SomeType @partial(of: "MyInterface") @key(fields: "id") {
+  hello: Int
+}

@@ -1,0 +1,11 @@
+interface Node @key(fields: "id") {
+  id: ID!
+}
+
+type NodeAudit @partial(of: "Node") @key(fields: "id") {
+  auditInfo: String
+}
+
+type Query {
+  nodeAuditById(id: ID!): NodeAudit @lookup @internal
+}

@@ -1,0 +1,12 @@
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type Book implements Media @key(fields: "id") {
+  id: ID!
+  averageRating: Float!
+}
+
+type Query {
+  mediaById(id: ID!): Media @lookup
+}

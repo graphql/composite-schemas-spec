@@ -1,0 +1,16 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key"])
+
+interface Media @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type Book implements Media @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type Query {
+  mediaById(id: ID!): Media
+}

@@ -1426,6 +1426,10 @@ ERROR
     - Let {fieldsArg} be the string value of the `fields` argument of
       {keyDirective}.
     - Let {selections} be the set of fields in the selection set of {fieldsArg}.
+    - If {type} is annotated with `@partial`:
+      - Set {type} to the effective shape of {type}: the union of its own fields
+        and the fields of its target interface as declared in the same source
+        schema (see [@partial](#sec--partial)).
     - For each {selection} in {selections}:
       - {IsValidKeyField(selection, type)} must be true.
 
@@ -1449,6 +1453,10 @@ corresponding return type. If any referenced field is missing or incorrectly
 named, composition fails with a `KEY_INVALID_FIELDS` error because the entity
 key cannot be resolved correctly.
 
+For a type annotated with `@partial`, field references resolve against the
+type's effective shape: the union of its own fields and the fields of its target
+interface as declared in the same source schema (see [@partial](#sec--partial)).
+
 **Examples**
 
 In this valid example, the `fields` argument of the `@key` directive is properly
@@ -1471,6 +1479,24 @@ references a field `id`, which does not exist on the `Product` type.
 ```graphql counter-example
 type Product @key(fields: "id") {
   sku: String!
+}
+```
+
+In this example, `MediaReviews` does not declare an `id` field, but the key is
+valid: `id` is part of the effective shape because the target interface `Media`
+declares it.
+
+```graphql example
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
 }
 ```
 
@@ -1755,6 +1781,10 @@ ERROR
 
 IsArgumentMappable(argument, possibleType):
 
+- If {possibleType} is annotated with `@partial`:
+  - Set {possibleType} to the effective shape of {possibleType}: the union of
+    its own fields and the fields of its target interface as declared in the
+    same source schema (see [@partial](#sec--partial)).
 - If {argument} is annotated with `@is`:
   - Let {selectionMap} be the parsed selection map of the `field` argument of
     the `@is` directive on {argument}.
@@ -1784,6 +1814,11 @@ fields. The alternatives must still cover every possible type: a runtime type
 that is not covered by any alternative cannot be resolved by the lookup field. A
 source schema that can only resolve a subset of the possible types must declare
 a narrower return type instead.
+
+When the lookup returns a type annotated with `@partial`, an argument is
+mappable when it maps to a field of the partial type's effective shape: the
+union of the partial type's own fields and the fields of its target interface as
+declared in the same source schema (see [@partial](#sec--partial)).
 
 **Examples**
 
@@ -2009,6 +2044,622 @@ fails with an `OVERRIDE_ON_INTERFACE` error.
 interface Bill {
   id: ID!
   amount: Int @override(from: "SchemaB")
+}
+```
+
+### Validate Partial Directives
+
+#### Partial Target Invalid
+
+**Error Code**
+
+`PARTIAL_TARGET_INVALID`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {partialTypes} be the set of all object types in {schema} that are
+  annotated with `@partial`.
+- For each {partialType} in {partialTypes}:
+  - Let {targetName} be the value of the `of` argument of the `@partial`
+    directive on {partialType}.
+  - Let {target} be the type named {targetName} in {schema}.
+  - {target} must exist.
+  - {target} must be an interface type.
+
+**Explanatory Text**
+
+The `of` argument of the `@partial` directive names the target interface to
+which the partial type contributes default field implementations (see
+[@partial](#sec--partial)). The target must be declared in the same source
+schema, and it must be an interface type.
+
+Requiring the local declaration allows every rule for partial types to be
+checked for each source schema in isolation. It also anchors the partial type's
+_effective shape_ - the union of its own fields and the fields of the target
+interface - against a concrete local declaration (see
+[Partial Key Mismatch](#sec-Partial-Key-Mismatch)).
+
+Only interface types can be targeted: default fields are projected onto an
+interface and all of its implementing types. An object, union, enum, or scalar
+type has no implementing types to project onto.
+
+The target interface must also survive merging: if no type with the target's
+name exists in the merged composite schema - for example because a source schema
+annotated the interface with `@inaccessible` - composition fails with a
+`PARTIAL_TARGET_INVALID` error (see
+[Project Default Fields](#sec-Project-Default-Fields)).
+
+**Examples**
+
+In this example, `MediaReviews` targets the interface `Media`, which is declared
+in the same source schema. This usage is valid.
+
+```graphql example
+interface Media @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+```
+
+In this counter-example, the target interface `Media` is not declared in the
+source schema, violating the rule.
+
+```graphql counter-example
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  id: ID!
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+```
+
+In this counter-example, the target `Media` is an object type, violating the
+rule.
+
+```graphql counter-example
+type Media @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  id: ID!
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+```
+
+#### Partial Key Missing
+
+**Error Code**
+
+`PARTIAL_KEY_MISSING`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {partialTypes} be the set of all object types in {schema} that are
+  annotated with `@partial`.
+- For each {partialType} in {partialTypes}:
+  - {partialType} must be annotated with at least one `@key` directive.
+
+**Explanatory Text**
+
+A partial type contributes default field implementations that are resolved
+through the entity mechanics of its target interface: the _distributed GraphQL
+executor_ resolves the partial type by a stable key of the target interface
+through a lookup field (see
+[Partial Lookup Missing](#sec-Partial-Lookup-Missing)). Without a `@key`, there
+is no stable key by which the partial type can be resolved, and its default
+fields could never be fetched.
+
+**Examples**
+
+In this example, `MediaReviews` declares the key `id`, matching a key of its
+target interface. This usage is valid.
+
+```graphql example
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+```
+
+In this counter-example, `MediaReviews` declares no `@key`, violating the rule.
+
+```graphql counter-example
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+```
+
+#### Partial Key Mismatch
+
+**Error Code**
+
+`PARTIAL_KEY_MISMATCH`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {partialTypes} be the set of all object types in {schema} that are
+  annotated with `@partial`.
+- For each {partialType} in {partialTypes}:
+  - Let {target} be the target interface of {partialType}.
+  - Let {targetKeys} be the set of `fields` selections of the `@key` directives
+    on {target}.
+  - {targetKeys} must not be empty.
+  - For each `@key` directive on {partialType}:
+    - Let {selection} be the `fields` selection of the `@key` directive.
+    - {targetKeys} must contain a selection identical to {selection}.
+
+**Explanatory Text**
+
+A partial type shares the identity of its target interface: it is resolved by a
+stable key of the target interface. Every `@key` declared on a partial type must
+therefore be identical to a `@key` declared on the target interface in the same
+source schema. This also implies that the target interface itself must declare
+at least one `@key`.
+
+Within a partial type, the field selections of `@key(fields:)` are resolved
+against the partial type's _effective shape_: the union of the partial type's
+own fields and the fields of the target interface as declared in the same source
+schema. This is why a partial type can declare `@key(fields: "id")` without
+declaring an `id` field itself (see
+[Key Invalid Fields](#sec-Key-Invalid-Fields)). The `@require` selection maps on
+the arguments of a partial type's fields are rooted at the target interface
+instead (see [Require Invalid Fields](#sec-Require-Invalid-Fields)).
+
+**Examples**
+
+In this example, the key of `MediaReviews` is identical to a key of `Media`.
+This usage is valid; note that `id` is part of the effective shape of
+`MediaReviews` although the partial type does not declare it.
+
+```graphql example
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+```
+
+In this counter-example, `MediaReviews` declares the key `sku`, which is not a
+key of `Media`, violating the rule.
+
+```graphql counter-example
+interface Media @key(fields: "id") {
+  id: ID!
+  sku: String!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "sku") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsBySku(sku: String!): MediaReviews @lookup @internal
+}
+```
+
+In this counter-example, the target interface `Media` declares no `@key` at all,
+violating the rule.
+
+```graphql counter-example
+interface Media {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+```
+
+#### Partial Lookup Missing
+
+**Error Code**
+
+`PARTIAL_LOOKUP_MISSING`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {partialTypes} be the set of all object types in {schema} that are
+  annotated with `@partial`.
+- For each {partialType} in {partialTypes}:
+  - Let {lookupFields} be the set of fields in {schema} that are annotated with
+    `@lookup` and whose unwrapped return type is {partialType}.
+  - {lookupFields} must not be empty.
+
+**Explanatory Text**
+
+The default fields of a partial type are fetched through an ordinary lookup
+field that returns the partial type. Without such a lookup, the _distributed
+GraphQL executor_ has no way to reach the contributing source schema, and the
+default fields could never be resolved.
+
+All existing lookup rules - for example
+[Lookup Must Have Arguments](#sec-Lookup-Must-Have-Arguments) and
+[Lookup Key Missing For Type](#sec-Lookup-Key-Missing-For-Type) - apply to this
+lookup, with field references resolved against the effective shape of the
+partial type as defined by those rules.
+
+Note: Lookup fields that return a partial type must be annotated with
+`@internal`. A partial type never appears in the composite schema, so a public
+lookup field returning it would reference a type that does not exist in the
+composite schema, which is rejected by
+[Reference To Internal Type](#sec-Reference-To-Internal-Type). The standard
+`@internal` semantics apply; the lookup remains available to the _distributed
+GraphQL executor_ for entity resolution.
+
+**Examples**
+
+In this example, `mediaReviewsById` resolves `MediaReviews` by the key of its
+target interface. This usage is valid.
+
+```graphql example
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+```
+
+In this counter-example, no lookup field returns `MediaReviews`, violating the
+rule.
+
+```graphql counter-example
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+```
+
+#### Partial Invalid Usage
+
+**Error Code**
+
+`PARTIAL_INVALID_USAGE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {partialTypes} be the set of all object types in {schema} that are
+  annotated with `@partial`.
+- For each {partialType} in {partialTypes}:
+  - Let {references} be the set of all references to {partialType} in {schema}.
+  - For each {reference} in {references}:
+    - {reference} must be the unwrapped return type of a field annotated with
+      `@lookup`.
+
+**Explanatory Text**
+
+A partial type never appears in the composite schema. Referencing it as the type
+of an ordinary field, as an argument or input field type, or as a union member
+would create a reference to a type that does not exist after composition. The
+only supported reference to a partial type is the return type of lookup fields.
+
+Data backed by a partial type is exposed through interface-typed fields instead:
+a field returning the target interface exposes the projected default fields
+together with the rest of the interface contract.
+
+**Examples**
+
+In this example, `MediaReviews` is referenced only as the return type of a
+lookup field; partial-backed data is exposed through the interface-typed field
+`topReviewed`. This usage is valid.
+
+```graphql example
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+  topReviewed: [Media!]!
+}
+```
+
+In this counter-example, `MediaReviews` is referenced as the type of the
+ordinary field `reviews`, violating the rule.
+
+```graphql counter-example
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type Collection {
+  reviews: [MediaReviews!]
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+```
+
+#### Partial Field Duplicates Contract
+
+**Error Code**
+
+`PARTIAL_FIELD_DUPLICATES_CONTRACT`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {partialTypes} be the set of all object types in {schema} that are
+  annotated with `@partial`.
+- For each {partialType} in {partialTypes}:
+  - Let {target} be the target interface of {partialType}.
+  - Let {keyFieldNames} be the set of field names selected at the top level by
+    the `fields` argument of the `@key` directives on {partialType}.
+  - For each {field} in the fields of {partialType}:
+    - If {target} declares a field with the same name as {field}:
+      - The name of {field} must be in {keyFieldNames}, or {field} must be
+        annotated with `@override`.
+
+**Explanatory Text**
+
+A partial type contributes new default fields; it does not redeclare the fields
+of the target interface's contract. When a default field needs data from
+contract fields, it consumes that data through arguments annotated with
+`@require`, which are resolved against the effective shape and removed from the
+composite schema by the standard `@require` semantics.
+
+Two exceptions exist. A key field may be declared on the partial type because it
+is part of the partial type's identity. And a field annotated with
+`@override(from:)` intentionally takes over an existing field: it lifts a field
+that is resolved concretely in another source schema into a single default
+implementation (see [Project Default Fields](#sec-Project-Default-Fields)).
+
+**Examples**
+
+In this example, `averageRating` consumes the contract field `title` through a
+`@require` argument instead of declaring it again. This usage is valid.
+
+```graphql example
+interface Media @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating(title: String! @require(field: "title")): Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+```
+
+In this counter-example, `MediaReviews` declares the contract field `title` a
+second time, violating the rule.
+
+```graphql counter-example
+interface Media @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  title: String!
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+```
+
+#### Partial No Implements
+
+**Error Code**
+
+`PARTIAL_NO_IMPLEMENTS`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {partialTypes} be the set of all object types in {schema} that are
+  annotated with `@partial`.
+- For each {partialType} in {partialTypes}:
+  - {partialType} must not implement any interface.
+
+**Explanatory Text**
+
+A partial type is a partial view of its target interface, not an implementer of
+it. Implementing the target - or any other interface - would require the partial
+type to redeclare contract fields, which
+[Partial Field Duplicates Contract](#sec-Partial-Field-Duplicates-Contract)
+forbids.
+
+**Examples**
+
+In this example, `MediaReviews` does not implement any interface. This usage is
+valid.
+
+```graphql example
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+```
+
+In this counter-example, `MediaReviews` implements its target interface,
+violating the rule.
+
+```graphql counter-example
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews implements Media @partial(of: "Media") @key(fields: "id") {
+  id: ID!
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+```
+
+#### Partial Duplicate Target
+
+**Error Code**
+
+`PARTIAL_DUPLICATE_TARGET`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {partialTypes} be the set of all object types in {schema} that are
+  annotated with `@partial`.
+- For each {partialType} in {partialTypes}:
+  - Let {duplicates} be the set of types in {partialTypes}, excluding
+    {partialType}, whose `of` argument names the same target as {partialType}.
+  - {duplicates} must be empty.
+
+**Explanatory Text**
+
+A source schema declares at most one partial type per target interface. All
+default fields a source schema contributes to an interface belong on a single
+partial type. Different source schemas may each declare a partial type for the
+same target interface; conflicts between their default fields are handled by
+[Default Field Conflict](#sec-Default-Field-Conflict).
+
+**Examples**
+
+In this example, the source schema declares one partial type per target
+interface. This usage is valid.
+
+```graphql example
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+  reviewCount: Int!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+```
+
+In this counter-example, two partial types in the same source schema target
+`Media`, violating the rule.
+
+```graphql counter-example
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type MediaStats @partial(of: "Media") @key(fields: "id") {
+  reviewCount: Int!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+  mediaStatsById(id: ID!): MediaStats @lookup @internal
 }
 ```
 
@@ -2931,6 +3582,13 @@ visibility into all source schemas but treat them as separate entities. This
 step detects conflicts such as incompatible fields or default argument values
 that would render the merged schema unusable. Detecting such conflicts early
 prevents errors that would otherwise be discovered during the merge process.
+
+Types annotated with `@partial` do not participate in name-based grouping
+anywhere in composition. Every rule in this section that groups types or fields
+by name across source schemas excludes partial types and their fields from those
+groups. Partial types are validated by their dedicated rules and are processed
+by [Project Default Fields](#sec-Project-Default-Fields) during merging (see
+[@partial](#sec--partial)).
 
 ### Validate Type System
 
@@ -3978,6 +4636,316 @@ type Bill {
 }
 ```
 
+### Validate Partial Directives
+
+#### Default Field Conflict
+
+**Error Code**
+
+`DEFAULT_FIELD_CONFLICT`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas.
+- Let {partialTypes} be the set of all types annotated with `@partial` across
+  {schemas}.
+- Let {targetNames} be the set of all target interface names of {partialTypes}.
+- For each {targetName} in {targetNames}:
+  - Let {targetPartials} be the set of types in {partialTypes} whose target is
+    named {targetName}.
+  - Let {fieldNames} be the set of all field names across {targetPartials},
+    excluding key field names.
+  - For each {fieldName} in {fieldNames}:
+    - Let {defaults} be the set of fields named {fieldName} across
+      {targetPartials}.
+    - If {defaults} contains more than one field:
+      - {defaults} must be valid according to
+        [Invalid Field Sharing](#sec-Invalid-Field-Sharing), as if they were
+        declarations of the same field of the same type.
+      - The types of the fields in {defaults} must be mergeable as defined by
+        [Output Field Types Mergeable](#sec-Output-Field-Types-Mergeable), and
+        their arguments must be mergeable as defined by
+        [Field Argument Types Mergeable](#sec-Field-Argument-Types-Mergeable),
+        as if they were declarations of the same field of the same type.
+    - Let {contractDeclarations} be the set of fields named {fieldName} declared
+      on an interface named {targetName} by any schema in {schemas}.
+    - If {contractDeclarations} is not empty:
+      - Every field in {defaults} must be annotated with `@override`.
+    - Let {shadowingDeclarations} be the set of fields named {fieldName}
+      declared by any schema in {schemas} on a type that implements an interface
+      named {targetName}, excluding declarations annotated with `@internal` or
+      `@external` and declarations in a schema named by the `@override`
+      directive of a field in {defaults}.
+    - For each {shadowingDeclaration} in {shadowingDeclarations}:
+      - The type of {shadowingDeclaration} must be mergeable with the types of
+        the fields in {defaults} as defined by
+        [Output Field Types Mergeable](#sec-Output-Field-Types-Mergeable).
+
+**Explanatory Text**
+
+This rule validates every way a default field can collide with another
+declaration before projection runs (see
+[Project Default Fields](#sec-Project-Default-Fields)).
+
+_Default vs. Default_
+
+Two partial types targeting the same interface are necessarily declared in
+different source schemas (see
+[Partial Duplicate Target](#sec-Partial-Duplicate-Target)). If both declare a
+default field with the same name, both declarations project onto the same field
+of the target interface. They are therefore two declarations of the same field,
+and the standard field-sharing semantics apply unchanged: the declarations are
+invalid unless both are annotated with `@shareable`, or one of them takes
+ownership with `@override(from:)` naming the other source schema. Because the
+projections merge into a single interface field, the declarations' types and
+arguments must also be mergeable.
+
+_Default vs. Interface Contract_
+
+A source schema may declare a field on the target interface that a partial type
+in another source schema also declares as a default. The contributing schema
+cannot see that declaration, so this collision is only detectable across
+schemas. It is invalid unless the default field takes ownership of the contract
+field with `@override(from:)` - the migration case.
+
+_Default vs. Implementing Type_
+
+An implementing type that declares its own field with the same name as a default
+shadows the default; this is the intended precedence and is valid (see
+[@implement](#sec--implement)). However, the projected interface field receives
+the least restrictive type of the default and all shadowing fields, so the
+shadowing field's type must be mergeable with the default's type. Otherwise, no
+interface field type could make both the projected default and the shadowing
+implementation valid implementations of the interface.
+
+**Examples**
+
+In this example, both partial types declare the default field `averageRating` as
+`@shareable`. This usage is valid.
+
+```graphql example
+# Source Schema A
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float! @shareable
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+  topReviewed: [Media!]!
+}
+
+# Source Schema B
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaStats @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float! @shareable
+}
+
+type Query {
+  mediaStatsById(id: ID!): MediaStats @lookup @internal
+}
+```
+
+In this counter-example, both partial types declare the default field
+`averageRating` without `@shareable`, violating the rule.
+
+```graphql counter-example
+# Source Schema A
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+  topReviewed: [Media!]!
+}
+
+# Source Schema B
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaStats @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaStatsById(id: ID!): MediaStats @lookup @internal
+}
+```
+
+In this counter-example, Source Schema B declares `averageRating` on the `Media`
+interface itself. The default field in Source Schema A does not carry
+`@override`, violating the rule.
+
+```graphql counter-example
+# Source Schema A
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+  topReviewed: [Media!]!
+}
+
+# Source Schema B
+interface Media @key(fields: "id") {
+  id: ID!
+  averageRating: Float!
+}
+
+type Book implements Media @key(fields: "id") {
+  id: ID!
+  averageRating: Float!
+}
+
+type Query {
+  mediaById(id: ID!): Media @lookup
+}
+```
+
+In this counter-example, `Photo.averageRating` shadows the default field, but
+its type `String!` is not mergeable with the default's type `Float!`, violating
+the rule.
+
+```graphql counter-example
+# Source Schema A
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+  topReviewed: [Media!]!
+}
+
+# Source Schema B
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type Photo implements Media @key(fields: "id") {
+  id: ID!
+  averageRating: String! @implement
+}
+
+type Query {
+  photoById(id: ID!): Photo @lookup
+}
+```
+
+#### Implement Without Default
+
+**Error Code**
+
+`IMPLEMENT_WITHOUT_DEFAULT`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas.
+- For each {schema} in {schemas}:
+  - Let {types} be the set of all object types in {schema}.
+  - For each {type} in {types}:
+    - For each {field} in the fields of {type}:
+      - If {field} is **not** annotated with `@implement`:
+        - Continue
+      - Let {interfaceNames} be the set of all interface names implemented by
+        any type with the same name as {type} across {schemas}.
+      - Let {defaults} be the set of fields with the same name as {field}
+        declared by types annotated with `@partial` across {schemas} whose
+        target is in {interfaceNames}, excluding the key fields of those partial
+        types.
+      - {defaults} must not be empty.
+
+**Explanatory Text**
+
+The `@implement` directive declares that a field intentionally provides its own
+implementation instead of a default projected from a partial type (see
+[@implement](#sec--implement)). If no partial type contributes a default field
+with that name for any interface the declaring type implements, the marker does
+not shadow anything. Most likely, the default it referred to has been removed,
+and the stale marker should be removed as well.
+
+**Examples**
+
+In this example, `Photo.averageRating` shadows the default field `averageRating`
+contributed by `MediaReviews`. This usage is valid.
+
+```graphql example
+# Source Schema A
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+
+# Source Schema B
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type Photo implements Media @key(fields: "id") {
+  id: ID!
+  averageRating: Float! @implement
+}
+
+type Query {
+  photoById(id: ID!): Photo @lookup
+}
+```
+
+In this counter-example, no partial type contributes a default field named
+`averageRating`, so the `@implement` marker is stale, violating the rule.
+
+```graphql counter-example
+# Source Schema A
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type Photo implements Media @key(fields: "id") {
+  id: ID!
+  averageRating: Float! @implement
+}
+
+type Query {
+  photoById(id: ID!): Photo @lookup
+}
+```
+
 ### Validate Shareable Directives
 
 #### Invalid Field Sharing
@@ -4103,14 +5071,16 @@ from each source schema that are publicly accessible.
 MergeSchemas(schemas):
 
 - Let {mergedSchema} be an empty schema.
+- Let {typeDefinitions} be the set of all type definitions in {schemas},
+  excluding all types annotated with `@partial`.
 - Let {memberNames} be the set of all object, interface, union, enum and input
-  type names in {schemas}.
+  type names in {typeDefinitions}.
 - For each {memberName} in {memberNames}:
-  - Let {types} be the set of all types named {memberName} across all source
-    schemas.
+  - Let {types} be the set of all types named {memberName} in {typeDefinitions}.
   - Let {mergedType} be the result of {MergeTypes(types)}.
   - If {mergedType} is not {null}:
     - Add {mergedType} to {mergedSchema}.
+- Perform {ProjectDefaultFields(mergedSchema, schemas)}.
 - Return {mergedSchema}.
 
 MergeTypes(types):
@@ -4130,6 +5100,40 @@ MergeTypes(types):
   - Return the result of {MergeInputTypes(types)}.
 - If {kind} is `OBJECT`:
   - Return the result of {MergeObjectTypes(types)}.
+
+Types annotated with `@partial` never participate in name-based type merging and
+never appear in the composite schema in any form. They are processed exclusively
+by {ProjectDefaultFields(mergedSchema, schemas)}, which projects their fields
+onto the target interface and its implementing types (see
+[Project Default Fields](#sec-Project-Default-Fields)).
+
+Note: Partial types are excluded from name-based grouping both here and in the
+pre-merge validation rules (see
+[Pre Merge Validation](#sec-Pre-Merge-Validation)), so no exception to
+[Type Kind Mismatch](#sec-Type-Kind-Mismatch) exists for them. A partial type
+can also never share the name of its target: the target interface must be
+declared in the same source schema (see
+[Partial Target Invalid](#sec-Partial-Target-Invalid)), and one document cannot
+define two types with the same name.
+
+The merge stage proceeds in a fixed order:
+
+1. Types annotated with `@partial` are excluded from the set of type
+   definitions.
+2. The remaining types are merged by name.
+3. Merged object and interface types retain their `implements` relationships
+   (see
+   [Merge Interface Implementations](#sec-Merge-Interface-Implementations)).
+4. Default fields are projected from partial types onto the merged target
+   interfaces and their implementing types (see
+   [Project Default Fields](#sec-Project-Default-Fields)).
+5. Field sharing and `@override` ownership are resolved.
+6. Post-merge validation runs against the fully projected schema. In particular,
+   [Interface Field No Implementation](#sec-Interface-Field-No-Implementation)
+   and
+   [Interface Field Argument No Implementation](#sec-Interface-Field-Argument-No-Implementation)
+   run after projection, so projected default fields - which retain all
+   arguments not annotated with `@require` - satisfy the interface contract.
 
 ### Merge Scalar Types
 
@@ -4208,8 +5212,11 @@ MergeInterfaceTypes(types):
   - Let {mergedField} be the result of {MergeOutputFields(fields)}.
   - If {mergedField} is not {null}:
     - Add {mergedField} to {mergedFields}.
+- Let {implementedInterfaces} be the result of
+  {MergeInterfaceImplementations(types)}.
 - Return a new interface type with the name of {typeName}, description of
-  {description}, and fields of {mergedFields}.
+  {description}, fields of {mergedFields}, and implemented interfaces of
+  {implementedInterfaces}.
 
 **Explanatory Text**
 
@@ -4678,8 +5685,11 @@ MergeObjectTypes(types):
   - Let {mergedField} be the result of {MergeOutputFields(fields)}.
   - If {mergedField} is not {null}:
     - Add {mergedField} to {mergedFields}.
+- Let {implementedInterfaces} be the result of
+  {MergeInterfaceImplementations(types)}.
 - Return a new object type with the name of {typeName}, description of
-  {description}, fields of {mergedFields}.
+  {description}, fields of {mergedFields}, and implemented interfaces of
+  {implementedInterfaces}.
 
 **Explanatory Text**
 
@@ -4808,6 +5818,84 @@ type Product @key(fields: "id") @internal {
 type Product {
   id: ID!
   name: String
+}
+```
+
+### Merge Interface Implementations
+
+**Formal Specification**
+
+MergeInterfaceImplementations(types):
+
+- Let {interfaceNames} be the set of all interface names implemented by any
+  {type} in {types}.
+- Let {validInterfaceNames} be the set of names of all interface types that
+  exist in the merged composite schema.
+- Return the intersection of {interfaceNames} and {validInterfaceNames}.
+
+**Explanatory Text**
+
+{MergeInterfaceImplementations(types)} merges the interface implementations
+declared by the type definitions from different source schemas into a combined
+set. A type implements an interface in the composite schema if any of its
+declarations implements that interface. Interfaces that do not exist in the
+merged composite schema - for example because a source schema annotated the
+interface with `@inaccessible` - are ignored, so the composite schema never
+exposes an implementation of an interface that does not exist in the composite
+schema.
+
+Merged object and interface types retain their `implements` relationships
+through this algorithm. The projection of default fields depends on it: the set
+of implementing types of an interface must be known after merging (see
+[Project Default Fields](#sec-Project-Default-Fields)).
+
+_Merging Interface Implementations:_
+
+```graphql example
+# Source Schema A
+interface Interface1 {
+  field1: String
+}
+
+type Type1 implements Interface1 {
+  field1: String
+}
+
+# Source Schema B
+type Type1 {
+  field1: String
+}
+
+# Composite Schema
+interface Interface1 {
+  field1: String
+}
+
+type Type1 implements Interface1 {
+  field1: String
+}
+```
+
+_Merging Interface Implementations with Inaccessible Interfaces:_
+
+```graphql example
+# Source Schema A
+interface Interface1 @inaccessible {
+  field1: String
+}
+
+type Type1 implements Interface1 {
+  field1: String
+}
+
+# Source Schema B
+type Type1 {
+  field1: String
+}
+
+# Composite Schema
+type Type1 {
+  field1: String
 }
 ```
 
@@ -5256,6 +6344,231 @@ Number of items to fetch
 """
 limit: Int! = 10
 ```
+
+### Project Default Fields
+
+**Formal Specification**
+
+ProjectDefaultFields(mergedSchema, schemas):
+
+- For each {schema} in {schemas}:
+  - Let {partialTypes} be the set of types in {schema} annotated with
+    `@partial`.
+  - For each {partialType} in {partialTypes}:
+    - Let {interfaceName} be the value of the `of` argument of the `@partial`
+      directive on {partialType}.
+    - Let {interfaceType} be the type named {interfaceName} in {mergedSchema}.
+    - If {interfaceType} does not exist:
+      - Composition fails with a `PARTIAL_TARGET_INVALID` error. The target
+        interface did not survive merging, for example because a source schema
+        annotated it with `@inaccessible`.
+    - Let {keyFieldNames} be the set of field names selected at the top level by
+      the `fields` argument of the `@key` directives on {partialType}.
+    - Let {defaultFields} be the fields of {partialType} whose names are not in
+      {keyFieldNames}.
+    - For each {field} in {defaultFields}:
+      - Let {projectedField} be {field} without the arguments annotated with
+        `@require` or `@inaccessible`.
+      - If {field} is annotated with `@inaccessible`:
+        - {projectedField} is annotated with `@inaccessible`.
+      - Let {shadowingFields} be the set of fields with the same name as {field}
+        declared on implementing types of {interfaceType} by any source schema,
+        excluding declarations annotated with `@internal` or `@external` and, if
+        {field} is annotated with `@override`, excluding declarations in the
+        source schema named by its `from` argument.
+      - If {interfaceType} does not declare a field with the same name as
+        {field}:
+        - Set the type of {projectedField} to the result of applying
+          {LeastRestrictiveType} to the type of {field} and the types of all
+          {shadowingFields}.
+        - Add {projectedField} to the fields of {interfaceType}.
+        - Record {schema} as a contributing source of the projected field.
+      - Otherwise, if {field} is annotated with `@override`:
+        - Apply the standard `@override` semantics to determine the ownership of
+          the interface field.
+      - Otherwise, if the field declared by {interfaceType} is itself a default
+        field projected from another partial type and both fields are annotated
+        with `@shareable`:
+        - Set the type of the interface field to the result of
+          {LeastRestrictiveType} applied to both field types.
+        - Merge the arguments of both fields with {MergeArgumentDefinitions}.
+        - Record {schema} as an additional contributing source of the projected
+          field.
+      - Otherwise:
+        - This state is prevented by
+          [Default Field Conflict](#sec-Default-Field-Conflict).
+      - Let {implementers} be the set of object and interface types in
+        {mergedSchema} that implement {interfaceType}.
+      - For each {implementer} in {implementers}:
+        - If {implementer} carries a field named {field} that was projected from
+          another partial type:
+          - Record {schema} as an additional contributing source of that field.
+          - Continue.
+        - If a field on {implementer} with the same name as {field} is in
+          {shadowingFields}:
+          - Continue. The implementing type's own field takes precedence over
+            the default.
+        - Otherwise:
+          - Add {projectedField} to the fields of {implementer}.
+          - Record {schema} as a contributing source of the projected field,
+            resolvable by the key of {interfaceType} through the lookup fields
+            in {schema} that return {partialType}.
+
+**Explanatory Text**
+
+{ProjectDefaultFields(mergedSchema, schemas)} projects the default fields of
+every partial type onto its target interface and onto every object type that
+implements the target interface in the composite schema. It runs after all types
+have been merged and all `implements` relationships have been established (see
+[Merge Interface Implementations](#sec-Merge-Interface-Implementations)), and
+before post-merge validation.
+
+_Default Fields_
+
+The default fields of a partial type are its fields excluding the key fields of
+its declared `@key`s. Key fields exist on the partial type only to declare its
+identity; they are already part of the target interface's contract and are not
+projected.
+
+_Stripping Required Arguments_
+
+Arguments annotated with `@require` or `@inaccessible` are removed from the
+projected field's composite signature - the same treatment the merge logic
+applies to such arguments everywhere else. All other arguments remain part of
+the projected field.
+
+_Projected Fields Are Ordinary Fields_
+
+A projected field is added to the field collection of the target interface and
+of each implementing type. It appears in the composite schema exactly like a
+field declared directly on those types, and post-merge validation rules - such
+as [Interface Field No Implementation](#sec-Interface-Field-No-Implementation) -
+see it as such.
+
+_Precedence_
+
+If an implementing type declares a field with the same name as a default field
+in any source schema, the implementing type's own field wins and the default is
+not projected onto that type. This holds whether or not the field is annotated
+with `@implement`, so adding a default field is never a breaking change for
+existing implementing types. Declarations annotated with `@internal` or
+`@external` do not count as shadowing - they never resolve the field in the
+composite schema - and neither does a declaration in the source schema named by
+the default's `@override(from:)` argument. An implementing field that shadows a
+default without `@implement` is reported by the warning rule
+[Default Field Shadowed](#sec-Default-Field-Shadowed).
+
+Because a shadowing field takes the place of the default on its type, the
+projected interface field receives the least restrictive type of the default and
+all shadowing fields, so every shadowing implementation remains a valid
+implementation of the interface. The required type compatibility is validated
+before merging by [Default Field Conflict](#sec-Default-Field-Conflict).
+
+Interface types that implement the target interface receive the projected
+default under the same precedence: an implementing interface that declares the
+field keeps its own declaration; otherwise the projected field is added, so
+interface hierarchies remain valid implementations.
+
+_Shared Defaults_
+
+Two partial types in different source schemas may contribute the same default
+field when both declare it `@shareable` (see
+[Default Field Conflict](#sec-Default-Field-Conflict)). The projections merge:
+the field's type is the least restrictive type of both declarations, arguments
+merge with {MergeArgumentDefinitions}, and both source schemas are recorded as
+contributing sources.
+
+_Migrations with `@override`_
+
+A default field that carries `@override(from:)` lifts a field that is resolved
+concretely in another source schema into a single default implementation. The
+declaration in the overridden source schema does not count as shadowing, so the
+default is projected onto the implementing types, and the standard `@override`
+semantics then transfer ownership from the overridden source schema to the
+contributing source schema for each pair of implementing type and field.
+
+_Non-Authoritative Resolution_
+
+The composite execution schema records that the contributing source schema
+resolves the target interface and its implementing types through the partial
+type's lookup fields non-authoritatively: through these lookup fields, the
+contributing schema can never answer `__typename`, evaluate type conditions, or
+resolve fields other than the default fields it contributes. Concrete typing
+always comes from a lookup field that returns the target interface (see
+[Resolving Default Field Implementations](#sec-Resolving-Default-Field-Implementations)).
+
+**Example**
+
+In the following example, `MediaReviews` contributes the default field
+`averageRating` to the interface `Media`. `Book` receives the projected default;
+`Photo` provides its own implementation, which takes precedence.
+
+```graphql example
+# Source Schema A
+interface Media @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating(title: String! @require(field: "title")): Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+
+# Source Schema B
+interface Media @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type Book implements Media @key(fields: "id") {
+  id: ID!
+  title: String!
+  pages: Int!
+}
+
+type Photo implements Media @key(fields: "id") {
+  id: ID!
+  title: String!
+  averageRating: Float! @implement
+}
+
+type Query {
+  mediaById(id: ID!): Media @lookup
+}
+
+# Composite Schema
+interface Media {
+  id: ID!
+  title: String!
+  averageRating: Float!
+}
+
+type Book implements Media {
+  id: ID!
+  title: String!
+  pages: Int!
+  averageRating: Float!
+}
+
+type Photo implements Media {
+  id: ID!
+  title: String!
+  averageRating: Float!
+}
+
+type Query {
+  mediaById(id: ID!): Media
+}
+```
+
+`MediaReviews` does not appear in the composite schema, and the `@require`
+argument `title` is not part of the projected field's signature. The projected
+`Book.averageRating` is resolved through Source Schema A's `mediaReviewsById`
+lookup, while `Photo.averageRating` is resolved by Source Schema B.
 
 ### Shared Algorithms
 
@@ -6155,6 +7468,122 @@ type User implements Account @key(fields: "id") {
 }
 ```
 
+#### Default Field Shadowed
+
+**Error Code**
+
+`DEFAULT_FIELD_SHADOWED`
+
+**Severity**
+
+WARNING
+
+**Formal Specification**
+
+- Let {schema} be the merged composite execution schema.
+- Let {objectTypes} be the set of all object types defined in {schema}.
+- For each {objectType} in {objectTypes}:
+  - Let {interfaces} be the set of interface types that {objectType} implements.
+  - For each {interface} in {interfaces}:
+    - Let {defaultFields} be the set of default fields projected onto
+      {interface} from types annotated with `@partial` (see
+      [Project Default Fields](#sec-Project-Default-Fields)).
+    - For each {defaultField} in {defaultFields}:
+      - Let {shadowingDeclarations} be the declarations of a field with the same
+        name as {defaultField} on {objectType} across all source schemas,
+        excluding declarations annotated with `@internal` or `@external`.
+      - If {defaultField} is annotated with `@override`:
+        - Remove from {shadowingDeclarations} all declarations in the source
+          schema named by the `from` argument.
+      - If {shadowingDeclarations} is not empty:
+        - If no declaration in {shadowingDeclarations} is annotated with
+          `@implement`:
+          - Emit a `DEFAULT_FIELD_SHADOWED` warning.
+
+**Explanatory Text**
+
+An implementing type that declares its own field with the same name as a
+projected default field takes precedence over the default: the default is not
+projected onto that type, and composition succeeds. Annotating the implementing
+field with `@implement` declares this intent explicitly. Without the annotation,
+the shadowing is implicit - it may be intentional, or it may be an accidental
+collision with a default that was added later. This rule surfaces the implicit
+case as a warning so that schema authors can confirm the intent by adding
+`@implement`.
+
+Declarations annotated with `@internal` or `@external` never shadow a default
+and emit no warning. Neither does the declaration in the source schema named by
+the default's `@override(from:)` argument: that field is the one being lifted
+into the default, not a shadowing implementation.
+
+**Examples**
+
+In this example, `Photo.averageRating` shadows the default field contributed by
+`MediaReviews` and declares this intent with `@implement`. No warning is
+emitted.
+
+```graphql example
+# Source Schema A
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+
+# Source Schema B
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type Photo implements Media @key(fields: "id") {
+  id: ID!
+  averageRating: Float! @implement
+}
+
+type Query {
+  photoById(id: ID!): Photo @lookup
+}
+```
+
+In this counter-example, `Photo.averageRating` shadows the default field without
+the `@implement` annotation. The composition succeeds, but a
+`DEFAULT_FIELD_SHADOWED` warning is emitted.
+
+```graphql counter-example
+# Source Schema A
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+
+# Source Schema B
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type Photo implements Media @key(fields: "id") {
+  id: ID!
+  averageRating: Float!
+}
+
+type Query {
+  photoById(id: ID!): Photo @lookup
+}
+```
+
 ### Validate Input Types
 
 #### Empty Merged Input Object Type
@@ -6806,6 +8235,9 @@ ERROR
     - Let {schema} be the schema that defines {argument}.
     - Let {declaringField} be the field that defines {argument}.
     - Let {declaringType} be the type that defines {declaringField}.
+    - If {declaringType} is annotated with `@partial`:
+      - Set {declaringType} to the interface named by the `of` argument of the
+        `@partial` directive on {declaringType}.
     - Let {otherSchemas} be the set of all {schemas} excluding {schema}.
     - Let {fieldArg} be the string value of the `field` argument of the
       `@require` directive on {argument}.
@@ -6814,7 +8246,10 @@ ERROR
       rules defined in Appendix A, Section 6.3, using:
       - {declaringType} as the initial root type.
       - The combined schema context formed by the union of {otherSchemas} as the
-        schema context except all fields marked as `@internal`
+        schema context except all fields marked as `@internal`. In this context,
+        an interface additionally has the default fields that `@partial` types
+        in {otherSchemas} contribute to it (see
+        [Project Default Fields](#sec-Project-Default-Fields)).
       - Validation succeeds if each required field selection path can be
         resolved across this combined schema context. Individual fields in the
         selection may exist in different schemas; it is not required that all
@@ -6827,6 +8262,16 @@ contents must also be valid. Required fields must exist on the parent type in a
 **different schema than the one defining the requirement** for them to be
 referenced by `@require`. Additionally, requiring unknown fields invalidates
 `@require`, resulting in a `REQUIRE_INVALID_FIELDS` error.
+
+When the type declaring the requirement is annotated with `@partial`, the
+selection map is rooted at the target interface instead: the required data is
+fetched for entities of the target interface, and the partial type itself exists
+in no other source schema. Default fields that `@partial` types in other source
+schemas contribute to the target interface count as fields of the interface in
+this validation, so a requirement may reference another source schema's default
+field. The partial type's own fields are not selectable in a requirement: they
+are resolved by the same source schema that declares the requirement and could
+therefore never satisfy it.
 
 **Examples**
 
@@ -6901,6 +8346,42 @@ to the argument's type, and required arguments without defaults must be
 supplied. When the referenced field is defined in multiple source schemas, the
 argument definitions across those schemas must be mergeable as defined by
 [Field Argument Types Mergeable](#sec-Field-Argument-Types-Mergeable).
+
+When the requirement is declared on a field of a `@partial` type, the selection
+map is rooted at the target interface. In the following example, the `title`
+requirement on `MediaReviews.averageRating` is valid because other source
+schemas resolve `Media.title`.
+
+```graphql example
+# Schema A
+interface Media @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating(title: String! @require(field: "title")): Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+
+# Schema B
+interface Media @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type Book implements Media @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type Query {
+  mediaById(id: ID!): Media @lookup
+}
+```
 
 ## Validate Satisfiability
 
@@ -6995,7 +8476,9 @@ remainder of the path.
 - For each {currentSchema} in {currentOptions}:
   - For each {candidateSchema} in {allSchemas}:
     - If {candidateSchema} does not define {currentField} on {currentType}:
-      - Continue to the next {candidateSchema}.
+      - If {DefinesViaInterface(candidateSchema, currentType, currentField)} is
+        false:
+        - Continue to the next {candidateSchema}.
     - If {currentField} on {currentType} is annotated with `@external` in
       {candidateSchema}:
       - Continue to the next {candidateSchema}.
@@ -7015,6 +8498,22 @@ remainder of the path.
 - Let {remainingPath} be {pathElements} without the first element.
 - return `RefinePlanOptions(remainingPath, nextOptions, allSchemas)`.
 
+DefinesViaInterface(schema, type, field):
+
+A source schema can resolve a field of a type it does not declare when the field
+is part of an interface contract that the schema declares and resolves.
+
+- For each interface {interface} implemented by {type} in the composite schema:
+  - If {schema} declares {interface} with a field named {field}:
+    - If {schema} contains a lookup field whose unwrapped return type is
+      {interface}, or a field whose unwrapped type is {interface}:
+      - return true.
+    - If {schema} contains a lookup field whose unwrapped return type is a type
+      annotated with `@partial` targeting {interface} and {field} is a default
+      field projected from that partial type:
+      - return true.
+- return false.
+
 IsReachable(sourceSchema, targetSchema, type, allSchemas):
 
 Execution can transition from {sourceSchema} to {targetSchema} for {type} only
@@ -7025,7 +8524,12 @@ resolvable from the current context.
   with `@lookup` and resolve {type}. A lookup resolves {type} if:
   - Its unwrapped return type is {type}, or
   - Its unwrapped return type is an interface or union whose possible object
-    types include {type}.
+    types include {type}, or
+  - Its unwrapped return type is a type annotated with `@partial` whose target
+    interface is {type} or is implemented by {type}. Which fields such a lookup
+    can resolve is constrained where fields are matched to source schemas (see
+    {DefinesViaInterface}): only the default fields projected from that partial
+    type (see [Project Default Fields](#sec-Project-Default-Fields)).
 - For each {lookup} in {lookups}:
   - Let {lookupPathSets} be `LookupPathSets(lookup, type)`.
   - For each {lookupPathSet} in {lookupPathSets}:
@@ -7155,6 +8659,32 @@ Query-path satisfiability, however, is evaluated as if all `@provides`
 directives were ignored: a `@provides` may reduce the number of fetches in a
 query plan, but must never be required to make a query path satisfiable.
 
+Default fields projected from a partial type (see
+[Project Default Fields](#sec-Project-Default-Fields)) are resolved by their
+contributing source schema. For satisfiability, a projected default field on an
+implementing type is defined by the contributing schema, and the transition to
+that schema uses the partial type's lookup fields: {IsReachable} treats a lookup
+returning a partial type as a lookup that resolves the target interface and
+every implementing type, while {DefinesViaInterface} restricts the fields such a
+lookup can serve to the projected default fields. The lookup's key must
+therefore be resolvable on each implementing type from the current context - for
+example, a key field that no source schema can resolve for one implementing type
+makes the projected default fields on that type unsatisfiable. Through the
+partial type's lookup, a contributing schema is never authoritative for the
+concrete type of the target interface: it cannot resolve `__typename`, evaluate
+type conditions, or resolve any field other than its default fields (see
+[Default Typename Unresolvable](#sec-Default-Typename-Unresolvable)).
+
+A source schema can define a field for planning purposes without declaring the
+field's type: when a path element is matched against a source schema,
+{DefinesViaInterface} also counts the schema as defining the field when the
+field is part of an interface contract that the schema declares and resolves.
+This is what makes opaque interface-typed results usable in planning. A
+contributing source schema that declares `topReviewed: [Media!]!` resolves
+`Media.id` for the interface-typed results it produces, even though it declares
+none of the implementing types; a path element such as ({Book}, {id}) is
+therefore satisfiable from that schema's results.
+
 **Examples**
 
 The following query path:
@@ -7172,3 +8702,131 @@ Similarly, this path:
 is represented as:
 
 `[(Mutation, createUser), (CreateUserPayload, query), (Query, me)]`
+
+### Default Typename Unresolvable
+
+**Error Code**
+
+`DEFAULT_TYPENAME_UNRESOLVABLE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas.
+- For each {schema} in {schemas}:
+  - Let {partialTypes} be the set of types in {schema} annotated with
+    `@partial`.
+  - For each {partialType} in {partialTypes}:
+    - Let {interfaceName} be the target interface name of {partialType}.
+    - Let {rootedFields} be the set of fields in {schema} whose unwrapped type
+      is named {interfaceName}.
+    - If {rootedFields} is empty:
+      - Continue
+    - Let {interfaceLookups} be the set of fields across {schemas} annotated
+      with `@lookup` whose unwrapped return type is the interface named
+      {interfaceName}.
+    - {interfaceLookups} must contain at least one lookup whose arguments
+      correspond, by name or through `@is`, to the fields of a `@key` declared
+      on the interface named {interfaceName} in {schema}.
+
+**Explanatory Text**
+
+A source schema that contributes default fields through a partial type may also
+expose fields whose type is the target interface. Results of such fields are
+_opaque_: the contributing schema is never authoritative for the concrete type
+of the target interface, so it cannot answer `__typename` and never receives
+type conditions.
+
+Selections on an opaque result that require the concrete type - `__typename`,
+inline fragments with type conditions, or fields that are not part of the
+interface contract - can only be satisfied by first resolving the result through
+a lookup field that returns the interface. Such a lookup may be declared in any
+source schema, including one that contributes a partial type; lookup fields
+returning the partial type itself do not qualify. If no such lookup exists, the
+concrete type of the opaque results can never be established, and those
+selections are unsatisfiable. The lookup's arguments must correspond to a `@key`
+that the contributing schema declares on the interface, so that the opaque
+result carries the data needed to invoke it.
+
+Lookup fields that return concrete implementing types cannot serve this purpose:
+selecting such a lookup already requires knowing the concrete type.
+
+Note: An interface-returning lookup can only return instances whose concrete
+types its own source schema declares. When the implementing types are spread
+across several source schemas, a lookup may not know the instance it is asked to
+resolve; in that case, it returns null according to the normal lookup semantics.
+Concrete-type resolution is guaranteed only where the source schema of the
+interface-returning lookup declares the implementing type.
+
+**Examples**
+
+In this example, Source Schema A exposes the interface-typed field
+`topReviewed`, and Source Schema B provides the interface-returning lookup
+`mediaById`, which can resolve the concrete type of the opaque results. This
+usage is valid.
+
+```graphql example
+# Source Schema A
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+  topReviewed: [Media!]!
+}
+
+# Source Schema B
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type Book implements Media @key(fields: "id") {
+  id: ID!
+}
+
+type Query {
+  mediaById(id: ID!): Media @lookup
+}
+```
+
+In this counter-example, Source Schema A exposes the interface-typed field
+`topReviewed`, but no source schema provides an interface-returning lookup for
+`Media`. The concrete type of the results of `topReviewed` can never be
+established, violating the rule.
+
+```graphql counter-example
+# Source Schema A
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+  topReviewed: [Media!]!
+}
+
+# Source Schema B
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type Book implements Media @key(fields: "id") {
+  id: ID!
+}
+
+type Query {
+  bookById(id: ID!): Book @lookup
+}
+```

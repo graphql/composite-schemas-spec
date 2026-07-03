@@ -1,0 +1,25 @@
+interface Node {
+  id: ID!
+}
+
+interface Media implements Node @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type Book implements Media & Node @key(fields: "id") {
+  id: ID!
+  title: String!
+  pages: Int!
+}
+
+type Photo implements Media & Node @key(fields: "id") {
+  id: ID!
+  title: String!
+  averageRating: Float! @implement
+}
+
+type Query {
+  mediaById(id: ID!): Media @lookup
+  bookById(id: ID!): Book @lookup
+}

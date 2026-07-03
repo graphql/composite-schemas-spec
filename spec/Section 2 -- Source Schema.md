@@ -1118,3 +1118,274 @@ type Product @key(fields: "id") {
 **Arguments:**
 
 - `from`: The name of the source schema that originally provided this field.
+
+## @partial
+
+```graphql
+directive @partial(of: String!) on OBJECT
+```
+
+A _partial type_ contributes _default field implementations_ to an interface.
+The fields of a partial type are declared once, keyed by the target interface's
+`@key`, and composition projects them onto the interface and onto every object
+type that implements it. The contributing source schema does not know or list
+the concrete implementing types.
+
+The `of` argument names the target interface, which must be declared in the same
+source schema (see [Partial Target Invalid](#sec-Partial-Target-Invalid)). A
+partial type never appears in the composite schema: it does not participate in
+name-based type merging, and its fields reach the composite schema only through
+projection.
+
+In the following example, the `MediaReviews` partial type contributes the
+`averageRating` field to the `Media` interface. Source schema A declares the
+partial type and resolves it through the internal lookup field
+`mediaReviewsById`; source schema B declares the concrete types that implement
+`Media`.
+
+```graphql example
+# Source Schema A ("reviews")
+interface Node {
+  id: ID!
+}
+
+interface Media implements Node @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating(title: String! @require(field: "title")): Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+  topReviewed: [Media!]!
+}
+
+# Source Schema B ("catalog")
+interface Node {
+  id: ID!
+}
+
+interface Media implements Node @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type Book implements Media & Node @key(fields: "id") {
+  id: ID!
+  title: String!
+  pages: Int!
+}
+
+type Photo implements Media & Node @key(fields: "id") {
+  id: ID!
+  title: String!
+  averageRating: Float! @implement
+}
+
+type Query {
+  mediaById(id: ID!): Media @lookup
+  bookById(id: ID!): Book @lookup
+}
+```
+
+The above example translates to the following composite schema. The
+`averageRating` field is projected onto the `Media` interface and onto `Book`;
+`Photo` provides its own implementation, which takes precedence (see
+[@implement](#sec--implement)). The `MediaReviews` type does not exist in the
+composite schema, and neither does the internal `mediaReviewsById` lookup field.
+The `title` argument of `averageRating` is annotated with `@require` and is
+therefore removed as well.
+
+```graphql example
+interface Node {
+  id: ID!
+}
+
+interface Media implements Node {
+  id: ID!
+  title: String!
+  averageRating: Float!
+}
+
+type Book implements Media & Node {
+  id: ID!
+  title: String!
+  pages: Int!
+  averageRating: Float!
+}
+
+type Photo implements Media & Node {
+  id: ID!
+  title: String!
+  averageRating: Float!
+}
+
+type Query {
+  mediaById(id: ID!): Media
+  bookById(id: ID!): Book
+  topReviewed: [Media!]!
+}
+```
+
+A source schema that only contributes default fields stays small. The local
+declaration of the target interface is required, but it only needs the key
+fields that the partial type declares. It merges with the declarations of other
+source schemas by the existing interface merge rules.
+
+```graphql example
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+```
+
+Note: Fields declared on the local target-interface declaration merge into the
+composite interface contract like any other interface declaration and thereby
+obligate every implementing type to provide them. Declare on the local interface
+only fields that genuinely belong to the shared contract.
+
+**Declaring a Partial Type**
+
+A partial type must declare at least one `@key` (see
+[Partial Key Missing](#sec-Partial-Key-Missing)), and every `@key` on a partial
+type must be identical to a `@key` declared on the target interface in the same
+source schema (see [Partial Key Mismatch](#sec-Partial-Key-Mismatch)). The
+source schema must also provide at least one lookup field that returns the
+partial type (see [Partial Lookup Missing](#sec-Partial-Lookup-Missing)); the
+_distributed GraphQL executor_ uses this lookup field to fetch the default
+fields for an entity. The lookup field must be annotated with `@internal`: a
+partial type never appears in the composite schema, so a public lookup field
+returning it would reference a type that does not exist in the composite schema,
+which composition rejects (see
+[Reference To Internal Type](#sec-Reference-To-Internal-Type)). The lookup
+remains available to the _distributed GraphQL executor_ for entity resolution.
+
+A partial type must not declare `implements` (see
+[Partial No Implements](#sec-Partial-No-Implements)), must not be referenced
+anywhere except as the return type of lookup fields (see
+[Partial Invalid Usage](#sec-Partial-Invalid-Usage)), and a source schema must
+not declare more than one partial type for the same target interface (see
+[Partial Duplicate Target](#sec-Partial-Duplicate-Target)).
+
+**Effective Shape**
+
+Field references in the `fields` argument of `@key` directives on a partial
+type, and the argument mapping of lookup fields that return the partial type,
+are resolved against the partial type's _effective shape_: the union of its own
+fields and the fields of the target interface as declared in the same source
+schema. This is why `@key(fields: "id")` is valid on `MediaReviews` in the
+example above although the partial type does not declare an `id` field (see
+[Key Invalid Fields](#sec-Key-Invalid-Fields)).
+
+The selection map of a `@require` argument on a partial type's field is instead
+rooted at the target interface: the required data is fetched from other source
+schemas for entities of the target interface, so the partial type's own fields
+are not selectable in a requirement (see
+[Require Invalid Fields](#sec-Require-Invalid-Fields)).
+
+**Explicit Intent**
+
+Partial type semantics apply only when the `@partial` directive is present. An
+object type that implements an interface and shares its key is a genuine
+implementer of that interface; composition never reclassifies it as a partial
+type, no matter how similar its shape is.
+
+**Sharing Data via Requirements**
+
+A default field takes the data it needs from other source schemas as arguments
+annotated with `@require`, rooted at the target interface. As with any
+requirement, these arguments are removed from the composite schema. A partial
+type must not redeclare the fields of the target interface; the only fields of
+the target interface it may declare are key fields (see
+[Partial Field Duplicates Contract](#sec-Partial-Field-Duplicates-Contract)).
+
+**Resolution**
+
+The declared `@key` and the lookup field are the entire resolution mechanism:
+the _distributed GraphQL executor_ resolves default fields by calling the
+partial type's lookup field with the key values of the entity. The composite
+schema treats this lookup as a lookup for the target interface that is not
+authoritative for the concrete type: a result from it is an instance of the
+target interface whose key is known but whose concrete type is unknown.
+
+Because of this, results obtained through a partial type's lookup - or through
+interface-typed fields that the contributing source schema resolves from its
+partial data - never carry an authoritative concrete `__typename`. The
+_distributed GraphQL executor_ never resolves `__typename`, inline fragments, or
+type conditions through the partial type's lookup; concrete typing comes from a
+lookup field that returns the target interface (see
+[Default Typename Unresolvable](#sec-Default-Typename-Unresolvable) and
+[Resolving Default Field Implementations](#sec-Resolving-Default-Field-Implementations)).
+A source schema that also declares implementing types of the target interface
+remains authoritative for those types through its ordinary lookup fields.
+
+A source schema that contributes a partial type may itself expose fields typed
+with the target interface, such as `topReviewed: [Media!]!` in the example
+above. Executing such a field yields interface-typed results whose concrete type
+is resolved on demand through another source schema's interface lookup.
+
+**Migrating Fields into a Default**
+
+A field on a partial type may carry `@override(from:)` to lift a field that is
+resolved concretely in another source schema into a single default
+implementation. Standard `@override` semantics apply. The opposite direction - a
+single implementing type providing its own implementation - needs no
+`@override`, because an implementer's own field always takes precedence over a
+projected default (see [@implement](#sec--implement)).
+
+Note: `@inaccessible` on a field of a partial type projects with the field,
+hiding the projected default from the client-facing composite schema.
+`@inaccessible` on the partial type itself has no effect, since the type never
+enters the composite schema.
+
+Note: This specification does not require a source schema to be executable on
+its own. A server implementation MAY treat a partial type locally as a possible
+type of its target interface; in the composite schema, the partial type is never
+a possible type of the interface.
+
+**Arguments:**
+
+- `of`: The name of the target interface type.
+
+## @implement
+
+```graphql
+directive @implement on FIELD_DEFINITION
+```
+
+When an implementing object type declares a field with the same name as a
+projected default - in any source schema - the implementer's own field takes
+precedence, and the default is not projected onto that type. This holds whether
+or not the field is annotated with `@implement`, so introducing a new default
+field is never a breaking change for existing implementing types.
+
+The `@implement` directive is an optional marker that makes this intent
+explicit: it declares that the field intentionally provides its own
+implementation instead of taking the default. A field annotated with
+`@implement` must shadow an existing default field (see
+[Implement Without Default](#sec-Implement-Without-Default)); this catches stale
+markers after a default has been removed. A field that shadows a default without
+the marker composes successfully but is reported as a warning (see
+[Default Field Shadowed](#sec-Default-Field-Shadowed)).
+
+In the following example, `Photo` provides its own `averageRating`
+implementation instead of the default contributed by the `MediaReviews` partial
+type; implementing types without an own `averageRating` field take the default.
+
+```graphql example
+type Photo implements Media & Node @key(fields: "id") {
+  id: ID!
+  title: String!
+  averageRating: Float! @implement
+}
+```

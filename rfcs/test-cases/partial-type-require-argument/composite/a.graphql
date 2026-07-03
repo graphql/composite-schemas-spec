@@ -1,0 +1,14 @@
+interface Media @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+# The title argument is a requirement resolved by the distributed executor;
+# it is not exposed on Media.averageRating in the composite schema.
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating(title: String! @require(field: "title")): Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}

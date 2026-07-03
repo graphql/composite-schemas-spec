@@ -1,0 +1,11 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key", "@interfaceObject", "@override"])
+
+type Media @key(fields: "id") @interfaceObject {
+  id: ID!
+  averageRating: Float! @override(from: "b")
+}
+
+type Query {
+  hello: String
+}

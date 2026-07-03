@@ -1,0 +1,17 @@
+interface Node {
+  id: ID!
+}
+
+interface Media implements Node @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating(title: String! @require(field: "title")): Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+  topReviewed: [Media!]!
+}

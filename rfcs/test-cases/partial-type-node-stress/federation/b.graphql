@@ -1,0 +1,21 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key"])
+
+interface Node @key(fields: "id") {
+  id: ID!
+}
+
+type User implements Node @key(fields: "id") {
+  id: ID!
+  name: String!
+}
+
+type Product implements Node @key(fields: "id") {
+  id: ID!
+  price: Float!
+}
+
+type Query {
+  nodeById(id: ID!): Node
+  userById(id: ID!): User
+}

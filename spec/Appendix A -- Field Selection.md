@@ -96,6 +96,34 @@ Consequently, a {FieldSelectionMap} must be interpreted in the context of a
 specific argument, its associated directive, and the relevant output type as
 determined by that directive's behavior.
 
+For fields of a type annotated with `@partial` (see [@partial](#sec--partial)),
+the {FieldSelectionMap} of a `@require` argument is rooted at the partial type's
+target interface rather than at the declaring type: the required data is fetched
+from other source schemas for entities of the target interface, and the partial
+type's own fields are not selectable. An `@is` selection map on a lookup field
+that returns a partial type is resolved against the partial type's _effective
+shape_: the union of the partial type's own fields and the fields of its target
+interface as declared in the same source schema.
+
+In the following example, the `title` requirement on `MediaReviews` is rooted at
+the target interface `Media`; it selects `Media.title`, not a field of
+`MediaReviews`.
+
+```graphql example
+interface Media @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating(title: String! @require(field: "title")): Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+}
+```
+
 **Examples**
 
 Scalar fields can be mapped directly to arguments.

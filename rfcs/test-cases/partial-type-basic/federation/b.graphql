@@ -1,0 +1,27 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key"])
+
+interface Node {
+  id: ID!
+}
+
+interface Media implements Node @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type Book implements Media & Node @key(fields: "id") {
+  id: ID!
+  title: String!
+  pages: Int!
+}
+
+type Photo implements Media & Node @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type Query {
+  mediaById(id: ID!): Media
+  bookById(id: ID!): Book
+}

@@ -1,0 +1,15 @@
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type MediaReviews @partial(of: "Media") @key(fields: "id") {
+  averageRating: Float!
+}
+
+type Query {
+  mediaReviewsById(id: ID!): MediaReviews @lookup @internal
+
+  # Contributor-rooted interface-typed field: results are opaque Media values
+  # whose concrete type is resolved through schema b's mediaById lookup.
+  topReviewed: [Media!]!
+}

@@ -1,0 +1,15 @@
+type Query {
+  myInterfaceBaseById(id: ID!): MyInterfaceBase @lookup @internal
+}
+
+interface MyInterface @key(fields: "id") {
+  id: ID!
+  field: String
+}
+
+# Lifts MyType.field from schema "a" into a default implementation that
+# derives its value from the newField default contributed by schema "b".
+type MyInterfaceBase @partial(of: "MyInterface") @key(fields: "id") {
+  field(newField: String! @require(field: "newField")): String
+    @override(from: "a")
+}

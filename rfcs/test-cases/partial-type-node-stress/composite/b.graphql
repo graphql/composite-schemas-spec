@@ -1,0 +1,18 @@
+interface Node @key(fields: "id") {
+  id: ID!
+}
+
+type User implements Node @key(fields: "id") {
+  id: ID!
+  name: String!
+}
+
+type Product implements Node @key(fields: "id") {
+  id: ID!
+  price: Float!
+}
+
+type Query {
+  nodeById(id: ID!): Node @lookup
+  userById(id: ID!): User @lookup
+}

@@ -1,0 +1,19 @@
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type Photo implements Media @key(fields: "id") {
+  id: ID!
+  averageRating: Float! @implement
+}
+
+# Song shadows the default without the @implement marker; composition
+# succeeds and surfaces the DEFAULT_FIELD_SHADOWED warning.
+type Song implements Media @key(fields: "id") {
+  id: ID!
+  averageRating: Float!
+}
+
+type Query {
+  mediaById(id: ID!): Media @lookup
+}
