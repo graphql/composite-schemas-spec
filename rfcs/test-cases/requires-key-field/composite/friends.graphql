@@ -4,5 +4,5 @@ type Query {
 
 type User @key(fields: "id") {
   id: ID
-  friends(id: ID! @requires(field: id)): [User!]! # i think this should be an error
+  friends(id: ID! @require(field: "id")): [User!]! # i think this should be an error
 }
