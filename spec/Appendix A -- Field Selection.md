@@ -531,7 +531,7 @@ type Product {
   shippingCost(
     dimensions: DimensionInput!
       @require(field: "{ size: dimensions.size, weight: dimensions.weight }")
-  ): Int! @lookup
+  ): Int!
 }
 ```
 
