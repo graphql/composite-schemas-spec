@@ -16,7 +16,11 @@ fields that can be used by the _distributed GraphQL executor_ to resolve an
 entity by a stable key.
 
 The stable key is defined by the arguments of the field. Each lookup argument
-must match a field on the return type of the lookup field.
+must match a field on the return type of the lookup field. The matched field
+does not need to be defined in the source schema that declares the lookup field;
+it must exist on the return type in at least one source schema. The _distributed
+GraphQL executor_ resolves the key value from the source schemas where the field
+is available.
 
 Source schemas can provide multiple lookup fields for the same entity to resolve
 the entity by different keys.
@@ -41,7 +45,10 @@ type Product {
 Lookup fields may return object, interface, or union types. In case a lookup
 field returns an abstract type (interface type or union type), all possible
 object types of the abstract return type are considered entities, and each must
-have fields that correspond to every argument of the lookup field.
+have fields that correspond to every argument of the lookup field. When an
+argument is annotated with the `@is` directive, its selection map defines this
+correspondence instead; the selection map must cover every possible object type
+of the return type (see [@is](#sec--is)).
 
 ```graphql example
 type Query {
@@ -313,6 +320,11 @@ establishes semantic equivalence between disparate type system members across
 source schemas and is used in cases where an argument does not directly align
 with a field on the entity type.
 
+The fields referenced by an `@is` selection map must not declare arguments. The
+arguments of a lookup field represent a stable key of the entity, and a stable
+key must map to plain field values; a parameterized field cannot serve as part
+of a lookup key.
+
 In the following example, the directive specifies that the `id` argument on the
 field `Query.personById` and the field `Person.id` on the return type of the
 field are semantically the same.
@@ -362,6 +374,99 @@ input PersonByInput @oneOf {
   id: ID
   addressId: ID
   name: String
+}
+```
+
+The alternatives of an `@is` selection map represent alternative stable keys -
+entry requirements for resolving an entity in this source schema. Any one of the
+keys is sufficient to enter the source schema. In contrast to `@require`, where
+the executor fetches the data for all alternatives and the runtime data decides
+which value is used, the query planner selects which alternative it uses based
+on the data it can resolve in the current context. A lookup field is usable as
+long as at least one alternative can be resolved (see
+[Validate Satisfiability](#sec-Validate-Satisfiability)).
+
+When a lookup field returns an abstract type, the selection map must cover every
+possible runtime type of the return type: each possible object type must be
+matched by at least one alternative of the selection map. When a lookup field
+declares multiple arguments, each argument must independently be mappable for
+every possible runtime type. A source schema that can only resolve a subset of
+the possible types must declare a narrower return type that reflects what it can
+resolve.
+
+In the following example, the selection map covers all three possible types of
+`Media`, resolving each by a different key field.
+
+```graphql example
+type Query {
+  mediaByKey(
+    key: MediaKeyInput!
+      @is(
+        field: "{ isbn: <Book>.isbn } | { upc: <Movie>.upc } | { feedUrl: <Podcast>.feedUrl }"
+      )
+  ): Media @lookup
+}
+
+input MediaKeyInput @oneOf {
+  isbn: String
+  upc: String
+  feedUrl: String
+}
+
+interface Media {
+  id: ID!
+}
+
+type Book implements Media {
+  id: ID!
+  isbn: String!
+}
+
+type Movie implements Media {
+  id: ID!
+  upc: String!
+}
+
+type Podcast implements Media {
+  id: ID!
+  feedUrl: String!
+}
+```
+
+In the following counter-example, the selection map covers only `Book` and
+`Movie`. `Podcast` is a possible type of `Media` but is not covered by any
+alternative, so the lookup field is invalid.
+
+```graphql counter-example
+type Query {
+  mediaByKey(
+    key: MediaKeyInput!
+      @is(field: "{ isbn: <Book>.isbn } | { upc: <Movie>.upc }")
+  ): Media @lookup
+}
+
+input MediaKeyInput @oneOf {
+  isbn: String
+  upc: String
+}
+
+interface Media {
+  id: ID!
+}
+
+type Book implements Media {
+  id: ID!
+  isbn: String!
+}
+
+type Movie implements Media {
+  id: ID!
+  upc: String!
+}
+
+type Podcast implements Media {
+  id: ID!
+  feedUrl: String!
 }
 ```
 
@@ -441,6 +546,131 @@ input ProductDimensionInput {
   productWeight: Int!
 }
 ```
+
+Fields referenced by a `@require` selection map may declare arguments. Unlike
+`@key`, `@provides`, and `@is`, which must reference plain fields, a `@require`
+selection map derives an input value and may therefore select fields with
+constant arguments. Argument values must be constant literals; variables are not
+permitted.
+
+In the following example, the `weight` argument of the `shippingCost` field is
+derived from the `weight` field defined in another source schema, selected with
+the constant `IMPERIAL` value for the `unit` argument.
+
+```graphql example
+# Source Schema A
+type Product @key(fields: "id") {
+  id: ID!
+  shippingCost(
+    weight: Float @require(field: "weight(unit: IMPERIAL)")
+  ): Currency
+}
+
+# Source Schema B
+type Product @key(fields: "id") {
+  id: ID!
+  weight(unit: WeightUnit!): Float
+}
+```
+
+The `@require` directive can also be applied to arguments of fields declared on
+interface types. In this case, the selection map is rooted at the interface type
+and is evaluated against the concrete runtime object. Since implementing fields
+redeclare the arguments of an interface field, the `@require` annotation must be
+applied consistently: an argument carries `@require` on the interface field and
+on the corresponding argument of every implementing field, or on neither.
+Composition then removes the argument everywhere at once, and the composite
+schema retains a valid interface contract.
+
+```graphql example
+interface Product {
+  id: ID!
+  delivery(
+    zip: String!
+    size: Int! @require(field: "dimension.size")
+  ): DeliveryEstimates
+}
+
+type Book implements Product {
+  id: ID!
+  delivery(
+    zip: String!
+    size: Int! @require(field: "dimension.size")
+  ): DeliveryEstimates
+}
+```
+
+The above example translates to the following in the composite schema; the
+interface contract remains intact:
+
+```graphql example
+interface Product {
+  id: ID!
+  delivery(zip: String!): DeliveryEstimates
+}
+
+type Book implements Product {
+  id: ID!
+  delivery(zip: String!): DeliveryEstimates
+}
+```
+
+Fields of specific implementing types can be referenced in the selection map of
+an interface field argument through type conditions. In the following example,
+the `code` argument on the interface field `Media.similar` is derived from a
+field of the concrete runtime type: for a `Book` the executor supplies the
+`isbn` value, and for a `Movie` the `upc` value. Each implementing field
+declares the same requirement with a selection map rooted at its own type.
+
+```graphql example
+interface Media {
+  id: ID!
+  similar(code: String @require(field: "<Book>.isbn | <Movie>.upc")): [Media]
+}
+
+type Book implements Media {
+  id: ID!
+  similar(code: String @require(field: "isbn")): [Media]
+}
+
+type Movie implements Media {
+  id: ID!
+  similar(code: String @require(field: "upc")): [Media]
+}
+```
+
+The `@require` directive must not be used on arguments of fields annotated with
+`@lookup`. The arguments of a lookup field represent the stable key with which
+the _distributed executor_ resolves an entity; they are supplied from an
+existing representation of the entity, and a requirement has no defined meaning
+in that position.
+
+**Runtime Behavior**
+
+At runtime, the _distributed executor_ first fetches the data for all
+alternatives of the selection map and only then evaluates the map against the
+fetched data to derive the argument value (see
+[Value Production](#sec-Value-Production)). Which alternative supplies the value
+is decided by the runtime data, not by the query planner; the query plan
+requests the data for every alternative. The selection map may produce no value
+for a given runtime object, for example, because a type condition does not match
+the object's runtime type or because a field on an intermediate segment of the
+selected path resolves to null.
+
+If the selection map produces no value, the annotated argument is treated as if
+it had not been provided, and the standard GraphQL argument coercion rules
+apply: if the argument defines a default value, the default value is used; if
+the argument is nullable, it remains unprovided. If the argument is non-null and
+does not define a default value, the requirement cannot be satisfied and the
+field cannot be invoked; a field error is raised for the annotated field and is
+handled according to the standard GraphQL error propagation rules.
+
+Note: Type conditions in a selection map are not required to cover every
+possible runtime type of an abstract type. However, for a non-null argument
+without a default value, an uncovered runtime type means that the annotated
+field always results in a field error for objects of that type. Schema authors
+should cover all possible runtime types, make the argument nullable, or provide
+a default value.
 
 **Arguments:**
 
@@ -737,6 +967,13 @@ type Query {
 }
 ```
 
+The `@provides` directive is an execution-time optimization and never a
+requirement for resolvability. Composition validates that every query path of
+the composite schema remains satisfiable with all `@provides` directives
+ignored. A `@provides` allows the _distributed GraphQL executor_ to obtain the
+selected fields in the same response and thereby reduce the number of source
+schema requests, but the selected fields must remain resolvable without it.
+
 **Arguments:**
 
 - `fields`: Represents a field selection set syntax describing the subfields of
@@ -793,6 +1030,14 @@ field is provided by another source schema. The current source schema references
 it only for entity identification (via `@key`) or for providing a field through
 `@provides`. If no such usage exists, the presence of an `@external` field
 produces a composition error.
+
+The _distributed GraphQL executor_ never requests a field marked `@external`
+from the declaring source schema directly. The field is resolved either by a
+source schema that defines it without `@external`, or - when reached through a
+field annotated with `@provides` - as part of the providing source schema's
+response. The value of an external key field may also be known to the executor
+without resolving the field, for example, when it was used as the input of a
+lookup field that resolved the entity.
 
 ## @override
 
