@@ -540,7 +540,7 @@ In this example, the `name` field is marked with `@external` and is used by the
 `@provides` directive, satisfying the rule:
 
 ```graphql example
-# Source schema A
+# Source Schema A
 type Product {
   id: ID
   name: String @external
@@ -555,7 +555,7 @@ In this example, the `name` field is marked with `@external` but is not used by
 a `@provides` directive, violating the rule:
 
 ```graphql counter-example
-# Source schema A
+# Source Schema A
 type Product {
   id: ID
   name: String @external
@@ -1460,6 +1460,78 @@ string. This violates the directive requirement and triggers a
 ```graphql counter-example
 type User @key(fields: true) {
   id: ID
+}
+```
+
+#### Interface Object Key Missing
+
+**Error Code**
+
+`INTERFACE_OBJECT_KEY_MISSING`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {types} be the set of all object types in {schema} annotated with
+  `@interfaceObject`.
+- For each {type} in {types}:
+  - Let {keyDirectives} be the set of all `@key` directives on {type}.
+  - {keyDirectives} must not be empty.
+
+**Explanatory Text**
+
+An object type annotated with `@interfaceObject` stands in for an interface
+defined in one or more other source schemas. The composite schema resolves
+this stand-in as an independently queryable entity. The _distributed
+executor_ must be able to fetch it by its key, or extend it with the fields
+it contributes. The type must therefore declare at least one
+`@key`, exactly as any other entity type would. A stand-in with no key
+cannot be targeted by the executor and cannot contribute fields to the
+interface it stands in for.
+
+This rule only requires that a key exists. The fields selected by the key
+are validated like those of any other `@key` (see
+[Validate Key Directives](#sec-Validate-Key-Directives)). Whether the key
+matches one of the keys declared on the interface is validated across source
+schemas by
+[Interface Object Key Mismatch](#sec-Interface-Object-Key-Mismatch).
+
+**Examples**
+
+In this example, the `Media` stand-in declares a `@key`, so source schema
+B's contribution can be joined to the `Media` interface by `id`.
+
+```graphql example
+# Source Schema B
+type Media @interfaceObject @key(fields: "id") {
+  id: ID!
+  reviews: [Review!]!
+}
+
+type Review {
+  id: ID!
+  rating: Int!
+}
+```
+
+In the following counter-example, the `Media` stand-in declares no `@key`, so
+the entity it stands in for cannot be resolved. This results in an
+`INTERFACE_OBJECT_KEY_MISSING` error.
+
+```graphql counter-example
+# Source Schema B
+type Media @interfaceObject {
+  id: ID!
+  reviews: [Review!]!
+}
+
+type Review {
+  id: ID!
+  rating: Int!
 }
 ```
 
@@ -2529,26 +2601,38 @@ ERROR
 - For each type name {typeName} defined in at least one of these schemas:
   - Let {types} be the set of all types named {typeName} across all source
     schemas.
-  - All {types} must be of the same kind (Object, Interface, Union, Enum,
-    InputObject, Scalar).
+  - Let {consideredTypes} be the subset of {types} excluding any object type
+    annotated with `@interfaceObject`.
+  - All {consideredTypes} must be of the same kind (Object, Interface, Union,
+    Enum, InputObject, Scalar).
 
 **Explanatory Text**
 
 Each named type must represent the **same** kind of GraphQL type across all
-source schemas. For instance, a type named `User` must consistently be an object
-type, or consistently be an interface, and so forth. If one schema defines
-`User` as an object type, while another schema declares `User` as an interface
-(or input object, union, etc.), the schema composition process cannot merge
-these definitions coherently.
+source schemas. For instance, a type named `User` must consistently be an
+object type, or consistently be an interface, and so forth. If one schema
+defines `User` as an object type, while another schema declares `User` as an
+interface (or input object, union, etc.), the schema composition process cannot
+merge these definitions coherently.
 
-This rule ensures semantic consistency: a single type name cannot serve
-multiple, incompatible purposes in the final composed schema.
+A single type name cannot represent two different kinds of type in the
+composed schema.
+
+The one exception is an object type annotated with `@interfaceObject`. Such
+a type is a stand-in for an interface of the same name (see
+[Interface Object No Interface](#sec-Interface-Object-No-Interface)).
+Composition deliberately excludes it from this check. An `@interfaceObject`
+type and the interface it stands in for are not a kind mismatch. They are
+the mechanism by which a source schema contributes default field
+implementations for an interface it does not otherwise define. An object
+type with the same name that is **not** annotated with `@interfaceObject` is
+still an ordinary kind mismatch.
 
 **Examples**
 
 All schemas agree that `User` is an object type:
 
-```graphql
+```graphql example
 # Schema A
 type User {
   id: ID!
@@ -2572,7 +2656,7 @@ In the following counter-example, `User` is defined as an object type in one of
 the schemas and as an interface in another. This violates the rule and results
 in a `TYPE_KIND_MISMATCH` error.
 
-```graphql
+```graphql counter-example
 # Schema A: `User` is an object type
 type User {
   id: ID!
@@ -2583,6 +2667,49 @@ type User {
 interface User {
   id: ID!
   friends: [User!]!
+}
+```
+
+`Media` is declared as an interface in source schema A and as an object
+type annotated with `@interfaceObject` in source schema B. Because the
+stand-in is annotated, it is excluded from the kind check and no error is
+raised.
+
+```graphql example
+# Source Schema A: `Media` is an interface
+interface Media {
+  id: ID!
+  title: String!
+}
+
+# Source Schema B: `Media` is an `@interfaceObject` stand-in
+type Media @interfaceObject @key(fields: "id") {
+  id: ID!
+  reviews: [Review!]!
+}
+
+type Review {
+  id: ID!
+  rating: Int!
+}
+```
+
+Here, source schema B declares `Media` as a plain object type, without
+`@interfaceObject`. The exception does not apply, so the object type in
+source schema B and the interface in source schema A are a genuine kind
+mismatch, resulting in a `TYPE_KIND_MISMATCH` error.
+
+```graphql counter-example
+# Source Schema A: `Media` is an interface
+interface Media {
+  id: ID!
+  title: String!
+}
+
+# Source Schema B: `Media` is a plain object type, not a stand-in
+type Media {
+  id: ID!
+  reviewCount: Int!
 }
 ```
 
@@ -3079,6 +3206,50 @@ type Collection {
 }
 ```
 
+The same reasoning applies when the contributing schemas are
+`@interfaceObject` stand-ins for the same interface, rather than ordinary
+object type declarations. In the following counter-example, source schema B
+marks `minRating` with `@require`. The executor supplies it from
+`Media.rating`, which is declared by source schema A. Source schema C
+instead declares `minRating` as an ordinary, non-nullable, client-supplied
+argument on the same field. In source schema B the argument is
+executor-supplied; in source schema C it is client-supplied. The two
+declarations are therefore not mergeable, and composition fails with a
+`FIELD_WITH_MISSING_REQUIRED_ARGUMENT` error.
+
+```graphql counter-example
+# Source Schema A
+interface Media {
+  id: ID!
+  title: String!
+  rating: Int!
+}
+
+# Source Schema B
+type Media @interfaceObject @key(fields: "id") {
+  id: ID!
+  recommended(
+    minRating: Int! @require(field: "rating")
+  ): [Review!]! @shareable
+}
+
+type Review {
+  id: ID! @shareable
+  rating: Int! @shareable
+}
+
+# Source Schema C
+type Media @interfaceObject @key(fields: "id") {
+  id: ID!
+  recommended(minRating: Int!): [Review!]! @shareable
+}
+
+type Review {
+  id: ID! @shareable
+  rating: Int! @shareable
+}
+```
+
 ### Validate Input Types
 
 #### Input Field Default Mismatch
@@ -3390,12 +3561,12 @@ as `@external` in another. The argument `language` has the same default value in
 both source schemas, satisfying the rule:
 
 ```graphql example
-# Source schema A
+# Source Schema A
 type Product {
   name(language: String = "en"): String
 }
 
-# Source schema B
+# Source Schema B
 type Product {
   name(language: String = "en") @external: String
 }
@@ -3406,12 +3577,12 @@ as `@external` in another. The argument `language` has different default values
 in the two source schemas, violating the rule:
 
 ```graphql counter-example
-# Source schema A
+# Source Schema A
 type Product {
   name(language: String = "en"): String
 }
 
-# Source schema B
+# Source Schema B
 type Product {
   name(language: String = "de") @external: String
 }
@@ -3424,12 +3595,12 @@ not have a default value in the source schema where the field is marked as
 `@external`, violating the rule:
 
 ```graphql counter-example
-# Source schema A
+# Source Schema A
 type Product {
   name(language: String = "en"): String
 }
 
-# Source schema B
+# Source Schema B
 type Product {
   name(language: String): String @external
 }
@@ -3480,12 +3651,12 @@ field in source schema B and the base field in source schema A, satisfying the
 rule:
 
 ```graphql example
-# Source schema A
+# Source Schema A
 type Product {
   name(language: String): String
 }
 
-# Source schema B
+# Source Schema B
 type Product {
   name(language: String): String @external
 }
@@ -3496,12 +3667,12 @@ argument that is present in the base field definition in source schema A,
 violating the rule:
 
 ```graphql counter-example
-# Source schema A
+# Source Schema A
 type Product {
   name(language: String): String
 }
 
-# Source schema B
+# Source Schema B
 type Product {
   name: String @external
 }
@@ -3552,12 +3723,12 @@ Here, the `@external` field's `language` argument has the same type (`Language`)
 as the base field, satisfying the rule:
 
 ```graphql example
-# Source schema A
+# Source Schema A
 type Product {
   name(language: Language): String
 }
 
-# Source schema B
+# Source Schema B
 type Product {
   name(language: Language): String @external
 }
@@ -3568,12 +3739,12 @@ the base field's `language` argument type (`Language` vs. `String`), violating
 the rule:
 
 ```graphql example
-# Source schema A
+# Source Schema A
 type Product {
   name(language: Language): String
 }
 
-# Source schema B
+# Source Schema B
 type Product {
   name(language: String): String @external
 }
@@ -3619,13 +3790,13 @@ Here, the `name` field on `Product` is defined in source schema A and marked as
 definition in source schema A:
 
 ```graphql example
-# Source schema A
+# Source Schema A
 type Product {
   id: ID
   name: String
 }
 
-# Source schema B
+# Source Schema B
 type Product {
   id: ID
   name: String @external
@@ -3637,12 +3808,12 @@ source schema B but has no non-`@external` declaration in any other source
 schema, violating the rule:
 
 ```graphql counter-example
-# Source schema A
+# Source Schema A
 type Product {
   id: ID
 }
 
-# Source schema B
+# Source Schema B
 type Product {
   id: ID
   name: String @external
@@ -3688,12 +3859,12 @@ Here, the `@external` field `name` has the same return type (`String`) as the
 base field definition, satisfying the rule:
 
 ```graphql example
-# Source schema A
+# Source Schema A
 type Product {
   name: String
 }
 
-# Source schema B
+# Source Schema B
 type Product {
   name: String @external
 }
@@ -3703,12 +3874,12 @@ In this example, the `@external` field `name` has a return type of `ProductName`
 that doesn't match the base field's return type `String`, violating the rule:
 
 ```graphql counter-example
-# Source schema A
+# Source Schema A
 type Product {
   name: String
 }
 
-# Source schema B
+# Source Schema B
 type Product {
   name: ProductName @external
 }
@@ -3770,6 +3941,16 @@ ultimately owns that field.
 Hence, **only one** `@override` may ever apply to a particular field across all
 source schemas. Attempting multiple overrides, or forming any cycle of overrides
 for the same field, triggers the `OVERRIDE_SOURCE_HAS_OVERRIDE` error.
+
+`@override` is also legal on a field declared by an `@interfaceObject`
+stand-in. It drops the field from the implementing types and stand-ins that
+the named source schema declares. Because the named schema's own stand-in loses
+the field as well, the role of providing a default can move from one schema to
+another. A default is not a declaration, so `@override` cannot take a field
+from it. A type that wants its own implementation declares the field and
+marks it with `@implement` (see
+[Interface Object Field Requires Implement](#sec-Interface-Object-Field-Requires-Implement)).
+An `@override` that names a schema without a matching field drops nothing.
 
 **Examples**
 
@@ -3856,6 +4037,42 @@ type Bill {
 type Bill {
   id: ID!
   amount: Int
+}
+```
+
+In this example, the default implementation of `Media.reviews` is migrated
+from the original "Reviews" schema to the new "Reviews2" schema. The
+"Reviews2" stand-in overrides the "Reviews" stand-in field, so only the
+"Reviews2" declaration contributes the default; no implementing type needs
+to change.
+
+```graphql example
+# The "Catalog" schema:
+interface Media {
+  id: ID!
+  title: String!
+}
+
+# The original "Reviews" schema:
+type Media @interfaceObject @key(fields: "id") {
+  id: ID!
+  reviews: [Review!]!
+}
+
+type Review {
+  id: ID! @shareable
+  rating: Int! @shareable
+}
+
+# The new "Reviews2" schema:
+type Media @interfaceObject @key(fields: "id") {
+  id: ID!
+  reviews: [Review!]! @override(from: "Reviews")
+}
+
+type Review {
+  id: ID! @shareable
+  rating: Int! @shareable
 }
 ```
 
@@ -3971,6 +4188,201 @@ type User @key(fields: "id") {
 type User @key(fields: "id") {
   id: ID!
   fullName: String
+}
+```
+
+### Validate Interface Object Directives
+
+#### Interface Object No Interface
+
+**Error Code**
+
+`INTERFACE_OBJECT_NO_INTERFACE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas.
+- Let {typeNames} be the set of all type names for which at least one schema in
+  {schemas} declares an object type annotated with `@interfaceObject`.
+- For each {typeName} in {typeNames}:
+  - Let {definitions} be the set of all type definitions named {typeName} across
+    {schemas}.
+  - Let {interfaceDefinitions} be the subset of {definitions} that are interface
+    types.
+  - {interfaceDefinitions} must not be empty.
+
+**Explanatory Text**
+
+A stand-in binds to the interface of the same name. No source schema that
+declares a stand-in references any other. At least one source schema
+**must** define that name as an interface. If every source schema that
+declares the type name uses `@interfaceObject`, and none defines it as an
+interface, the stand-in has no interface to bind to and composition fails
+with an `INTERFACE_OBJECT_NO_INTERFACE` error.
+
+**Examples**
+
+In this example, source schema A defines `Media` as a real interface, so
+source schema B's stand-in is valid.
+
+```graphql example
+# Source Schema A
+interface Media {
+  id: ID!
+  title: String!
+}
+
+type Book implements Media {
+  id: ID!
+  title: String!
+}
+
+# Source Schema B
+type Media @interfaceObject @key(fields: "id") {
+  id: ID!
+  reviews: [Review!]!
+}
+
+type Review {
+  id: ID!
+  rating: Int!
+}
+```
+
+In the following counter-example, both source schema B and source schema C
+declare `Media` as an `@interfaceObject` stand-in, but no source schema
+defines `Media` as an interface. Neither stand-in has an interface to bind
+to, so composition fails with an `INTERFACE_OBJECT_NO_INTERFACE` error.
+
+```graphql counter-example
+# Source Schema B
+type Media @interfaceObject @key(fields: "id") {
+  id: ID!
+  reviews: [Review!]!
+}
+
+type Review {
+  id: ID!
+  rating: Int!
+}
+
+# Source Schema C
+type Media @interfaceObject @key(fields: "id") {
+  id: ID!
+  averageRating: Float!
+}
+```
+
+#### Interface Object Key Mismatch
+
+**Error Code**
+
+`INTERFACE_OBJECT_KEY_MISMATCH`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schemas} be the set of all source schemas.
+- Let {standIns} be the set of all object types across {schemas} annotated with
+  `@interfaceObject`.
+- For each {standIn} in {standIns}:
+  - Let {typeName} be the name of {standIn}.
+  - Let {interfaceDefinitions} be the set of all interface types named
+    {typeName} across {schemas}.
+  - Let {interfaceKeys} be the set of field selection sets declared by `@key`
+    directives on the types in {interfaceDefinitions}.
+  - {interfaceKeys} must not be empty.
+  - For each `@key` directive {keyDirective} on {standIn}:
+    - Let {fieldSet} be the selection set of the `fields` argument of
+      {keyDirective}.
+    - {interfaceKeys} must contain an entry that selects the same fields as
+      {fieldSet}.
+
+**Explanatory Text**
+
+An interface that has a stand-in must declare at least one key with `@key`.
+The stand-in must key on one of the keys of the interface. Each `@key` on
+the stand-in must select the same fields as a `@key` declared on the
+interface by at least one interface-defining schema. The comparison is
+structural; the order of the fields and their formatting do not matter.
+
+**Examples**
+
+In this example, the `Media` interface declares two keys, `id` and `sku`.
+The stand-in in source schema B keys on `sku` alone. Because `sku` is one of
+the keys of the interface, this is valid even though the stand-in does not
+repeat the `id` key.
+
+```graphql example
+# Source Schema A
+interface Media @key(fields: "id") @key(fields: "sku") {
+  id: ID!
+  sku: String!
+  title: String!
+}
+
+# Source Schema B
+type Media @interfaceObject @key(fields: "sku") {
+  sku: String!
+  reviews: [Review!]!
+}
+
+type Review {
+  id: ID!
+  rating: Int!
+}
+```
+
+In the following counter-example, the stand-in in source schema B keys on
+`upc`, but the `Media` interface declares no key with that field. This
+results in an `INTERFACE_OBJECT_KEY_MISMATCH` error.
+
+```graphql counter-example
+# Source Schema A
+interface Media @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+# Source Schema B
+type Media @interfaceObject @key(fields: "upc") {
+  upc: String!
+  reviews: [Review!]!
+}
+
+type Review {
+  id: ID!
+  rating: Int!
+}
+```
+
+In the following counter-example, the `Media` interface declares no `@key`
+at all. A stand-in for `Media` can therefore not declare a matching key, and
+composition fails.
+
+```graphql counter-example
+# Source Schema A
+interface Media {
+  id: ID!
+  title: String!
+}
+
+# Source Schema B
+type Media @interfaceObject @key(fields: "id") {
+  id: ID!
+  reviews: [Review!]!
+}
+
+type Review {
+  id: ID!
+  rating: Int!
 }
 ```
 
@@ -4691,6 +5103,597 @@ type Product {
   name: String
 }
 ```
+
+### Merge Interface Implementations
+
+**Formal Specification**
+
+MergeInterfaceImplementations(schemas):
+
+- Let {edges} be an empty set of ({type}, {interface}) pairs.
+- For each {schema} in {schemas}:
+  - Let {typeDefinitions} be the set of all object and interface type
+    definitions in {schema}.
+  - For each {typeDefinition} in {typeDefinitions}:
+    - Let {typeName} be the name of {typeDefinition}.
+    - Let {interfaceNames} be the set of names of the interfaces that
+      {typeDefinition} declares as implemented.
+    - For each {interfaceName} in {interfaceNames}:
+      - Add the pair ({typeName}, {interfaceName}) to {edges}.
+- Return the result of {CloseImplementsEdges(edges)}.
+
+CloseImplementsEdges(edges):
+
+Completes {edges} so that implementation is transitive: whenever {type}
+implements {interface}, and {interface} itself implements {parentInterface},
+the pair ({type}, {parentInterface}) is added to the result.
+
+- Let {closedEdges} be a copy of {edges}.
+- Let {worklist} be a copy of {edges}.
+- While {worklist} is not empty:
+  - Remove one pair ({type}, {interface}) from {worklist}.
+  - For each pair ({interface}, {parentInterface}) in {closedEdges}:
+    - If the pair ({type}, {parentInterface}) is not in {closedEdges}:
+      - Add the pair ({type}, {parentInterface}) to {closedEdges}.
+      - Add the pair ({type}, {parentInterface}) to {worklist}.
+- Return {closedEdges}.
+
+**Explanatory Text**
+
+{MergeInterfaceImplementations(schemas)} computes the complete `implements`
+relation for the composite schema: which object and interface types
+implement which interfaces. It combines every source schema's local
+declarations and completes the result so that implementation is always
+transitive. {MergeObjectTypes(types)} and {MergeInterfaceTypes(types)} use
+its result to construct each merged type's `implements` clause. Every
+post-merge rule that reasons about interface implementation uses it too.
+
+_Combining Declared Implementations_
+
+Every `implements` relationship declared on an object or interface type in
+any source schema contributes one pair to {edges}. A type need not declare
+the same interfaces consistently across every source schema that defines
+it. The pair that any single schema contributes is enough to make that
+implementation part of the composite schema. This mirrors how fields and
+descriptions are combined elsewhere during merging. Each source schema
+contributes a partial view, and composition unions them.
+
+_Completing the Hierarchy_
+
+The GraphQL specification requires that a type transitively implement every
+interface implemented by any interface it implements. For example, if
+`PhysicalProduct` implements `Product`, every type that implements
+`PhysicalProduct` must also declare that it implements `Product`. Each
+source schema declares only its local portion of the hierarchy. This
+obligation therefore often spans schema boundaries that no individual
+source schema can satisfy on its own. {CloseImplementsEdges(edges)} closes
+the relation over this rule. It adds the missing edges automatically, so
+the composite schema, taken as a whole, stays valid GraphQL.
+
+_Partial Views Are Expected_
+
+A source schema that declares `PhysicalProduct implements Product` need not
+reference every other interface layered onto the same hierarchy elsewhere. A
+source schema that declares `Chair implements PhysicalProduct` need not
+define `Product`. Neither schema is incomplete or incorrect on its own; only
+the composite schema must reflect the full hierarchy. Partial, schema-local
+views of a shared
+interface hierarchy are expected. {MergeInterfaceImplementations(schemas)}
+reconciles them into a single, transitively closed relation.
+
+_Ordering Within Composition_
+
+{MergeInterfaceImplementations(schemas)} runs before {MergeObjectTypes(types)},
+{MergeInterfaceTypes(types)}, and before any post-merge validation. Field
+merging depends on it because the `implements` clause of a merged type is
+produced together with its merged fields, as part of the same type.
+
+Post-merge rules such as `INTERFACE_FIELD_NO_IMPLEMENTATION` and
+`IMPLEMENTED_BY_INACCESSIBLE` depend on it because both are defined in terms of
+"the set of interfaces implemented by {type}" in the merged schema. Neither
+rule changes to accommodate this algorithm. They evaluate against the
+complete relation instead of whatever subset of it a single source schema
+happened to declare. They continue to gate contract completeness exactly as
+before. A field that a type carries only to satisfy an interface reached
+through closure is held to the same standard as one reached through a direct
+declaration.
+
+Note: Source schemas hold only partial views of the hierarchy. The
+distributed executor must not assume that a value's originating source
+schema defines every interface the composite schema records for that
+value. The distributed executor resolves abstract-type membership against
+the composite schema. This includes, for example, which concrete type backs
+a value, for `__typename` or a type condition. The executor rewrites any
+type condition it sends to a source schema into that schema's own local
+type vocabulary. It never sends a source schema a type condition naming a
+type that source schema does not define.
+
+Note: The union alone can produce a schema that violates the GraphQL
+specification's transitive implementation rule. This can happen because a
+type may inherit an interface only through an intermediate interface
+defined in a different source schema. Completing the transitive closure
+automatically fixes this. It lets source schemas with correct but partial
+views of a shared hierarchy compose successfully, without any one of them
+needing full knowledge of it.
+
+**Examples**
+
+In this example, two source schemas each declare one interface on the shared
+`Chair` type. Neither interface is related to the other, so composition
+unions the two declarations.
+
+```graphql example
+# Source Schema A
+interface Product {
+  id: ID!
+}
+
+type Chair implements Product @key(fields: "id") {
+  id: ID!
+  legs: Int
+}
+
+# Source Schema B
+interface Searchable {
+  score: Float
+}
+
+type Chair implements Searchable @key(fields: "id") {
+  id: ID!
+  score: Float
+}
+
+# Composite Schema
+interface Product {
+  id: ID!
+}
+
+interface Searchable {
+  score: Float
+}
+
+type Chair implements Product & Searchable {
+  id: ID!
+  legs: Int
+  score: Float
+}
+```
+
+In the following example, source schema A declares that `PhysicalProduct`
+implements `Product`, while source schema B declares `PhysicalProduct` again,
+without that relationship, and separately declares that `Chair` implements
+`PhysicalProduct`. Source schema B never mentions `Product`.
+
+```graphql example
+# Source Schema A
+interface Product {
+  id: ID!
+}
+
+interface PhysicalProduct implements Product {
+  id: ID!
+  weight: Int
+}
+
+# Source Schema B
+interface PhysicalProduct {
+  id: ID!
+  weight: Int
+}
+
+type Chair implements PhysicalProduct {
+  id: ID!
+  weight: Int
+  legs: Int
+}
+
+# Composite Schema
+interface Product {
+  id: ID!
+}
+
+interface PhysicalProduct implements Product {
+  id: ID!
+  weight: Int
+}
+
+type Chair implements PhysicalProduct & Product {
+  id: ID!
+  weight: Int
+  legs: Int
+}
+```
+
+Composing `PhysicalProduct` contributes the pair (`PhysicalProduct`, `Product`),
+declared directly by source schema A. Composing `Chair` contributes the pair
+(`Chair`, `PhysicalProduct`), declared directly by source schema B.
+{CloseImplementsEdges(edges)}
+then finds that `Chair` implements `PhysicalProduct`, and `PhysicalProduct`
+implements `Product`, and adds the pair (`Chair`, `Product`) to the result even
+though no source schema declared it. This derived edge lets the composed
+`Chair` type explicitly implement `Product`, as GraphQL requires. It is
+recorded as derived, rather than declared, so that tooling can explain why
+`Chair` implements an interface that no single source schema named.
+
+### Project Interface Object Fields
+
+**Formal Specification**
+
+ProjectInterfaceObjectFields(schemas, mergedSchema):
+
+- Assert: The implements relation of {mergedSchema} is complete (see
+  [Merge Interface Implementations](#sec-Merge-Interface-Implementations)).
+- Let {interfaceTypes} be the set of all interface types in {mergedSchema} for
+  which at least one stand-in exists, where a stand-in for an interface is an
+  object type annotated with `@interfaceObject` that has the same name as the
+  interface.
+- For each {interface} in {interfaceTypes}:
+  - Let {drops} be the result of
+    {CollectStandInOverrides(interface, schemas, mergedSchema)}.
+  - Remove each field declaration in {drops} from the type that declares it.
+- For each {interface} in {interfaceTypes}:
+  - Let {contractFields} be the result of
+    {MergeContractFields(interface, schemas)}.
+  - Set the fields of {interface} to {contractFields}.
+- For each {interface} in {interfaceTypes}:
+  - Let {contributedFields} be the result of
+    {ContributedFields(interface, schemas)}.
+  - For each interface type {subInterface} in {mergedSchema} that implements
+    {interface}:
+    - For each {contributedField} in {contributedFields}:
+      - Let {fieldName} be the name of {contributedField}.
+      - If {subInterface} has no field named {fieldName}:
+        - Add {contributedField} to the fields of {subInterface}.
+      - Otherwise:
+        - For each field {declaration} named {fieldName} declared on a stand-in
+          for {subInterface}:
+          - If {declaration} is not annotated with `@implement` and {fieldName}
+            is not part of a `@key` directive on any stand-in for {interface}
+            or for {subInterface}:
+            - Record that {declaration} replaces its default without
+              `@implement`.
+- For each object type {objectType} in {mergedSchema}:
+  - Let {implementedInterfaces} be the set of all interfaces in
+    {interfaceTypes} that {objectType} implements in {mergedSchema}.
+  - Let {projectedFieldNames} be an empty set.
+  - For each {interface} in {implementedInterfaces}:
+    - Add the name of each field in {ContributedFields(interface, schemas)} to
+      {projectedFieldNames}.
+  - For each {fieldName} in {projectedFieldNames}:
+    - Let {directDeclarations} be the set of all fields named {fieldName}
+      declared on object types named the name of {objectType} across
+      {schemas}, excluding declarations annotated with `@external` or
+      `@internal` and declarations overridden through an `@override` directive
+      in another source schema.
+    - If {directDeclarations} is not empty:
+      - Record ({objectType}, {fieldName}) as owned by the schemas defining
+        {directDeclarations}.
+      - For each {declaration} in {directDeclarations}:
+        - If {declaration} is not annotated with `@implement` and {fieldName}
+          is not part of a `@key` directive on any stand-in that contributes
+          {fieldName} to an interface in {implementedInterfaces}:
+          - Record an unmarked supersession for {declaration}.
+      - Continue.
+    - Let {candidates} be the result of
+      {ContributingDeclarations(objectType, fieldName, schemas, mergedSchema)}.
+    - Assert: {candidates} is not empty.
+    - Let {minimalCandidates} be the set of all {candidate} in {candidates}
+      for which no {other} in {candidates} exists such that the contributing
+      interface of {other} is different from the contributing interface of
+      {candidate} and implements it in {mergedSchema}.
+    - If {minimalCandidates} contains only one declaration:
+      - Let {ownerDeclaration} be that declaration.
+      - Record ({objectType}, {fieldName}) as owned by the schema defining
+        {ownerDeclaration}, together with the contributing interface of
+        {ownerDeclaration} and, for each implements edge through which
+        {objectType} implements that interface in {mergedSchema}, whether that
+        edge was declared in a source schema or derived.
+    - Otherwise, if every declaration in {minimalCandidates} is annotated with
+      `@shareable` or is part of a `@key` directive on its stand-in:
+      - Record ({objectType}, {fieldName}) as owned by the schemas defining
+        the declarations in {minimalCandidates}, together with the same
+        provenance information for each contributing interface.
+    - Otherwise:
+      - Record a projected field sharing conflict for
+        ({objectType}, {fieldName}) and the declarations in
+        {minimalCandidates}.
+    - If {objectType} has no field named {fieldName}:
+      - Let {ownerInterface} be the contributing interface of the first
+        declaration in {minimalCandidates}.
+      - Add the field named {fieldName} of {ownerInterface} to the fields of
+        {objectType}.
+
+CollectStandInOverrides(interface, schemas, mergedSchema):
+
+- Let {drops} be an empty set.
+- For each stand-in {standIn} for {interface} across {schemas}:
+  - For each field {field} on {standIn} annotated with `@override`:
+    - Let {fieldName} be the name of {field}.
+    - Let {from} be the value of the `from` argument of the `@override`
+      directive on {field}.
+    - Let {sourceSchema} be the source schema named {from} in {schemas}.
+    - If {sourceSchema} does not exist or {sourceSchema} is the schema
+      defining {standIn}:
+      - Continue.
+    - Let {closureTypes} be the set containing {interface} and every type in
+      {mergedSchema} that implements {interface}.
+    - For each {closureType} in {closureTypes}:
+      - Let {localType} be the type named the name of {closureType} defined in
+        {sourceSchema}, or {null} if {sourceSchema} defines no such type.
+      - If {localType} is not {null} and {localType} is an object type and
+        {localType} declares a field named {fieldName}:
+        - Add that field declaration to {drops}.
+- Return {drops}.
+
+MergeContractFields(interface, schemas):
+
+- Let {interfaceName} be the name of {interface}.
+- Let {declarations} be the set of all fields declared on any interface type
+  named {interfaceName} across {schemas} or on any stand-in for {interface}.
+- Let {fieldNames} be the set of the names of all fields in {declarations}.
+- Let {contractFields} be an empty set.
+- For each {fieldName} in {fieldNames}:
+  - Let {fields} be the set of all fields named {fieldName} in {declarations}.
+  - Let {mergedField} be the result of {MergeOutputFields(fields)}.
+  - If {mergedField} is not {null}:
+    - Add {mergedField} to {contractFields}.
+- Return {contractFields}.
+
+ContributedFields(interface, schemas):
+
+- Let {contractFields} be the result of
+  {MergeContractFields(interface, schemas)}.
+- Let {contributedFields} be an empty set.
+- For each {contractField} in {contractFields}:
+  - If any stand-in for {interface} declares a field named the name of
+    {contractField} that is not annotated with `@internal` and that is not
+    selected by any `@key` directive on that stand-in:
+    - Add {contractField} to {contributedFields}.
+- Return {contributedFields}.
+
+ContributingDeclarations(objectType, fieldName, schemas, mergedSchema):
+
+- Let {candidates} be an empty set.
+- For each interface type {interface} in {mergedSchema} that {objectType}
+  implements:
+  - For each stand-in {standIn} for {interface} across {schemas}:
+    - For each field {declaration} named {fieldName} on {standIn} that is not
+      annotated with `@internal`:
+      - Add {declaration}, with {interface} as its contributing interface, to
+        {candidates}.
+- Return {candidates}.
+
+**Explanatory Text**
+
+{ProjectInterfaceObjectFields(schemas, mergedSchema)} does two things. It
+adds the fields that stand-ins contribute to the composed interface
+contracts. For every implementing object type, it also decides which source
+schema provides each contributed field. Composition makes this decision
+statically. For every pair of type and field, the composed schema records
+exactly which source schema the _distributed executor_ must use. No
+ambiguity remains at runtime.
+
+_Stand-Ins and Preconditions_
+
+A _stand-in_, as defined by `@interfaceObject` in Section 2 -- Source Schema,
+is an object type that shares the name of an interface defined by at least
+one other source schema. Its fields are default implementations for that
+interface. They apply to every implementing type that does not replace them.
+A stand-in never appears in the composed schema. Every reference to it
+becomes a reference to the interface.
+
+This algorithm runs after two earlier steps. First,
+[Merge Interface Implementations](#sec-Merge-Interface-Implementations)
+completes the implements relation of the merged schema, so both declared and
+derived implements edges are available. Second, type groups have already
+been formed, so each stand-in has been merged into the type group of its
+interface rather than treated as a kind conflict.
+
+_Applying Overrides_
+
+A stand-in field may be annotated with `@override(from: ...)`. Before
+composition resolves precedence, {CollectStandInOverrides(interface,
+schemas, mergedSchema)} removes every declaration of that field in the named
+source schema. This applies to declarations on implementing object types, on
+the stand-ins of more specific interfaces, and on that schema's own stand-in
+for the interface. All of these are object types. A field declared on an
+interface itself is never removed. Removing the source schema's own stand-in
+declaration lets the role of providing a default move from one schema to
+another.
+
+A projected field is not a declaration for `@override` purposes. An
+implementing type cannot use `@override` to take over a default;
+`@implement` does that instead. A type that acquires a field through
+`@override` counts as a direct declarer for the precedence resolution below.
+It still requires `@implement` when a default applies. Overrides that name a
+nonexistent schema or the declaring schema itself, and override cycles, are
+covered by the existing `@override` validation rules. This includes
+`OVERRIDE_FROM_SELF` and `OVERRIDE_SOURCE_HAS_OVERRIDE`, which apply
+unchanged.
+
+_Extending the Interface Contract_
+
+{MergeContractFields(interface, schemas)} merges stand-in field declarations
+into the interface's field set alongside the interface-declared fields. It
+uses the same {MergeOutputFields(fields)} machinery applied everywhere else
+(see [Merge Output Fields](#sec-Merge-Output-Fields)). No new merge rules
+are introduced. Stand-in key fields are part of a `@key` directive, so they
+are already implicitly shareable. They merge with same-named interface
+fields without triggering sharing conflicts. This is an inherited property
+of key fields, not an exception introduced here. A stand-in field that is
+part of a `@key` merges into the contract but is never a default
+implementation.
+
+Arguments of contributed fields that are annotated with `@require` are
+excluded from the composed schema by the existing behavior of
+{MergeOutputFields(fields)}. Their values are supplied by the distributed
+executor instead. This algorithm requires no additional step to strip them.
+
+_Propagating Contributed Fields_
+
+Every contributed field propagates into the contract of every sub-interface
+of the contributing interface. This uses the completed implements relation.
+A sub-interface that already declares the field keeps its own declaration. A
+real interface field is a contract declaration and takes no default. A more
+specific stand-in's own declaration replaces the contributed field, and it
+must be marked with `@implement`. The
+[GraphQL specification](https://spec.graphql.org/) already governs how field
+types and argument rules must stay compatible between a contract and the
+fields of implementing types. This specification adds no further
+compatibility rule.
+
+_Resolving Effective Owners_
+
+For each implementing object type and each contributed field name,
+composition resolves the effective owner in a fixed order. A direct
+declaration of the field on the object type, in any source schema, always
+wins first. This excludes `@external` and `@internal` declarations, and it
+applies after all `@override` removals. A direct declaration wins
+deterministically, even if every involved declaration is annotated with
+`@shareable`. The composed field is then produced by the ordinary object
+type merge over the direct declarations alone. The default is never part of
+that merge, so no `OUTPUT_FIELD_TYPES_NOT_MERGEABLE` error can arise between
+a replacing declaration and a default. Direct declarations in multiple
+schemas keep the existing sharing rules, including `INVALID_FIELD_SHARING`,
+unchanged.
+
+Otherwise, the owner is the unique most specific stand-in that contributes
+the field. This is the declaration whose contributing interface is minimal
+in the implements partial order among all contributing interfaces. Several
+minimal declarations may remain whose interfaces are incomparable: a
+diamond, unrelated interfaces, or several stand-ins for the same interface.
+In that case, the field can compose only when every one of them is
+annotated with `@shareable`, under the existing requirement that shared
+fields be semantically identical. The choice among them then does not
+matter. Without `@shareable`, the algorithm records a projected field
+sharing conflict. This is reported by the _Post Merge Validation_ rule
+`INVALID_PROJECTED_FIELD_SHARING`. Key fields never conflict here, because
+key fields are already implicitly shareable.
+
+_Explicit Replacement_
+
+Replacing a default is always explicit. A direct declaration on an
+implementing type, or a more specific stand-in's declaration, may collide
+with an applicable default. If it is not annotated with `@implement`, this
+algorithm records the declaration as an unmarked replacement. This
+condition is reported by the _Post Merge Validation_ rule
+`INTERFACE_OBJECT_FIELD_REQUIRES_IMPLEMENT`. The inverse condition, an
+`@implement` annotation with no applicable default, is reported by
+`IMPLEMENT_WITHOUT_DEFAULT`. Together these two rules guarantee that adding
+a default never silently changes the behavior of any implementing type, and
+that replacing a default is always visible in the source text of the schema
+that replaces it.
+
+_Ownership Metadata_
+
+For every pair of object type and contributed field, the algorithm records
+the owning schema or schemas and the contributing interface. For each
+implements edge through which the object type reaches that interface, it
+also records whether the edge was declared in a source schema or derived
+during
+[Merge Interface Implementations](#sec-Merge-Interface-Implementations). The
+_Validate Satisfiability_ rules use this information. The distributed
+executor uses it too, to send each field to its owner. The derived-edge
+record lets diagnostics explain why a default applies to a type whose
+source schema never declared the corresponding implements edge.
+
+**Examples**
+
+In the following example, source schema A defines the `Media` interface with
+its implementing types `Book` and `Movie`. Source schema B contributes a
+`reviews` field to `Media` through a stand-in. Source schema C replaces that
+default on `Photo` with its own implementation, marked with `@implement`.
+
+```graphql example
+# Source Schema A
+interface Media {
+  id: ID!
+  title: String!
+}
+
+type Book implements Media {
+  id: ID!
+  title: String!
+}
+
+type Movie implements Media {
+  id: ID!
+  title: String!
+}
+
+# Source Schema B
+type Media @interfaceObject @key(fields: "id") {
+  id: ID!
+  reviews: [Review!]!
+}
+
+type Review {
+  body: String! @shareable
+}
+
+# Source Schema C
+interface Media {
+  id: ID!
+  title: String!
+}
+
+type Photo implements Media {
+  id: ID!
+  title: String!
+  reviews: [Review!]! @implement
+}
+
+type Review {
+  body: String! @shareable
+}
+
+# Composite Schema
+interface Media {
+  id: ID!
+  title: String!
+  reviews: [Review!]!
+}
+
+type Book implements Media {
+  id: ID!
+  title: String!
+  # Projected default; effective owner: source schema B
+  reviews: [Review!]!
+}
+
+type Movie implements Media {
+  id: ID!
+  title: String!
+  # Projected default; effective owner: source schema B
+  reviews: [Review!]!
+}
+
+type Photo implements Media {
+  id: ID!
+  title: String!
+  # Own implementation; effective owner: source schema C
+  reviews: [Review!]!
+}
+
+type Review {
+  body: String!
+}
+```
+
+The stand-in's `reviews` field merges into the `Media` contract and is
+projected into every implementing type. `Book` and `Movie` declare no
+`reviews` field of their own, so they adopt the default. Their effective
+owner for `reviews` is source schema B, and source schema A needs no change.
+`Photo` declares its own `reviews` field, so the direct declaration wins, and
+its effective owner is source schema C. This
+declaration replaces an applicable default, so it must carry `@implement`.
+Omitting it would be reported by `INTERFACE_OBJECT_FIELD_REQUIRES_IMPLEMENT`.
+
+The stand-in's `id` field is part of its `@key` directive, so it is already
+implicitly shareable. It merges with the `id` declarations of the interface
+and its implementing types without requiring `@implement` or `@shareable`.
+The stand-in itself does not appear in the composed schema. Every reference
+to it is a reference to the `Media` interface.
 
 ### Merge Output Fields
 
@@ -6054,6 +7057,439 @@ type GuestUser implements User {
 }
 ```
 
+#### Interface Object Field Requires Implement
+
+**Error Code**
+
+`INTERFACE_OBJECT_FIELD_REQUIRES_IMPLEMENT`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the merged composite execution schema.
+- Let {objectTypes} be the set of all object types in {schema}.
+- For each {objectType} in {objectTypes}:
+  - Let {ancestors} be the set of interfaces implemented by {objectType},
+    directly or transitively.
+  - For each {fieldName} such that {fieldName} is in {DefaultFields(ancestor)}
+    for some {ancestor} in {ancestors}:
+    - Let {declaration} be the declaration of {fieldName} authored directly on
+      {objectType} in a source schema, excluding declarations annotated with
+      `@external` or `@internal` and declarations overridden through an
+      `@override` directive in another source schema, if one exists.
+    - If {declaration} exists and {declaration} is not annotated with
+      `@implement`:
+      - Produce an `INTERFACE_OBJECT_FIELD_REQUIRES_IMPLEMENT` error.
+- Let {interfaces} be the set of all interface types in {schema}.
+- For each {interface} in {interfaces}:
+  - Let {ancestors} be the set of interfaces implemented by {interface},
+    directly or transitively.
+  - For each {fieldName} in {DefaultFields(interface)}:
+    - Let {lessSpecificContributors} be the set of {ancestors} for which
+      {fieldName} is in {DefaultFields(ancestor)}.
+    - If {lessSpecificContributors} is empty:
+      - Continue.
+    - Let {candidates} be the set containing {interface} and every member of
+      {lessSpecificContributors}.
+    - If {interface} is in {MostSpecificContributors(candidates, fieldName)}:
+      - Let {declaration} be the declaration of {fieldName} on {interface}'s
+        own `@interfaceObject` stand-in.
+      - If {declaration} is not annotated with `@implement`:
+        - Produce an `INTERFACE_OBJECT_FIELD_REQUIRES_IMPLEMENT` error.
+
+DefaultFields(interface):
+
+- Let {standIns} be the set of `@interfaceObject` type declarations, across all
+  source schemas, named after {interface}.
+- Let {standInFieldNames} be the set of all field names declared, and not
+  marked `@internal` or `@inaccessible`, on any {standIn} in {standIns}.
+- Let {keyFieldNames} be the set of all field names selected by any `@key`
+  directive on any {standIn} in {standIns}.
+- Return the subset of {standInFieldNames} that is not in {keyFieldNames}.
+
+MostSpecificContributors(interfaces, fieldName):
+
+- Let {contributors} be the subset of {interfaces} for which {fieldName} is in
+  {DefaultFields(interface)}.
+- Return the subset of {contributors} that is not implemented, directly or
+  transitively, by any other member of {contributors}.
+
+**Explanatory Text**
+
+`@interfaceObject` lets a source schema contribute a default field
+implementation for an interface it does not itself define. Any implementing
+type, or any more specific interface, may replace that default with its own
+implementation, but doing so must be explicit. `@implement`, placed on the
+replacing field, declares that the field's own implementation replaces a
+default from a less specific source. An unmarked collision
+between a direct declaration (or a more specific interface's own default)
+and an applicable default is not allowed. Without `@implement`, composition
+fails with an `INTERFACE_OBJECT_FIELD_REQUIRES_IMPLEMENT` error.
+
+This can happen in two ways. First, an object type may directly declare a
+field that a default already provides, through one of the interfaces it
+implements. Second, a more specific interface's own `@interfaceObject`
+stand-in may declare a field that a less specific interface's stand-in
+already provides as a default. For example, `PhysicalProduct` implements
+`Product`. `Product` already has a default `weight` field. `PhysicalProduct`'s
+own stand-in may also declare its own `weight` field.
+
+The error message must offer both resolutions: add `@implement` to keep the
+field's own implementation, or remove the field to adopt the default
+instead. Implementations should aggregate this diagnostic per interface and
+field. They should not repeat it for every implementing type affected. The
+diagnostic should name both the interface that supplies the default and the
+schema that supplies the field that replaces it.
+
+Adding a default never silently changes any implementing type's behavior. A
+type that does not collide with the new default is unaffected. A type that
+does collide fails this rule until the field is annotated with `@implement`
+or removed. Removing a default fails composition while other source schemas
+still carry `@implement` markers for it; see
+[Implement Without Default](#sec-Implement-Without-Default).
+
+**Examples**
+
+In this counter-example, `Book.reviews` is declared directly in source
+schema A while `Media`'s stand-in in source schema B also defaults
+`reviews`. Because `Book.reviews` is not annotated with `@implement`,
+composition fails with an `INTERFACE_OBJECT_FIELD_REQUIRES_IMPLEMENT` error
+that offers both resolutions.
+
+```graphql counter-example
+# Source Schema A
+interface Media @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type Book implements Media {
+  id: ID!
+  title: String!
+  reviews: [Review!]!
+}
+
+type Review {
+  id: ID! @shareable
+  rating: Int! @shareable
+}
+
+# Source Schema B
+type Media @interfaceObject @key(fields: "id") {
+  id: ID!
+  reviews: [Review!]!
+}
+
+type Review {
+  id: ID! @shareable
+  rating: Int! @shareable
+}
+```
+
+The first resolution keeps `Book`'s own implementation explicit:
+
+```graphql example
+type Book implements Media {
+  id: ID!
+  title: String!
+  reviews: [Review!]! @implement
+}
+```
+
+The second resolution removes `Book`'s own field entirely and adopts the
+default contributed by source schema B:
+
+```graphql example
+type Book implements Media {
+  id: ID!
+  title: String!
+}
+```
+
+The same rule applies one level up the interface hierarchy. Here,
+`PhysicalProduct` implements `Product`, and both have `@interfaceObject`
+stand-ins that default `weight`. Because `PhysicalProduct`'s stand-in does not
+mark its `weight` field `@implement`, composition fails with an
+`INTERFACE_OBJECT_FIELD_REQUIRES_IMPLEMENT` error, even though no object type
+is involved yet.
+
+```graphql counter-example
+# Source Schema A
+interface Product @key(fields: "id") {
+  id: ID!
+  name: String!
+}
+
+interface PhysicalProduct implements Product @key(fields: "id") {
+  id: ID!
+  name: String!
+}
+
+# Source Schema B
+type Product @interfaceObject @key(fields: "id") {
+  id: ID!
+  weight: Float!
+}
+
+# Source Schema C
+type PhysicalProduct @interfaceObject @key(fields: "id") {
+  id: ID!
+  weight: Float!
+}
+```
+
+Adding `@implement` to `PhysicalProduct`'s own `weight` field resolves the
+collision:
+
+```graphql example
+# Source Schema C
+type PhysicalProduct @interfaceObject @key(fields: "id") {
+  id: ID!
+  weight: Float! @implement
+}
+```
+
+#### Implement Without Default
+
+**Error Code**
+
+`IMPLEMENT_WITHOUT_DEFAULT`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the merged composite execution schema.
+- Let {declarations} be the set of all field declarations, across all source
+  schemas, annotated with `@implement`.
+- For each {declaration} in {declarations}:
+  - Let {fieldName} be the name of {declaration}.
+  - Let {type} be the type that declares {declaration}.
+  - Let {hasApplicableDefault} be true if
+    [Interface Object Field Requires Implement](#sec-Interface-Object-Field-Requires-Implement)
+    would treat {declaration} as replacing a default for {fieldName}. This is
+    true if {type} is an object type and some interface {type} implements has
+    {fieldName} in its default fields, or if {type} is an interface's
+    `@interfaceObject` stand-in and some less specific interface has
+    {fieldName} in its default fields. If {declaration} is a field declared
+    directly on an interface, rather than on a stand-in or an implementing
+    type, this is always false. An interface field declaration provides no
+    implementation that could replace a default.
+  - If {hasApplicableDefault} is false:
+    - Produce an `IMPLEMENT_WITHOUT_DEFAULT` error.
+
+**Explanatory Text**
+
+`@implement` only has meaning when there is a default to replace. A field
+may be marked `@implement` while no applicable default exists, for example
+because of a typo in the field name, because the default was removed after
+the marker was added, or because the marker was placed on a real interface's
+own field rather than on a stand-in or an implementing type. Composition
+fails in every such case: the marker states an intent that the composite
+schema cannot satisfy.
+
+Note: Removing a default field from a stand-in therefore fails composition
+while other source schemas still carry `@implement` markers for it. The
+markers in the other source schemas are removed first; the default is
+removed after.
+
+**Examples**
+
+In this counter-example, no source schema contributes a default `weight`
+field. Unlike in the earlier example, no source schema provides a `Product`
+stand-in here. `@implement` on `PhysicalProduct.weight` therefore matches no
+default, and composition fails.
+
+```graphql counter-example
+# Source Schema A
+interface Product {
+  id: ID!
+  name: String!
+}
+
+interface PhysicalProduct implements Product @key(fields: "id") {
+  id: ID!
+  name: String!
+}
+
+# Source Schema B
+type PhysicalProduct @interfaceObject @key(fields: "id") {
+  id: ID!
+  weight: Float! @implement
+}
+```
+
+Here, `Product`'s stand-in in source schema B contributes a default `weight`.
+`PhysicalProduct`'s stand-in in source schema C replaces it, marked with
+`@implement`. The marker matches an applicable default, so composition
+succeeds.
+
+```graphql example
+# Source Schema A
+interface Product @key(fields: "id") {
+  id: ID!
+  name: String!
+}
+
+interface PhysicalProduct implements Product @key(fields: "id") {
+  id: ID!
+  name: String!
+}
+
+# Source Schema B
+type Product @interfaceObject @key(fields: "id") {
+  id: ID!
+  weight: Float!
+}
+
+# Source Schema C
+type PhysicalProduct @interfaceObject @key(fields: "id") {
+  id: ID!
+  weight: Float! @implement
+}
+```
+
+#### Invalid Projected Field Sharing
+
+**Error Code**
+
+`INVALID_PROJECTED_FIELD_SHARING`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the merged composite execution schema.
+- {DefaultFields(interface)} and {MostSpecificContributors(interfaces,
+  fieldName)} are defined as in
+  [Interface Object Field Requires Implement](#sec-Interface-Object-Field-Requires-Implement).
+- Let {typesAndInterfaces} be the set of all object and interface types in
+  {schema}.
+- For each {type} in {typesAndInterfaces}:
+  - Let {ancestors} be the set of interfaces implemented by {type}, directly or
+    transitively.
+  - Let {ownFieldNames} be the set of field names {type} declares directly (an
+    object type's own fields, or, if {type} is an interface, the field names
+    declared on {type}'s own `@interfaceObject` stand-in).
+  - Let {candidateFieldNames} be the set of field names in
+    {DefaultFields(ancestor)} for some {ancestor} in {ancestors}, excluding any
+    name in {ownFieldNames}.
+  - For each {fieldName} in {candidateFieldNames}:
+    - Let {contributors} be {MostSpecificContributors(ancestors, fieldName)}.
+    - If {contributors} has fewer than 2 elements:
+      - Continue.
+    - Let {declarations} be the set of field declarations of {fieldName} on
+      each contributor's `@interfaceObject` stand-in.
+    - Every {declaration} in {declarations} must be annotated with
+      `@shareable`.
+
+**Explanatory Text**
+
+A type may implement two or more interfaces that are not related to each
+other by implementation. More than one of those interfaces may have an
+applicable default for the same field name. In that case there is no single
+most-specific default to pick. {MostSpecificContributors} returns more than
+one interface, and composition cannot resolve the ambiguity on its own.
+[Invalid Field Sharing](#sec-Invalid-Field-Sharing) addresses the same
+situation for ordinary fields declared directly in multiple source schemas.
+This rule applies the same principle to defaults contributed through
+unrelated interfaces. Composition fails with an
+`INVALID_PROJECTED_FIELD_SHARING` error unless every contributing
+declaration is marked `@shareable`. The `@shareable` marker signals that the
+contract is intentionally identical across all of them.
+
+Key fields are never affected by this rule. A field used in a type's `@key`
+is already implicitly shareable (see the `@key` directive). A field the
+target interface itself declares directly is not a default. The
+ambiguity can only arise for a field that exists **solely** because
+unrelated interfaces' stand-ins contribute it.
+
+Implementations should report a single diagnostic per conflicting interface
+pair and field. They should not report one for every type that happens to
+implement both interfaces. The diagnostic should name both contributing
+schemas.
+
+**Examples**
+
+In this counter-example, `PhysicalProduct` and `DigitalProduct` are unrelated
+interfaces (neither implements the other) and both default `reviews` for
+anything that implements them. `Chair` implements both, so
+`MostSpecificContributors` returns both interfaces for `reviews`. There is
+no single most-specific default, and neither declaration is `@shareable`.
+Composition fails with an `INVALID_PROJECTED_FIELD_SHARING` error.
+
+```graphql counter-example
+# Source Schema A
+interface PhysicalProduct @key(fields: "id") {
+  id: ID!
+}
+
+interface DigitalProduct @key(fields: "id") {
+  id: ID!
+}
+
+type Chair implements PhysicalProduct & DigitalProduct {
+  id: ID!
+}
+
+# Source Schema B
+type PhysicalProduct @interfaceObject @key(fields: "id") {
+  id: ID!
+  reviews: [Review!]!
+}
+
+type Review {
+  id: ID! @shareable
+  rating: Int! @shareable
+}
+
+# Source Schema C
+type DigitalProduct @interfaceObject @key(fields: "id") {
+  id: ID!
+  reviews: [Review!]!
+}
+
+type Review {
+  id: ID! @shareable
+  rating: Int! @shareable
+}
+```
+
+Marking both declarations `@shareable` tells composition that the two
+contracts are intentionally identical, and `Chair.reviews` resolves without
+ambiguity.
+
+```graphql example
+# Source Schema B
+type PhysicalProduct @interfaceObject @key(fields: "id") {
+  id: ID!
+  reviews: [Review!]! @shareable
+}
+
+type Review {
+  id: ID! @shareable
+  rating: Int! @shareable
+}
+
+# Source Schema C
+type DigitalProduct @interfaceObject @key(fields: "id") {
+  id: ID!
+  reviews: [Review!]! @shareable
+}
+
+type Review {
+  id: ID! @shareable
+  rating: Int! @shareable
+}
+```
+
 ### Validate Input Types
 
 #### Empty Merged Input Object Type
@@ -6745,6 +8181,19 @@ contents must also be valid. Required fields must exist on the parent type in a
 referenced by `@require`. Additionally, requiring unknown fields invalidates
 `@require`, resulting in a `REQUIRE_INVALID_FIELDS` error.
 
+`@require` on a field declared by an `@interfaceObject` stand-in is ordinary
+`@require`. The stand-in is an object type like any other, so no special
+rule is needed. Its selection map is validated exactly as above, resolved
+against the combined schema context of the other source schemas. Required
+arguments are excluded from the composite schema, per the existing behavior
+of `@require`. More than one source schema may contribute the same field
+name to the same interface. This can happen through the interface's own
+declaration, or through more than one of its `@interfaceObject` stand-ins.
+In every such case, the
+argument definitions across those schemas must still be mergeable; see
+[Field With Missing Required Arguments](#sec-Field-With-Missing-Required-Arguments)
+for an example of this interaction.
+
 **Examples**
 
 In the following example, the `@require` directive's `field` argument is a valid
@@ -6847,6 +8296,21 @@ ERROR
   - For each {path} in {paths}:
     - Let {options} be the result of `PlanOptions(path, sourceSchemas)`.
     - {options} must not be empty.
+- Let {standInBindings} be the set of tuples ({interface}, {standInSchema})
+  where {interface} is an interface type in {schema} and {standInSchema} is a
+  source schema that defines an object type annotated with `@interfaceObject`
+  whose name is the name of {interface} (the _stand-in_ for {interface}).
+- For each ({interface}, {standInSchema}) in {standInBindings}:
+  - Let {positions} be the result of
+    `CollectOpaquePositions(interface, standInSchema)`.
+  - For each {position} in {positions}:
+    - If `DemandsTypeContext(position, interface, schema)` is true or
+      `DemandsNonLocalData(position, interface, standInSchema, schema)` is
+      true:
+      - `HasCoveringLookup(interface, standInSchema, schema, sourceSchemas)`
+        must be true.
+  - `ProjectedFieldsPlannable(interface, standInSchema, schema, sourceSchemas)`
+    must be true.
 
 CollectExecutablePaths(rootType, schema):
 
@@ -7025,6 +8489,117 @@ one valid option when starting from {sourceSchema} and considering only
     - return false.
 - return true.
 
+CollectOpaquePositions(interface, standInSchema):
+
+A value of {interface} is _opaque_ when it is produced through a field or
+lookup of {standInSchema}. Within {standInSchema}, the name of {interface}
+designates the stand-in object type. {standInSchema} therefore holds no
+authoritative type identity for the value. Each opaque position is the
+field coordinate at which such a value enters a query path.
+
+- Let {standInType} be the object type in {standInSchema} whose name is the
+  name of {interface}.
+- Let {positions} be an empty set.
+- For each {field} in all field definitions in {standInSchema}, including
+  fields annotated with `@lookup`:
+  - Let {returnType} be the unwrapped return type of {field}.
+  - If {returnType} is {standInType}:
+    - Let {parentType} be the type declaring {field}.
+    - Add the tuple ({parentType}, {field}) to {positions}.
+- return {positions}.
+
+DemandsTypeContext(position, interface, schema):
+
+Type context is demanded at {position} when a client-executable selection on
+the opaque value can observe its concrete type, either by selecting
+`__typename` or by applying a type condition that narrows {interface} to one
+of its possible types. Because every client-executable selection set on an
+interface-typed value may select `__typename`, type context is demanded at
+every opaque position that clients can reach.
+
+- Let ({parentType}, {field}) be {position}.
+- If {field} is not accessible in the client-facing composite schema:
+  - return false.
+- return true.
+
+DemandsNonLocalData(position, interface, standInSchema, schema):
+
+Non-local data is demanded at {position} when a client-executable selection
+on the opaque value can include a field that {standInSchema} does not
+itself declare on the stand-in type. Such a field must be resolved by
+another source schema. Resolving it first requires recovering the value's
+identity.
+
+- Let ({parentType}, {field}) be {position}.
+- If {field} is not accessible in the client-facing composite schema:
+  - return false.
+- Let {standInType} be the object type in {standInSchema} whose name is the
+  name of {interface}.
+- Let {localFieldNames} be the set of field names on {standInType} in
+  {standInSchema}.
+- For each {fieldDefinition} in the fields of {interface} in {schema}:
+  - If the name of {fieldDefinition} is not in {localFieldNames}:
+    - return true.
+- For each {possibleType} in `GetPossibleTypes(interface)` in {schema}:
+  - For each {fieldDefinition} in the fields of {possibleType} in {schema}:
+    - If the name of {fieldDefinition} is not in {localFieldNames}:
+      - return true.
+- return false.
+
+HasCoveringLookup(interface, standInSchema, schema, sourceSchemas):
+
+Identity and non-local data for an opaque value can only be recovered
+through a _covering interface lookup_: a lookup, in a single source schema,
+that returns {interface} itself. This lookup must be reachable with the
+stand-in's key fields. Its schema-local possible-type set for {interface}
+must contain every possible type of {interface} in the composite schema.
+
+- Let {compositePossibleTypes} be `GetPossibleTypes(interface)` in {schema}.
+- For each {candidateSchema} in {sourceSchemas}:
+  - If {candidateSchema} does not define {interface} as an interface type:
+    - Continue to the next {candidateSchema}.
+  - Let {localPossibleTypes} be `GetPossibleTypes(interface)` in
+    {candidateSchema}.
+  - If {localPossibleTypes} is not a superset of {compositePossibleTypes}:
+    - Continue to the next {candidateSchema}.
+  - Let {lookups} be the set of fields in {candidateSchema} annotated with
+    `@lookup` whose unwrapped return type is {interface}.
+  - For each {lookup} in {lookups}:
+    - Let {lookupPathSets} be `LookupPathSets(lookup, interface)`.
+    - For each {lookupPathSet} in {lookupPathSets}:
+      - If `IsPathSetResolvable(lookupPathSet, standInSchema, sourceSchemas)`
+        is true:
+        - return true.
+- return false.
+
+ProjectedFieldsPlannable(interface, standInSchema, schema, sourceSchemas):
+
+Each non-key field of the stand-in is projected onto every implementing
+type as a default implementation. For every implementing type that adopts
+the default, the stand-in schema must be reachable through one of its own
+lookups. This must hold from every context that can resolve values of that
+type.
+
+- Let {standInType} be the object type in {standInSchema} whose name is the
+  name of {interface}.
+- Let {keyFieldNames} be the set of field names selected by the `@key`
+  directives on {standInType}.
+- Let {projectedFields} be the set of fields on {standInType} whose name is
+  not in {keyFieldNames}.
+- For each {field} in {projectedFields}:
+  - For each {possibleType} in `GetPossibleTypes(interface)` in {schema}:
+    - If the effective owner of {field} on {possibleType} is not
+      {standInType} in {standInSchema}:
+      - Continue to the next {possibleType}.
+    - For each {sourceSchema} in {sourceSchemas}:
+      - If {sourceSchema} does not define {possibleType} as an object type:
+        - Continue to the next {sourceSchema}.
+      - If
+        `IsReachable(sourceSchema, standInSchema, standInType, sourceSchemas)`
+        is false:
+        - return false.
+- return true.
+
 **Explanatory Text**
 
 The satisfiability phase must ensure that every executable field path in the
@@ -7046,6 +8621,108 @@ schema is removed from the options for that path step.
 If every candidate is eliminated for any field path, the path is unsatisfiable
 and composition fails with `UNSATISFIABLE_QUERY_PATH`.
 
+_Opaque Values_
+
+A source schema may declare an object type annotated with `@interfaceObject`
+as the stand-in for an interface. Values produced through that schema's
+fields and lookups are then opaque. Within the stand-in schema, the value
+is only an instance of the local object type. That schema carries no
+authoritative concrete type for the value in the composite schema. A
+`__typename` resolved there returns the local object type, which is wrong in
+the composite schema. Values obtained through a schema that defines the real
+interface are not opaque.
+The demands described here arise only where a stand-in schema produces the
+value. The stand-in declares its key fields as its own fields. An opaque
+value therefore always carries the key fields needed to re-enter other
+source schemas.
+
+_Demanding Type Context_
+
+A query path demands type context at an opaque position when it selects
+`__typename`, or when it applies a type condition that narrows the
+interface to one of its possible types. Any client-executable selection on
+an interface-typed value may select `__typename`. Every opaque position
+that is accessible in the client-facing composite schema therefore demands
+type context. Positions that exist only for the _distributed executor_, for
+example a lookup annotated with `@internal`, demand none. The executor
+enters a stand-in schema only when the value's identity is already known. It
+never requests type identity from a stand-in schema.
+
+_Demanding Non-Local Data_
+
+A query path demands non-local data at an opaque position when it selects
+fields beyond those the stand-in schema itself declares: interface fields
+contributed by other source schemas, or fields declared by an implementing
+type. Such selections must be resolved by other source schemas. Resolving
+them for a specific value first requires recovering that value's identity.
+A selection may instead require no type context and select only fields the
+stand-in declares. In that case, a single request to the stand-in schema is
+a correct and complete plan, and no recovery is needed.
+
+_Covering Interface Lookups_
+
+Both demands are met by the same capability. A _covering interface lookup_ for
+an interface at an opaque position is a lookup, in a single source schema,
+that returns the interface itself, whose required inputs are resolvable from
+the stand-in's key fields, and whose schema-local possible-type set for the
+interface is a superset of the composite schema's possible-type set at that
+position.
+
+The superset condition is essential because a schema's lookup can only ever
+return types that the schema defines. A lookup may receive a key that
+identifies a concrete type its schema does not define. In that case it
+cannot produce the value. It either misreports or silently drops data. The
+comparison must be made against the composite schema's possible-type set,
+not against the view of any single source schema. This is because the
+merged implements relation is the union of all per-schema implements edges,
+completed by transitive closure. Any source schema may add an implementing
+type, and a derived implements edge may widen the composite possible-type
+set beyond every individual schema's local view.
+
+Coverage must come from a single schema's lookup. Two lookups in different
+schemas may have possible-type sets that are jointly, but not individually,
+a superset. Such lookups do not combine. Choosing which of them to call for
+a given opaque value would itself require the type identity that is being
+recovered. A covering interface lookup may be annotated with `@internal`.
+It is a capability of the executor, not of clients. The interface is not
+required to declare a key, and no particular schema is required to provide
+a lookup. This rule demands a covering interface lookup only where an
+opaque position gives rise to one of the two demands above.
+
+_Reaching Projected Fields_
+
+Every non-key field of a stand-in becomes the default implementation of
+that field, on each implementing type whose effective owner for the field
+is the stand-in. This is resolved during merge (see
+_Resolving Effective Owners_ in
+[Project Interface Object Fields](#sec-Project-Interface-Object-Fields)).
+The data for such a projected field lives only in the stand-in schema. For
+every implementing type that adopts the default, one of the stand-in's own
+lookups must therefore be reachable, with the value's key fields, from
+every context that can resolve values of that type. Implementing types
+that replace the default with a direct declaration are exempt from this.
+This includes a declaration acquired via `@override`. Their field is
+resolved by the declaring schema, and the stand-in is not consulted.
+
+A stand-in with no lookups is valid only as a reference. It may declare its
+key fields and be used to reference the entity from its own schema. As soon
+as it contributes a non-key field, the field is projected onto
+implementing types. No plan can ever fetch it, so composition fails.
+
+_Diagnostics_
+
+Failures raised by these clauses are reported as `UNSATISFIABLE_QUERY_PATH`
+errors. The error message must name the failing query path and the missing
+capability. For a missing covering interface lookup, the message must name
+the interface, the opaque position, and the possible types that no single
+schema's lookup covers. The composite possible-type set may have been
+widened by an implements edge added during transitive-closure completion.
+In that case, the message must also state the derived edge and name the
+source schema whose declarations introduced it. For a projected field that
+no plan can reach, the message must name the contributing schema, the
+interface, and the field. For example: "Source schema B contributes fields
+to `Media` but provides no lookup to resolve them."
+
 **Examples**
 
 The following query path:
@@ -7063,3 +8740,183 @@ Similarly, this path:
 is represented as:
 
 `[(Mutation, createUser), (CreateUserPayload, query), (Query, me)]`
+
+In the following example, source schema A defines the interface `Media` with
+its implementing types, and source schema B contributes a `reviews` field to
+`Media` through a stand-in:
+
+```graphql example
+# Source Schema A
+interface Media {
+  id: ID!
+  title: String!
+}
+
+type Book implements Media {
+  id: ID!
+  title: String!
+  author: String!
+}
+
+type Movie implements Media {
+  id: ID!
+  title: String!
+  director: String!
+}
+
+type Query {
+  mediaById(id: ID!): Media @lookup
+}
+
+# Source Schema B
+type Media @interfaceObject @key(fields: "id") {
+  id: ID!
+  reviews: [Review!]!
+}
+
+type Review {
+  body: String!
+}
+
+type Query {
+  mediaById(id: ID!): Media @lookup @internal
+  topReviewed(limit: Int = 10): [Media!]!
+}
+```
+
+Values produced by `topReviewed` and by source schema B's `mediaById` are
+opaque. The query path `[(Query, topReviewed), (Book, author)]` demands both
+type context and non-local data. It demands type context because the path
+narrows `Media` to `Book`. It demands non-local data because `author` is
+not declared by the stand-in. Source schema A's `mediaById` is a covering
+interface lookup. It returns `Media` itself. Its `id` argument is
+resolvable from the stand-in's key field `id`. Its schema-local
+possible-type set \{`Book`, `Movie`\} is a superset of the composite
+possible-type set \{`Book`, `Movie`\}. The projected field `reviews` can be
+reached. Neither `Book` nor `Movie` replaces it. Source schema B's
+`mediaById` is reachable with `id` from every context that resolves `Book`
+or `Movie`. The composition is satisfiable.
+
+In the following counter-example, the reviews schema contributes the non-key
+field `reviews` to `Media` but provides no lookup:
+
+```graphql counter-example
+# Source Schema A
+interface Media {
+  id: ID!
+  title: String!
+}
+
+type Book implements Media {
+  id: ID!
+  title: String!
+}
+
+type Movie implements Media {
+  id: ID!
+  title: String!
+}
+
+type Query {
+  mediaById(id: ID!): Media @lookup
+}
+
+# Source Schema B
+type Media @interfaceObject @key(fields: "id") {
+  id: ID!
+  # The stand-in contributes "reviews", but source schema B declares no
+  # lookup through which the executor could ever fetch it.
+  reviews: [Review!]!
+}
+
+type Review {
+  body: String!
+}
+```
+
+The field `reviews` is projected onto `Book` and `Movie`, so the query path
+`[(Query, mediaById), (Book, reviews)]` is executable in the composite
+schema. Only source schema B holds the data for `reviews`. Source schema B
+declares no lookup for its stand-in, so no plan can reach it from source
+schema A. Composition fails with an error such as "Source schema B
+contributes fields to `Media` but provides no lookup to resolve them." Had
+the stand-in declared only its key field `id`, it would have contributed no
+projected fields. It would have remained a valid, reference-only stand-in.
+
+In the following counter-example, a third schema adds an implementing type
+that source schema A does not define, breaking coverage:
+
+```graphql counter-example
+# Source Schema A
+interface Media {
+  id: ID!
+  title: String!
+}
+
+type Book implements Media {
+  id: ID!
+  title: String!
+  author: String!
+}
+
+type Movie implements Media {
+  id: ID!
+  title: String!
+  director: String!
+}
+
+type Query {
+  mediaById(id: ID!): Media @lookup
+}
+
+# Source Schema B
+type Media @interfaceObject @key(fields: "id") {
+  id: ID!
+  reviews: [Review!]!
+}
+
+type Review {
+  body: String!
+}
+
+type Query {
+  mediaById(id: ID!): Media @lookup @internal
+  topReviewed(limit: Int = 10): [Media!]!
+}
+
+# Source Schema C
+interface Media {
+  id: ID!
+  title: String!
+}
+
+# "Photo" is not defined by source schema A, so source schema A's "mediaById"
+# can no longer answer for every possible type of "Media".
+type Photo implements Media {
+  id: ID!
+  title: String!
+  width: Int!
+}
+
+type Query {
+  photoById(id: ID!): Photo @lookup
+}
+```
+
+The composite possible-type set of `Media` is now
+\{`Book`, `Movie`, `Photo`\}. Source schema A's `mediaById` has the
+schema-local possible-type set \{`Book`, `Movie`\}. Source schema C defines
+`Media` with the schema-local possible-type set \{`Photo`\}. No single source
+schema's lookup covers the composite set. Every query path that demands type
+context or non-local data at an opaque position is unsatisfiable. This
+includes, for example, `Query.topReviewed` with `__typename` selected, or
+`[(Query, topReviewed), (Book, author)]`. The error must name the failing
+path, the interface `Media`, and the uncovered possible type `Photo`,
+together with source schema C, which introduced it. For example: "The query
+path `Query.topReviewed` cannot be satisfied: values of `Media` produced by
+source schema B are opaque, and no source schema provides a lookup for
+`Media` that covers the possible type `Photo` introduced by source schema
+C." Composition succeeds again once some source schema both defines every
+possible type of `Media` and provides an interface lookup, for example when
+source schema A also declares `type Photo implements Media` with at least
+its key fields.

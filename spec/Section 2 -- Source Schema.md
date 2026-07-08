@@ -500,13 +500,13 @@ By applying the `@key` directive all referenced fields become sharable even if
 the fields are not explicitly marked with `@shareable`.
 
 ```graphql example
-# source schema A
+# Source Schema A
 type Product @key(fields: "id") {
   id: ID!
   price: Float!
 }
 
-# source schema B
+# Source Schema B
 type Product @key(fields: "id") {
   id: ID!
   name: String!
@@ -519,13 +519,13 @@ decision to serve a field from more than one source schema is intentional and
 coordinated.
 
 ```graphql counter-example
-# source schema A
+# Source Schema A
 type Product @key(fields: "id") {
   id: ID!
   price: Float!
 }
 
-# source schema B
+# Source Schema B
 type Product {
   id: ID!
   name: String!
@@ -535,6 +535,237 @@ type Product {
 **Arguments:**
 
 - `fields`: Represents a field selection set syntax.
+
+## @interfaceObject
+
+```graphql
+directive @interfaceObject on OBJECT
+```
+
+The `@interfaceObject` directive is used within a source schema to declare an
+object type that acts as a _stand-in_ for an interface defined in another source
+schema. The stand-in carries the same name as the interface and allows the
+source schema to contribute fields to the interface without defining its
+implementing types.
+
+```graphql example
+type Media @interfaceObject @key(fields: "id") {
+  id: ID!
+  reviews: [Review!]!
+}
+```
+
+Composition merges the stand-in into the interface instead of reporting a
+type-kind conflict. If no source schema defines the interface, composition fails
+with an error.
+
+In the following example, source schema A defines the `Media` interface. Source
+schema B defines a stand-in for `Media`.
+
+```graphql example
+# Source Schema A
+interface Media @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+# Source Schema B
+type Media @interfaceObject @key(fields: "id") {
+  id: ID!
+  reviews: [Review!]!
+}
+
+type Review {
+  rating: Int!
+}
+
+# Composite Schema
+interface Media {
+  id: ID!
+  title: String!
+  reviews: [Review!]!
+}
+
+type Review {
+  rating: Int!
+}
+```
+
+Composition adds each stand-in field that is not part of a key to the interface
+as a default field implementation. Every type that implements the interface
+inherits these fields.
+
+In the following example, `Book` inherits the `reviews` default in the composite
+schema, although no source schema declares the field on it.
+
+```graphql example
+# Source Schema A
+interface Media @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type Book implements Media @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+# Source Schema B
+type Media @interfaceObject @key(fields: "id") {
+  id: ID!
+  reviews: [Review!]!
+}
+
+type Review {
+  rating: Int!
+}
+
+# Composite Schema
+interface Media {
+  id: ID!
+  title: String!
+  reviews: [Review!]!
+}
+
+type Book implements Media {
+  id: ID!
+  title: String!
+  reviews: [Review!]!
+}
+
+type Review {
+  rating: Int!
+}
+```
+
+A stand-in must declare a `@key` that matches one of the keys declared on the
+interface.
+
+A stand-in is not required to declare a lookup field. Without a lookup, the
+executor cannot fetch the stand-in's fields for values resolved elsewhere. Such
+a stand-in usually declares only its key fields and serves as a typed entry
+point.
+
+```graphql example
+# Source Schema A
+type Media @interfaceObject @key(fields: "id") {
+  id: ID!
+}
+
+type Rating {
+  id: ID!
+  subject: Media!
+  stars: Int!
+}
+
+# Source Schema B
+type Query {
+  mediaById(id: ID!): Media @lookup
+}
+
+interface Media @key(fields: "id") {
+  id: ID!
+}
+
+type Book implements Media {
+  id: ID!
+}
+```
+
+## @implement
+
+```graphql
+directive @implement on FIELD_DEFINITION
+```
+
+A stand-in adds default field implementations to an interface. The `@implement`
+directive signals the intent to provide an explicit implementation for the
+annotated field.
+
+An object type that implements an interface may provide an explicit
+implementation by declaring the field itself and marking it with `@implement`.
+The type's own field is then used instead of the default implementation provided
+by the interface object. If the field is not marked with `@implement`,
+composition must fail, as this could represent an accidental override of the
+default implementation.
+
+In the following example, source schema B provides a default `taxRate` field for
+every `Product` through a stand-in. `Chair` provides an explicit
+implementation of `taxRate`.
+
+```graphql example
+# Source Schema A
+interface Product @key(fields: "id") {
+  id: ID!
+  name: String!
+}
+
+type Chair implements Product @key(fields: "id") {
+  id: ID!
+  name: String!
+  taxRate: Float! @implement
+}
+
+# Source Schema B
+type Product @interfaceObject @key(fields: "id") {
+  id: ID!
+  taxRate: Float!
+}
+```
+
+Without `@implement`, composition rejects `Chair.taxRate`, because it collides
+with the default from source schema B.
+
+In an interface hierarchy, a stand-in for a more specific interface may also
+provide an explicit implementation. Its default then replaces the less specific
+default for every type that implements the more specific interface.
+
+In the following example, source schema B provides a `taxRate` default for every
+`Product`. Source schema C provides an explicit implementation of `taxRate` for
+every `PhysicalProduct`.
+
+```graphql example
+# Source Schema A
+interface Product @key(fields: "id") {
+  id: ID!
+}
+
+interface PhysicalProduct implements Product @key(fields: "id") {
+  id: ID!
+  weight: Float!
+}
+
+type Chair implements PhysicalProduct & Product @key(fields: "id") {
+  id: ID!
+  weight: Float!
+}
+
+type Ebook implements Product @key(fields: "id") {
+  id: ID!
+}
+
+# Source Schema B
+type Product @interfaceObject @key(fields: "id") {
+  id: ID!
+  taxRate: Float!
+}
+
+# Source Schema C
+type PhysicalProduct @interfaceObject @key(fields: "id") {
+  id: ID!
+  taxRate: Float! @implement
+}
+```
+
+`Chair` implements `PhysicalProduct`, so it inherits the `taxRate` default from
+source schema C. `Ebook` implements only `Product`, so it inherits the `taxRate`
+default from source schema B. Without `@implement` on `PhysicalProduct.taxRate`,
+composition rejects the schema, because source schema C's default collides with
+source schema B's default.
+
+If no matching default exists for a field marked with `@implement`, composition
+fails. The same applies to `@implement` on an interface field, since
+an interface field cannot replace a default.
 
 ## @shareable
 
@@ -869,6 +1100,74 @@ type Product @key(fields: "id") {
   tax: Float!
 }
 ```
+
+The `@override` directive may also be applied to a field on an
+`@interfaceObject` stand-in. Before composition resolves default field
+implementations, it drops every declaration of the field, in the source schema
+named by `from`, across the target interface's whole implementation closure: on
+every implementing type, on every more specific interface's stand-in, and even
+on the source schema's own stand-in for the same interface. Dropping the source
+schema's own stand-in declaration is what lets the role of default contributor
+migrate from one schema to another.
+
+As with any other use of `@override`, `from` names exactly one source schema.
+Composition rejects cyclic overrides on stand-in fields, as it does for any
+other field's `@override`. A dead override, one whose `from` schema declares no
+matching field, composes normally. Nothing is dropped in that case.
+
+A field projected from a stand-in is not itself a declaration for the purposes
+of `@override`. An implementing type cannot use `@override` to take over a
+default; `@implement` does that instead. A type that acquires a field through
+`@override` becomes a direct declarer of the field from that point on. Like any
+direct declaration that collides with an applicable default, it still needs
+`@implement` if a default exists elsewhere in the interface's hierarchy.
+
+In the following example, the `Catalog` schema originally contributes `reviews`
+directly on `Book` and `Movie`. The `Reviews` schema takes over by declaring
+`Media` as a stand-in and overriding the field from `Catalog`.
+
+```graphql example
+# The original "Catalog" schema:
+interface Media @key(fields: "id") {
+  id: ID!
+  title: String!
+}
+
+type Book implements Media @key(fields: "id") {
+  id: ID!
+  title: String!
+  author: String!
+  reviews: [Review!]!
+}
+
+type Movie implements Media @key(fields: "id") {
+  id: ID!
+  title: String!
+  director: String!
+  reviews: [Review!]!
+}
+
+type Review {
+  id: ID! @shareable
+  rating: Int! @shareable
+}
+
+# The new "Reviews" schema:
+type Media @interfaceObject @key(fields: "id") {
+  id: ID!
+  reviews: [Review!]! @override(from: "Catalog")
+}
+
+type Review {
+  id: ID! @shareable
+  rating: Int! @shareable
+}
+```
+
+Composition drops `Book.reviews` and `Movie.reviews` from the `Catalog` schema.
+It instead projects `reviews` onto `Media`, and from there onto `Book` and
+`Movie`, as a default field implementation contributed by the `Reviews` schema.
+The composite schema is unchanged; only the source of the field moves.
 
 **Arguments:**
 
