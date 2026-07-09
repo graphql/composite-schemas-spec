@@ -758,14 +758,20 @@ movieId
 ### Path Field Argument Validity
 
 Each {Arguments} provided on a {Path} segment or on the shorthand form of a
-{SelectedObjectField} must be valid for the selected field.
+{SelectedObjectField} must be valid for the selected field, and every required
+argument of a selected field that is not annotated with `@require` must be
+provided.
 
 **Formal Specification**
 
-- For each {segment} in the {Path} that includes {Arguments}:
+- For each {segment} in the {Path}:
+  - If {segment} is a type reference:
+    - Continue
   - Let {field} be the field referenced by {segment}.
   - Let {argumentDefinitions} be the set of argument definitions of {field}.
-  - For each {argument} in {Arguments}:
+  - Let {arguments} be the set of {Arguments} provided by {segment}, or the
+    empty set if {segment} provides no {Arguments}.
+  - For each {argument} in {arguments}:
     - Let {argumentName} be the {Name} of {argument}.
     - Let {argumentDefinition} be the argument definition in
       {argumentDefinitions} named {argumentName}.
@@ -774,19 +780,24 @@ Each {Arguments} provided on a {Path} segment or on the shorthand form of a
     - {value} must not contain a {Variable}.
     - {value} must be coercible to the type of {argumentDefinition}.
   - For each {argumentDefinition} in {argumentDefinitions}:
+    - If {argumentDefinition} is annotated with `@require`:
+      - Continue
     - Let {type} be the expected type of {argumentDefinition}.
     - Let {defaultValue} be the default value of {argumentDefinition}.
     - If {type} is Non-Null and {defaultValue} does not exist:
       - Let {argumentName} be the name of {argumentDefinition}.
-      - An {argument} in {Arguments} named {argumentName} must exist.
-- The same rules apply to {Arguments} provided on the shorthand form of a
-  {SelectedObjectField}, where the field is the output field of the same name.
+      - An {argument} in {arguments} named {argumentName} must exist.
+- The same rules apply to each {SelectedObjectField} that uses the shorthand
+  form, where the field is the output field of the same name.
 
 **Explanatory Text**
 
-Arguments included on a field selection must be defined on the selected field,
-must coerce to the corresponding argument types, and must satisfy the field's
-required arguments. Variables are not permitted; only literal values may appear.
+Arguments included on a field selection must be defined on the selected field
+and must coerce to the corresponding argument types. Every required argument of
+a selected field must be provided, even when the selection includes no
+{Arguments} at all. Arguments annotated with `@require` are exempt: their values
+are supplied by the executor, never by a selection map. Variables are not
+permitted; only literal values may appear.
 
 The following example is valid because `unit` is a defined argument of `width`
 and `IMPERIAL` is a valid value of the `Unit` enum:
