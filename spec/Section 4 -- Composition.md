@@ -925,7 +925,7 @@ ERROR
 **Explanatory Text**
 
 When using the `@is` directive, the `field` argument must always be a string
-that describes how the arguments can be mapped from the entity type that the
+that describes how the arguments can be mapped from the _entity_ type that the
 lookup field resolves. If the `field` argument is provided as a type other than
 a string (such as an integer, boolean, or enum), the directive usage is invalid
 and will cause schema composition to fail.
@@ -1119,10 +1119,10 @@ ERROR
 **Explanatory Text**
 
 The `@key` directive is used to define the set of fields that uniquely identify
-an entity. These fields must reference scalars or object types to ensure a valid
-and consistent representation of the entity across schemas. Fields of types
-`List`, `Interface`, or `Union` cannot be part of a `@key` because they do not
-have a well-defined unique value.
+an _entity_. These fields must reference scalars or object types to ensure a
+valid and consistent representation of the _entity_ across schemas. Fields of
+types `List`, `Interface`, or `Union` cannot be part of a `@key` because they do
+not have a well-defined unique value.
 
 **Examples**
 
@@ -1200,9 +1200,9 @@ ERROR
 **Explanatory Text**
 
 The `@key` directive specifies the set of fields used to uniquely identify an
-entity. The `fields` argument must consist of a valid GraphQL selection set that
-does not include any directive applications. Directives in the `fields` argument
-are not supported.
+_entity_. The `fields` argument must consist of a valid GraphQL selection set
+that does not include any directive applications. Directives in the `fields`
+argument are not supported.
 
 **Examples**
 
@@ -1339,7 +1339,7 @@ ERROR
 
 **Explanatory Text**
 
-Each `@key` directive must specify the fields that uniquely identify an entity
+Each `@key` directive must specify the fields that uniquely identify an _entity_
 using a valid GraphQL selection set in its `fields` argument. If the `fields`
 argument string is syntactically incorrect-missing closing braces, containing
 invalid tokens, or otherwise malformed - it cannot be composed into a valid
@@ -1415,8 +1415,8 @@ Even if the selection set for `@key(fields: "…")` is syntactically valid, fiel
 references within that selection set must also refer to **actual** fields on the
 annotated type. This includes nested selections, which must appear on the
 corresponding return type. If any referenced field is missing or incorrectly
-named, composition fails with a `KEY_INVALID_FIELDS` error because the entity
-key cannot be resolved correctly.
+named, composition fails with a `KEY_INVALID_FIELDS` error because the _stable
+key_ cannot be resolved correctly.
 
 **Examples**
 
@@ -1474,8 +1474,8 @@ fails to compose correctly because it cannot parse a valid field selection.
 **Examples**
 
 In this example, the `@key` directive's `fields` argument is the string
-`"id uuid"`, identifying two fields that form the object key. This usage is
-valid.
+`"id uuid"`, identifying two fields that form a composite _stable key_. This
+usage is valid.
 
 ```graphql example
 type User @key(fields: "id uuid") {
@@ -1521,15 +1521,15 @@ ERROR
 
 **Explanatory Text**
 
-Fields annotated with the `@lookup` directive identify a single entity by the
-arguments supplied to them. A lookup field that declares no arguments has no key
-with which to resolve an entity and cannot participate in composition. This rule
-reports such fields as invalid.
+Fields annotated with the `@lookup` directive identify a single _entity_ by the
+arguments supplied to them. A lookup field that declares no arguments has no
+_stable key_ with which to resolve an _entity_ and cannot participate in
+composition. This rule reports such fields as invalid.
 
 **Examples**
 
 For example, the following usage is valid because `productById` declares an
-argument that can be used to resolve a `Product` entity.
+argument that can be used to resolve a `Product` _entity_.
 
 ```graphql example
 type Query {
@@ -1544,7 +1544,7 @@ type Product {
 
 This counter-example demonstrates an invalid usage. The `product` field is
 annotated with `@lookup` but declares no arguments, so it cannot identify which
-entity to resolve.
+_entity_ to resolve.
 
 ```graphql counter-example
 type Query {
@@ -1579,21 +1579,21 @@ WARNING
 **Explanatory Text**
 
 Fields annotated with the `@lookup` directive are intended to retrieve a single
-entity based on provided arguments. To properly handle cases where the requested
-entity does not exist, such fields should have a nullable return type. This
-allows the field to return `null` when an entity matching the provided criteria
-is not found, following the standard GraphQL practices for representing missing
-data.
+_entity_ based on provided arguments. To properly handle cases where the
+requested _entity_ does not exist, such fields should have a nullable return
+type. This allows the field to return `null` when an _entity_ matching the
+provided criteria is not found, following the standard GraphQL practices for
+representing missing data.
 
-In a distributed system, it is likely that some entities will not be found on
+In a distributed system, it is likely that some _entities_ will not be found on
 other schemas, even when those schemas contribute fields to the type. Ensuring
 that `@lookup` fields have nullable return types also avoids GraphQL errors on
 schemas and prevents result erasure through non-null propagation. By allowing
-null to be returned when an entity is not found, the system can gracefully
+null to be returned when an _entity_ is not found, the system can gracefully
 handle missing data without causing exceptions or unexpected behavior.
 
 Ensuring that `@lookup` fields have nullable return types allows gateways to
-distinguish between cases where an entity is not found (receiving null) and
+distinguish between cases where an _entity_ is not found (receiving null) and
 other error conditions that may have to be propagated to the client.
 
 For example, the following usage is recommended:
@@ -1662,7 +1662,7 @@ IsListType(type):
 **Explanatory Text**
 
 Fields annotated with the `@lookup` directive are intended to retrieve a single
-entity based on provided arguments. To avoid ambiguity in entity resolution,
+_entity_ based on provided arguments. To avoid ambiguity in _entity_ resolution,
 such fields must return a single object and not a list. This validation rule
 enforces that any field annotated with `@lookup` must have a return type that is
 **NOT** a list.
@@ -2542,7 +2542,7 @@ type Subscription {
 ## Pre Merge Validation
 
 Prior to merging the schemas, additional validations are performed that require
-visibility into all source schemas but treat them as separate entities. This
+visibility into all source schemas but treat each source schema separately. This
 step detects conflicts such as incompatible fields or default argument values
 that would render the merged schema unusable. Detecting such conflicts early
 prevents errors that would otherwise be discovered during the merge process.
@@ -2731,15 +2731,15 @@ ERROR
 
 FieldsAreMergeable(fields):
 
-- Given each pair of members {fieldA} and {fieldB} in {fields}:
-  - Let {typeA} be the type of {fieldA}
-  - Let {typeB} be the type of {fieldB}
-  - {SameTypeShape(typeA, typeB)} must be true.
+- Let {fieldTypes} be the list of types of each field in {fields}.
+- {LeastRestrictiveType(fieldTypes)} must not fail.
 
 **Explanatory Text**
 
 Fields on objects or interfaces that have the same name are considered
-semantically equivalent and mergeable when they have a mergeable field type.
+semantically equivalent and mergeable when {LeastRestrictiveType(fieldTypes)}
+can select a return type for the composed field. This selection considers all
+field types together and must not depend on source schema order.
 
 Fields with the same type are mergeable.
 
@@ -2780,7 +2780,8 @@ type User {
 }
 ```
 
-Fields are not mergeable if the named types are different in kind or name.
+Fields with leaf return types are not mergeable if the named types differ, or if
+the same name is used with a different kind.
 
 ```graphql counter-example
 type User {
@@ -2806,6 +2807,69 @@ type User {
 }
 
 scalar Tag
+```
+
+Fields with composite return types are mergeable when one of the declared return
+types is a supertype of all other declared return types. The composed field uses
+that supertype, regardless of the order in which the source schemas are
+processed.
+
+```graphql example
+# Schema A
+type Query @shareable {
+  featured: FeaturedItem
+}
+
+union FeaturedItem = Product
+
+type Product @shareable {
+  id: ID
+}
+
+# Schema B
+type Query @shareable {
+  featured: Product
+}
+
+type Product @shareable {
+  id: ID
+}
+
+# Composed Result
+type Query {
+  featured: FeaturedItem
+}
+
+union FeaturedItem = Product
+
+type Product {
+  id: ID
+}
+```
+
+Fields with composite return types are not mergeable when no declared return
+type is a supertype of all other declared return types.
+
+```graphql counter-example
+# Schema A
+type Query @shareable {
+  featured: FeaturedItem
+}
+
+union FeaturedItem = Product
+
+type Product @shareable {
+  id: ID
+}
+
+# Schema B
+type Query @shareable {
+  featured: Review
+}
+
+type Review @shareable {
+  id: ID
+}
 ```
 
 #### Field Argument Types Mergeable
@@ -4439,11 +4503,10 @@ MergeOutputFields(fields):
   - Return {null}
 - Let {firstField} be the first field in {fields}.
 - Let {fieldName} be the name of {firstField}.
-- Let {fieldType} be the type of {firstField}.
+- Let {fieldTypes} be the list of types of each field in {fields}.
+- Let {fieldType} be the result of {LeastRestrictiveType(fieldTypes)}.
 - Let {description} be the description of {firstField}.
 - For each {field} in {fields}:
-  - Let {type} be the type of {field}.
-  - Set {fieldType} to be the result of {LeastRestrictiveType(fieldType, type)}.
   - If {description} is {null}:
     - Let {description} be the description of {field}.
 - Let {mergedArguments} be an empty set.
@@ -4497,11 +4560,12 @@ description.
 _Determining the Field Type_
 
 The return type of the composed field is determined by invoking
-{LeastRestrictiveType(typeA, typeB)}. This helper function computes a type that
-is compatible with all the provided field types, ensuring that the composed
-schema does not break schemas expecting any of those types. For example,
-{LeastRestrictiveType(typeA, typeB)} might unify `String!` and `String` into
-`String`.
+{LeastRestrictiveType(fieldTypes)} with the complete list of field return types.
+This helper function computes a type that is compatible with all the provided
+field types, ensuring that the composed schema does not break schemas expecting
+any of those types. The calculation is order-independent. For example,
+{LeastRestrictiveType(fieldTypes)} might unify `String!` and `String` into
+`String`, or `A` and `U` into `U` when `U` is a union that contains `A`.
 
 _Merging Arguments_
 
@@ -4654,8 +4718,8 @@ fields. If no description is found, the merged field will have no description.
 
 _Combining Field Types_
 
-The merged field type is computed by calling {MostRestrictiveType(typeA, typeB)}
-. Unlike output fields, where {LeastRestrictiveType(typeA, typeB)} is used,
+The merged field type is computed by calling {MostRestrictiveType(typeA,
+typeB)}. Unlike output fields, where {LeastRestrictiveType(fieldTypes)} is used,
 input fields often follow stricter constraints. If one source schema defines a
 field as non-nullable and another as nullable, the merged field type must be
 non-nullable to satisfy both schemas. {MostRestrictiveType(typeA, typeB)}
@@ -4847,29 +4911,37 @@ validation has already asserted that any differing defaults are compatible.
 
 **Examples**
 
-Suppose we have two variants of the same argument, `limit`, from different
-services:
-
-**Service A**
+Suppose we have two field definitions that share the same `limit` argument, but
+differ in type, description, and default value:
 
 ```graphql example
 # Schema A
 
-limit: Int = 10
+type Query {
+  products(limit: Int = 10): [Product]
+}
 
 # Schema B
 
-"""
-Number of items to fetch
-"""
-limit: Int!
+type Query {
+  products(
+    """
+    Number of items to fetch
+    """
+    limit: Int!
+  ): [Product]
+}
 
 # Composed Result
 
-"""
-Number of items to fetch
-"""
-limit: Int! = 10
+type Query {
+  products(
+    """
+    Number of items to fetch
+    """
+    limit: Int! = 10
+  ): [Product]
+}
 ```
 
 ### Shared Algorithms
@@ -4878,39 +4950,68 @@ limit: Int! = 10
 
 **Formal Specification**
 
-LeastRestrictiveType(typeA, typeB):
+LeastRestrictiveType(types):
 
+- Assert: {types} is not empty.
 - Let {isNullable} be true.
-- If {typeA} and {typeB} are non nullable types:
+- If every {type} in {types} is a non nullable type:
   - Set {isNullable} to false.
-- If {typeA} is a non nullable type:
-  - Set {typeA} to the inner type of {typeA}.
-- If {typeB} is a non nullable type:
-  - Set {typeB} to the inner type of {typeB}.
-- If {typeA} is a list type:
-  - Assert: {typeB} is a list type.
-  - Let {innerTypeA} be the inner type of {typeA}.
-  - Let {innerTypeB} be the inner type of {typeB}.
-  - Let {innerType} be {LeastRestrictiveType(innerTypeA, innerTypeB)}.
+- Let {unwrappedTypes} be the list produced by replacing each non nullable type
+  in {types} with its inner type.
+- If any {type} in {unwrappedTypes} is a list type:
+  - Assert: every {type} in {unwrappedTypes} is a list type.
+  - Let {innerTypes} be the list of inner types of each type in
+    {unwrappedTypes}.
+  - Let {innerType} be {LeastRestrictiveType(innerTypes)}.
   - If {isNullable} is true:
     - Return {innerType} as a nullable list type.
   - Otherwise:
     - Return {innerType} as a non nullable list type.
 - Otherwise:
-  - Assert: {typeA} is equal to {typeB}
+  - Let {namedType} be {LeastRestrictiveNamedOutputType(unwrappedTypes)}.
   - If {isNullable} is true:
-    - Return {typeA} as a nullable type.
+    - Return {namedType} as a nullable type.
   - Otherwise:
-    - Return {typeA} as a non nullable type.
+    - Return {namedType} as a non nullable type.
+
+LeastRestrictiveNamedOutputType(namedTypes):
+
+- Assert: every {type} in {namedTypes} is a named output type.
+- Let {candidates} be the set of unique types in {namedTypes}.
+- Let {supertypeCandidates} be the set of all {candidate} in {candidates} for
+  which {IsOutputSupertype(candidate, type)} is true for every {type} in
+  {namedTypes}.
+- Assert: {supertypeCandidates} is not empty.
+- Sort {supertypeCandidates} by:
+  - the number of possible runtime object types in ascending order, with scalar
+    and enum types having zero possible runtime object types.
+  - the candidate type name in ascending lexical order.
+- Return the first member of {supertypeCandidates}.
+
+IsOutputSupertype(candidate, type):
+
+- If {candidate} and {type} are the same named type:
+  - Return {true}.
+- If either {candidate} or {type} is a scalar or enum type:
+  - Return {false}.
+- If {candidate} is an object type:
+  - Return {false}.
+- If {type} is an object type:
+  - Return {true} if {type} is a possible runtime object type of {candidate}.
+  - Otherwise return {false}.
+- Return {true} if every possible runtime object type of {type} is also a
+  possible runtime object type of {candidate}.
+- Otherwise return {false}.
 
 **Explanatory Text**
 
-{LeastRestrictiveType(typeA, typeB)} identifies a single type that safely
-handles all possible _runtime values_ produced by the sources defining `typeA`
-and `typeB`. If one source can return `null` while another cannot, the merged
-type becomes nullable to avoid runtime exceptions - because a strictly non-null
-signature would be violated whenever `null` appears. Similarly, if both sources
-enforce non-null, the result remains non-null.
+{LeastRestrictiveType(types)} identifies a single type that safely handles all
+possible _runtime values_ produced by the sources defining the types in {types}.
+The algorithm considers all types together, so the selected type is independent
+of source schema order. If one source can return `null` while another cannot,
+the merged type becomes nullable to avoid runtime exceptions - because a
+strictly non-null signature would be violated whenever `null` appears.
+Similarly, if all sources enforce non-null, the result remains non-null.
 
 _Nullability_
 
@@ -4927,13 +5028,22 @@ list itself is nullable depends on whether both sources treat the list as
 non-null. In other words, if any source can return `null` for the list, the
 final list type must also be nullable.
 
-_Scalar Types_
+_Named Output Types_
 
-When neither source specifies a list type, the algorithm confirms that both
-sources refer to the _same_ underlying named type (e.g., `String` vs. `String`).
-If they differ (e.g., `String` vs. `Int`), the schemas are fundamentally
-incompatible for merging, yet the pre merge validation should have already
-caught this issue.
+When the unwrapped types are leaf types, the algorithm requires the same scalar
+or enum type. If they differ (e.g., `String` vs. `Int`), the schemas are
+fundamentally incompatible for merging, yet the pre merge validation should have
+already caught this issue.
+
+When the unwrapped types are object, interface, or union types, the algorithm
+selects one of the declared return types that is a supertype of every other
+declared return type. A supertype candidate covers another composite type when
+it can represent every possible runtime object type of that type. Other than
+exact equality, object types are not supertype candidates for interface or union
+types. The most specific covering candidate is selected by choosing the
+candidate with the smallest possible runtime object type set, with remaining
+ties broken by type name. This ensures that field type selection is
+deterministic and does not depend on source schema order.
 
 **Examples**
 
@@ -4942,13 +5052,19 @@ merged type must allow `null`.
 
 ```graphql example
 # Schema A
-typeA: String!
+type Product {
+  price: Float!
+}
 
 # Schema B
-typeB: String
+type Product {
+  price: Float
+}
 
 # Merged Result
-type: String
+type Product {
+  price: Float
+}
 ```
 
 Here, both sources use lists of `Int`, but they differ in nullability.
@@ -4957,13 +5073,56 @@ Consequently, the merged list type is `[Int]`, which permits a `null` list or
 
 ```graphql example
 # Schema A
-typeA: [Int]!
+type Product {
+  ratings: [Int]!
+}
 
 # Schema B
-typeB: [Int!]
+type Product {
+  ratings: [Int!]
+}
 
 # Merged Result
-type: [Int]
+type Product {
+  ratings: [Int]
+}
+```
+
+Here, one source returns object type `Product` and the other returns union type
+`FeaturedItem`. Since `FeaturedItem` contains `Product`, `FeaturedItem` is the
+least restrictive return type regardless of source schema order.
+
+```graphql example
+# Schema A
+type Query {
+  featured: Product
+}
+
+type Product {
+  id: ID
+}
+
+# Schema B
+type Query {
+  featured: FeaturedItem
+}
+
+union FeaturedItem = Product
+
+type Product {
+  id: ID
+}
+
+# Merged Result
+type Query {
+  featured: FeaturedItem
+}
+
+union FeaturedItem = Product
+
+type Product {
+  id: ID
+}
 ```
 
 #### Most Restrictive Type
@@ -5035,13 +5194,19 @@ isn't allowed:
 
 ```graphql example
 # Schema A
-typeA: String!
+input ProductFilter {
+  currency: String!
+}
 
 # Schema B
-typeB: String
+input ProductFilter {
+  currency: String
+}
 
 # Merged Result
-type: String!
+input ProductFilter {
+  currency: String!
+}
 ```
 
 In the following example, since one definition mandates non-null items
@@ -5052,13 +5217,19 @@ accept or produce values that violate either source.
 
 ```graphql example
 # Schema A
-typeA: [Int!]
+input ProductFilter {
+  ratings: [Int!]
+}
 
 # Schema B
-typeB: [Int]!
+input ProductFilter {
+  ratings: [Int]!
+}
 
 # Merged Result
-type: [Int!]!
+input ProductFilter {
+  ratings: [Int!]!
+}
 ```
 
 ## Post Merge Validation
