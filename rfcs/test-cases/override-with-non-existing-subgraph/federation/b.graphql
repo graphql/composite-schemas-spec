@@ -1,7 +1,0 @@
-extend schema
-  @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@shareable", "@override"])
-
-type Mutation {
-  a: String! @shareable @override(from: "non-existing")
-  b: String! @shareable @override(from: "non-existing")
-}

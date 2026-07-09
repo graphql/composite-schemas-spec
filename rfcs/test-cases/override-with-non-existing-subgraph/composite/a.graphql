@@ -1,4 +1,0 @@
-type Mutation {
-  a: String!
-  b: String!
-}
