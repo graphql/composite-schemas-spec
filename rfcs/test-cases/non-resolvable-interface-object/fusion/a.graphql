@@ -1,7 +1,0 @@
-interface Node {
-  id: ID!
-}
-
-type Query {
-  a: String
-}
