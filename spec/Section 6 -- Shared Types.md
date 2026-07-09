@@ -20,5 +20,5 @@ scalar FieldSelection
 The scalar `FieldSelection` represents a GraphQL field selection syntax.
 
 ```graphql example
-abc(def: 1) { ghi }
+abc { ghi }
 ```

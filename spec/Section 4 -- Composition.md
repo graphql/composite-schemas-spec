@@ -534,11 +534,6 @@ ERROR
 This rule ensures that every field marked as `@external` in a source schema is
 actually used by that source schema in a `@provides` directive.
 
-Since neither `@key` nor `@provides` may reference fields that declare arguments
-(see [Key Fields Has Arguments](#sec-Key-Fields-Has-Arguments) and
-[Provides Fields Has Arguments](#sec-Provides-Fields-Has-Arguments)), a field
-that declares arguments can never be marked `@external`.
-
 **Examples**
 
 In this example, the `name` field is marked with `@external` and is used by the
@@ -1041,25 +1036,31 @@ ERROR
         - Continue
       - Let {selectionMap} be the parsed selection map of the `field` argument
         of the `@is` directive on {argument}.
-      - Let {referencedFields} be the set of all fields referenced by
-        {selectionMap}, including fields referenced in nested selections.
-      - For each {referencedField} in {referencedFields}:
-        - {referencedField} must **not** declare arguments.
+      - Each selection in {selectionMap}, including nested selections and path
+        segments, must **not** supply arguments.
 
 **Explanatory Text**
 
-The arguments of a lookup field represent the stable key with which the
-_distributed GraphQL executor_ recalls an entity, and the `@is` directive maps
-each argument to a field of the entity. Such a key must map to plain field
-values. A field that declares arguments does not represent a plain value but a
-parameterized evaluation; referencing it in an `@is` selection map would
-implicitly define a parameterized key on the lookup field.
+The arguments of a lookup field represent the _stable key_ with which the
+_distributed GraphQL executor_ recalls an _entity_, and the `@is` directive maps
+each argument to a field of the _entity_. Such a mapping must consist of plain
+field paths; supplying arguments within an `@is` selection map is not allowed.
 
-The same restriction applies to `@key` (see
-[Key Fields Has Arguments](#sec-Key-Fields-Has-Arguments)) and to `@provides`
-(see [Provides Fields Has Arguments](#sec-Provides-Fields-Has-Arguments)). Only
-`@require` selection maps may reference fields with constant arguments, as they
-derive input values rather than keys.
+A referenced field may still declare arguments, as long as each argument is
+nullable, has a default value, or is annotated with `@require` and therefore
+supplied by the executor. Such a field can be resolved without any arguments
+being supplied. A field that requires an argument cannot be referenced by an
+`@is` selection map, since the map cannot supply one (see
+[Is Invalid Fields](#sec-Is-Invalid-Fields) and the argument validation rules in
+Appendix A).
+
+The same applies to `@key` (see
+[Key Fields Has Arguments](#sec-Key-Fields-Has-Arguments)). `@provides`
+selections must reference fields that declare no arguments other than
+`@require`-annotated ones (see
+[Provides Fields Has Arguments](#sec-Provides-Fields-Has-Arguments)). Only
+`@require` selection maps may supply constant arguments, as they derive input
+values rather than keys.
 
 **Examples**
 
@@ -1077,8 +1078,23 @@ type Product {
 }
 ```
 
-In this counter-example, the `@is` selection map references the field `id`,
-which declares the `scope` argument, violating the rule.
+In this example, the referenced field `id` declares the nullable `scope`
+argument. Since `scope` can be omitted, `id` can be resolved without supplying
+an argument and may be referenced by the `@is` selection map.
+
+```graphql example
+type Query {
+  productById(id: ID! @is(field: "id")): Product @lookup
+}
+
+type Product {
+  id(scope: IdScope): ID!
+  name: String
+}
+```
+
+In this counter-example, the `@is` selection map supplies an argument on `id`,
+violating the rule.
 
 ```graphql counter-example
 type Query {
@@ -1086,7 +1102,7 @@ type Query {
 }
 
 type Product {
-  id(scope: IdScope!): ID!
+  id(scope: IdScope): ID!
   name: String
 }
 ```
@@ -1260,7 +1276,8 @@ ERROR
 - Let {types} be the set of all object and interface types in the schema that
   are annotated with the `@key` directive.
 - For each {type} in {types}:
-  - For each {keyDirective} in the `@key` directives on {type}:
+  - Let {keyDirectives} be the set of all `@key` directives on {type}.
+  - For each {keyDirective} in {keyDirectives}:
     - Let {selections} be the field selections of the `fields` argument of
       {keyDirective}.
     - For each {selection} in {selections}:
@@ -1269,8 +1286,12 @@ ERROR
 KeyFieldsHasArguments(selection, type):
 
 - Let {field} be the field of {type} selected by {selection}.
-- If {field} has arguments:
+- If {selection} supplies arguments:
   - return true
+- For each {argumentDefinition} declared by {field}:
+  - If the type of {argumentDefinition} is Non-Null, {argumentDefinition} has no
+    default value, and {argumentDefinition} is not annotated with `@require`:
+    - return true
 - If {selection} has a selection set:
   - Let {subType} be the return type of {field}.
   - Let {subSelections} be the selections in the selection set of {selection}.
@@ -1281,15 +1302,24 @@ KeyFieldsHasArguments(selection, type):
 
 **Explanatory Text**
 
-The `@key` directive designates the fields that form a stable key of an entity.
-A stable key must consist of plain field values that identify an entity
-deterministically. A field that declares arguments does not represent a plain
-value but a parameterized evaluation and therefore must not be part of a key.
-The same restriction applies to `@provides` (see
-[Provides Fields Has Arguments](#sec-Provides-Fields-Has-Arguments)) and to
-`@is` (see [Is Fields Has Arguments](#sec-Is-Fields-Has-Arguments)). Only
-`@require` selection maps may reference fields with constant arguments, as they
-derive input values rather than keys.
+The `@key` directive designates the fields that form a _stable key_ of an
+_entity_. Selections within the `fields` argument must not supply arguments: a
+_stable key_ must consist of plain field values that identify an _entity_
+deterministically, and the _distributed GraphQL executor_ resolves key fields
+without supplying any arguments.
+
+A referenced field may still declare arguments, as long as each argument is
+nullable, has a default value, or is annotated with `@require` and therefore
+supplied by the executor. Such a field can be resolved without any arguments
+being supplied. A field that requires an argument cannot be part of a _stable
+key_ because it cannot be resolved without one.
+
+The same applies to `@is` (see
+[Is Fields Has Arguments](#sec-Is-Fields-Has-Arguments)). `@provides` selections
+must reference fields that declare no arguments other than `@require`-annotated
+ones (see [Provides Fields Has Arguments](#sec-Provides-Fields-Has-Arguments)).
+Only `@require` selection maps may supply constant arguments, as they derive
+input values rather than keys.
 
 **Examples**
 
@@ -1304,14 +1334,34 @@ type User @key(fields: "id name") {
 }
 ```
 
+In this example, the `@key` directive references the field `tags`, which
+declares the optional `limit` argument. Since `limit` can be omitted, `tags` can
+be resolved without supplying an argument and may be part of the key.
+
+```graphql example
+type User @key(fields: "id tags") {
+  id: ID!
+  tags(limit: Int = 10): [String]
+}
+```
+
+In this counter-example, the key selection supplies arguments on `id`.
+Selections within the `fields` argument must not supply arguments.
+
+```graphql counter-example
+type User @key(fields: "id(scope: LOCAL)") {
+  id: ID!
+}
+```
+
 In this counter-example, the `@key` directive references the field `tags`, which
-declares the `limit` argument, violating the rule. This applies even though the
-argument is optional.
+requires the `limit` argument. Since `limit` can neither be omitted nor supplied
+by the key selection, `tags` cannot be part of a key.
 
 ```graphql counter-example
 type User @key(fields: "id tags") {
   id: ID!
-  tags(limit: Int = 10): [String]
+  tags(limit: Int!): [String]
 }
 ```
 
@@ -1919,28 +1969,34 @@ ERROR
 - For each {field} in {fieldsWithProvides}:
   - Let {selections} be the field selections of the `fields` argument of the
     `@provides` directive on {field}.
-  - Let {type} be the return type of {field}
+  - Let {type} be the return type of {field}.
   - For each {selection} in {selections}:
-    - {ProvidesHasArguments(selection, type)} must be false
+    - {ProvidesHasArguments(selection, type)} must be false.
 
 ProvidesHasArguments(selection, type):
 
-- Let {field} be the field of {type} selected by {selection}
-- If {field} has arguments:
+- Let {field} be the field of {type} selected by {selection}.
+- If {field} declares an argument that is not annotated with `@require`:
+  - return true
+- If {selection} supplies arguments:
   - return true
 - If {selection} has a selection set:
-  - Let {subSelections} be the selections in {selection}
-  - Let {subType} be the return type of {field}
+  - Let {subType} be the return type of {field}.
+  - Let {subSelections} be the selections in the selection set of {selection}.
   - For each {subSelection} in {subSelections}:
-    - If {ProvidesHasArguments(subField, subSelection)} is true
+    - If {ProvidesHasArguments(subSelection, subType)} is true:
       - return true
+- return false
 
 **Explanatory Text**
 
 The `@provides` directive specifies fields that a resolver provides for the
-parent type. The `fields` argument must reference fields that do not have
+parent type. The `fields` argument must reference fields that do not declare
 arguments, as fields with arguments introduce variability that is incompatible
-with the consistent behavior expected of `@provides`.
+with the consistent behavior expected of `@provides`. Arguments annotated with
+`@require` are exempt, since they are supplied by the executor rather than
+chosen by the consumer. A selection within the `fields` argument must never
+supply arguments.
 
 Note: Unlike `@require`, which describes how to derive a value (and may
 therefore include constant arguments to disambiguate the selection), `@provides`
@@ -1955,6 +2011,23 @@ arguments would be meaningless here.
 type User @key(fields: "id") {
   id: ID!
   tags: [String]
+}
+
+type Article @key(fields: "id") {
+  id: ID!
+  author: User! @provides(fields: "tags")
+}
+```
+
+In this example, the `tags` field declares only an argument annotated with
+`@require`. Since its value is supplied by the executor, `tags` may still be
+referenced by the `@provides` selection.
+
+```graphql example
+type User @key(fields: "id") {
+  id: ID!
+  tags(limit: Int @require(field: "tagLimit")): [String]
+  tagLimit: Int
 }
 
 type Article @key(fields: "id") {
@@ -1981,6 +2054,22 @@ enum UserType {
 type Article @key(fields: "id") {
   id: ID!
   author: User! @provides(fields: "tags")
+}
+```
+
+In this counter-example, the `@provides` selection supplies arguments on `tags`,
+even though `tags` does not declare any. Selections within the `fields` argument
+must not supply arguments.
+
+```graphql counter-example
+type User @key(fields: "id") {
+  id: ID!
+  tags: [String]
+}
+
+type Article @key(fields: "id") {
+  id: ID!
+  author: User! @provides(fields: "tags(limit: 10)")
 }
 ```
 
@@ -6475,8 +6564,8 @@ type Person {
 }
 ```
 
-Note: Fields referenced by an `@is` selection map must not declare arguments
-(see [Is Fields Has Arguments](#sec-Is-Fields-Has-Arguments)).
+Note: An `@is` selection map must not supply arguments (see
+[Is Fields Has Arguments](#sec-Is-Fields-Has-Arguments)).
 
 ### Validate Require Directives
 

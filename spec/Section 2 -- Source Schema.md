@@ -387,10 +387,12 @@ establishes semantic equivalence between disparate type system members across
 source schemas and is used in cases where an argument does not directly align
 with a field on the _entity_ type.
 
-The fields referenced by an `@is` selection map must not declare arguments. The
-arguments of a lookup field represent a stable key of the entity, and a stable
-key must map to plain field values; a parameterized field cannot serve as part
-of a lookup key.
+An `@is` selection map must not supply arguments; the mapping must consist of
+plain field paths. The arguments of a lookup field represent a _stable key_ of
+the _entity_, and a _stable key_ must map to plain field values. A referenced
+field may still declare arguments, as long as each argument is nullable, has a
+default value, or is annotated with `@require`, so that the field can be
+resolved without any arguments being supplied.
 
 In the following example, the directive specifies that the `id` argument on the
 field `Query.personById` and the field `Person.id` on the return type of the
