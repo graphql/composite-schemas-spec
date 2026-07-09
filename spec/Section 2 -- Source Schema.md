@@ -526,6 +526,59 @@ input ProductDimensionInput {
 }
 ```
 
+The `@require` directive can also be applied to arguments on interface fields.
+The selection map is rooted at the interface type and is evaluated against the
+concrete runtime object. The annotation must be applied consistently on the
+interface field and on the corresponding argument of every implementing field.
+The selection maps themselves may differ, and an implementing type may derive
+the required value from implementation-specific fields.
+
+```graphql example
+interface Account {
+  id: ID!
+  preferredLocale: String
+  displayName(locale: String @require(field: "preferredLocale")): String
+}
+
+type User implements Account {
+  id: ID!
+  preferredLocale: String
+  displayName(locale: String @require(field: "preferredLocale")): String
+}
+
+type Organization implements Account {
+  id: ID!
+  preferredLocale: String
+  billingLocale: String
+  displayName(locale: String @require(field: "billingLocale")): String
+}
+```
+
+Since the annotation is consistent, composition removes the `locale` argument
+from the interface field and from all implementing fields together, keeping the
+interface contract of the _composite schema_ intact.
+
+```graphql example
+interface Account {
+  id: ID!
+  preferredLocale: String
+  displayName: String
+}
+
+type User implements Account {
+  id: ID!
+  preferredLocale: String
+  displayName: String
+}
+
+type Organization implements Account {
+  id: ID!
+  preferredLocale: String
+  billingLocale: String
+  displayName: String
+}
+```
+
 Fields referenced by a `@require` selection map may declare arguments. Unlike
 `@key`, `@provides`, and `@is`, which must reference plain fields, a `@require`
 selection map derives an input value and may therefore select fields with
