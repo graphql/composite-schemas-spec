@@ -390,6 +390,13 @@ establishes semantic equivalence between disparate type system members across
 source schemas and is used in cases where an argument does not directly align
 with a field on the _entity_ type.
 
+An `@is` selection map must not supply arguments; the mapping must consist of
+plain field paths. The arguments of a lookup field represent a _stable key_ of
+the _entity_, and a _stable key_ must map to plain field values. A referenced
+field may still declare arguments, as long as each argument is nullable, has a
+default value, or is annotated with `@require`, so that the field can be
+resolved without any arguments being supplied.
+
 In the following example, the directive specifies that the `id` argument on the
 field `Query.personById` and the field `Person.id` on the return type of the
 field are semantically the same.
@@ -516,6 +523,32 @@ type ProductDimension {
 input ProductDimensionInput {
   productSize: Int!
   productWeight: Int!
+}
+```
+
+Fields referenced by a `@require` selection map may declare arguments. Unlike
+`@key`, `@provides`, and `@is`, which must reference plain fields, a `@require`
+selection map derives an input value and may therefore select fields with
+constant arguments. Argument values must be constant literals; variables are not
+permitted.
+
+In the following example, the `weight` argument of the `shippingCost` field is
+derived from the `weight` field defined in another source schema, selected with
+the constant `IMPERIAL` value for the `unit` argument.
+
+```graphql example
+# Source Schema A
+type Product @key(fields: "id") {
+  id: ID!
+  shippingCost(
+    weight: Float @require(field: "weight(unit: IMPERIAL)")
+  ): Currency
+}
+
+# Source Schema B
+type Product @key(fields: "id") {
+  id: ID!
+  weight(unit: WeightUnit!): Float
 }
 ```
 
