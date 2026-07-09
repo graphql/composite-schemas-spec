@@ -518,26 +518,39 @@ ERROR
 
 **Formal Specification**
 
-- Let {types} be the set of all composite types (object, interface) in the
-  schema
+- Let {schema} be the source schema to validate.
+- Let {types} be the set of all composite types (object, interface) in {schema}.
 - For each {type} in {types}:
   - Let {fields} be the set of fields for {type}.
   - For each {field} in {fields}:
     - If {field} is marked with `@external`:
-      - Let {referencingFields} be the set of fields in {schema} that reference
-        {type}.
-      - {referencingFields} must contain at least one field that references
-        {field} in `@provides`
+      - Let {keyReferences} be the set of `@key` directives on types in {schema}
+        whose `fields` selection selects {field}, including through nested
+        selections.
+      - Let {providesReferences} be the set of `@provides` directives on fields
+        in {schema} whose `fields` selection selects {field}, including through
+        nested selections.
+      - The union of {keyReferences} and {providesReferences} must not be empty.
 
 **Explanatory Text**
 
-This rule ensures that every field marked as `@external` in a source schema is
-actually used by that source schema in a `@provides` directive.
+A field marked with `@external` is not resolved by the declaring source schema;
+it is declared so that the source schema can reference it for composition
+purposes. There are exactly two such purposes: entity identification, where the
+field is selected by a `@key` directive, and field provision, where the field is
+selected by a `@provides` directive. An `@external` field that is referenced by
+neither `@key` nor `@provides` serves no purpose and is likely a leftover from
+an incomplete refactoring; this rule reports it as an error.
+
+Note: `@require` and `@is` express requirements through a `FieldSelectionMap`
+that is resolved against data provided by other source schemas; they do not rely
+on a local `@external` field declaration. References within `@require` or `@is`
+therefore do not count as usage of an `@external` field.
 
 **Examples**
 
-In this example, the `name` field is marked with `@external` and is used by the
-`@provides` directive, satisfying the rule:
+In this example, the `name` field is marked with `@external` and is referenced
+by the `@provides` directive, satisfying the rule:
 
 ```graphql example
 # Source schema A
@@ -551,8 +564,26 @@ type Query {
 }
 ```
 
-In this example, the `name` field is marked with `@external` but is not used by
-a `@provides` directive, violating the rule:
+In this example, the `sku` and `upc` fields are marked with `@external` and are
+each referenced by a `@key` directive on their declaring type, satisfying the
+rule:
+
+```graphql example
+# Source schema A
+type Product @key(fields: "sku") @key(fields: "upc") {
+  sku: String! @external
+  upc: String! @external
+  name: String
+}
+
+type Query {
+  productBySku(sku: String!): Product @lookup
+  productByUpc(upc: String!): Product @lookup
+}
+```
+
+In this example, the `name` field is marked with `@external` but is referenced
+by neither a `@key` directive nor a `@provides` directive, violating the rule:
 
 ```graphql counter-example
 # Source schema A
