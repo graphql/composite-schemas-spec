@@ -9,10 +9,12 @@ words:
   - monospace
   - openwebfoundation
   - parallelization
+  - plannable
   - structs
   - subselection
   - supergraph
   - subraphs
+  - worklist
   - mergeable
   - birthdate
   - Satisfiability
