@@ -740,7 +740,7 @@ type Query {
 The `@provides` directive is an execution-time optimization and never a
 requirement for resolvability. Composition validates that every query path of
 the composite schema remains satisfiable with all `@provides` directives
-ignored. A `@provides` allows the _distributed GraphQL executor_ to obtain the
+ignored. A `@provides` directive allows the _distributed GraphQL executor_ to obtain the
 selected fields in the same response and thereby reduce the number of source
 schema requests, but the selected fields must remain resolvable without it.
 
