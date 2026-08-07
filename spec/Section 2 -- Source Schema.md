@@ -898,10 +898,11 @@ type Review {
 A stand-in must declare a `@key` that matches one of the keys declared on the
 interface.
 
-A stand-in is not required to declare a lookup field. Without a lookup, the
-executor cannot fetch the stand-in's fields for values resolved elsewhere,
-unless another effective owner of a shareable field is reachable instead. Such a
-stand-in usually declares only its key fields and serves as a typed entry point.
+A stand-in is not required to declare a lookup field. Without one, each non-key
+field must either be `@shareable` with another effective owner reachable from
+every context that needs the field, or be replaced with `@implement` on every
+implementing type. A stand-in that declares only key fields serves as a typed
+reference to the entity.
 
 ```graphql example
 # Source Schema A
