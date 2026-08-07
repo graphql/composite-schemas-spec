@@ -2570,6 +2570,92 @@ type Profile {
 }
 ```
 
+#### Require Invalid Usage
+
+**Error Code**
+
+`REQUIRE_INVALID_USAGE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {compositeTypes} be the set of all composite types in {schema}.
+- For each {compositeType} in {compositeTypes}:
+  - Let {fields} be the set of fields on {compositeType}.
+  - For each {field} in {fields}:
+    - If {field} is annotated with `@lookup`:
+      - Let {arguments} be the set of all arguments on {field}.
+      - For each {argument} in {arguments}:
+        - {argument} must **not** be annotated with `@require`
+
+**Explanatory Text**
+
+The arguments of a lookup field represent the stable key with which the
+_distributed GraphQL executor_ resolves an entity. Their values are supplied
+from an existing representation of the entity - either directly by argument name
+or through an `@is` mapping - before the lookup is executed.
+
+The `@require` directive, in contrast, expresses a data dependency of a field
+that is resolved in the context of an existing parent object. A lookup field is
+used to establish that context in the first place; for a lookup field reachable
+from the root `Query` type, no parent entity exists from which a requirement
+could be fulfilled. The satisfiability validation likewise describes lookup
+inputs solely through `@is` mappings or argument names; an argument annotated
+with `@require` has no defined contribution to a lookup.
+
+Therefore, annotating an argument of a lookup field with `@require` is invalid
+and raises a `REQUIRE_INVALID_USAGE` error.
+
+**Examples**
+
+In the following example, the lookup field `productById` resolves `Product` by
+its stable key, and the requirement is declared on the argument of an ordinary
+field, satisfying the rule.
+
+```graphql example
+# Source Schema A
+type Query {
+  productById(id: ID!): Product @lookup
+}
+
+type Product @key(fields: "id") {
+  id: ID!
+  shippingCost(weight: Float @require(field: "shippingWeight")): Currency
+}
+
+# Source Schema B
+type Product @key(fields: "id") {
+  id: ID!
+  shippingWeight: Float
+}
+```
+
+In the following counter-example, the `locale` argument of the lookup field
+`productById` is annotated with `@require`, violating the rule.
+
+```graphql counter-example
+# Source Schema A
+type Query {
+  productById(
+    id: ID!
+    locale: String @require(field: "defaultLocale")
+  ): Product @lookup
+}
+
+type Product @key(fields: "id") {
+  id: ID!
+}
+
+# Source Schema B
+type Query {
+  defaultLocale: String
+}
+```
+
 #### Require Inconsistent on Implementation
 
 **Error Code**

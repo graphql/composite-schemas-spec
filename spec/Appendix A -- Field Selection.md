@@ -527,11 +527,11 @@ The following example is equivalent to the previous one:
 
 ```graphql example
 type Product {
-  dimensions: Dimension!
+  dimension: Dimension!
   shippingCost(
-    dimensions: DimensionInput!
-      @require(field: "{ size: dimensions.size, weight: dimensions.weight }")
-  ): Int! @lookup
+    dimension: DimensionInput!
+      @require(field: "{ size: dimension.size, weight: dimension.weight }")
+  ): Int!
 }
 ```
 

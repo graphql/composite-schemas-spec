@@ -605,6 +605,12 @@ type Product @key(fields: "id") {
 }
 ```
 
+The `@require` directive must not be used on arguments of fields annotated with
+`@lookup`. The arguments of a lookup field represent the stable key with which
+the _distributed executor_ resolves an entity; they are supplied from an
+existing representation of the entity, and a requirement has no defined meaning
+in that position.
+
 **Arguments:**
 
 - `field`: Represents a selection path map syntax.
