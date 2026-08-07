@@ -1,8 +1,0 @@
-type Query {
-  someTypeById(id: ID!): SomeType
-}
-
-type SomeType @baseType(of: "MyInterface") {
-  id: ID!
-  newField: String
-}

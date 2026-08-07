@@ -1,8 +1,0 @@
-type Query {
-  userById(id: ID!): User
-}
-
-type User {
-  id: ID
-  friends(id: ID! @requires(field: id)): [User!]! # i think this should be an error
-}

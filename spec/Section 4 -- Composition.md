@@ -518,26 +518,39 @@ ERROR
 
 **Formal Specification**
 
-- Let {types} be the set of all composite types (object, interface) in the
-  schema
+- Let {schema} be the source schema to validate.
+- Let {types} be the set of all composite types (object, interface) in {schema}.
 - For each {type} in {types}:
   - Let {fields} be the set of fields for {type}.
   - For each {field} in {fields}:
     - If {field} is marked with `@external`:
-      - Let {referencingFields} be the set of fields in {schema} that reference
-        {type}.
-      - {referencingFields} must contain at least one field that references
-        {field} in `@provides`
+      - Let {keyReferences} be the set of `@key` directives on types in {schema}
+        whose `fields` selection selects {field}, including through nested
+        selections.
+      - Let {providesReferences} be the set of `@provides` directives on fields
+        in {schema} whose `fields` selection selects {field}, including through
+        nested selections.
+      - The union of {keyReferences} and {providesReferences} must not be empty.
 
 **Explanatory Text**
 
-This rule ensures that every field marked as `@external` in a source schema is
-actually used by that source schema in a `@provides` directive.
+A field marked with `@external` is not resolved by the declaring source schema;
+it is declared so that the source schema can reference it for composition
+purposes. There are exactly two such purposes: entity identification, where the
+field is selected by a `@key` directive, and field provision, where the field is
+selected by a `@provides` directive. An `@external` field that is referenced by
+neither `@key` nor `@provides` serves no purpose and is likely a leftover from
+an incomplete refactoring; this rule reports it as an error.
+
+Note: `@require` and `@is` express requirements through a `FieldSelectionMap`
+that is resolved against data provided by other source schemas; they do not rely
+on a local `@external` field declaration. References within `@require` or `@is`
+therefore do not count as usage of an `@external` field.
 
 **Examples**
 
-In this example, the `name` field is marked with `@external` and is used by the
-`@provides` directive, satisfying the rule:
+In this example, the `name` field is marked with `@external` and is referenced
+by the `@provides` directive, satisfying the rule:
 
 ```graphql example
 # Source schema A
@@ -551,8 +564,26 @@ type Query {
 }
 ```
 
-In this example, the `name` field is marked with `@external` but is not used by
-a `@provides` directive, violating the rule:
+In this example, the `sku` and `upc` fields are marked with `@external` and are
+each referenced by a `@key` directive on their declaring type, satisfying the
+rule:
+
+```graphql example
+# Source schema A
+type Product @key(fields: "sku") @key(fields: "upc") {
+  sku: String! @external
+  upc: String! @external
+  name: String
+}
+
+type Query {
+  productBySku(sku: String!): Product @lookup
+  productByUpc(upc: String!): Product @lookup
+}
+```
+
+In this example, the `name` field is marked with `@external` but is referenced
+by neither a `@key` directive nor a `@provides` directive, violating the rule:
 
 ```graphql counter-example
 # Source schema A
@@ -920,7 +951,7 @@ ERROR
 **Explanatory Text**
 
 When using the `@is` directive, the `field` argument must always be a string
-that describes how the arguments can be mapped from the entity type that the
+that describes how the arguments can be mapped from the _entity_ type that the
 lookup field resolves. If the `field` argument is provided as a type other than
 a string (such as an integer, boolean, or enum), the directive usage is invalid
 and will cause schema composition to fail.
@@ -1013,6 +1044,100 @@ type Person {
 }
 ```
 
+#### Is Fields Has Arguments
+
+**Error Code**
+
+`IS_FIELDS_HAS_ARGUMENTS`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {compositeTypes} be the set of all composite types in {schema}.
+- For each {compositeType} in {compositeTypes}:
+  - Let {fields} be the set of fields on {compositeType}.
+  - For each {field} in {fields}:
+    - Let {arguments} be the set of arguments on {field}.
+    - For each {argument} in {arguments}:
+      - If {argument} is **not** annotated with `@is`:
+        - Continue
+      - Let {selectionMap} be the parsed selection map of the `field` argument
+        of the `@is` directive on {argument}.
+      - Each selection in {selectionMap}, including nested selections and path
+        segments, must **not** supply arguments.
+
+**Explanatory Text**
+
+The arguments of a lookup field represent the _stable key_ with which the
+_distributed GraphQL executor_ recalls an _entity_, and the `@is` directive maps
+each argument to a field of the _entity_. Such a mapping must consist of plain
+field paths; supplying arguments within an `@is` selection map is not allowed.
+
+A referenced field may still declare arguments, as long as each argument is
+nullable, has a default value, or is annotated with `@require` and therefore
+supplied by the executor. Such a field can be resolved without any arguments
+being supplied. A field that requires an argument cannot be referenced by an
+`@is` selection map, since the map cannot supply one (see
+[Is Invalid Fields](#sec-Is-Invalid-Fields) and the argument validation rules in
+Appendix A).
+
+The same applies to `@key` (see
+[Key Fields Has Arguments](#sec-Key-Fields-Has-Arguments)). `@provides`
+selections must reference fields that declare no arguments other than
+`@require`-annotated ones (see
+[Provides Fields Has Arguments](#sec-Provides-Fields-Has-Arguments)). Only
+`@require` selection maps may supply constant arguments, as they derive input
+values rather than keys.
+
+**Examples**
+
+In this example, the `id` argument of the lookup field is mapped to the plain
+`id` field of `Product`, satisfying the rule.
+
+```graphql example
+type Query {
+  productById(id: ID! @is(field: "id")): Product @lookup
+}
+
+type Product {
+  id: ID!
+  name: String
+}
+```
+
+In this example, the referenced field `id` declares the nullable `scope`
+argument. Since `scope` can be omitted, `id` can be resolved without supplying
+an argument and may be referenced by the `@is` selection map.
+
+```graphql example
+type Query {
+  productById(id: ID! @is(field: "id")): Product @lookup
+}
+
+type Product {
+  id(scope: IdScope): ID!
+  name: String
+}
+```
+
+In this counter-example, the `@is` selection map supplies an argument on `id`,
+violating the rule.
+
+```graphql counter-example
+type Query {
+  productByLocalId(id: ID! @is(field: "id(scope: LOCAL)")): Product @lookup
+}
+
+type Product {
+  id(scope: IdScope): ID!
+  name: String
+}
+```
+
 ### Validate Key Directives
 
 #### Key Fields Select Invalid Type
@@ -1041,10 +1166,10 @@ ERROR
 **Explanatory Text**
 
 The `@key` directive is used to define the set of fields that uniquely identify
-an entity. These fields must reference scalars or object types to ensure a valid
-and consistent representation of the entity across schemas. Fields of types
-`List`, `Interface`, or `Union` cannot be part of a `@key` because they do not
-have a well-defined unique value.
+an _entity_. These fields must reference scalars or object types to ensure a
+valid and consistent representation of the _entity_ across schemas. Fields of
+types `List`, `Interface`, or `Union` cannot be part of a `@key` because they do
+not have a well-defined unique value.
 
 **Examples**
 
@@ -1122,9 +1247,9 @@ ERROR
 **Explanatory Text**
 
 The `@key` directive specifies the set of fields used to uniquely identify an
-entity. The `fields` argument must consist of a valid GraphQL selection set that
-does not include any directive applications. Directives in the `fields` argument
-are not supported.
+_entity_. The `fields` argument must consist of a valid GraphQL selection set
+that does not include any directive applications. Directives in the `fields`
+argument are not supported.
 
 **Examples**
 
@@ -1167,11 +1292,11 @@ type FullName {
 }
 ```
 
-#### Key Invalid Arguments
+#### Key Fields Has Arguments
 
 **Error Code**
 
-`KEY_INVALID_ARGUMENTS`
+`KEY_FIELDS_HAS_ARGUMENTS`
 
 **Severity**
 
@@ -1179,54 +1304,53 @@ ERROR
 
 **Formal Specification**
 
-- Let {types} be the set of all object types that are annotated with the `@key`
-  directive in the schema.
+- Let {types} be the set of all object and interface types in the schema that
+  are annotated with the `@key` directive.
 - For each {type} in {types}:
-  - Let {keyFields} be the set of fields referenced by the `fields` argument of
-    the `@key` directive on {type}.
-  - For each {selection} in {keyFields}:
-    - {ValidateKeyFieldArguments(selection)} must be true.
+  - Let {keyDirectives} be the set of all `@key` directives on {type}.
+  - For each {keyDirective} in {keyDirectives}:
+    - Let {selections} be the field selections of the `fields` argument of
+      {keyDirective}.
+    - For each {selection} in {selections}:
+      - {KeyFieldsHasArguments(selection, type)} must be false.
 
-ValidateKeyFieldArguments(selection):
+KeyFieldsHasArguments(selection, type):
 
-- Let {field} be the field referenced by {selection}.
-- Let {argumentDefinitions} be the set of argument definitions of {field}.
-- Let {arguments} be the set of arguments provided by {selection}.
-- For each {argument} in {arguments}:
-  - Let {argumentName} be the {Name} of {argument}.
-  - Let {argumentDefinition} be the argument definition in {argumentDefinitions}
-    named {argumentName}.
-  - {argumentDefinition} must exist.
-  - Let {value} be the {Value} of {argument}.
-  - {value} must not contain a {Variable}.
-  - {value} must be coercible to the type of {argumentDefinition}.
-- For each {argumentDefinition} in {argumentDefinitions}:
-  - Let {type} be the expected type of {argumentDefinition}.
-  - Let {defaultValue} be the default value of {argumentDefinition}.
-  - If {type} is Non-Null and {defaultValue} does not exist:
-    - Let {argumentName} be the name of {argumentDefinition}.
-    - An {argument} in {arguments} named {argumentName} must exist.
+- Let {field} be the field of {type} selected by {selection}.
+- If {selection} supplies arguments:
+  - return true
+- For each {argumentDefinition} declared by {field}:
+  - If the type of {argumentDefinition} is Non-Null, {argumentDefinition} has no
+    default value, and {argumentDefinition} is not annotated with `@require`:
+    - return true
 - If {selection} has a selection set:
-  - Let {subSelections} be the set of all selections in the selection set of
-    {selection}.
+  - Let {subType} be the return type of {field}.
+  - Let {subSelections} be the selections in the selection set of {selection}.
   - For each {subSelection} in {subSelections}:
-    - {ValidateKeyFieldArguments(subSelection)} must be true.
-- return true
+    - If {KeyFieldsHasArguments(subSelection, subType)} is true:
+      - return true
+- return false
 
 **Explanatory Text**
 
-The `@key` directive is used to define the set of fields that uniquely identify
-an entity. Fields included in the `fields` argument of the `@key` directive may
-accept arguments, provided the supplied values are constant literals — variables
-are not permitted, since a key must be statically resolvable from the schema
-alone. The constants must satisfy the field's argument definitions: argument
-names must be defined on the field, values must be coercible to the
-corresponding argument types, and required arguments without defaults must be
-supplied.
+The `@key` directive designates the fields that form a _stable key_ of an
+_entity_. Selections within the `fields` argument must not supply arguments: a
+_stable key_ must consist of plain field values that identify an _entity_
+deterministically, and the _distributed GraphQL executor_ resolves key fields
+without supplying any arguments.
 
-A key may include an argument-bearing field as long as the supplied constants
-make the resolution deterministic. For example, `id(scope: LOCAL)` is a valid
-key field — the entity is identified by its locally-scoped `id`.
+A referenced field may still declare arguments, as long as each argument is
+nullable, has a default value, or is annotated with `@require` and therefore
+supplied by the executor. Such a field can be resolved without any arguments
+being supplied. A field that requires an argument cannot be part of a _stable
+key_ because it cannot be resolved without one.
+
+The same applies to `@is` (see
+[Is Fields Has Arguments](#sec-Is-Fields-Has-Arguments)). `@provides` selections
+must reference fields that declare no arguments other than `@require`-annotated
+ones (see [Provides Fields Has Arguments](#sec-Provides-Fields-Has-Arguments)).
+Only `@require` selection maps may supply constant arguments, as they derive
+input values rather than keys.
 
 **Examples**
 
@@ -1241,41 +1365,34 @@ type User @key(fields: "id name") {
 }
 ```
 
-In this example, the `Product` type has a valid `@key` directive that supplies a
-constant argument to parameterize the key field.
+In this example, the `@key` directive references the field `tags`, which
+declares the optional `limit` argument. Since `limit` can be omitted, `tags` can
+be resolved without supplying an argument and may be part of the key.
 
 ```graphql example
-type Product @key(fields: "id(scope: LOCAL)") {
-  id(scope: IdScope!): ID!
-  name: String
+type User @key(fields: "id tags") {
+  id: ID!
+  tags(limit: Int = 10): [String]
 }
 ```
 
-In this counter-example, the `@key` directive references a field (`tags`) but
-fails to supply the required `limit` argument:
+In this counter-example, the key selection supplies arguments on `id`.
+Selections within the `fields` argument must not supply arguments.
+
+```graphql counter-example
+type User @key(fields: "id(scope: LOCAL)") {
+  id: ID!
+}
+```
+
+In this counter-example, the `@key` directive references the field `tags`, which
+requires the `limit` argument. Since `limit` can neither be omitted nor supplied
+by the key selection, `tags` cannot be part of a key.
 
 ```graphql counter-example
 type User @key(fields: "id tags") {
   id: ID!
   tags(limit: Int!): [String]
-}
-```
-
-In this counter-example, the `@key` directive supplies an unknown argument
-(`scale`) on `id`:
-
-```graphql counter-example
-type Product @key(fields: "id(scale: LOCAL)") {
-  id(scope: IdScope!): ID!
-}
-```
-
-In this counter-example, the `@key` directive uses a variable, which is not
-permitted because keys must be statically resolvable:
-
-```graphql counter-example
-type Product @key(fields: "id(scope: $scope)") {
-  id(scope: IdScope!): ID!
 }
 ```
 
@@ -1303,7 +1420,7 @@ ERROR
 
 **Explanatory Text**
 
-Each `@key` directive must specify the fields that uniquely identify an entity
+Each `@key` directive must specify the fields that uniquely identify an _entity_
 using a valid GraphQL selection set in its `fields` argument. If the `fields`
 argument string is syntactically incorrect-missing closing braces, containing
 invalid tokens, or otherwise malformed - it cannot be composed into a valid
@@ -1379,8 +1496,8 @@ Even if the selection set for `@key(fields: "…")` is syntactically valid, fiel
 references within that selection set must also refer to **actual** fields on the
 annotated type. This includes nested selections, which must appear on the
 corresponding return type. If any referenced field is missing or incorrectly
-named, composition fails with a `KEY_INVALID_FIELDS` error because the entity
-key cannot be resolved correctly.
+named, composition fails with a `KEY_INVALID_FIELDS` error because the _stable
+key_ cannot be resolved correctly.
 
 **Examples**
 
@@ -1438,8 +1555,8 @@ fails to compose correctly because it cannot parse a valid field selection.
 **Examples**
 
 In this example, the `@key` directive's `fields` argument is the string
-`"id uuid"`, identifying two fields that form the object key. This usage is
-valid.
+`"id uuid"`, identifying two fields that form a composite _stable key_. This
+usage is valid.
 
 ```graphql example
 type User @key(fields: "id uuid") {
@@ -1485,15 +1602,15 @@ ERROR
 
 **Explanatory Text**
 
-Fields annotated with the `@lookup` directive identify a single entity by the
-arguments supplied to them. A lookup field that declares no arguments has no key
-with which to resolve an entity and cannot participate in composition. This rule
-reports such fields as invalid.
+Fields annotated with the `@lookup` directive identify a single _entity_ by the
+arguments supplied to them. A lookup field that declares no arguments has no
+_stable key_ with which to resolve an _entity_ and cannot participate in
+composition. This rule reports such fields as invalid.
 
 **Examples**
 
 For example, the following usage is valid because `productById` declares an
-argument that can be used to resolve a `Product` entity.
+argument that can be used to resolve a `Product` _entity_.
 
 ```graphql example
 type Query {
@@ -1508,7 +1625,7 @@ type Product {
 
 This counter-example demonstrates an invalid usage. The `product` field is
 annotated with `@lookup` but declares no arguments, so it cannot identify which
-entity to resolve.
+_entity_ to resolve.
 
 ```graphql counter-example
 type Query {
@@ -1543,21 +1660,21 @@ WARNING
 **Explanatory Text**
 
 Fields annotated with the `@lookup` directive are intended to retrieve a single
-entity based on provided arguments. To properly handle cases where the requested
-entity does not exist, such fields should have a nullable return type. This
-allows the field to return `null` when an entity matching the provided criteria
-is not found, following the standard GraphQL practices for representing missing
-data.
+_entity_ based on provided arguments. To properly handle cases where the
+requested _entity_ does not exist, such fields should have a nullable return
+type. This allows the field to return `null` when an _entity_ matching the
+provided criteria is not found, following the standard GraphQL practices for
+representing missing data.
 
-In a distributed system, it is likely that some entities will not be found on
+In a distributed system, it is likely that some _entities_ will not be found on
 other schemas, even when those schemas contribute fields to the type. Ensuring
 that `@lookup` fields have nullable return types also avoids GraphQL errors on
 schemas and prevents result erasure through non-null propagation. By allowing
-null to be returned when an entity is not found, the system can gracefully
+null to be returned when an _entity_ is not found, the system can gracefully
 handle missing data without causing exceptions or unexpected behavior.
 
 Ensuring that `@lookup` fields have nullable return types allows gateways to
-distinguish between cases where an entity is not found (receiving null) and
+distinguish between cases where an _entity_ is not found (receiving null) and
 other error conditions that may have to be propagated to the client.
 
 For example, the following usage is recommended:
@@ -1626,7 +1743,7 @@ IsListType(type):
 **Explanatory Text**
 
 Fields annotated with the `@lookup` directive are intended to retrieve a single
-entity based on provided arguments. To avoid ambiguity in entity resolution,
+_entity_ based on provided arguments. To avoid ambiguity in _entity_ resolution,
 such fields must return a single object and not a list. This validation rule
 enforces that any field annotated with `@lookup` must have a return type that is
 **NOT** a list.
@@ -2037,35 +2154,41 @@ ERROR
 - For each {field} in {fieldsWithProvides}:
   - Let {selections} be the field selections of the `fields` argument of the
     `@provides` directive on {field}.
-  - Let {type} be the return type of {field}
+  - Let {type} be the return type of {field}.
   - For each {selection} in {selections}:
-    - {ProvidesHasArguments(selection, type)} must be false
+    - {ProvidesHasArguments(selection, type)} must be false.
 
 ProvidesHasArguments(selection, type):
 
-- Let {field} be the field of {type} selected by {selection}
-- If {field} has arguments:
+- Let {field} be the field of {type} selected by {selection}.
+- If {field} declares an argument that is not annotated with `@require`:
+  - return true
+- If {selection} supplies arguments:
   - return true
 - If {selection} has a selection set:
-  - Let {subSelections} be the selections in {selection}
-  - Let {subType} be the return type of {field}
+  - Let {subType} be the return type of {field}.
+  - Let {subSelections} be the selections in the selection set of {selection}.
   - For each {subSelection} in {subSelections}:
-    - If {ProvidesHasArguments(subField, subSelection)} is true
+    - If {ProvidesHasArguments(subSelection, subType)} is true:
       - return true
+- return false
 
 **Explanatory Text**
 
 The `@provides` directive specifies fields that a resolver provides for the
-parent type. The `fields` argument must reference fields that do not have
+parent type. The `fields` argument must reference fields that do not declare
 arguments, as fields with arguments introduce variability that is incompatible
-with the consistent behavior expected of `@provides`.
+with the consistent behavior expected of `@provides`. Arguments annotated with
+`@require` are exempt, since they are supplied by the executor rather than
+chosen by the consumer. A selection within the `fields` argument must never
+supply arguments.
 
-Note: Unlike `@key`, `@is`, and `@require`, which describe how to derive or
-identify a value (and may therefore include constant arguments to disambiguate
-the selection), `@provides` advertises that the resolver returns the listed
-fields as part of its parent's selection set. Because the consumer chooses the
-arguments at query time, the resolver cannot pre-commit to a specific
-parameterization, and constant arguments would be meaningless here.
+Note: Unlike `@require`, which describes how to derive a value (and may
+therefore include constant arguments to disambiguate the selection), `@provides`
+advertises that the resolver returns the listed fields as part of its parent's
+selection set. Because the consumer chooses the arguments at query time, the
+resolver cannot pre-commit to a specific parameterization, and constant
+arguments would be meaningless here.
 
 **Examples**
 
@@ -2073,6 +2196,23 @@ parameterization, and constant arguments would be meaningless here.
 type User @key(fields: "id") {
   id: ID!
   tags: [String]
+}
+
+type Article @key(fields: "id") {
+  id: ID!
+  author: User! @provides(fields: "tags")
+}
+```
+
+In this example, the `tags` field declares only an argument annotated with
+`@require`. Since its value is supplied by the executor, `tags` may still be
+referenced by the `@provides` selection.
+
+```graphql example
+type User @key(fields: "id") {
+  id: ID!
+  tags(limit: Int @require(field: "tagLimit")): [String]
+  tagLimit: Int
 }
 
 type Article @key(fields: "id") {
@@ -2099,6 +2239,22 @@ enum UserType {
 type Article @key(fields: "id") {
   id: ID!
   author: User! @provides(fields: "tags")
+}
+```
+
+In this counter-example, the `@provides` selection supplies arguments on `tags`,
+even though `tags` does not declare any. Selections within the `fields` argument
+must not supply arguments.
+
+```graphql counter-example
+type User @key(fields: "id") {
+  id: ID!
+  tags: [String]
+}
+
+type Article @key(fields: "id") {
+  id: ID!
+  author: User! @provides(fields: "tags(limit: 10)")
 }
 ```
 
@@ -2568,6 +2724,206 @@ type Profile {
 }
 ```
 
+#### Require Invalid Usage
+
+**Error Code**
+
+`REQUIRE_INVALID_USAGE`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {compositeTypes} be the set of all composite types in {schema}.
+- For each {compositeType} in {compositeTypes}:
+  - Let {fields} be the set of fields on {compositeType}.
+  - For each {field} in {fields}:
+    - If {field} is annotated with `@lookup`:
+      - Let {arguments} be the set of all arguments on {field}.
+      - For each {argument} in {arguments}:
+        - {argument} must **not** be annotated with `@require`
+
+**Explanatory Text**
+
+The arguments of a lookup field represent the stable key with which the
+_distributed GraphQL executor_ resolves an entity. Their values are supplied
+from an existing representation of the entity - either directly by argument name
+or through an `@is` mapping - before the lookup is executed.
+
+The `@require` directive, in contrast, expresses a data dependency of a field
+that is resolved in the context of an existing parent object. A lookup field is
+used to establish that context in the first place; for a lookup field reachable
+from the root `Query` type, no parent entity exists from which a requirement
+could be fulfilled. The satisfiability validation likewise describes lookup
+inputs solely through `@is` mappings or argument names; an argument annotated
+with `@require` has no defined contribution to a lookup.
+
+Therefore, annotating an argument of a lookup field with `@require` is invalid
+and raises a `REQUIRE_INVALID_USAGE` error.
+
+**Examples**
+
+In the following example, the lookup field `productById` resolves `Product` by
+its stable key, and the requirement is declared on the argument of an ordinary
+field, satisfying the rule.
+
+```graphql example
+# Source Schema A
+type Query {
+  productById(id: ID!): Product @lookup
+}
+
+type Product @key(fields: "id") {
+  id: ID!
+  shippingCost(weight: Float @require(field: "shippingWeight")): Currency
+}
+
+# Source Schema B
+type Product @key(fields: "id") {
+  id: ID!
+  shippingWeight: Float
+}
+```
+
+In the following counter-example, the `locale` argument of the lookup field
+`productById` is annotated with `@require`, violating the rule.
+
+```graphql counter-example
+# Source Schema A
+type Query {
+  productById(
+    id: ID!
+    locale: String @require(field: "defaultLocale")
+  ): Product @lookup
+}
+
+type Product @key(fields: "id") {
+  id: ID!
+}
+
+# Source Schema B
+type Query {
+  defaultLocale: String
+}
+```
+
+#### Require Inconsistent on Implementation
+
+**Error Code**
+
+`REQUIRE_INCONSISTENT_ON_IMPLEMENTATION`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the source schema to validate.
+- Let {implementingTypes} be the set of all object and interface types in
+  {schema} that implement at least one interface.
+- For each {implementingType} in {implementingTypes}:
+  - Let {interfaces} be the set of interface types that {implementingType}
+    implements.
+  - For each {interface} in {interfaces}:
+    - Let {interfaceFields} be the set of fields on {interface}.
+    - For each {interfaceField} in {interfaceFields}:
+      - Let {implementingField} be the field on {implementingType} with the same
+        name as {interfaceField}.
+      - For each {interfaceArgument} in the arguments of {interfaceField}:
+        - Let {implementingArgument} be the argument on {implementingField} with
+          the same name as {interfaceArgument}.
+        - If {interfaceArgument} is annotated with `@require`:
+          - {implementingArgument} must be annotated with `@require`
+        - Otherwise:
+          - {implementingArgument} must **not** be annotated with `@require`
+
+**Explanatory Text**
+
+The `@require` directive may be applied to arguments of fields declared on
+interface types. The selection map is rooted at the interface type and is
+evaluated against the concrete runtime object: fields declared on the interface
+can be selected without type conditions, while fields of specific implementing
+types can be referenced through type conditions.
+
+GraphQL requires an implementing field to redeclare every argument of the
+interface field, and composition removes all arguments annotated with `@require`
+from the composite schema. The `@require` annotation must therefore be applied
+consistently across the interface contract: an argument is annotated with
+`@require` on the interface field and on the corresponding argument of every
+implementing field, or on neither. Consistent annotation removes the argument
+from the interface field and from all implementing fields together, so the
+composite schema retains a valid interface contract. Inconsistent annotation
+would remove the argument from only one side of the contract and break the
+composite schema.
+
+The selection maps of the interface field argument and of an implementing field
+argument may differ: each is validated against its own declaring type, and an
+implementing type may derive the required value from implementation-specific
+fields.
+
+Note: Cross-schema cases in which a merged interface field declares an argument
+that an implementing field lacks are detected after merging by
+[Interface Field Argument No Implementation](#sec-Interface-Field-Argument-No-Implementation).
+
+**Examples**
+
+In this example, the `locale` argument is annotated with `@require` on the
+interface field `Account.displayName` and on the implementing field
+`User.displayName`, satisfying the rule.
+
+```graphql example
+# Source Schema A
+interface Account {
+  id: ID!
+  displayName(locale: String @require(field: "preferredLocale")): String
+}
+
+type User implements Account @key(fields: "id") {
+  id: ID!
+  displayName(locale: String @require(field: "preferredLocale")): String
+}
+
+# Source Schema B
+interface Account {
+  id: ID!
+  preferredLocale: String
+}
+
+type User implements Account @key(fields: "id") {
+  id: ID!
+  preferredLocale: String
+}
+```
+
+In this counter-example, the `locale` argument is annotated with `@require` on
+the implementing field `User.displayName` but not on the interface field
+`Account.displayName`, violating the rule. The composite schema would declare
+`locale` on the interface field but not on the implementing field, breaking the
+interface contract.
+
+```graphql counter-example
+# Source Schema A
+interface Account {
+  id: ID!
+  displayName(locale: String): String
+}
+
+type User implements Account @key(fields: "id") {
+  id: ID!
+  displayName(locale: String @require(field: "preferredLocale")): String
+}
+
+# Source Schema B
+type User @key(fields: "id") {
+  id: ID!
+  preferredLocale: String
+}
+```
+
 ### Validate Shareable Directives
 
 #### Invalid Shareable Usage
@@ -2660,7 +3016,7 @@ type Subscription {
 ## Pre Merge Validation
 
 Prior to merging the schemas, additional validations are performed that require
-visibility into all source schemas but treat them as separate entities. This
+visibility into all source schemas but treat each source schema separately. This
 step detects conflicts such as incompatible fields or default argument values
 that would render the merged schema unusable. Detecting such conflicts early
 prevents errors that would otherwise be discovered during the merge process.
@@ -2849,15 +3205,15 @@ ERROR
 
 FieldsAreMergeable(fields):
 
-- Given each pair of members {fieldA} and {fieldB} in {fields}:
-  - Let {typeA} be the type of {fieldA}
-  - Let {typeB} be the type of {fieldB}
-  - {SameTypeShape(typeA, typeB)} must be true.
+- Let {fieldTypes} be the list of types of each field in {fields}.
+- {LeastRestrictiveType(fieldTypes)} must not fail.
 
 **Explanatory Text**
 
 Fields on objects or interfaces that have the same name are considered
-semantically equivalent and mergeable when they have a mergeable field type.
+semantically equivalent and mergeable when {LeastRestrictiveType(fieldTypes)}
+can select a return type for the composed field. This selection considers all
+field types together and must not depend on source schema order.
 
 Fields with the same type are mergeable.
 
@@ -2898,7 +3254,8 @@ type User {
 }
 ```
 
-Fields are not mergeable if the named types are different in kind or name.
+Fields with leaf return types are not mergeable if the named types differ, or if
+the same name is used with a different kind.
 
 ```graphql counter-example
 type User {
@@ -2924,6 +3281,69 @@ type User {
 }
 
 scalar Tag
+```
+
+Fields with composite return types are mergeable when one of the declared return
+types is a supertype of all other declared return types. The composed field uses
+that supertype, regardless of the order in which the source schemas are
+processed.
+
+```graphql example
+# Schema A
+type Query @shareable {
+  featured: FeaturedItem
+}
+
+union FeaturedItem = Product
+
+type Product @shareable {
+  id: ID
+}
+
+# Schema B
+type Query @shareable {
+  featured: Product
+}
+
+type Product @shareable {
+  id: ID
+}
+
+# Composed Result
+type Query {
+  featured: FeaturedItem
+}
+
+union FeaturedItem = Product
+
+type Product {
+  id: ID
+}
+```
+
+Fields with composite return types are not mergeable when no declared return
+type is a supertype of all other declared return types.
+
+```graphql counter-example
+# Schema A
+type Query @shareable {
+  featured: FeaturedItem
+}
+
+union FeaturedItem = Product
+
+type Product @shareable {
+  id: ID
+}
+
+# Schema B
+type Query @shareable {
+  featured: Review
+}
+
+type Review @shareable {
+  id: ID
+}
 ```
 
 #### Field Argument Types Mergeable
@@ -3430,244 +3850,6 @@ In this invalid case, `title` is mandatory in Schema A but not defined in Schema
 B, causing inconsistency in required fields across schemas.
 
 ### Validate External Directives
-
-#### External Argument Default Mismatch
-
-**Error Code**
-
-`EXTERNAL_ARGUMENT_DEFAULT_MISMATCH`
-
-**Severity**
-
-ERROR
-
-**Formal Specification**
-
-- Let {typeNames} be the set of all output type names from all source schemas.
-- For each {typeName} in {typeNames}
-  - Let {types} be the set of all types with the name {typeName} from all source
-    schemas.
-  - Let {fieldNames} be the set of all field names from all types in {types}.
-  - For each {fieldName} in {fieldNames}
-    - Let {fields} be the set of all fields with the name {fieldName} from all
-      types in {types}.
-    - Let {externalFields} be the set of all fields in {fields} that are marked
-      with `@external`.
-    - If {externalFields} is not empty
-      - Let {argumentNames} be the set of all argument names from all fields in
-        {fields}.
-      - For each {argumentName} in {argumentNames}
-        - Let {arguments} be the set of all arguments with the name
-          {argumentName} from all fields in {fields}.
-        - Let {defaultValues} be all default values found in {arguments}.
-        - Let {externalArguments} be the set of all arguments with the name
-          {argumentName} from all fields in {externalFields}.
-        - For each {externalArgument} in {externalArguments}
-          - The default value of {externalArgument} must be equal to all
-            {defaultValues}.
-
-**Explanatory Text**
-
-This rule ensures that arguments on fields marked as `@external` have default
-values compatible with the corresponding arguments on fields from other source
-schemas where the field is defined (non-`@external`). Since `@external` fields
-represent fields that are resolved by other source schemas, their arguments and
-defaults must match to maintain consistent behavior across different source
-schemas.
-
-Here, the `name` field on `Product` is defined in one source schema and marked
-as `@external` in another. The argument `language` has the same default value in
-both source schemas, satisfying the rule:
-
-```graphql example
-# Source schema A
-type Product {
-  name(language: String = "en"): String
-}
-
-# Source schema B
-type Product {
-  name(language: String = "en") @external: String
-}
-```
-
-Here, the `name` field on `Product` is defined in one source schema and marked
-as `@external` in another. The argument `language` has different default values
-in the two source schemas, violating the rule:
-
-```graphql counter-example
-# Source schema A
-type Product {
-  name(language: String = "en"): String
-}
-
-# Source schema B
-type Product {
-  name(language: String = "de") @external: String
-}
-```
-
-In the following counter example, the `name` field on `Product` is defined in
-one source schema and marked as `@external` in another. The argument `language`
-has a default value in the source schema where the field is defined, but it does
-not have a default value in the source schema where the field is marked as
-`@external`, violating the rule:
-
-```graphql counter-example
-# Source schema A
-type Product {
-  name(language: String = "en"): String
-}
-
-# Source schema B
-type Product {
-  name(language: String): String @external
-}
-```
-
-#### External Argument Missing
-
-**Error Code**
-
-`EXTERNAL_ARGUMENT_MISSING`
-
-**Severity**
-
-ERROR
-
-**Formal Specification**
-
-- Let {typeNames} be the set of all output type names from all source schemas.
-- For each {typeName} in {typeNames}
-  - Let {types} be the set of all types with the name {typeName} from all source
-    schemas.
-  - Let {fieldNames} be the set of all field names from all types in {types}.
-  - For each {fieldName} in {fieldNames}
-    - Let {fields} be the set of all fields with the name {fieldName} from all
-      types in {types}.
-    - Let {externalFields} be the set of all fields in {fields} that are marked
-      with `@external`.
-    - Let {nonExternalFields} be the set of all fields in {fields} that are not
-      marked with `@external`.
-    - If {externalFields} is not empty
-      - Let {argumentNames} be the set of all argument names from all fields in
-        {nonExternalFields}
-      - For each {argumentName} in {argumentNames}:
-        - For each {externalField} in {externalFields}
-          - {argumentName} must be present in the arguments of {externalField}.
-
-**Explanatory Text**
-
-This rule ensures that fields marked with `@external` have all the necessary
-arguments that exist on the corresponding field definitions in other source
-schemas. Each argument defined on the base field (the field definition in the
-defining source schema) must be present on the `@external` field in other source
-schemas. If an argument is missing on an `@external` field, the field cannot be
-resolved correctly, which is an inconsistency.
-
-In this example, the `language` argument is present on both the `@external`
-field in source schema B and the base field in source schema A, satisfying the
-rule:
-
-```graphql example
-# Source schema A
-type Product {
-  name(language: String): String
-}
-
-# Source schema B
-type Product {
-  name(language: String): String @external
-}
-```
-
-Here, the `@external` field in source schema B is missing the `language`
-argument that is present in the base field definition in source schema A,
-violating the rule:
-
-```graphql counter-example
-# Source schema A
-type Product {
-  name(language: String): String
-}
-
-# Source schema B
-type Product {
-  name: String @external
-}
-```
-
-#### External Argument Type Mismatch
-
-**Error Code**
-
-`EXTERNAL_ARGUMENT_TYPE_MISMATCH`
-
-**Severity**
-
-ERROR
-
-**Formal Specification**
-
-- Let {typeNames} be the set of all output type names from all source schemas.
-- For each {typeName} in {typeNames}
-  - Let {types} be the set of all types with the name {typeName} from all source
-    schemas.
-  - Let {fieldNames} be the set of all field names from all types in {types}.
-  - For each {fieldName} in {fieldNames}
-    - Let {fields} be the set of all fields with the name {fieldName} from all
-      types in {types}.
-    - Let {externalFields} be the set of all fields in {fields} that are marked
-      with `@external`.
-    - Let {nonExternalFields} be the set of all fields in {fields} that are not
-      marked with `@external`.
-    - If {externalFields} is not empty
-      - Let {argumentNames} be the set of all argument names from all fields in
-        {nonExternalFields}
-      - For each {argumentName} in {argumentNames}:
-        - For each {externalField} in {externalFields}
-          - Let {externalArgument} be the argument with the name {argumentName}
-            from {externalField}.
-          - {externalArgument} must strictly equal all arguments with the name
-            {argumentName} from {nonExternalFields}.
-
-**Explanatory Text**
-
-This rule ensures that arguments on fields marked as `@external` have types
-compatible with the corresponding arguments on the fields defined in other
-source schemas. The arguments must have the exact same type signature, including
-nullability and list nesting.
-
-Here, the `@external` field's `language` argument has the same type (`Language`)
-as the base field, satisfying the rule:
-
-```graphql example
-# Source schema A
-type Product {
-  name(language: Language): String
-}
-
-# Source schema B
-type Product {
-  name(language: Language): String @external
-}
-```
-
-In this example, the `@external` field's `language` argument type does not match
-the base field's `language` argument type (`Language` vs. `String`), violating
-the rule:
-
-```graphql example
-# Source schema A
-type Product {
-  name(language: Language): String
-}
-
-# Source schema B
-type Product {
-  name(language: String): String @external
-}
-```
 
 #### External Missing on Base
 
@@ -4795,11 +4977,10 @@ MergeOutputFields(fields):
   - Return {null}
 - Let {firstField} be the first field in {fields}.
 - Let {fieldName} be the name of {firstField}.
-- Let {fieldType} be the type of {firstField}.
+- Let {fieldTypes} be the list of types of each field in {fields}.
+- Let {fieldType} be the result of {LeastRestrictiveType(fieldTypes)}.
 - Let {description} be the description of {firstField}.
 - For each {field} in {fields}:
-  - Let {type} be the type of {field}.
-  - Set {fieldType} to be the result of {LeastRestrictiveType(fieldType, type)}.
   - If {description} is {null}:
     - Let {description} be the description of {field}.
 - Let {mergedArguments} be an empty set.
@@ -4853,11 +5034,12 @@ description.
 _Determining the Field Type_
 
 The return type of the composed field is determined by invoking
-{LeastRestrictiveType(typeA, typeB)}. This helper function computes a type that
-is compatible with all the provided field types, ensuring that the composed
-schema does not break schemas expecting any of those types. For example,
-{LeastRestrictiveType(typeA, typeB)} might unify `String!` and `String` into
-`String`.
+{LeastRestrictiveType(fieldTypes)} with the complete list of field return types.
+This helper function computes a type that is compatible with all the provided
+field types, ensuring that the composed schema does not break schemas expecting
+any of those types. The calculation is order-independent. For example,
+{LeastRestrictiveType(fieldTypes)} might unify `String!` and `String` into
+`String`, or `A` and `U` into `U` when `U` is a union that contains `A`.
 
 _Merging Arguments_
 
@@ -5010,8 +5192,8 @@ fields. If no description is found, the merged field will have no description.
 
 _Combining Field Types_
 
-The merged field type is computed by calling {MostRestrictiveType(typeA, typeB)}
-. Unlike output fields, where {LeastRestrictiveType(typeA, typeB)} is used,
+The merged field type is computed by calling {MostRestrictiveType(typeA,
+typeB)}. Unlike output fields, where {LeastRestrictiveType(fieldTypes)} is used,
 input fields often follow stricter constraints. If one source schema defines a
 field as non-nullable and another as nullable, the merged field type must be
 non-nullable to satisfy both schemas. {MostRestrictiveType(typeA, typeB)}
@@ -5203,29 +5385,37 @@ validation has already asserted that any differing defaults are compatible.
 
 **Examples**
 
-Suppose we have two variants of the same argument, `limit`, from different
-services:
-
-**Service A**
+Suppose we have two field definitions that share the same `limit` argument, but
+differ in type, description, and default value:
 
 ```graphql example
 # Schema A
 
-limit: Int = 10
+type Query {
+  products(limit: Int = 10): [Product]
+}
 
 # Schema B
 
-"""
-Number of items to fetch
-"""
-limit: Int!
+type Query {
+  products(
+    """
+    Number of items to fetch
+    """
+    limit: Int!
+  ): [Product]
+}
 
 # Composed Result
 
-"""
-Number of items to fetch
-"""
-limit: Int! = 10
+type Query {
+  products(
+    """
+    Number of items to fetch
+    """
+    limit: Int! = 10
+  ): [Product]
+}
 ```
 
 ### Shared Algorithms
@@ -5234,39 +5424,68 @@ limit: Int! = 10
 
 **Formal Specification**
 
-LeastRestrictiveType(typeA, typeB):
+LeastRestrictiveType(types):
 
+- Assert: {types} is not empty.
 - Let {isNullable} be true.
-- If {typeA} and {typeB} are non nullable types:
+- If every {type} in {types} is a non nullable type:
   - Set {isNullable} to false.
-- If {typeA} is a non nullable type:
-  - Set {typeA} to the inner type of {typeA}.
-- If {typeB} is a non nullable type:
-  - Set {typeB} to the inner type of {typeB}.
-- If {typeA} is a list type:
-  - Assert: {typeB} is a list type.
-  - Let {innerTypeA} be the inner type of {typeA}.
-  - Let {innerTypeB} be the inner type of {typeB}.
-  - Let {innerType} be {LeastRestrictiveType(innerTypeA, innerTypeB)}.
+- Let {unwrappedTypes} be the list produced by replacing each non nullable type
+  in {types} with its inner type.
+- If any {type} in {unwrappedTypes} is a list type:
+  - Assert: every {type} in {unwrappedTypes} is a list type.
+  - Let {innerTypes} be the list of inner types of each type in
+    {unwrappedTypes}.
+  - Let {innerType} be {LeastRestrictiveType(innerTypes)}.
   - If {isNullable} is true:
     - Return {innerType} as a nullable list type.
   - Otherwise:
     - Return {innerType} as a non nullable list type.
 - Otherwise:
-  - Assert: {typeA} is equal to {typeB}
+  - Let {namedType} be {LeastRestrictiveNamedOutputType(unwrappedTypes)}.
   - If {isNullable} is true:
-    - Return {typeA} as a nullable type.
+    - Return {namedType} as a nullable type.
   - Otherwise:
-    - Return {typeA} as a non nullable type.
+    - Return {namedType} as a non nullable type.
+
+LeastRestrictiveNamedOutputType(namedTypes):
+
+- Assert: every {type} in {namedTypes} is a named output type.
+- Let {candidates} be the set of unique types in {namedTypes}.
+- Let {supertypeCandidates} be the set of all {candidate} in {candidates} for
+  which {IsOutputSupertype(candidate, type)} is true for every {type} in
+  {namedTypes}.
+- Assert: {supertypeCandidates} is not empty.
+- Sort {supertypeCandidates} by:
+  - the number of possible runtime object types in ascending order, with scalar
+    and enum types having zero possible runtime object types.
+  - the candidate type name in ascending lexical order.
+- Return the first member of {supertypeCandidates}.
+
+IsOutputSupertype(candidate, type):
+
+- If {candidate} and {type} are the same named type:
+  - Return {true}.
+- If either {candidate} or {type} is a scalar or enum type:
+  - Return {false}.
+- If {candidate} is an object type:
+  - Return {false}.
+- If {type} is an object type:
+  - Return {true} if {type} is a possible runtime object type of {candidate}.
+  - Otherwise return {false}.
+- Return {true} if every possible runtime object type of {type} is also a
+  possible runtime object type of {candidate}.
+- Otherwise return {false}.
 
 **Explanatory Text**
 
-{LeastRestrictiveType(typeA, typeB)} identifies a single type that safely
-handles all possible _runtime values_ produced by the sources defining `typeA`
-and `typeB`. If one source can return `null` while another cannot, the merged
-type becomes nullable to avoid runtime exceptions - because a strictly non-null
-signature would be violated whenever `null` appears. Similarly, if both sources
-enforce non-null, the result remains non-null.
+{LeastRestrictiveType(types)} identifies a single type that safely handles all
+possible _runtime values_ produced by the sources defining the types in {types}.
+The algorithm considers all types together, so the selected type is independent
+of source schema order. If one source can return `null` while another cannot,
+the merged type becomes nullable to avoid runtime exceptions - because a
+strictly non-null signature would be violated whenever `null` appears.
+Similarly, if all sources enforce non-null, the result remains non-null.
 
 _Nullability_
 
@@ -5283,13 +5502,22 @@ list itself is nullable depends on whether both sources treat the list as
 non-null. In other words, if any source can return `null` for the list, the
 final list type must also be nullable.
 
-_Scalar Types_
+_Named Output Types_
 
-When neither source specifies a list type, the algorithm confirms that both
-sources refer to the _same_ underlying named type (e.g., `String` vs. `String`).
-If they differ (e.g., `String` vs. `Int`), the schemas are fundamentally
-incompatible for merging, yet the pre merge validation should have already
-caught this issue.
+When the unwrapped types are leaf types, the algorithm requires the same scalar
+or enum type. If they differ (e.g., `String` vs. `Int`), the schemas are
+fundamentally incompatible for merging, yet the pre merge validation should have
+already caught this issue.
+
+When the unwrapped types are object, interface, or union types, the algorithm
+selects one of the declared return types that is a supertype of every other
+declared return type. A supertype candidate covers another composite type when
+it can represent every possible runtime object type of that type. Other than
+exact equality, object types are not supertype candidates for interface or union
+types. The most specific covering candidate is selected by choosing the
+candidate with the smallest possible runtime object type set, with remaining
+ties broken by type name. This ensures that field type selection is
+deterministic and does not depend on source schema order.
 
 **Examples**
 
@@ -5298,13 +5526,19 @@ merged type must allow `null`.
 
 ```graphql example
 # Schema A
-typeA: String!
+type Product {
+  price: Float!
+}
 
 # Schema B
-typeB: String
+type Product {
+  price: Float
+}
 
 # Merged Result
-type: String
+type Product {
+  price: Float
+}
 ```
 
 Here, both sources use lists of `Int`, but they differ in nullability.
@@ -5313,13 +5547,56 @@ Consequently, the merged list type is `[Int]`, which permits a `null` list or
 
 ```graphql example
 # Schema A
-typeA: [Int]!
+type Product {
+  ratings: [Int]!
+}
 
 # Schema B
-typeB: [Int!]
+type Product {
+  ratings: [Int!]
+}
 
 # Merged Result
-type: [Int]
+type Product {
+  ratings: [Int]
+}
+```
+
+Here, one source returns object type `Product` and the other returns union type
+`FeaturedItem`. Since `FeaturedItem` contains `Product`, `FeaturedItem` is the
+least restrictive return type regardless of source schema order.
+
+```graphql example
+# Schema A
+type Query {
+  featured: Product
+}
+
+type Product {
+  id: ID
+}
+
+# Schema B
+type Query {
+  featured: FeaturedItem
+}
+
+union FeaturedItem = Product
+
+type Product {
+  id: ID
+}
+
+# Merged Result
+type Query {
+  featured: FeaturedItem
+}
+
+union FeaturedItem = Product
+
+type Product {
+  id: ID
+}
 ```
 
 #### Most Restrictive Type
@@ -5391,13 +5668,19 @@ isn't allowed:
 
 ```graphql example
 # Schema A
-typeA: String!
+input ProductFilter {
+  currency: String!
+}
 
 # Schema B
-typeB: String
+input ProductFilter {
+  currency: String
+}
 
 # Merged Result
-type: String!
+input ProductFilter {
+  currency: String!
+}
 ```
 
 In the following example, since one definition mandates non-null items
@@ -5408,13 +5691,19 @@ accept or produce values that violate either source.
 
 ```graphql example
 # Schema A
-typeA: [Int!]
+input ProductFilter {
+  ratings: [Int!]
+}
 
 # Schema B
-typeB: [Int]!
+input ProductFilter {
+  ratings: [Int]!
+}
 
 # Merged Result
-type: [Int!]!
+input ProductFilter {
+  ratings: [Int!]!
+}
 ```
 
 ## Post Merge Validation
@@ -6034,6 +6323,95 @@ type GuestUser implements User {
   id: ID!
   name: String!
   temporaryCartId: String
+}
+```
+
+#### Interface Field Argument No Implementation
+
+**Error Code**
+
+`INTERFACE_FIELD_ARGUMENT_NO_IMPLEMENTATION`
+
+**Severity**
+
+ERROR
+
+**Formal Specification**
+
+- Let {schema} be the merged composite execution schema.
+- Let {objectTypes} be the set of all object types defined in {schema}.
+- For each {objectType} in {objectTypes}:
+  - Let {interfaces} be the set of interface types that {objectType} implements.
+  - For each {interface} in {interfaces}:
+    - Let {interfaceFields} be the set of fields defined on {interface} that are
+      visible in the merged schema.
+    - For each {interfaceField} in {interfaceFields}:
+      - If a field with the same name as {interfaceField} is not present on
+        {objectType}:
+        - Continue
+      - Let {objectField} be the field on {objectType} with the same name as
+        {interfaceField}.
+      - Let {interfaceArguments} be the set of arguments on {interfaceField}.
+      - For each {interfaceArgument} in {interfaceArguments}:
+        - Let {argumentName} be the name of {interfaceArgument}.
+        - An argument with the name {argumentName} must be present on
+          {objectField}.
+
+**Explanatory Text**
+
+In GraphQL, an object field that implements an interface field must declare
+every argument that the interface field declares. In a composite schema, this
+contract can break even though every source schema is valid on its own: the
+merge process removes arguments that are annotated with `@require` or
+`@inaccessible` in a source schema, and an argument only survives merging if
+every source schema that contributes the field declares it. If an argument is
+removed from an implementing object field but survives on the merged interface
+field, the composite schema would break the interface contract. This rule
+detects such cases and fails the composition rather than producing an invalid
+composite schema.
+
+**Examples**
+
+In this valid example, the interface field `Account.displayName` and the
+implementing field `User.displayName` both declare the `locale` argument in the
+composite schema.
+
+```graphql example
+# Schema A
+interface Account {
+  id: ID!
+  displayName(locale: String): String
+}
+
+type User implements Account {
+  id: ID!
+  displayName(locale: String): String
+}
+```
+
+In this counter-example, the `locale` argument on `User.displayName` is
+annotated with `@require` in Schema A but not on the interface field in Schema
+B, so it is removed from the implementing field but survives on the merged
+interface field. The merged `User` type no longer correctly implements
+`Account`, raising an `INTERFACE_FIELD_ARGUMENT_NO_IMPLEMENTATION` error.
+
+```graphql counter-example
+# Schema A
+type User @key(fields: "id") {
+  id: ID!
+  displayName(locale: String @require(field: "preferredLocale")): String
+}
+
+# Schema B
+interface Account {
+  id: ID!
+  displayName(locale: String): String
+}
+
+type User implements Account @key(fields: "id") {
+  id: ID!
+  displayName(locale: String): String
+  preferredLocale: String
 }
 ```
 
@@ -6660,26 +7038,8 @@ type Person {
 }
 ```
 
-The `@is` directive may also reference fields with arguments. In the following
-example, the lookup argument is mapped to the `id` field selected with the
-constant `LOCAL` value for the `scope` argument:
-
-```graphql example
-# Schema A
-type Query {
-  productByLocalId(id: ID! @is(field: "id(scope: LOCAL)")): Product @lookup
-}
-
-type Product {
-  id(scope: IdScope!): ID!
-  name: String
-}
-```
-
-Argument values within `@is` must be constant literals; variables are not
-permitted. Argument names must exist on the referenced field, values must coerce
-to the argument's type, and required arguments without defaults must be
-supplied.
+Note: An `@is` selection map must not supply arguments (see
+[Is Fields Has Arguments](#sec-Is-Fields-Has-Arguments)).
 
 ### Validate Require Directives
 
@@ -6874,7 +7234,8 @@ elements via `RefinePlanOptions`.
 - Let ({initialType}, {initialField}) be the first element in {pathElements}.
 - Let {initialOptions} be an empty set.
 - For each {schema} in {allSchemas}:
-  - If {schema} defines {initialField} on {initialType}:
+  - If {schema} defines {initialField} on {initialType} and does not annotate it
+    with `@external`:
     - Add {schema} to {initialOptions}.
 - If {initialOptions} is empty:
   - return an empty set.
@@ -6894,6 +7255,9 @@ remainder of the path.
 - For each {currentSchema} in {currentOptions}:
   - For each {candidateSchema} in {allSchemas}:
     - If {candidateSchema} does not define {currentField} on {currentType}:
+      - Continue to the next {candidateSchema}.
+    - If {currentField} on {currentType} is annotated with `@external` in
+      {candidateSchema}:
       - Continue to the next {candidateSchema}.
     - If {candidateSchema} is not equal to {currentSchema}:
       - If
@@ -7028,6 +7392,18 @@ schema is removed from the options for that path step.
 
 If every candidate is eliminated for any field path, the path is unsatisfiable
 and composition fails with `UNSATISFIABLE_QUERY_PATH`.
+
+A source schema defines a field marked with `@external` but does not resolve it;
+external fields are therefore never resolution candidates in the source schema
+that declares them.
+
+The `@provides` directive is an execution-time optimization that allows a source
+schema to return external fields as part of the same response when resolving the
+annotated field. Each `@provides` selection must itself be deliverable by the
+providing source schema, which is enforced by the `@provides` validation rules.
+Query-path satisfiability, however, is evaluated as if all `@provides`
+directives were ignored: a `@provides` may reduce the number of fetches in a
+query plan, but must never be required to make a query path satisfiable.
 
 **Examples**
 
