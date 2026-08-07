@@ -1,8 +1,0 @@
-type Query {
-  a: String
-}
-
-interface Node @key(fields: "id") {
-  id: ID!
-  name: String
-}

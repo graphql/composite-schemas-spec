@@ -1,8 +1,0 @@
-type NodeBase @baseType(of: "Node") {
-  id: ID!
-}
-
-type Query {
-  b: String
-  nodeBaseById(id: ID!): Node
-}
