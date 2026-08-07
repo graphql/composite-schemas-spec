@@ -6994,7 +6994,8 @@ elements via `RefinePlanOptions`.
 - Let ({initialType}, {initialField}) be the first element in {pathElements}.
 - Let {initialOptions} be an empty set.
 - For each {schema} in {allSchemas}:
-  - If {schema} defines {initialField} on {initialType}:
+  - If {schema} defines {initialField} on {initialType} and does not annotate it
+    with `@external`:
     - Add {schema} to {initialOptions}.
 - If {initialOptions} is empty:
   - return an empty set.
@@ -7014,6 +7015,9 @@ remainder of the path.
 - For each {currentSchema} in {currentOptions}:
   - For each {candidateSchema} in {allSchemas}:
     - If {candidateSchema} does not define {currentField} on {currentType}:
+      - Continue to the next {candidateSchema}.
+    - If {currentField} on {currentType} is annotated with `@external` in
+      {candidateSchema}:
       - Continue to the next {candidateSchema}.
     - If {candidateSchema} is not equal to {currentSchema}:
       - If
@@ -7148,6 +7152,18 @@ schema is removed from the options for that path step.
 
 If every candidate is eliminated for any field path, the path is unsatisfiable
 and composition fails with `UNSATISFIABLE_QUERY_PATH`.
+
+A source schema defines a field marked with `@external` but does not resolve it;
+external fields are therefore never resolution candidates in the source schema
+that declares them.
+
+The `@provides` directive is an execution-time optimization that allows a source
+schema to return external fields as part of the same response when resolving the
+annotated field. Each `@provides` selection must itself be deliverable by the
+providing source schema, which is enforced by the `@provides` validation rules.
+Query-path satisfiability, however, is evaluated as if all `@provides`
+directives were ignored: a `@provides` may reduce the number of fetches in a
+query plan, but must never be required to make a query path satisfiable.
 
 **Examples**
 

@@ -901,6 +901,14 @@ type Query {
 }
 ```
 
+The `@provides` directive is an execution-time optimization and never a
+requirement for resolvability. Composition validates that every query path of
+the composite schema remains satisfiable with all `@provides` directives
+ignored. A `@provides` directive allows the _distributed GraphQL executor_ to
+obtain the selected fields in the same response and thereby reduce the number of
+source schema requests, but the selected fields must remain resolvable without
+it.
+
 **Arguments:**
 
 - `fields`: Represents a field selection set syntax describing the subfields of
@@ -957,6 +965,14 @@ field is provided by another source schema. The current source schema references
 it only for _entity_ identification (via `@key`) or for providing a field
 through `@provides`. If no such usage exists, the presence of an `@external`
 field produces a composition error.
+
+The _distributed GraphQL executor_ never requests a field marked `@external`
+from the declaring source schema directly. The field is resolved either by a
+source schema that defines it without `@external`, or - when reached through a
+field annotated with `@provides` - as part of the providing source schema's
+response. The value of an external key field may also be known to the executor
+without resolving the field, for example, when it was used as the input of a
+lookup field that resolved the entity.
 
 ## @override
 
