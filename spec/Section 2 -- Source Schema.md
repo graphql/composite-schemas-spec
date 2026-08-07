@@ -118,7 +118,10 @@ type Product {
 Lookup fields may return object, interface, or union types. In case a lookup
 field returns an abstract type (interface type or union type), all possible
 object types of the abstract return type are considered _entities_, and each
-must have fields that correspond to every argument of the lookup field.
+must have fields that correspond to every argument of the lookup field. When an
+argument is annotated with the `@is` directive, its selection map defines this
+correspondence instead; the selection map must cover every possible object type
+of the return type (see [@is](#sec--is)).
 
 ```graphql example
 type Query {
@@ -446,6 +449,90 @@ input PersonByInput @oneOf {
   id: ID
   addressId: ID
   name: String
+}
+```
+
+When a lookup field returns an abstract type, the selection map must cover every
+possible runtime type of the return type: each possible object type must be
+matched by at least one alternative of the selection map. When a lookup field
+declares multiple arguments, each argument must independently be mappable for
+every possible runtime type. A source schema that can only resolve a subset of
+the possible types must declare a narrower return type that reflects what it can
+resolve.
+
+In the following example, the selection map covers all three possible types of
+`Media`, resolving each by a different key field.
+
+```graphql example
+type Query {
+  mediaByKey(
+    key: MediaKeyInput!
+      @is(
+        field: "{ isbn: <Book>.isbn } | { upc: <Movie>.upc } | { feedUrl: <Podcast>.feedUrl }"
+      )
+  ): Media @lookup
+}
+
+input MediaKeyInput @oneOf {
+  isbn: String
+  upc: String
+  feedUrl: String
+}
+
+interface Media {
+  id: ID!
+}
+
+type Book implements Media {
+  id: ID!
+  isbn: String!
+}
+
+type Movie implements Media {
+  id: ID!
+  upc: String!
+}
+
+type Podcast implements Media {
+  id: ID!
+  feedUrl: String!
+}
+```
+
+In the following counter-example, the selection map covers only `Book` and
+`Movie`. `Podcast` is a possible type of `Media` but is not covered by any
+alternative, so the lookup field is invalid.
+
+```graphql counter-example
+type Query {
+  mediaByKey(
+    key: MediaKeyInput!
+      @is(field: "{ isbn: <Book>.isbn } | { upc: <Movie>.upc }")
+  ): Media @lookup
+}
+
+input MediaKeyInput @oneOf {
+  isbn: String
+  upc: String
+}
+
+interface Media {
+  id: ID!
+}
+
+type Book implements Media {
+  id: ID!
+  isbn: String!
+}
+
+type Movie implements Media {
+  id: ID!
+  upc: String!
+}
+
+type Podcast implements Media {
+  id: ID!
+  feedUrl: String!
 }
 ```
 
