@@ -1,15 +1,15 @@
 # Overview
 
-The GraphQL Composite Schemas specification describes how to construct a single
-unified GraphQL schema, the _composite schema_, from multiple GraphQL schemas,
-each termed a _source schema_.
+The GraphQL Federation specification describes how to construct a single unified
+GraphQL schema, the _composite schema_, from multiple GraphQL schemas, each
+termed a _source schema_.
 
 The _composite schema_ presents itself as a regular _GraphQL schema_; the
 implementation details and complexities of the underlying distributed systems
 are not visible to clients, all observable behavior is the same as described by
 the _GraphQL specification_.
 
-The GraphQL Composite Schemas specification has a number of design principles:
+The GraphQL Federation specification has a number of design principles:
 
 - **Composable**: Rather than defining each _source schema_ in isolation and
   reshaping it to fit the _composite schema_ later, this specification
@@ -17,16 +17,15 @@ The GraphQL Composite Schemas specification has a number of design principles:
   from the start. Each source schema defines the types and fields it is
   responsible for serving within the context of the larger schema, referencing
   and extending that which is provided by other source schemas. The GraphQL
-  Composite Schemas specification does not describe how to combine arbitrary
-  schemas.
+  Federation specification does not describe how to combine arbitrary schemas.
 
-- **Collaborative**: The GraphQL Composite Schemas specification is explicitly
-  designed around team collaboration. By building on a principled composition
-  model, it ensures that conflicts and inconsistencies are surfaced early and
-  can be resolved before deployment. This allows many teams to contribute to a
-  single schema without the danger of breaking it. The GraphQL Composite Schemas
-  specification facilitates the coordinated effort of combining collaboratively
-  designed source schemas into a single coherent composite schema.
+- **Collaborative**: The GraphQL Federation specification is explicitly designed
+  around team collaboration. By building on a principled composition model, it
+  ensures that conflicts and inconsistencies are surfaced early and can be
+  resolved before deployment. This allows many teams to contribute to a single
+  schema without the danger of breaking it. The GraphQL Federation specification
+  facilitates the coordinated effort of combining collaboratively designed
+  source schemas into a single coherent composite schema.
 
 - **Evolvable**: A _composite schema_ enables offering an integrated,
   product-centric API interface to clients; source schema boundaries are an
@@ -38,11 +37,11 @@ The GraphQL Composite Schemas specification has a number of design principles:
 
 - **Explicitness**: To make the composition process easier to understand and to
   avoid ambiguities that can lead to confusing failures as the system grows, the
-  GraphQL Composite Schemas specification prefers to be explicit about
-  intentions and minimize reliance on inference and convention.
+  GraphQL Federation specification prefers to be explicit about intentions and
+  minimize reliance on inference and convention.
 
-Note: Although the GraphQL Composite Schemas specification does not describe how
-to combine arbitrary schemas, tooling may be built to transform existing or
+Note: Although the GraphQL Federation specification does not describe how to
+combine arbitrary schemas, tooling may be built to transform existing or
 external schemas into compliant _source schemas_. Details of building such
 tooling is beyond the scope of this specification.
 

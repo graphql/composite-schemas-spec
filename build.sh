@@ -20,7 +20,7 @@ fi
 echo "Rebuilding: / (index)"
 HTML="<html>
   <head>
-    <title>GraphQL Composite Schemas Specification Versions</title>
+    <title>GraphQL Federation Specification Versions</title>
     <style>
       body {
         color: #333333;
@@ -53,7 +53,7 @@ HTML="<html>
     </style>
   </head>
   <body>
-    <h1>GraphQL Composite Schemas</h1>
+    <h1>GraphQL Federation</h1>
     <table>"
 
 # Include latest draft

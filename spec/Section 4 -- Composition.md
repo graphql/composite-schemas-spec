@@ -203,12 +203,12 @@ ERROR
 
 **Explanatory Text**
 
-Certain types (and directives) are reserved in composite schema specification
-for specific purposes and must adhere to the specification's definitions. For
-example, `FieldSelectionMap` is a built-in scalar that represents a selection of
-fields as a string. Redefining these built-in types with a different kind (e.g.,
-an input object, enum, union, or object type) is disallowed and makes the
-composition invalid.
+Certain types (and directives) are reserved in the GraphQL Federation
+specification for specific purposes and must adhere to the specification's
+definitions. For example, `FieldSelectionMap` is a built-in scalar that
+represents a selection of fields as a string. Redefining these built-in types
+with a different kind (e.g., an input object, enum, union, or object type) is
+disallowed and makes the composition invalid.
 
 To ensure schema evolution and interoperability, directives may include
 additional arguments, provided that all required arguments defined by the
@@ -338,7 +338,7 @@ This rule enforces that, for any source schema, if a root mutation type is
 defined, it must be named `Mutation`. Defining a root mutation type with a name
 other than `Mutation` or using a differently named type alongside a type
 explicitly named `Mutation` creates inconsistencies in schema design and
-violates the composite schema specification.
+violates the GraphQL Federation specification.
 
 **Examples**
 
@@ -465,7 +465,7 @@ This rule enforces that, for any source schema, if a root subscription type is
 defined, it must be named `Subscription`. Defining a root subscription type with
 a name other than `Subscription` or using a differently named type alongside a
 type explicitly named `Subscription` creates inconsistencies in schema design
-and violates the composite schema specification.
+and violates the GraphQL Federation specification.
 
 **Examples**
 

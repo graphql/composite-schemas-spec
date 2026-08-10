@@ -1,4 +1,4 @@
-# GraphQL Composite Schema Spec
+# GraphQL Federation
 
 > **Stage 0: Preliminary**
 >
@@ -6,8 +6,8 @@
 > before reaching `Draft` stage. For more information, please see the
 > [Roadmap](ROADMAP.md).
 
-The GraphQL Composite Schema specification is edited in the markdown files found
-in [`/spec`](./spec) the latest release of which is published at
+The GraphQL Federation specification is edited in the markdown files found in
+[`/spec`](./spec), the latest release of which is published at
 <https://graphql.github.io/composite-schemas-spec/>.
 
 ## Contributing to this repo

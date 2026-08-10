@@ -1,13 +1,13 @@
-# GraphQL Composite Schemas Spec
+# GraphQL Federation
 
 **Introduction**
 
-The GraphQL Composite Schemas Spec introduces a comprehensive specification for
-creating distributed GraphQL systems that seamlessly merges multiple GraphQL
-schemas. This specification describes the process of composing a federated
-GraphQL schema and outlines algorithms for executing GraphQL queries on the
-federated schema effectively by using query plans. This specification was
-originally created by ChilliCream and was transferred to the GraphQL foundation.
+The GraphQL Federation specification defines a comprehensive model for creating
+distributed GraphQL systems that seamlessly merge multiple GraphQL schemas. This
+specification describes the process of composing a federated GraphQL schema and
+outlines algorithms for executing GraphQL queries on the federated schema
+effectively by using query plans. This specification was originally created by
+ChilliCream and was transferred to the GraphQL foundation.
 
 The GraphQL Foundation was formed in 2019 as a neutral focal point for
 organizations who support the GraphQL ecosystem, and the GraphQL Specification
@@ -41,7 +41,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 **Conformance**
 
-A conforming implementation of the GraphQL Composite Schemas Spec must fulfill
+A conforming implementation of the GraphQL Federation specification must fulfill
 all normative requirements. Conformance requirements are described in this
 document via both descriptive assertions and key words with clearly defined
 meanings.
@@ -53,7 +53,7 @@ this document are to be interpreted as described in
 in lowercase and still retain their meaning unless explicitly declared as
 non-normative.
 
-A conforming implementation of the GraphQL Composite Schemas Spec may provide
+A conforming implementation of the GraphQL Federation specification may provide
 additional functionality, but must not where explicitly disallowed or would
 otherwise result in non-conformance.
 
