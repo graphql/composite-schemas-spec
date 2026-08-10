@@ -1,4 +1,4 @@
-# GraphQL Composite Schemas Specification Roadmap
+# GraphQL Federation Specification Roadmap
 
 ## Mission
 
