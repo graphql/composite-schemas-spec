@@ -7536,8 +7536,9 @@ ERROR
       - {IsShareableDeclaration(owner)} must be true.
 - For each interface type {interface} in {schema}:
   - For each field {field} on {interface}:
-    - Let {contributors} be {ContributingDeclarations(interface, the name of
-      {field}, schemas, schema)}.
+    - Let {fieldName} be the name of {field}.
+    - Let {contributors} be {ContributingDeclarations(interface, fieldName,
+      schemas, schema)}.
     - If {contributors} has fewer than two declarations:
       - Continue to the next {field}.
     - For each {contributor} in {contributors}:
