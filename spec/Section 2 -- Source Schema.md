@@ -816,6 +816,9 @@ Composition merges the stand-in into the interface instead of reporting a
 type-kind conflict. If no source schema defines the interface, composition fails
 with an error.
 
+A stand-in cannot be used as a union member or as an operation root type. Its
+composed type is an interface, while those positions require object types.
+
 In the following example, source schema A defines the `Media` interface. Source
 schema B defines a stand-in for `Media`.
 
@@ -930,173 +933,6 @@ type Book implements Media {
 }
 ```
 
-## @implement
-
-```graphql
-directive @implement on FIELD_DEFINITION
-```
-
-A stand-in contributes field implementations that composition projects onto an
-interface's implementing types. The `@implement` directive signals the intent to
-replace such a projected implementation with an explicit implementation on the
-annotated field.
-
-An object type that implements an interface may provide an explicit
-implementation by declaring the field itself and marking it with `@implement`.
-The type's own field is then used instead of the implementation projected from
-the interface object. The directive controls precedence between the type's own
-field and a less-specific projected implementation. It does not require that the
-type's field have only one resolver: multiple explicit implementations may
-remain eligible when they are also marked with `@shareable`.
-
-A direct implementation may instead coexist with an applicable projected
-implementation when every declaration is marked with `@shareable`. In that case,
-the projected implementation is not replaced. Both the stand-in schema and the
-schema that declares the field directly remain eligible to resolve it. If the
-declarations are neither an explicit replacement nor all shareable, composition
-fails because the collision is ambiguous.
-
-The directives answer independent questions:
-
-- `@implement` determines whether a more-specific declaration replaces an
-  applicable, less-specific projected implementation.
-- `@shareable` determines whether multiple declarations that remain after that
-  precedence decision are interchangeable.
-
-Consequently, `@shareable` without `@implement` preserves both the projected and
-direct implementations. `@implement` removes the projected implementation. When
-several source schemas provide that explicit implementation, they use both
-`@implement` and `@shareable`: the former replaces the projected implementation,
-and the latter keeps the explicit implementations interchangeable.
-
-In the following example, composition projects the `taxRate` implementation from
-source schema B's stand-in onto every `Product`. `Chair` provides an explicit
-implementation of `taxRate`.
-
-```graphql example
-# Source Schema A
-interface Product @key(fields: "id") {
-  id: ID!
-  name: String!
-}
-
-type Chair implements Product @key(fields: "id") {
-  id: ID!
-  name: String!
-  taxRate: Float! @implement
-}
-
-# Source Schema B
-type Product @interfaceObject @key(fields: "id") {
-  id: ID!
-  taxRate: Float!
-}
-```
-
-Without `@implement`, composition rejects `Chair.taxRate` in this example,
-because neither declaration is `@shareable`. Marking both declarations with
-`@shareable` would instead preserve both as eligible implementations.
-
-Multiple source schemas may provide the explicit implementation at the same
-specificity level. Each declaration uses `@implement` to replace the
-less-specific projected implementation and `@shareable` to remain
-interchangeable with the other explicit implementations.
-
-```graphql example
-# Source Schema A
-interface Product @key(fields: "id") {
-  id: ID!
-  name: String!
-}
-
-type Chair implements Product @key(fields: "id") {
-  id: ID!
-  name: String!
-}
-
-type Table implements Product @key(fields: "id") {
-  id: ID!
-  name: String!
-}
-
-# Source Schema B
-type Product @interfaceObject @key(fields: "id") {
-  id: ID!
-  taxRate: Float @shareable
-}
-
-# Source Schema C
-type Chair @key(fields: "id") {
-  id: ID!
-  taxRate: Float @implement @shareable
-}
-
-# Source Schema D
-type Chair @key(fields: "id") {
-  id: ID!
-  taxRate: Float @implement @shareable
-}
-```
-
-For `Chair.taxRate`, source schemas C and D are the eligible implementations;
-source schema B's less-specific projected implementation is replaced. Source
-schema B remains the eligible implementation of `Table.taxRate`.
-
-In an interface hierarchy, a stand-in for a more specific interface may also
-provide an explicit implementation. Its projected implementation then replaces
-the implementation projected from the less-specific interface for every type
-that implements the more-specific interface.
-
-In the following example, source schema B provides a projected `taxRate`
-implementation for every `Product`. Source schema C provides a more-specific
-projected implementation of `taxRate` for every `PhysicalProduct`.
-
-```graphql example
-# Source Schema A
-interface Product @key(fields: "id") {
-  id: ID!
-}
-
-interface PhysicalProduct implements Product @key(fields: "id") {
-  id: ID!
-  weight: Float!
-}
-
-type Chair implements PhysicalProduct & Product @key(fields: "id") {
-  id: ID!
-  weight: Float!
-}
-
-type Ebook implements Product @key(fields: "id") {
-  id: ID!
-}
-
-# Source Schema B
-type Product @interfaceObject @key(fields: "id") {
-  id: ID!
-  taxRate: Float!
-}
-
-# Source Schema C
-type PhysicalProduct @interfaceObject @key(fields: "id") {
-  id: ID!
-  taxRate: Float! @implement
-}
-```
-
-`Chair` implements `PhysicalProduct`, so source schema C's `taxRate`
-implementation is projected onto it. `Ebook` implements only `Product`, so
-source schema B's implementation is projected onto it. Without `@implement` on
-`PhysicalProduct.taxRate`, composition rejects the schema because the two
-projected implementations collide. The declarations could instead both use
-`@shareable`, in which case both implementations would remain eligible rather
-than one replacing the other.
-
-If no matching projected implementation exists for a field marked with
-`@implement`, composition fails. The same applies to `@implement` on an
-interface field, since an interface field is a contract declaration and cannot
-replace a projected implementation.
-
 ## @shareable
 
 ```graphql
@@ -1143,18 +979,18 @@ If multiple source schemas define the same sharable field, they are assumed to
 be semantically equivalent, and the executor is free to choose between them as
 it sees fit.
 
-This also applies when one declaration is projected from an `@interfaceObject`
-stand-in and another is declared directly on an implementing type. If both
-declarations are `@shareable`, both remain eligible. If the implementing type
-uses `@implement`, the projected declaration is replaced instead. The directives
-express independent properties: `@implement` controls precedence over a
-less-specific projected implementation, while `@shareable` permits multiple
-eligible declarations at the resulting level.
+This also applies when a source schema defines both a stand-in and concrete
+types that implement the corresponding interface in the composite schema. When
+direct declarations and projected implementations overlap, all eligible
+declarations must be shareable and satisfy the field compatibility rules. The
+same applies to implementations projected from multiple interfaces. A concrete
+type or a more-specific interface does not take precedence over other
+implementations. These rules also apply when the declarations are in the same
+source schema.
 
 In the following example, source schema B provides a projected implementation of
 `taxRate`, while source schema C declares the same field directly on `Chair`.
-Both declarations are `@shareable`, and neither uses `@implement`, so both
-remain eligible for `Chair.taxRate`.
+Both declarations are `@shareable`, so both remain eligible for `Chair.taxRate`.
 
 ```graphql example
 # Source Schema A
@@ -1451,9 +1287,11 @@ type Product @key(fields: "id") {
 }
 ```
 
-Fields that are annotated can themselves be migrated.
+A field annotated with `@override` must not be the target of another
+`@override`. The following override chain is invalid because the declaration in
+`Payments` is annotated with `@override`.
 
-```graphql example
+```graphql counter-example
 # The original "Catalog" schema:
 type Product @key(fields: "id") {
   id: ID!
@@ -1472,18 +1310,19 @@ type Product @key(fields: "id") {
 type Product @key(fields: "id") {
   id: ID! @external
   price: Float! @override(from: "Payments")
-  tax: Float!
 }
 ```
 
-If the composition detects cyclic overrides it must throw a composition error.
+Composition also rejects cyclic overrides and multiple overrides that target the
+same declaration. The following counter-example has a cycle between `Catalog`
+and `Payments`.
 
-```graphql example
+```graphql counter-example
 # The original "Catalog" schema:
 type Product @key(fields: "id") {
   id: ID!
   name: String!
-  price: Float! @override(from: "Pricing")
+  price: Float! @override(from: "Payments")
 }
 
 # The new "Payments" schema:
@@ -1495,37 +1334,28 @@ type Product @key(fields: "id") {
 ```
 
 The `@override` directive may also be applied to a field on an
-`@interfaceObject` stand-in. Before composition projects stand-in field
-implementations, it drops every declaration of the field, in the source schema
-named by `from`, across the target interface's whole implementation closure: on
-every implementing type, on every more-specific interface's stand-in, and even
-on the source schema's own stand-in for the same interface. Dropping the source
-schema's own stand-in declaration is what moves the projected implementation
-from one schema to another.
-
-As with any other use of `@override`, `from` names exactly one source schema.
-Composition rejects cyclic overrides on stand-in fields, as it does for any
-other field's `@override`. A dead override, one whose `from` schema declares no
-matching field, composes normally. Nothing is dropped in that case.
+`@interfaceObject` stand-in. It overrides declarations of that field in the
+source schema named by `from` that contribute to the interface and its
+implementations. This includes the matching stand-in field, allowing a projected
+implementation to move from one source schema to another.
 
 A field projected from a stand-in is not itself a declaration for the purposes
-of `@override`. An implementing type cannot use `@override` to replace a
-projected implementation; `@implement` does that instead. A type that acquires a
-field through `@override` becomes a direct declarer of the field from that point
-on. When that direct declaration collides with an implementation projected from
-an `@interfaceObject`, it must use `@implement` to replace the projected
-implementation. Alternatively, both declarations may use `@shareable`, allowing
-both schemas to resolve the field.
+of `@override`. An `@override` on an implementing type therefore replaces only
+a direct declaration on that type in the named source schema. If a direct
+declaration and a projected implementation both apply, they must satisfy the
+`@shareable` and field-compatibility rules.
 
-In the following example, the `Catalog` schema originally contributes `reviews`
-directly on `Book` and `Movie`. The `Reviews` schema takes over by declaring
-`Media` as a stand-in and overriding the field from `Catalog`.
+In the following example, the `Catalog` schema originally declares `reviews` on
+the `Media` interface and implements it directly on `Book` and `Movie`. The
+`Reviews` schema takes over by declaring `Media` as a stand-in and overriding
+the field from `Catalog`.
 
 ```graphql example
 # The original "Catalog" schema:
 interface Media @key(fields: "id") {
   id: ID!
   title: String!
+  reviews: [Review!]!
 }
 
 type Book implements Media @key(fields: "id") {
