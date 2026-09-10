@@ -18,11 +18,87 @@ scalar FieldSelectionSet
 ```
 
 The scalar `FieldSelectionSet` represents a GraphQL field selection set syntax.
-It is used by the `@key` and `@provides` directives.
+It is used by the `@key` and `@provides` directives to select fields of an
+object or interface type.
+
+### Syntax
+
+Grammatically, a {FieldSelectionSet} is a GraphQL selection set in which the
+outermost curly braces may be omitted. It can represent a single field, multiple
+fields, and nested selection sets.
 
 ```graphql example
-abc { ghi }
+id
 ```
+
+```graphql example
+{
+  id
+}
+```
+
+```graphql example
+id sku
+```
+
+```graphql example
+variation { id }
+```
+
+When the scope type is abstract, inline fragments select fields of concrete
+types.
+
+```graphql example
+... on Book { author } ... on Clothing { size }
+```
+
+Arguments within a {FieldSelectionSet} must be constant; variables are not
+permitted.
+
+```graphql counter-example
+tags(limit: $limit)
+```
+
+Directive applications are not permitted anywhere within a {FieldSelectionSet}.
+
+```graphql counter-example
+id @lowercase
+```
+
+Fragment definitions are not allowed, and named fragment spreads are therefore
+not supported. Only inline fragments may be used.
+
+```graphql counter-example
+...BookFields
+```
+
+### Validation
+
+A {FieldSelectionSet} is always interpreted in the context of a scope type: the
+annotated type for `@key`, and the return type of the annotated field for
+`@provides`.
+
+Each selected field must be defined on the scope type. Nested selections are
+scoped to the return type of the selected field and must likewise refer to
+defined fields.
+
+```graphql counter-example
+address
+```
+
+Fields returning a composite type must include a sub-selection; fields returning
+a leaf type (a scalar or enum) must not.
+
+Selections that supply arguments are rejected by `@key` and `@provides`. A
+selected field must instead be resolvable without supplying arguments: every
+required argument of the field must either define a default value or be
+annotated with `@require`.
+
+Additional restrictions apply where the scalar is used. The `@key` directive
+only accepts fields whose type is not a list, interface, or union, since such
+values cannot identify an _entity_. The `@provides` directive only accepts
+fields that are declared `@external` and that declare no arguments other than
+`@require`-annotated ones.
 
 ## FieldSelectionMap
 
