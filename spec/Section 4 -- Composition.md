@@ -1083,7 +1083,7 @@ supplied by the executor. Such a field can be resolved without any arguments
 being supplied. A field that requires an argument cannot be referenced by an
 `@is` selection map, since the map cannot supply one (see
 [Is Invalid Fields](#sec-Is-Invalid-Fields) and the argument validation rules in
-Appendix A).
+[Shared Types](#sec-Shared-Types).
 
 The same applies to `@key` (see
 [Key Fields Has Arguments](#sec-Key-Fields-Has-Arguments)). `@provides`
@@ -6988,7 +6988,7 @@ ERROR
       directive on {argument}.
     - Let {parsedFieldArg} be the parsed selection map from {fieldArg}.
     - The parsed selection map {parsedFieldArg} must satisfy the validation
-      rules defined in Appendix A, Section 6.3, using:
+      rules defined in [Shared Types](#sec-Shared-Types), using:
       - {declaringType} as the initial root type.
       - The combined schema context formed by the union of {otherSchemas} as the
         schema context except all fields marked as `@internal`
@@ -7071,7 +7071,7 @@ ERROR
       `@require` directive on {argument}.
     - Let {parsedFieldArg} be the parsed selection map from {fieldArg}.
     - The parsed selection map {parsedFieldArg} must satisfy the validation
-      rules defined in Appendix A, Section 6.3, using:
+      rules defined in [Shared Types](#sec-Shared-Types), using:
       - {declaringType} as the initial root type.
       - The combined schema context formed by the union of {otherSchemas} as the
         schema context except all fields marked as `@internal`
@@ -7348,11 +7348,13 @@ path-set requirements rooted at {rootType}.
 
 ExtractPathSets(fieldSelectionMap, rootType, argument):
 
-Interpret {fieldSelectionMap} for {argument} according to Appendix A and
-materialize the path-set alternatives rooted at {rootType}.
+Interpret {fieldSelectionMap} for {argument} according to
+[Shared Types](#sec-Shared-Types) and materialize the path-set alternatives
+rooted at {rootType}.
 
 - Let {pathSets} be the set of path sets represented by {fieldSelectionMap} for
-  {argument}, rooted at {rootType}, according to Appendix A:
+  {argument}, rooted at {rootType}, according to
+  [Shared Types](#sec-Shared-Types):
   - Each path in a path set is represented as a list of tuples ({type}, {field})
     that starts at {rootType}.
   - A single path set represents one conjunction of required paths.
