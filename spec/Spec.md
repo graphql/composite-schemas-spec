@@ -94,6 +94,4 @@ Note: This is an example of a non-normative note.
 
 # [Shared Types](Section%206%20--%20Shared%20Types.md)
 
-# [Appendix A -- Field Selection](Appendix%20A%20--%20Field%20Selection.md)
-
 <!-- markdownlint-enable MD025 -->
